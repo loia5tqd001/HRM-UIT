@@ -11,7 +11,6 @@ declare module '*.gif';
 declare module '*.bmp';
 declare module '*.tiff';
 declare module 'omit.js';
-declare module 'react-google-recaptcha-v3';
 
 // google analytics interface
 type GAFieldsObject = {
