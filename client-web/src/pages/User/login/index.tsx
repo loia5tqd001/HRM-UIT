@@ -55,6 +55,10 @@ const Login: React.FC = () => {
     const token = await executeRecaptcha('user/login');
     console.log('recaptcha token', token);
 
+    // NOTE: We need a backend in order to complete the recaptcha verification
+    // https://developers.google.com/recaptcha/docs/verify#api_request
+    // otherwise, we will encounter CORS error/problem
+    // https://developers.google.com/recaptcha/docs/v3#site_verify_response
     const verifyRecaptchaScoreOnBackend = async () => {
       const result = await request<any>('https://www.google.com/recaptcha/api/siteverify', {
         method: 'POST',
