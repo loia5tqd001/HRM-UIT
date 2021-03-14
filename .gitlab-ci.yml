@@ -1,29 +1,12 @@
-# Instruction: https://forum.gitlab.com/t/notes-on-how-to-deploy-react-app-on-gitlab-pages-using-ci-cd-feature/47092
-image: node
- 
-cache:
-  paths:
-    - ./client-web/node_modules/
- 
-before_script:
-  - cd ./client-web    # enter the React app directory
-  - rm -rf build     # remove the existing build
-  - CI=false npm install     # install required packages
- 
-pages:
+stages:
+  - deploy
+
+Deploy:
   stage: deploy
-  environment: Production
-  script:
-    - CI=false npm run build     # build the React app, set CI=false because CI=true treats all warnings as errors
-    - cp build/index.html build/404.html     # reroute to index
-    - cd ..      # return to project root directory
-    - mkdir public       # make public directory in root for deployment due to artifact path only allowing /public
-    - mv ./client-web/build/* public       # move build contents to new /public directory
-    - export
-  artifacts:
-    paths:
-      - public       # only allow paths in project root directory for some reason
+  when: on_success
+  tags:
+    - react
   only:
-    refs:
-      - master       # deploy contents in master branch
-      - dev          # deploy contents in dev branch
+    - develop
+  script:
+    - sudo -H -u gitlab-runner bash -c /var/www/deploy/frontend-deploy.sh
