@@ -3,7 +3,7 @@
   "version": "5.0.0-beta.2",
   "private": true,
   "description": "A Human Resource Management Application",
-  "homepage": "https://sonix.gitlab.sonix.vn/training-course-hms/",
+  "homepage": "",
   "scripts": {
     "analyze": "cross-env ANALYZE=1 umi build",
     "build": "umi build",
