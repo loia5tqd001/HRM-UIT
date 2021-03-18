@@ -52,28 +52,37 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (values: API.LoginParams) => {
     setSubmitting(true);
-    const token = await executeRecaptcha('user/login');
-    console.log('recaptcha token', token);
 
-    // NOTE: We need a backend in order to complete the recaptcha verification
-    // https://developers.google.com/recaptcha/docs/verify#api_request
-    // otherwise, we will encounter CORS error/problem
-    // https://developers.google.com/recaptcha/docs/v3#site_verify_response
-    const verifyRecaptchaScoreOnBackend = async () => {
-      const result = await request<any>('https://www.google.com/recaptcha/api/siteverify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        data: {
-          secret: 'recaptcha-secret-key',
-          response: token,
-        },
-      });
-      console.log(result);
+    const handleRecaptcha = async () => {
+      try {
+        const token = await executeRecaptcha('user/login');
+        console.log('recaptcha token', token);
+
+        // NOTE: We need a backend in order to complete the recaptcha verification
+        // https://developers.google.com/recaptcha/docs/verify#api_request
+        // otherwise, we will encounter CORS error/problem
+        // https://developers.google.com/recaptcha/docs/v3#site_verify_response
+        const verifyRecaptchaScoreOnBackend = async () => {
+          const result = await request<any>('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            data: {
+              secret: 'recaptcha-secret-key',
+              response: token,
+            },
+          });
+          console.log(result);
+        };
+      } catch (err) {
+        console.log('error when handling recaptcha', err);
+      }
     };
 
     try {
+      await handleRecaptcha();
+
       // Login
       const msg = await login({ ...values, type: 'account' });
       if (msg.status === 'ok') {

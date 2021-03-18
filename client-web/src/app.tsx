@@ -12,7 +12,7 @@ import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 
 const isDev = process.env.NODE_ENV === 'development';
 
-/** 获取用户信息比较慢的时候会展示一个 loading */
+/** When obtaining user information is slow, render a loading */
 export const initialStateConfig = {
   loading: <PageLoading />,
 };
@@ -34,7 +34,7 @@ export async function getInitialState(): Promise<{
     }
     return undefined;
   };
-  // 如果是登录页面，不执行
+  // If it is in login page, do not execute
   if (history.location.pathname !== '/user/login') {
     const currentUser = await fetchUserInfo();
     return {
@@ -57,7 +57,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
-      // 如果没有登录，重定向到 login
+      // If you are not logged in, redirect to login
       if (!initialState?.currentUser && location.pathname !== '/user/login') {
         history.push('/user/login');
       }
@@ -112,7 +112,7 @@ const codeMessage = {
   504: 'The gateway has timed out.',
 };
 
-/** 异常处理程序
+/** Exception handler
  * @see https://beta-pro.ant.design/docs/request-cn
  */
 const errorHandler = (error: ResponseError) => {
