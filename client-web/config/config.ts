@@ -5,7 +5,7 @@ import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routes from './routes';
 
-const { REACT_APP_ENV } = process.env;
+const { REACT_APP_ENV, PORT } = process.env;
 
 export default defineConfig({
   hash: true,
@@ -57,5 +57,7 @@ export default defineConfig({
   },
   define: {
     'process.env.REACT_APP_RECAPTCHA_KEY': '6LdPRHsaAAAAAIJP6edEtQFLlwi0_yXKcKDA6P2T',
+    PORT: PORT || 3000, // This should work (https://v2.umijs.org/guide/env-variables.html#port), but it doesn't, so I create a .env file
+    // https://github.com/ant-design/ant-design-pro/issues/5862
   },
 });

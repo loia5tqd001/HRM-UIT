@@ -25,7 +25,6 @@ declare namespace API {
 
   type LoginResult = {
     status?: string;
-    type?: string;
     currentAuthority?: string;
   };
 

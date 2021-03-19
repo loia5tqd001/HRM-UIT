@@ -84,7 +84,7 @@ const Login: React.FC = () => {
       await handleRecaptcha();
 
       // Login
-      const msg = await login({ ...values, type: 'account' });
+      const msg = await login({ ...values });
       if (msg.status === 'ok') {
         message.success(
           intl.formatMessage({
@@ -108,7 +108,7 @@ const Login: React.FC = () => {
     }
     setSubmitting(false);
   };
-  const { status, type: loginType } = userLoginState;
+  const { status } = userLoginState;
 
   return (
     <div className={styles.container}>
@@ -153,7 +153,7 @@ const Login: React.FC = () => {
               handleSubmit(values as API.LoginParams);
             }}
           >
-            {status === 'error' && loginType === 'account' && (
+            {status === 'error' && (
               <LoginMessage
                 content={intl.formatMessage({
                   id: 'pages.login.accountLogin.errorMessage',
