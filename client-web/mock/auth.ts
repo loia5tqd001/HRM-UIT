@@ -59,18 +59,13 @@ export default {
     res.status(401).send({});
   },
   'GET /api/auth/currentUser/': (req: Request, res: Response) => {
-    console.log('req', req);
-    // if (!getAccess()) {
-    //   res.status(401).send({
-    //     data: {
-    //       isLogin: false,
-    //     },
-    //     errorCode: '401',
-    //     errorMessage: 'Please login first!',
-    //     success: true,
-    //   });
-    //   return;
-    // }
+    if (!getAccess()) {
+      res.status(401).send({
+        errorCode: 401,
+        errorMessage: 'error.login.loginFirst',
+      });
+      return;
+    }
     res.send({
       name: 'Loi Nguyen',
       avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
