@@ -1,6 +1,6 @@
 import Footer from '@/components/Footer';
 import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { login } from '@/services/ant-design-pro/login';
+import { login } from '@/services/login';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import ProForm, { ProFormText } from '@ant-design/pro-form';
 import { Alert, message } from 'antd';
@@ -22,7 +22,7 @@ const LoginMessage: React.FC<{
   />
 );
 
-/** 此方法会跳转到 redirect 参数所在的位置 */
+/** This method will jump to the location of the "redirect" parameter */
 const goto = () => {
   if (!history) return;
   setTimeout(() => {
