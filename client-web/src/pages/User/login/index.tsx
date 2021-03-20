@@ -1,6 +1,6 @@
 import Footer from '@/components/Footer';
 import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { login } from '@/services/login';
+import { login } from '@/services/auth';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import ProForm, { ProFormText } from '@ant-design/pro-form';
 import { Alert, message } from 'antd';
@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { FormattedMessage, history, Link, SelectLang, useIntl, useModel } from 'umi';
 import styles from './index.less';
 import { request } from 'umi';
+import jwtUtils from '@/utils/jwt';
 
 const LoginMessage: React.FC<{
   content: string;
@@ -33,8 +34,8 @@ const goto = () => {
 };
 
 const Login: React.FC = () => {
-  const [submitting, setSubmitting] = useState(false);
-  const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
+  const [loginState, setLoginState] = useState<'submitting' | 'error' | 'idle'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>();
   const { initialState, setInitialState } = useModel('@@initialState');
   const { executeRecaptcha } = useGoogleReCaptcha();
 
@@ -51,7 +52,7 @@ const Login: React.FC = () => {
   };
 
   const handleSubmit = async (values: API.LoginParams) => {
-    setSubmitting(true);
+    setLoginState('submitting');
 
     const handleRecaptcha = async () => {
       try {
@@ -84,32 +85,22 @@ const Login: React.FC = () => {
       await handleRecaptcha();
 
       // Login
-      const msg = await login({ ...values });
-      if (msg.status === 'ok') {
-        message.success(
-          intl.formatMessage({
-            id: 'pages.login.loginSuccesfully',
-            defaultMessage: 'Login succesfully!',
-          }),
-        );
-        await fetchUserInfo();
-        goto();
-        return;
-      }
-      // If it fails, set to the user error message
-      setUserLoginState(msg);
-    } catch (error) {
-      message.error(
+      const { access_token } = await login({ ...values });
+      message.success(
         intl.formatMessage({
-          id: 'pages.login.loginFailed',
-          defaultMessage: 'Login failed, please try again!',
+          id: 'pages.login.loginSuccesfully',
+          defaultMessage: 'Login succesfully!',
         }),
       );
+      jwtUtils.save(access_token);
+      await fetchUserInfo();
+      goto();
+      setLoginState('idle');
+    } catch (err) {
+      setErrorMessage(err?.data?.errorMessage);
+      setLoginState('error');
     }
-    setSubmitting(false);
   };
-  const { status } = userLoginState;
-
   return (
     <div className={styles.container}>
       <div className={styles.lang}>{SelectLang && <SelectLang />}</div>
@@ -142,7 +133,7 @@ const Login: React.FC = () => {
               },
               render: (_, dom) => dom.pop(),
               submitButtonProps: {
-                loading: submitting,
+                loading: loginState === 'submitting',
                 size: 'large',
                 style: {
                   width: '100%',
@@ -153,10 +144,10 @@ const Login: React.FC = () => {
               handleSubmit(values as API.LoginParams);
             }}
           >
-            {status === 'error' && (
+            {loginState === 'error' && errorMessage && (
               <LoginMessage
                 content={intl.formatMessage({
-                  id: 'pages.login.accountLogin.errorMessage',
+                  id: errorMessage,
                   defaultMessage: 'Incorrect username/password（admin/uit.hrm)',
                 })}
               />

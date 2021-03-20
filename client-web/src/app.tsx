@@ -1,14 +1,15 @@
 import React from 'react';
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
 import { PageLoading } from '@ant-design/pro-layout';
-import { notification } from 'antd';
-import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
+import { message } from 'antd';
+import { RequestConfig, RunTimeLayoutConfig, getIntl } from 'umi';
 import { history } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import type { ResponseError } from 'umi-request';
-import { currentUser as queryCurrentUser } from './services/api';
+import { currentUser as queryCurrentUser } from './services/auth';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
+import jwt from './utils/jwt';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -116,28 +117,39 @@ const codeMessage = {
  * @see https://beta-pro.ant.design/docs/request-cn
  */
 const errorHandler = (error: ResponseError) => {
-  const { response } = error;
+  const {
+    response,
+    data: { errorMessage },
+  } = error;
+  const intl = getIntl();
+
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
-    const { status, url } = response;
-
-    notification.error({
-      message: `Request error ${status}: ${url}`,
-      description: errorText,
-    });
+    message.error(
+      intl.formatMessage({
+        id: errorMessage,
+        defaultMessage: errorText,
+      }),
+    );
   }
 
   if (!response) {
-    notification.error({
-      description: 'Cannot connect to the server',
-      message: 'Network error',
-    });
+    message.error(
+      intl.formatMessage({
+        id: errorMessage,
+        defaultMessage: 'Cannot connect to the server',
+      }),
+    );
   }
+
   throw error;
 };
 
 // https://umijs.org/zh-CN/plugins/plugin-request
 export const request: RequestConfig = {
   errorHandler,
-  credentials: 'include',
+  // credentials: 'include',
+  headers: {
+    Authorization: `Bearer ${jwt.get()}`,
+  },
 };

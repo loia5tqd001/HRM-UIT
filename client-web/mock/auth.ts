@@ -8,19 +8,12 @@ const waitTime = (time: number = 100) => {
   });
 };
 
-async function getFakeCaptcha(req: Request, res: Response) {
-  await waitTime(2000);
-  return res.json('captcha-xxx');
-}
-
-const { ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION } = process.env;
-
 /**
  * 当前用户的权限，如果为空代表没登录
  * current user access， if is '', user need login
  * 如果是 pro 的预览，默认是有权限的
  */
-let access = ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site' ? 'admin' : '';
+let access = '';
 
 const getAccess = () => {
   return access;
@@ -28,21 +21,58 @@ const getAccess = () => {
 
 // 代码中会兼容本地 service mock 以及部署站点的静态数据
 export default {
-  // 支持值为 Object 和 Array
-  'GET /api/currentUser': (req: Request, res: Response) => {
-    if (!getAccess()) {
-      res.status(401).send({
-        data: {
-          isLogin: false,
-        },
-        errorCode: '401',
-        errorMessage: 'Please login first!',
-        success: true,
+  'POST /api/auth/login/': async (req: Request, res: Response) => {
+    const { password, username } = req.body as API.LoginParams;
+    await waitTime(2000);
+    const tokens = {
+      refresh_token:
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxNjMxMDY2NywianRpIjoiZWNjMzBkMGUyOTZlNDM2ZWE4ZjhhMmUyYzU5NmNjZjkiLCJ1c2VyX2lkIjoxfQ.taEibLy8BAymKFPMiLcVvR6tDH3_9hWyJeEIIt1N2EI',
+      access_token:
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE2MjI0NTY3LCJqdGkiOiIwMGYxNWFjMmI3YTA0ZDBlODYxMTBkNjgyZGJhMjdmNSIsInVzZXJfaWQiOjF9.iIftObYBJMrEaOBhMaURkS7STD8zM-ZOP6Xz-ca5Xco',
+    } as API.LoginResult;
+
+    if (password === 'uit.hrm' && username === 'admin') {
+      res.send(tokens);
+      access = 'admin';
+      return;
+    }
+    if (password === 'uit.hrm' && username === 'user') {
+      res.send(tokens);
+      access = 'user';
+      return;
+    }
+    res.status(401).send({
+      errorCode: 401,
+      errorMessage: 'error.login.incorrectUsernameOrPassword',
+    } as API.ErrorResponse);
+    access = 'guest';
+  },
+  'POST /api/auth/refresh/': async (req: Request, res: Response) => {
+    await waitTime(2000);
+    if (req.body.refresh_token) {
+      res.send({
+        access_token:
+          'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE2MjI0NTY3LCJqdGkiOiIwMGYxNWFjMmI3YTA0ZDBlODYxMTBkNjgyZGJhMjdmNSIsInVzZXJfaWQiOjF9.iIftObYBJMrEaOBhMaURkS7STD8zM-ZOP6Xz-ca5Xco',
       });
       return;
     }
+    res.status(401).send({});
+  },
+  'GET /api/auth/currentUser/': (req: Request, res: Response) => {
+    console.log('req', req);
+    // if (!getAccess()) {
+    //   res.status(401).send({
+    //     data: {
+    //       isLogin: false,
+    //     },
+    //     errorCode: '401',
+    //     errorMessage: 'Please login first!',
+    //     success: true,
+    //   });
+    //   return;
+    // }
     res.send({
-      name: 'Serati Ma',
+      name: 'Loi Nguyen',
       avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
       userid: '00000001',
       email: 'antdesign@alipay.com',
@@ -91,10 +121,10 @@ export default {
       },
       address: '西湖区工专路 77 号',
       phone: '0752-268888888',
-    });
+    } as API.CurrentUser);
   },
-  // GET POST 可省略
-  'GET /api/users': [
+  'POST /api/auth/currentUser/changePassword/': (req: Request, res: Response) => {},
+  'GET /api/auth/users': [
     {
       key: '1',
       name: 'John Brown',
@@ -114,6 +144,10 @@ export default {
       address: 'Sidney No. 1 Lake Park',
     },
   ],
+  'POST /api/auth/user/': (req: Request, res: Response) => {},
+  'GET /api/auth/user/:userid/': (req: Request, res: Response) => {},
+  'PUT /api/auth/user/:userid/': (req: Request, res: Response) => {},
+
   'POST /api/login/account': async (req: Request, res: Response) => {
     const { password, username, type } = req.body;
     await waitTime(2000);
@@ -195,6 +229,4 @@ export default {
       path: '/base/category/list',
     });
   },
-
-  'GET  /api/login/captcha': getFakeCaptcha,
 };
