@@ -2,8 +2,8 @@ import React from 'react';
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
 import { PageLoading } from '@ant-design/pro-layout';
 import { message } from 'antd';
-import { RequestConfig, RunTimeLayoutConfig, getIntl } from 'umi';
-import { history } from 'umi';
+import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
+import { getIntl, history } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import type { ResponseError } from 'umi-request';
@@ -63,6 +63,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
         history.push('/user/login');
       }
     },
+    title: getIntl?.()?.formatMessage({
+      id: 'app.title',
+      defaultMessage: 'HRM',
+    }),
     links: isDev
       ? [
           <>

@@ -11,7 +11,7 @@ const Settings: LayoutSettings & {
   fixedHeader: true,
   fixSiderbar: true,
   colorWeak: false,
-  title: 'HRM',
+  title: false,
   pwa: true,
   logo: '/logo-uit__white.svg',
   iconfontUrl: '',
