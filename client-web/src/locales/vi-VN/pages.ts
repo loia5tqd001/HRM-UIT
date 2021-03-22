@@ -1,4 +1,6 @@
 export default {
+  'pages.admin.user.listForm.title': 'Danh sách tài khoản',
+
   'pages.layouts.userLayout.title':
     'Ant Design is the most influential web design specification in Xihu district',
   'pages.login.applicationName': 'Ứng dụng Quản lý nhân sự',

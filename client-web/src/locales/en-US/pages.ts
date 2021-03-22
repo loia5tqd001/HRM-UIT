@@ -1,4 +1,6 @@
 export default {
+  'pages.admin.user.listForm.title': 'Users', 
+
   'pages.layouts.userLayout.title':
     'Ant Design is the most influential web design specification in Xihu district',
   'pages.login.applicationName': 'Human Resource Management Application',

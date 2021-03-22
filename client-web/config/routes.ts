@@ -20,13 +20,15 @@
     name: 'admin',
     icon: 'control',
     // access: 'canAdmin',
-    redirect: '/admin/user',
+    // component: './Welcome',
+    // redirect: '/admin/user',
+    // component: './Admin/User',
     routes: [
       {
         path: '/admin/user',
         name: 'user',
         icon: 'user',
-        component: './Admin',
+        component: './Admin/User',
       },
       {
         path: '/admin/job',
