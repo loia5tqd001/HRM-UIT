@@ -112,6 +112,10 @@
           },
         ],
       },
+      {
+        path: '/admin',
+        redirect: '/admin/user',
+      },
     ],
   },
   {
@@ -119,7 +123,6 @@
     name: 'employee',
     icon: 'userSwitch',
     // access: 'canAdmin',
-    redirect: '/employee/list',
     routes: [
       { path: '/employee/list', name: 'list', icon: 'unorderedList', component: './Welcome' },
       { path: '/employee/add', name: 'add', icon: 'userAdd', component: './Welcome' },
@@ -137,6 +140,10 @@
         component: './Welcome',
       },
       { path: '/employee/report', name: 'report', icon: 'barChart', component: './Welcome' },
+      {
+        path: '/employee',
+        redirect: '/employee/list',
+      },
     ],
   },
   {
@@ -144,7 +151,6 @@
     name: 'timeOff',
     icon: 'clockCircle',
     // access: 'canAdmin',
-    redirect: '/timeOff/list',
     routes: [
       { path: '/timeOff/list', name: 'list', icon: 'unorderedList', component: './Welcome' },
       { path: '/timeOff/submit', name: 'submit', icon: 'frown', component: './Welcome' },
@@ -161,6 +167,10 @@
         component: './Welcome',
       },
       { path: '/timeOff/report', name: 'report', icon: 'barChart', component: './Welcome' },
+      {
+        path: '/timeOff',
+        redirect: '/timeOff/list',
+      },
     ],
   },
   {
@@ -168,7 +178,6 @@
     name: 'attendance',
     icon: 'table',
     // access: 'canAdmin',
-    redirect: '/attendance/checkin',
     routes: [
       { path: '/attendance/checkin', name: 'checkin', icon: 'checkSquare', component: './Welcome' },
       { path: '/attendance/list', name: 'list', icon: 'unorderedList', component: './Welcome' },
@@ -180,6 +189,10 @@
         component: './Welcome',
       },
       { path: '/attendance/report', name: 'report', icon: 'barChart', component: './Welcome' },
+      {
+        path: '/attendance',
+        redirect: '/attendance/checkin',
+      },
     ],
   },
   {
