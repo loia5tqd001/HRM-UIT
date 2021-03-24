@@ -113,6 +113,12 @@
         ],
       },
       {
+        path: '/admin/permission',
+        name: 'permission',
+        icon: 'key',
+        component: './Admin/Permission'
+      },
+      {
         path: '/admin',
         redirect: '/admin/user',
       },
@@ -217,7 +223,7 @@
   },
   {
     path: '/',
-    redirect: '/welcome',
+    redirect: '/admin/user',
   },
   {
     component: './404',

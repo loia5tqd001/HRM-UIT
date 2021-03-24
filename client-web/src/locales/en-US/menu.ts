@@ -1,5 +1,6 @@
 export default {
   'menu.admin': 'Admin',
+  'menu.admin.permission': 'Permission',
   'menu.admin.user': 'User',
   'menu.admin.job': 'Job',
   'menu.admin.job.jobTitle': 'Job Title',

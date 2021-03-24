@@ -1,5 +1,6 @@
 export default {
   'menu.admin': 'Quản trị',
+  'menu.admin.permission': 'Phân quyền',
   'menu.admin.user': 'Tài khoản',
   'menu.admin.job': 'Công việc',
   'menu.admin.job.jobTitle': 'Chức vụ',
