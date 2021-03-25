@@ -21,3 +21,25 @@ export async function currentUser(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+export async function allRoles(options?: { [key: string]: any }) {
+  return request<API.RoleItem[]>('/api/auth/roles/', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateRoleById(
+  id: string,
+  body: API.RoleItem,
+  options?: { [key: string]: any },
+) {
+  return request<API.RoleItem[]>(`/api/auth/role/${id}/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}

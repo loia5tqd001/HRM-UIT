@@ -91,4 +91,23 @@ declare namespace API {
     description?: string;
     type?: NoticeIconItemType;
   };
+
+  type User = any;
+
+  type PermissionItem = {
+    id: string;
+    name: string;
+    access: 'no_access' | 'view_and_edit' | 'view_only';
+  };
+
+  interface RoleItem {
+    id: string;
+    roleName: string;
+    description: string;
+    permissions: {
+      access: 'all_employees' | 'direct_and_indirect' | 'direct_reports';
+      permission_items: PermissionItem[];
+    };
+    members: User[];
+  }
 }

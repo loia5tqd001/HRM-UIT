@@ -224,4 +224,38 @@ export default {
       path: '/base/category/list',
     });
   },
+  'GET /api/auth/roles/': (req: Request, res: Response) => {
+    res.status(200).send(
+      ['Admin', 'Employee', 'Supervisor'].map((roleName, index) => ({
+        id: index,
+        roleName,
+        description: roleName + index,
+        permissions: {
+          access: 'all_employees',
+          permission_items: [
+            {
+              id: 'permission_1',
+              name: 'Permission 1',
+              access: 'no_access',
+            },
+            {
+              id: 'permission_2',
+              name: 'Permission 2',
+              access: 'view_and_edit',
+            },
+            {
+              id: 'permission_3',
+              name: 'Permission 3',
+              access: 'view_only',
+            },
+          ],
+        },
+        members: [{ name: 'Loi' }, { name: 'Long' }],
+      })),
+    );
+  },
+  'PUT /api/auth/role/:roleId/': async (req: Request, res: Response) => {
+    await waitTime(1000);
+    res.status(200).send(req.body);
+  },
 };
