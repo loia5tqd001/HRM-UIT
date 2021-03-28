@@ -43,3 +43,14 @@ export async function updateRoleById(
     ...(options || {}),
   });
 }
+
+export async function createRole(body: Partial<API.RoleItem>, options?: { [key: string]: any }) {
+  return request<API.RoleItem>(`/api/auth/role/create/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}

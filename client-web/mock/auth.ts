@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import sample from 'lodash/sample';
 
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
@@ -18,6 +19,31 @@ let access = '';
 const getAccess = () => {
   return access;
 };
+
+let id = 1000;
+
+const allPermissions = [
+  {
+    id: 'permission_1',
+    name: 'Personal Info',
+  },
+  {
+    id: 'permission_2',
+    name: 'Home Address',
+  },
+  {
+    id: 'permission_3',
+    name: 'Emergency Contact',
+  },
+  {
+    id: 'permission_4',
+    name: 'Job History',
+  },
+  {
+    id: 'permission_5',
+    name: 'Contract',
+  },
+];
 
 // 代码中会兼容本地 service mock 以及部署站点的静态数据
 export default {
@@ -232,23 +258,10 @@ export default {
         description: roleName + index,
         permissions: {
           access: 'all_employees',
-          permission_items: [
-            {
-              id: 'permission_1',
-              name: 'Permission 1',
-              access: 'no_access',
-            },
-            {
-              id: 'permission_2',
-              name: 'Permission 2',
-              access: 'view_and_edit',
-            },
-            {
-              id: 'permission_3',
-              name: 'Permission 3',
-              access: 'view_only',
-            },
-          ],
+          permission_items: allPermissions.map((it) => ({
+            ...it,
+            access: sample(['no_access', 'view_and_edit', 'view_only']),
+          })),
         },
         members: [{ name: 'Loi' }, { name: 'Long' }],
       })),
@@ -257,5 +270,20 @@ export default {
   'PUT /api/auth/role/:roleId/': async (req: Request, res: Response) => {
     await waitTime(1000);
     res.status(200).send(req.body);
+  },
+  'POST /api/auth/role/create/': async (req: Request, res: Response) => {
+    await waitTime(1000);
+    res.status(201).send({
+      id: id++,
+      ...req.body,
+      members: [],
+      permissions: {
+        access: 'direct_reports',
+        permission_items: allPermissions.map((it) => ({
+          ...it,
+          access: 'no_access',
+        })),
+      },
+    } as API.RoleItem);
   },
 };

@@ -1,6 +1,6 @@
 import { DeleteOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import ProCard from '@ant-design/pro-card';
-import { Button, Space } from 'antd';
+import { Button, Popconfirm, Space } from 'antd';
 import React, { useState } from 'react';
 import { useModel } from 'umi';
 import { MembersTab } from './MembersTab';
@@ -9,7 +9,15 @@ import { PermissionsTab } from './PermissionsTab';
 type Props = {};
 
 export const RightPanel: React.FC<Props> = (props) => {
-  const { selectedRole } = useModel('admin.permissions');
+  const {
+    selectedRole,
+    hasModified,
+    saveChanges,
+    saveChangesPending,
+    popconfirmVisible,
+    onOkDiscardChanges,
+    onCancelDiscardChanges,
+  } = useModel('admin.permissions');
   const [tab, setTab] = useState('tab1');
 
   return (
@@ -18,9 +26,23 @@ export const RightPanel: React.FC<Props> = (props) => {
       subTitle={selectedRole?.description}
       extra={[
         <Space>
-          {/* <Button key="primary" type="primary" icon={<SaveOutlined />} disabled>
-            Save
-          </Button> */}
+          <Popconfirm
+            title="Discard all changes?"
+            visible={popconfirmVisible}
+            onConfirm={onOkDiscardChanges}
+            onCancel={onCancelDiscardChanges}
+          >
+            <Button
+              key="primary"
+              type="primary"
+              icon={<SaveOutlined />}
+              disabled={!hasModified}
+              onClick={saveChanges}
+              loading={saveChangesPending}
+            >
+              Save
+            </Button>
+          </Popconfirm>
           <Button key="primary" type="primary" icon={<EditOutlined />}>
             Edit
           </Button>
