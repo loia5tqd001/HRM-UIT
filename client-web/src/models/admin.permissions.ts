@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { allRoles, createRole, updateRoleById } from '@/services/auth';
+import { allRoles, createRole, deleteRole, updateRole } from '@/services/auth';
 import produce from 'immer';
 import isEqual from 'lodash/isEqual';
 import { message } from 'antd';
+
+export type CrudModalForm = Pick<API.RoleItem, 'roleName' | 'description'>;
 
 export default function useAdminPermissionsModel() {
   const [rolesPending, setRolesPending] = useState(false);
@@ -11,6 +13,9 @@ export default function useAdminPermissionsModel() {
   const [selectedRole, setSelectedRole] = useState<API.RoleItem>();
   const [draftSelectedRole, setDraftSelectedRole] = useState<API.RoleItem>();
   const [popconfirmVisible, setPopconfirmVisible] = useState(false);
+  const [crudModalVisible, setCrudModalVisible] = useState<'create' | 'update' | 'hidden'>(
+    'hidden',
+  );
   const [pendingRoleIdToSelect, setPendingRoleIdToSelect] = useState<API.RoleItem['id']>();
 
   useEffect(() => {
@@ -69,7 +74,7 @@ export default function useAdminPermissionsModel() {
     if (!selectedRole || !draftSelectedRole) return;
     try {
       setSaveChangesPending(true);
-      await updateRoleById(selectedRole.id, draftSelectedRole);
+      await updateRole(selectedRole.id, draftSelectedRole);
       setSelectedRole(draftSelectedRole);
       const newRoles = produce(roles, (draft) => {
         const selectedRoleIndex = draft.findIndex((it) => it.id === selectedRole.id);
@@ -94,8 +99,8 @@ export default function useAdminPermissionsModel() {
     setPopconfirmVisible(false);
   }, []);
 
-  const onAddRole = useCallback(
-    async (record: Pick<API.RoleItem, 'roleName' | 'description'>) => {
+  const onCreateRole = useCallback(
+    async (record: CrudModalForm) => {
       try {
         const newRole = await createRole(record);
         setRoles([...roles, newRole]);
@@ -111,6 +116,45 @@ export default function useAdminPermissionsModel() {
     },
     [hasModified, roles],
   );
+
+  const onUpdateRole = useCallback(
+    async (record: CrudModalForm) => {
+      try {
+        if (!selectedRole) return;
+        const updatedRole = await updateRole(selectedRole.id, { ...selectedRole, ...record });
+        setSelectedRole(updatedRole);
+        setDraftSelectedRole(updatedRole);
+        const newRoles = produce(roles, (draft) => {
+          const selectedRoleIndex = draft.findIndex((it) => it.id === selectedRole.id);
+          draft[selectedRoleIndex] = updatedRole;
+        });
+        setRoles(newRoles);
+      } catch (error) {
+        message.error('Cannot update role!');
+        throw error;
+      }
+    },
+    [roles, selectedRole],
+  );
+
+  const onDeleteRole = useCallback(async () => {
+    try {
+      if (!selectedRole) return;
+      await deleteRole(selectedRole.id);
+      const oldIndex = roles.findIndex((it) => it.id === selectedRole.id);
+      const newSelectedRole = roles[oldIndex + 1] || roles[0];
+      const newRoles = produce(roles, (draft) => {
+        draft.splice(oldIndex, 1);
+      });
+      setRoles(newRoles);
+      setSelectedRole(newSelectedRole);
+      setDraftSelectedRole(newSelectedRole);
+      message.success('Delete role successfully!');
+    } catch (error) {
+      message.error('Cannot delete role!');
+      throw error;
+    }
+  }, [roles, selectedRole]);
 
   return {
     roles,
@@ -128,6 +172,10 @@ export default function useAdminPermissionsModel() {
     setPendingRoleIdToSelect,
     onOkDiscardChanges,
     onCancelDiscardChanges,
-    onAddRole,
+    onCreateRole,
+    onUpdateRole,
+    onDeleteRole,
+    crudModalVisible,
+    setCrudModalVisible,
   };
 }

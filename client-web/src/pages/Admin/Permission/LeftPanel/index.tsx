@@ -2,10 +2,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button } from 'antd';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { FormattedMessage, useModel } from 'umi';
 import styles from './index.less';
-import { CreateModal } from './CreateModal';
 
 type Props = {};
 
@@ -24,8 +23,8 @@ export const LeftPanel: React.FC<Props> = () => {
     rolesPending,
     setPopconfirmVisible,
     setPendingRoleIdToSelect,
+    setCrudModalVisible,
   } = useModel('admin.permissions');
-  const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
 
   const columns: ProColumns<RoleItem>[] = [
@@ -73,7 +72,7 @@ export const LeftPanel: React.FC<Props> = () => {
               type="primary"
               key="primary"
               onClick={() => {
-                setCreateModalVisible(true);
+                setCrudModalVisible('create');
               }}
             >
               <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
@@ -96,11 +95,6 @@ export const LeftPanel: React.FC<Props> = () => {
             },
           };
         }}
-      />
-      <CreateModal
-        visible={createModalVisible}
-        setVisible={setCreateModalVisible}
-        actionRef={actionRef}
       />
     </>
   );

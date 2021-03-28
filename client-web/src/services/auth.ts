@@ -29,12 +29,12 @@ export async function allRoles(options?: { [key: string]: any }) {
   });
 }
 
-export async function updateRoleById(
+export async function updateRole(
   id: string,
   body: API.RoleItem,
   options?: { [key: string]: any },
 ) {
-  return request<API.RoleItem[]>(`/api/auth/role/${id}/`, {
+  return request<API.RoleItem>(`/api/auth/role/${id}/`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -45,12 +45,22 @@ export async function updateRoleById(
 }
 
 export async function createRole(body: Partial<API.RoleItem>, options?: { [key: string]: any }) {
-  return request<API.RoleItem>(`/api/auth/role/create/`, {
+  return request<API.RoleItem>(`/api/auth/role/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     data: body,
+    ...(options || {}),
+  });
+}
+
+export async function deleteRole(id: string, options?: { [key: string]: any }) {
+  return request<API.RoleItem>(`/api/auth/role/${id}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     ...(options || {}),
   });
 }

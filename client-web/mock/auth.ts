@@ -271,7 +271,7 @@ export default {
     await waitTime(1000);
     res.status(200).send(req.body);
   },
-  'POST /api/auth/role/create/': async (req: Request, res: Response) => {
+  'POST /api/auth/role/': async (req: Request, res: Response) => {
     await waitTime(1000);
     res.status(201).send({
       id: id++,
@@ -285,5 +285,9 @@ export default {
         })),
       },
     } as API.RoleItem);
+  },
+  'DELETE /api/auth/role/': async (req: Request, res: Response) => {
+    await waitTime(1000);
+    res.status(200).send(req.body);
   },
 };

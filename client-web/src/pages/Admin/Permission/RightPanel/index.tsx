@@ -17,6 +17,8 @@ export const RightPanel: React.FC<Props> = (props) => {
     popconfirmVisible,
     onOkDiscardChanges,
     onCancelDiscardChanges,
+    setCrudModalVisible,
+    onDeleteRole,
   } = useModel('admin.permissions');
   const [tab, setTab] = useState('tab1');
 
@@ -24,7 +26,7 @@ export const RightPanel: React.FC<Props> = (props) => {
     <ProCard
       title={selectedRole?.roleName}
       subTitle={selectedRole?.description}
-      extra={[
+      extra={
         <Space>
           <Popconfirm
             title="Discard all changes?"
@@ -33,7 +35,6 @@ export const RightPanel: React.FC<Props> = (props) => {
             onCancel={onCancelDiscardChanges}
           >
             <Button
-              key="primary"
               type="primary"
               icon={<SaveOutlined />}
               disabled={!hasModified}
@@ -43,14 +44,20 @@ export const RightPanel: React.FC<Props> = (props) => {
               Save
             </Button>
           </Popconfirm>
-          <Button key="primary" type="primary" icon={<EditOutlined />}>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => setCrudModalVisible('update')}
+          >
             Edit
           </Button>
-          <Button key="primary" type="primary" danger icon={<DeleteOutlined />}>
-            Delete
-          </Button>
-        </Space>,
-      ]}
+          <Popconfirm title="Delete current role?" onConfirm={onDeleteRole}>
+            <Button type="primary" danger icon={<DeleteOutlined />}>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      }
       tabs={{
         activeKey: tab,
         onChange: (key) => {
