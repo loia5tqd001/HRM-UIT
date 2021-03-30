@@ -25,12 +25,6 @@
     // component: './Admin/User',
     routes: [
       {
-        path: '/admin/user',
-        name: 'user',
-        icon: 'user',
-        component: './Admin/User',
-      },
-      {
         path: '/admin/job',
         name: 'job',
         icon: 'audit',
@@ -120,7 +114,7 @@
       },
       {
         path: '/admin',
-        redirect: '/admin/user',
+        redirect: '/admin/job',
       },
     ],
   },
@@ -130,7 +124,7 @@
     icon: 'userSwitch',
     // access: 'canAdmin',
     routes: [
-      { path: '/employee/list', name: 'list', icon: 'unorderedList', component: './Welcome' },
+      { path: '/employee/list', name: 'list', icon: 'unorderedList', component: './Employee/List' },
       { path: '/employee/add', name: 'add', icon: 'userAdd', component: './Welcome' },
       { path: '/employee/import', name: 'import', icon: 'import', component: './Welcome' },
       {
@@ -223,7 +217,7 @@
   },
   {
     path: '/',
-    redirect: '/admin/user',
+    redirect: '/admin/',
   },
   {
     component: './404',
