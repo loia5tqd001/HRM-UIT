@@ -1,8 +1,15 @@
 import { request } from 'umi';
 
 export async function allEmployees(options?: { [key: string]: any }) {
-  return request<API.Employee[]>('/api/employees/', {
+  return request<API.EmployeeOnList[]>('/api/employees/', {
     method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function addEmployee(options?: { [key: string]: any }) {
+  return request<API.EmployeeOnCreate>('/api/employees/', {
+    method: 'POST',
     ...(options || {}),
   });
 }

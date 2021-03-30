@@ -1,28 +1,36 @@
-import { ManOutlined, PlusOutlined, TeamOutlined, WomanOutlined } from '@ant-design/icons';
-import { Button, message, Input, Drawer, Space } from 'antd';
-import React, { useState, useRef } from 'react';
-import { useIntl, FormattedMessage, Link } from 'umi';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import type { ProColumns, ActionType } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
-import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import ProDescriptions from '@ant-design/pro-descriptions';
-import type { FormValueType } from './components/UpdateForm';
-import UpdateForm from './components/UpdateForm';
-import { rule, addRule, updateRule, removeRule } from '@/services/__rule';
-import { useModel } from 'umi';
 import { allEmployees } from '@/services/employee';
-import moment from 'moment';
+import { removeRule, updateRule } from '@/services/__rule';
+import { addEmployee } from '@/services/employee';
+import {
+  CheckOutlined,
+  ManOutlined,
+  MinusOutlined,
+  PlusOutlined,
+  WomanOutlined,
+} from '@ant-design/icons';
+import ProForm, {
+  ModalForm,
+  ProFormDatePicker,
+  ProFormSelect,
+  ProFormText,
+} from '@ant-design/pro-form';
+import { FooterToolbar } from '@ant-design/pro-layout';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import { Button, message, Space } from 'antd';
+import React, { useRef, useState } from 'react';
+import { FormattedMessage, Link, useIntl, useModel } from 'umi';
+import type { FormValueType } from './components/UpdateForm';
+import { useForm } from 'antd/es/form/Form';
 
 /**
  *
  * @param fields
  */
-const handleAdd = async (fields: API.Employee) => {
+const handleAdd = async (fields: API.EmployeeOnCreate) => {
   const hide = message.loading('正在添加');
   try {
-    await addRule({ ...fields });
+    await addEmployee({ ...fields });
     hide();
     message.success('添加成功');
     return true;
@@ -60,7 +68,7 @@ const handleUpdate = async (fields: FormValueType) => {
  *
  * @param selectedRows
  */
-const handleRemove = async (selectedRows: API.Employee[]) => {
+const handleRemove = async (selectedRows: API.EmployeeOnCreate[]) => {
   const hide = message.loading('正在删除');
   if (!selectedRows) return true;
   try {
@@ -77,29 +85,29 @@ const handleRemove = async (selectedRows: API.Employee[]) => {
   }
 };
 
-const TableList: React.FC = () => {
+const EmployeeList: React.FC = () => {
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
 
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.Employee>();
-  const [selectedRowsState, setSelectedRows] = useState<API.Employee[]>([]);
+  const [currentRow, setCurrentRow] = useState<API.EmployeeOnList>();
+  const [selectedRowsState, setSelectedRows] = useState<API.EmployeeOnList[]>([]);
 
   const intl = useIntl();
 
-  const columns: ProColumns<API.Employee>[] = [
+  const columns: ProColumns<API.EmployeeOnList>[] = [
     {
       title: 'Full name',
-      key: 'fullName',
-      dataIndex: ['general', 'personalInfo', 'avatar'],
+      key: 'full_name',
+      dataIndex: 'avatar',
       valueType: 'avatar',
       render: (avatar, record) => (
         <Space>
           <span>{avatar}</span>
           <Link to={`/employee/${record.id}`}>
-            {record.general.personalInfo.firstName} {record.general.personalInfo.lastName}
+            {record.first_name} {record.last_name}
           </Link>
         </Space>
       ),
@@ -108,163 +116,42 @@ const TableList: React.FC = () => {
     {
       title: 'Gender',
       key: 'gender',
-      dataIndex: ['general', 'personalInfo', 'gender'],
+      dataIndex: 'gender',
       renderText: (val) => {
-        let icon = <TeamOutlined />;
+        let icon = null;
         if (val === 'Male') icon = <ManOutlined />;
         if (val === 'Male') icon = <WomanOutlined />;
-        return <div style={{ display: 'grid', placeContent: 'center' }}>{icon}</div>;
+        return <div style={{}}>{icon}</div>;
       },
     },
     {
-      title: 'Date of birth',
-      key: 'dateOfBirth',
-      dataIndex: ['general', 'personalInfo', 'dateOfBirth'],
-      renderText: (val) => moment(val).format('DD-MM-YYYY'),
-    },
-    // {
-    //   title: 'Marital status',
-    //   key: 'maritalStatus',
-    //   dataIndex: ['general', 'personalInfo', 'maritalStatus'],
-    // },
-    {
-      title: 'Phone number',
-      key: 'phoneNumber',
-      dataIndex: ['general', 'personalInfo', 'phoneNumber'],
-    },
-    {
       title: 'Email address',
-      key: 'emailAddress',
-      dataIndex: ['general', 'personalInfo', 'emailAddress'],
+      key: 'email',
+      dataIndex: 'email',
     },
-    {
-      title: 'Personal tax id',
-      key: 'personalTaxId',
-      dataIndex: ['general', 'personalInfo', 'personalTaxId'],
-    },
-    {
-      title: 'Social insurrance',
-      key: 'socialInsurrance',
-      dataIndex: ['general', 'personalInfo', 'socialInsurrance'],
-    },
-    {
-      title: 'Health insurrance',
-      key: 'healthInsurrance',
-      dataIndex: ['general', 'personalInfo', 'healthInsurrance'],
-    },
-    {
-      title: 'Country',
-      key: 'country',
-      dataIndex: ['general', 'homeAddress', 'country'],
-    },
-    {
-      title: 'Province',
-      key: 'province',
-      dataIndex: ['general', 'homeAddress', 'province'],
-    },
-    {
-      title: 'City',
-      key: 'city',
-      dataIndex: ['general', 'homeAddress', 'city'],
-    },
-    {
-      title: 'Postal code',
-      key: 'postalCode',
-      dataIndex: ['general', 'homeAddress', 'postalCode'],
-    },
-    {
-      title: 'Full address',
-      key: 'fullAddress',
-      dataIndex: ['general', 'homeAddress', 'fullAddress'],
-    },
-    {
-      title: 'Emergency contact name',
-      key: 'fullName',
-      dataIndex: ['general', 'emergencyContact', 'fullName'],
-    },
-    {
-      title: 'Emergency contact relationship',
-      key: 'relationship',
-      dataIndex: ['general', 'emergencyContact', 'relationship'],
-    },
-    {
-      title: 'Emergency contact phoneNumber',
-      key: 'phoneNumber',
-      dataIndex: ['general', 'emergencyContact', 'phoneNumber'],
-    },
-    {
-      title: 'Bank name',
-      key: 'bankName',
-      dataIndex: ['general', 'bankInfo', 'bankName'],
-    },
-    {
-      title: 'Bank branch',
-      key: 'branch',
-      dataIndex: ['general', 'bankInfo', 'branch'],
-    },
-    {
-      title: 'Bank account name',
-      key: 'accountName',
-      dataIndex: ['general', 'bankInfo', 'accountName'],
-    },
-    {
-      title: 'Bank account number',
-      key: 'accountNumber',
-      dataIndex: ['general', 'bankInfo', 'accountNumber'],
-    },
-    { title: 'Join data', key: 'joinDate', dataIndex: ['job', 'jobInfo', 'joinDate'] },
-    { title: 'jobTitle', key: 'jobTitle', dataIndex: ['job', 'jobInfo', 'jobTitle', 'name'] },
-    {
-      title: 'Employment type',
-      key: 'employmentType',
-      dataIndex: ['job', 'jobInfo', 'employmentType', 'name'],
-    },
-    { title: 'Department', key: 'department', dataIndex: ['job', 'jobInfo', 'department', 'name'] },
-    { title: 'Location', key: 'location', dataIndex: ['job', 'jobInfo', 'location', 'name'] },
-    // { title: 'Skills', key: 'skills', dataIndex: ['job', 'jobInfo', 'skills'] },
-    // { title: 'Education', key: 'education', dataIndex: ['job', 'jobInfo', 'education'] },
-    // { title: 'License', key: 'license', dataIndex: ['job', 'jobInfo', 'license'] },
-    // { title: 'Languages', key: 'languages', dataIndex: ['job', 'jobInfo', 'languages'] },
-    { title: 'Supervisor', key: 'supervisor', dataIndex: ['job', 'jobInfo', 'supervisor'] },
+
+    { title: 'Job title', key: 'jobTitle', dataIndex: 'job_title' },
+    { title: 'Department', key: 'department', dataIndex: 'department' },
+    { title: 'Location', key: 'location', dataIndex: 'location' },
     {
       title: 'Supervisor',
       key: 'supervisor',
-      dataIndex: ['job', 'jobInfo', 'supervisor', 'general', 'personalInfo', 'avatar'],
+      dataIndex: ['supervisor', 'avatar'],
       valueType: 'avatar',
       render: (avatar, record) => (
         <Space>
           <span>{avatar}</span>
           <Link to={`/employee/${record.id}`}>
-            {record.job.jobInfo.supervisor?.general.personalInfo.firstName}{' '}
-            {record.job.jobInfo.supervisor?.general.personalInfo.lastName}
+            {record.supervisor?.first_name} {record.supervisor?.last_name}
           </Link>
         </Space>
       ),
     },
     {
-      title: 'Probation start date',
-      key: 'probationStartDate',
-      dataIndex: ['job', 'jobInfo', 'probationStartDate'],
-    },
-    {
-      title: 'Probation end date',
-      key: 'probationEndDate',
-      dataIndex: ['job', 'jobInfo', 'probationEndDate'],
-    },
-    {
-      title: 'Contract start date',
-      key: 'contractStartDate',
-      dataIndex: ['job', 'jobInfo', 'contractStartDate'],
-    },
-    {
-      title: 'Contract end date',
-      key: 'contractEndDate',
-      dataIndex: ['job', 'jobInfo', 'contractEndDate'],
-    },
-    {
-      title: 'Salary',
-      key: 'salary',
-      dataIndex: ['payroll', 'salary'],
+      title: 'Active',
+      key: 'is_active',
+      dataIndex: 'is_active',
+      renderText: (val) => (val ? <CheckOutlined /> : <MinusOutlined />),
     },
     // {
     //   title: 'Job title',
@@ -411,9 +298,11 @@ const TableList: React.FC = () => {
 
   const { employees, employeesPending } = useModel('employee');
 
+  const [formCreate] = useForm();
+
   return (
     <div>
-      <ProTable<API.Employee, API.PageParams>
+      <ProTable<API.EmployeeOnList, API.PageParams>
         headerTitle={intl.formatMessage({
           id: 'pages.admin.user.listForm.title',
           defaultMessage: '查询表格',
@@ -435,7 +324,8 @@ const TableList: React.FC = () => {
             <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
           </Button>,
         ]}
-        request={allEmployees}
+        loading={employeesPending}
+        // request={allEmployees}
         dataSource={employees}
         columns={columns}
         rowSelection={{
@@ -479,11 +369,11 @@ const TableList: React.FC = () => {
       )}
       <ModalForm
         title="Create Employee"
-        width="400px"
+        // width="400px"
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
-          const success = await handleAdd(value as API.Employee);
+          const success = await handleAdd(value as API.EmployeeOnCreate);
           if (success) {
             handleModalVisible(false);
             if (actionRef.current) {
@@ -491,17 +381,110 @@ const TableList: React.FC = () => {
             }
           }
         }}
+        submitter={{
+          render: (props, defaultDoms) => {
+            return [
+              <Button
+                key="autoFill"
+                onClick={() => {
+                  formCreate.setFieldsValue({
+                    user: {
+                      username: 'loia5tqd001',
+                      password: '123456',
+                      confirm_password: '123456',
+                      email: 'loia5tqd001@gmail.com',
+                      first_name: 'Nguyen',
+                      last_name: 'Huynh Loi',
+                    },
+                  });
+                }}
+              >
+                Auto fill
+              </Button>,
+              ...defaultDoms,
+            ];
+          },
+        }}
+        form={formCreate}
       >
-        <ProFormText rules={[{ required: true }]} name="firstName" label="First name" />
-        <ProFormText rules={[{ required: true }]} name="lastName" label="Last name" />
-        <ProFormText rules={[{ required: true, type: 'email' }]} name="email" label="Email" />
-        <ProFormText rules={[{ required: true }]} name="username" label="Username" />
-        <ProFormText.Password rules={[{ required: true }]} name="password" label="Password" />
-        <ProFormText.Password
-          rules={[{ required: true }]}
-          name="confirmPassword"
-          label="Confirm Password"
-        />
+        <ProForm.Group>
+          <ProFormText
+            width="sm"
+            rules={[{ required: true }]}
+            name={['user', 'username']}
+            label="Username"
+          />
+          <ProFormText.Password
+            width="sm"
+            rules={[{ required: true }]}
+            name={['user', 'password']}
+            label="Password"
+          />
+          <ProFormText.Password
+            width="sm"
+            rules={[{ required: true }]}
+            name={['user', 'confirm_password']}
+            label="Confirm Password"
+          />
+          <ProFormText
+            width="sm"
+            rules={[{ required: true, type: 'email' }]}
+            name={['user', 'email']}
+            label="Email"
+          />
+          <ProFormText
+            width="sm"
+            rules={[{ required: true }]}
+            name={['user', 'first_name']}
+            label="First name"
+          />
+          <ProFormText
+            width="sm"
+            rules={[{ required: true }]}
+            name={['user', 'last_name']}
+            label="Last name"
+          />
+        </ProForm.Group>
+        <ProForm.Group>
+          <ProFormSelect
+            width="sm"
+            name="supervisor"
+            label="Supervisor"
+            options={[
+              { value: 1, label: 'Loi' },
+              { value: 2, label: 'Dung' },
+              { value: 3, label: 'Cuong' },
+            ]}
+          />
+          <ProFormDatePicker width="sm" name="date_of_birth" label="Date of birth" />
+          <ProFormSelect
+            width="sm"
+            name="gender"
+            label="Gender"
+            options={[
+              { value: 'Male', label: 'Male' },
+              { value: 'Female', label: 'Female' },
+              { value: 'Other', label: 'Other' },
+            ]}
+          />
+          <ProFormSelect
+            width="sm"
+            name="marital_status"
+            label="Marital status"
+            options={[
+              { value: 'Single', label: 'Single' },
+              { value: 'Married', label: 'Married' },
+              { value: 'Other', label: 'Other' },
+            ]}
+          />
+          <ProFormText width="sm" name="street" label="Street" />
+          <ProFormText width="sm" name="city" label="City" />
+          <ProFormText width="sm" name="province" label="Province" />
+          <ProFormText width="sm" name="home_telephone" label="Home telephone" />
+          <ProFormText width="sm" name="mobile" label="Mobile" />
+          <ProFormText width="sm" name="work_telephone" label="Work telephone" />
+          <ProFormText width="sm" name="work_email" label="Work email" />
+        </ProForm.Group>
       </ModalForm>
       {/* <UpdateForm
         onSubmit={async (value) => {
@@ -532,7 +515,7 @@ const TableList: React.FC = () => {
         closable={false}
       >
         {currentRow?.name && (
-          <ProDescriptions<API.Employee>
+          <ProDescriptions<API.EmployeeCompact>
             column={2}
             title={currentRow?.name}
             request={async () => ({
@@ -541,7 +524,7 @@ const TableList: React.FC = () => {
             params={{
               id: currentRow?.name,
             }}
-            columns={columns as ProDescriptionsItemProps<API.Employee>[]}
+            columns={columns as ProDescriptionsItemProps<API.EmployeeCompact>[]}
           />
         )}
       </Drawer> */}
@@ -549,4 +532,4 @@ const TableList: React.FC = () => {
   );
 };
 
-export default TableList;
+export default EmployeeList;

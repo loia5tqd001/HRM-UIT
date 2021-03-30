@@ -164,6 +164,44 @@ declare namespace API {
     payroll: EmployeePayroll;
   }
 
+  interface EmployeeOnCreate {
+    id: number;
+    user: {
+      email: string;
+      username: string;
+      password: string;
+      first_name: string;
+      last_name: string;
+      is_staff?: boolean;
+      is_superuser?: boolean;
+    };
+    supervisor?: number;
+    date_of_birth?: Date;
+    gender?: 'Male' | 'Female' | 'Other';
+    marital_status?: string;
+    street?: string;
+    city?: string;
+    province?: string;
+    home_telephone?: string;
+    mobile?: string;
+    work_telephone?: string;
+    work_email?: string;
+  }
+
+  interface EmployeeOnList {
+    id: number;
+    first_name: string;
+    last_name: string;
+    avatar: string;
+    email: string;
+    gender: string;
+    department: string;
+    location: string;
+    job_title: string;
+    supervisor: EmployeeOnList;
+    is_active: boolean;
+  }
+
   type User = any;
 
   type PermissionItem = {

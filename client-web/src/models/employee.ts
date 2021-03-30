@@ -2,7 +2,7 @@ import { allEmployees } from '@/services/employee';
 import { useEffect, useState } from 'react';
 
 export default function useEmployee() {
-  const [employees, setEmployees] = useState<API.Employee[]>([]);
+  const [employees, setEmployees] = useState<API.EmployeeOnList[]>([]);
   const [employeesPending, setEmployeesPending] = useState(false);
 
   useEffect(() => {
