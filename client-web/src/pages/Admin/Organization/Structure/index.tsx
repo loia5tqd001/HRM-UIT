@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Avatar, Button, Popconfirm, Space, Table, message } from 'antd';
+import { Avatar, Button, message, Popconfirm, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import React, { useCallback, useMemo } from 'react';
 import { useModel } from 'umi';
@@ -85,9 +85,13 @@ export const OrganziationStructure: React.FC = () => {
           </Button>
           <Popconfirm
             placement="right"
-            title={'Delete this?'}
-            disabled={record.employee_no > 1}
+            title={
+              record.employee_no > 1
+                ? 'Must remove members from this department first!'
+                : 'Delete this?'
+            }
             onConfirm={async () => {
+              if (record.employee_no > 1) return;
               try {
                 await onDeleteDepartment(record.id);
                 message.success('Delete successfully!');
