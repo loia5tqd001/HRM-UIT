@@ -28,8 +28,6 @@
         path: '/admin/job',
         name: 'job',
         icon: 'audit',
-        component: './Welcome',
-        hideChildrenInMenu: true,
         routes: [
           {
             path: '/admin/job/jobTitle',
@@ -57,7 +55,6 @@
         path: '/admin/organization',
         name: 'organization',
         icon: 'apartment',
-        hideChildrenInMenu: true,
         routes: [
           {
             path: '/admin/organization/information',
@@ -76,7 +73,7 @@
           },
           {
             path: '/admin/organization',
-            redirect: '/admin/organization/structure',
+            redirect: '/admin/organization/information',
           },
         ],
       },
@@ -84,8 +81,6 @@
         path: '/admin/qualification',
         name: 'qualification',
         icon: 'contacts',
-        component: './Welcome',
-        hideChildrenInMenu: true,
         routes: [
           {
             path: '/admin/qualification/skills',
