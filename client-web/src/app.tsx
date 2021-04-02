@@ -11,7 +11,8 @@ import { currentUser as queryCurrentUser } from './services/auth';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 import jwt from './utils/jwt';
 
-const isDev = process.env.NODE_ENV === 'development';
+// eslint-disable-next-line no-underscore-dangle
+const __DEV__ = process.env.NODE_ENV === 'development';
 
 /** When obtaining user information is slow, render a loading */
 export const initialStateConfig = {
@@ -67,7 +68,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
       id: 'app.title',
       defaultMessage: 'HRM',
     }),
-    links: isDev
+    links: __DEV__
       ? [
           <>
             <LinkOutlined />

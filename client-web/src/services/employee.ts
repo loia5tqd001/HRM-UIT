@@ -7,12 +7,7 @@ export async function allEmployees(options?: { [key: string]: any }) {
   });
 }
 
-export async function addEmployee(options?: { [key: string]: any }) {
-  return request<API.EmployeeOnCreate>('/api/employees/', {
-    method: 'POST',
-    ...(options || {}),
-  });
-}
+
 
 // export async function updateRole(id: string, body: API.RoleItem, options?: { [key: string]: any }) {
 //   return request<API.RoleItem>(`/api/auth/role/${id}/`, {

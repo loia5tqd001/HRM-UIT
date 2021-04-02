@@ -1,26 +1,12 @@
 import { Request, Response } from 'express';
 import sample from 'lodash/sample';
+import { getId, waitTime } from './utils';
 
-const waitTime = (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-};
+export let access = '';
 
-/**
- * 当前用户的权限，如果为空代表没登录
- * current user access， if is '', user need login
- * 如果是 pro 的预览，默认是有权限的
- */
-let access = '';
-
-const getAccess = () => {
+export const getAccess = () => {
   return access;
 };
-
-let id = 1000;
 
 const allPermissions = [
   {
@@ -274,7 +260,7 @@ export default {
   'POST /api/auth/role/': async (req: Request, res: Response) => {
     await waitTime(1000);
     res.status(201).send({
-      id: id++,
+      id: getId(),
       ...req.body,
       members: [],
       permissions: {

@@ -202,6 +202,17 @@ declare namespace API {
     is_active: boolean;
   }
 
+  type Manager = Pick<EmployeeOnList, 'id' | 'first_name' | 'last_name' | 'avatar'>;
+
+  interface DepartmentUnit {
+    id: number;
+    name: string;
+    description?: string;
+    manager: string | Manager;
+    employee_no: number;
+    parent_id: DepartmentUnit['id'];
+  }
+
   type User = any;
 
   type PermissionItem = {

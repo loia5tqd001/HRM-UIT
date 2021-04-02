@@ -1,27 +1,12 @@
 import { Request, Response } from 'express';
-
-const waitTime = (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-};
-
-let access = '';
-
-const getAccess = () => {
-  return access;
-};
-
-let id = 1000;
+import { waitTime, getId } from './utils';
 
 export default {
   'GET /api/employees/': async (req: Request, res: Response) => {
     await waitTime(1000);
     res.status(200).send([
       {
-        id: '' + id++,
+        id: '' + getId(),
         is_active: true,
         first_name: 'Nguyen',
         last_name: 'Huynh Loi',

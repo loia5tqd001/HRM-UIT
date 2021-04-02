@@ -7,6 +7,9 @@ import defaultSettings from '../config/defaultSettings';
 const { pwa } = defaultSettings;
 const isHttps = document.location.protocol === 'https:';
 
+// eslint-disable-next-line no-underscore-dangle
+export const __DEV__ = process.env.NODE_ENV === 'development';
+
 // if pwa is true
 if (pwa) {
   // Notify user if offline now

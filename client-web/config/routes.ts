@@ -57,7 +57,6 @@
         path: '/admin/organization',
         name: 'organization',
         icon: 'apartment',
-        component: './Welcome',
         hideChildrenInMenu: true,
         routes: [
           {
@@ -68,12 +67,16 @@
           {
             path: '/admin/organization/structure',
             name: 'structure',
-            component: './Welcome',
+            component: './Admin/Organization/Structure',
           },
           {
             path: '/admin/organization/location',
             name: 'location',
             component: './Welcome',
+          },
+          {
+            path: '/admin/organization',
+            redirect: '/admin/organization/structure',
           },
         ],
       },
@@ -110,7 +113,7 @@
         path: '/admin/permission',
         name: 'permission',
         icon: 'key',
-        component: './Admin/Permission'
+        component: './Admin/Permission',
       },
       {
         path: '/admin',

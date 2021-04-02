@@ -1,6 +1,5 @@
-import { allEmployees } from '@/services/employee';
+import { allEmployees, addEmployee } from '@/services/employee';
 import { removeRule, updateRule } from '@/services/__rule';
-import { addEmployee } from '@/services/employee';
 import {
   CheckOutlined,
   ManOutlined,
