@@ -37,9 +37,9 @@ export default {
     const { password, username } = req.body as API.LoginParams;
     await waitTime(2000);
     const tokens = {
-      refresh_token:
+      refresh:
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxNjMxMDY2NywianRpIjoiZWNjMzBkMGUyOTZlNDM2ZWE4ZjhhMmUyYzU5NmNjZjkiLCJ1c2VyX2lkIjoxfQ.taEibLy8BAymKFPMiLcVvR6tDH3_9hWyJeEIIt1N2EI',
-      access_token:
+      access:
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE2MjI0NTY3LCJqdGkiOiIwMGYxNWFjMmI3YTA0ZDBlODYxMTBkNjgyZGJhMjdmNSIsInVzZXJfaWQiOjF9.iIftObYBJMrEaOBhMaURkS7STD8zM-ZOP6Xz-ca5Xco',
     } as API.LoginResult;
 
@@ -128,7 +128,7 @@ export default {
       },
       address: '西湖区工专路 77 号',
       phone: '0752-268888888',
-    } as API.CurrentUser);
+    });
   },
   'POST /api/auth/currentUser/changePassword/': (req: Request, res: Response) => {},
   'GET /api/auth/users': [

@@ -2,26 +2,26 @@
 /* eslint-disable */
 
 declare namespace API {
-  type CurrentUser = {
-    name?: string;
-    avatar?: string;
-    userid?: string;
-    email?: string;
-    signature?: string;
-    title?: string;
-    group?: string;
-    tags?: { key?: string; label?: string }[];
-    notifyCount?: number;
-    unreadCount?: number;
-    country?: string;
-    access?: string;
-    geographic?: {
-      province?: { label?: string; key?: string };
-      city?: { label?: string; key?: string };
-    };
-    address?: string;
-    phone?: string;
-  };
+  // type Employee = {
+  //   name?: string;
+  //   avatar?: string;
+  //   userid?: string;
+  //   email?: string;
+  //   signature?: string;
+  //   title?: string;
+  //   group?: string;
+  //   tags?: { key?: string; label?: string }[];
+  //   notifyCount?: number;
+  //   unreadCount?: number;
+  //   country?: string;
+  //   access?: string;
+  //   geographic?: {
+  //     province?: { label?: string; key?: string };
+  //     city?: { label?: string; key?: string };
+  //   };
+  //   address?: string;
+  //   phone?: string;
+  // };
 
   type PageParams = {
     current?: number;
@@ -61,8 +61,8 @@ declare namespace API {
   };
 
   type LoginResult = {
-    access_token: string;
-    refresh_token?: string;
+    access: string;
+    refresh?: string;
   };
 
   type ErrorResponse = {
@@ -156,13 +156,13 @@ declare namespace API {
     effectiveDateTo?: string | Date;
   }
 
-  interface Employee {
-    id: string;
-    isActive: boolean;
-    general: EmployeeGeneral;
-    job: EmployeeJob;
-    payroll: EmployeePayroll;
-  }
+  // interface Employee {
+  //   id: string;
+  //   isActive: boolean;
+  //   general: EmployeeGeneral;
+  //   job: EmployeeJob;
+  //   payroll: EmployeePayroll;
+  // }
 
   interface EmployeeOnCreate {
     id: number;
@@ -208,9 +208,37 @@ declare namespace API {
     id: number;
     name: string;
     description?: string;
-    manager: string | Manager;
+    manager: number | Manager;
     employee_no: number;
     parent_id: DepartmentUnit['id'];
+  }
+
+  interface User {
+    id: number;
+    is_active: boolean;
+    is_staff: boolean;
+    username: string;
+    password: string;
+    confirm_password?: string;
+  }
+
+  interface Employee {
+    id: number;
+    user: User;
+    first_name: string;
+    last_name: string;
+    avatar: string; // Base 64
+    email: string;
+    gender: 'Male' | 'Female' | 'Other';
+    marital_status: 'Single' | 'Married' | 'Divorced' | 'Seperated' | 'Widowed' | 'Other';
+    date_of_birth: Date;
+    personal_tax_id: string;
+    nationality: string;
+    phone: string;
+    social_insurance: string;
+    health_insurance: string;
+    role: string;
+    permissions: string[];
   }
 
   type User = any;

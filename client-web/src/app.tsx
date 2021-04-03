@@ -24,8 +24,8 @@ export const initialStateConfig = {
  * */
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
-  currentUser?: API.CurrentUser;
-  fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
+  currentUser?: API.Employee;
+  fetchUserInfo?: () => Promise<API.Employee | undefined>;
 }> {
   const fetchUserInfo = async () => {
     try {
@@ -122,29 +122,15 @@ const codeMessage = {
  * @see https://beta-pro.ant.design/docs/request-cn
  */
 const errorHandler = (error: ResponseError) => {
-  const {
-    response,
-    data: { errorMessage },
-  } = error;
-  const intl = getIntl();
+  const { response } = error;
 
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
-    message.error(
-      intl.formatMessage({
-        id: errorMessage,
-        defaultMessage: errorText,
-      }),
-    );
+    message.error(errorText);
   }
 
   if (!response) {
-    message.error(
-      intl.formatMessage({
-        id: errorMessage,
-        defaultMessage: 'Cannot connect to the server',
-      }),
-    );
+    message.error('Cannot connect to the server');
   }
 
   throw error;

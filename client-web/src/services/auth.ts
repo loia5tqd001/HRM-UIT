@@ -4,7 +4,7 @@ import { request } from 'umi';
 
 export async function login(body: API.LoginParams, options?: { [key: string]: any }) {
   // NOTE: The endpoint must trail with a slash "/", or set APPEND_SLASH=False in the Django settings
-  return request<API.LoginResult>('/api/auth/login/', {
+  return request<API.LoginResult>('/api/auth/token/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -16,7 +16,7 @@ export async function login(body: API.LoginParams, options?: { [key: string]: an
 
 /** 获取当前的用户 GET /api/currentUser */
 export async function currentUser(options?: { [key: string]: any }) {
-  return request<API.CurrentUser>('/api/auth/currentUser/', {
+  return request<API.Employee>('/api/auth/current_user/', {
     method: 'GET',
     ...(options || {}),
   });

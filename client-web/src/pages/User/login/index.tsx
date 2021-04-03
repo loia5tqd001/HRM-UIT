@@ -85,7 +85,7 @@ const Login: React.FC = () => {
       await handleRecaptcha();
 
       // Login
-      const { access_token } = await login({ ...values });
+      const { access: access_token } = await login({ ...values });
       message.success(
         intl.formatMessage({
           id: 'pages.login.loginSuccesfully',
