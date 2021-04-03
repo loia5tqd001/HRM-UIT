@@ -18,20 +18,20 @@ export default function useAdminPermissionsModel() {
   );
   const [pendingRoleIdToSelect, setPendingRoleIdToSelect] = useState<API.RoleItem['id']>();
 
-  useEffect(() => {
-    setRolesPending(true);
-    allRoles()
-      .then((data) => {
-        if (data?.length > 0) {
-          setRoles(data);
-          setSelectedRole(data[0]);
-          setDraftSelectedRole(data[0]);
-        }
-      })
-      .finally(() => {
-        setRolesPending(false);
-      });
-  }, []);
+  // useEffect(() => {
+  //   setRolesPending(true);
+  //   allRoles()
+  //     .then((data) => {
+  //       if (data?.length > 0) {
+  //         setRoles(data);
+  //         setSelectedRole(data[0]);
+  //         setDraftSelectedRole(data[0]);
+  //       }
+  //     })
+  //     .finally(() => {
+  //       setRolesPending(false);
+  //     });
+  // }, []);
 
   const selectRoleById = useCallback(
     (id: string) => {

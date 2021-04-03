@@ -24,22 +24,22 @@ export default function useAdminOrganizationStructure() {
   const [selectedDepartment, setSelectedDepartment] = useState<API.DepartmentUnit | undefined>();
   const [managers, setManagers] = useState<API.Manager[]>([]);
 
-  useEffect(() => {
-    setDepartmentsPending(true);
-    allDepartments()
-      .then((data) => {
-        if (data?.length > 0) {
-          setDepartments(data);
-        }
-      })
-      .finally(() => {
-        setDepartmentsPending(false);
-      });
-  }, []);
+  // useEffect(() => {
+  //   setDepartmentsPending(true);
+  //   allDepartments()
+  //     .then((data) => {
+  //       if (data?.length > 0) {
+  //         setDepartments(data);
+  //       }
+  //     })
+  //     .finally(() => {
+  //       setDepartmentsPending(false);
+  //     });
+  // }, []);
 
-  useEffect(() => {
-    allManagers().then((data) => setManagers(data));
-  }, []);
+  // useEffect(() => {
+  //   allManagers().then((data) => setManagers(data));
+  // }, []);
 
   const managerToOptionValue = useCallback(({ id, first_name, last_name }: API.Manager) => {
     return `${id} ${first_name} ${last_name}`;

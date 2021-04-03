@@ -1,4 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { Avatar, Button, message, Popconfirm, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import React, { useCallback, useMemo } from 'react';
@@ -16,7 +17,7 @@ export const OrganziationStructure: React.FC = () => {
     onDeleteDepartment,
   } = useModel('admin.organization');
 
-  const columns: ColumnsType<API.DepartmentUnit> = [
+  const columns: ProColumns<API.DepartmentUnit>[] = [
     {
       title: 'Department name',
       dataIndex: 'name',
@@ -38,12 +39,12 @@ export const OrganziationStructure: React.FC = () => {
       dataIndex: 'manager',
       align: 'left',
       width: '20%',
-      render: (text) => {
+      renderText: (entity) => {
         return (
           <Space align="center">
-            <Avatar src={text?.avatar} />
+            <Avatar src={entity?.avatar} />
             <span>
-              {text?.first_name} {text?.last_name}
+              {entity?.first_name} {entity?.last_name}
             </span>
           </Space>
         );
@@ -165,15 +166,16 @@ export const OrganziationStructure: React.FC = () => {
 
   return (
     <>
-      <Table<API.DepartmentUnit>
+      <ProTable<API.DepartmentUnit>
         columns={columns}
         dataSource={dataSource}
         loading={departmentsPending}
         onExpand={onTableTreeExpand}
-        rowKey={(record) => String(record.id)}
+        rowKey="id"
         expandedRowKeys={expandedRowKeys}
         pagination={false}
-        locale={{ emptyText: 'Không tìm thấy bộ phận nào' }}
+        locale={{ emptyText: 'There is no department to show' }}
+        search={false}
         // defaultExpandAllRows={true} // doesn't work for async data
       />
       <CrudModal />
