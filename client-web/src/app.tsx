@@ -1,14 +1,15 @@
-import React from 'react';
+import Footer from '@/components/Footer';
+import RightContent from '@/components/RightContent';
+import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
 import { PageLoading } from '@ant-design/pro-layout';
 import { message } from 'antd';
+import React from 'react';
 import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
-import { getIntl, history } from 'umi';
-import RightContent from '@/components/RightContent';
-import Footer from '@/components/Footer';
-import type { ResponseError } from 'umi-request';
-import { currentUser as queryCurrentUser } from './services/auth';
-import { BookOutlined, LinkOutlined } from '@ant-design/icons';
+import { getIntl, history, request as requestUmi } from 'umi';
+import type { ResponseError, RequestOptionsInit } from 'umi-request';
+import Reqs from 'umi-request';
+import { currentUser as queryCurrentUser, refreshAccessToken } from './services/auth';
 import jwt from './utils/jwt';
 
 // eslint-disable-next-line no-underscore-dangle
@@ -136,11 +137,90 @@ const errorHandler = (error: ResponseError) => {
   throw error;
 };
 
+const { source } = Reqs.CancelToken;
+const { cancel } = source();
+
+let isRefreshing: boolean = false;
+let failedQueue: any = [];
+
+const processQueue = (error: any, token: any = null) => {
+  failedQueue.forEach((prom: any) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
+const responseInterceptors = (response: Response, options: RequestOptionsInit) => {
+  const { status } = response;
+  // const originalRequest: RequestOptionsExtend = options;
+  const refreshToken = jwt.getRefresh();
+
+  if (status === 401) {
+    if (isRefreshing) {
+      return new Promise<Response>((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then((token) => {
+          return requestUmi(response.url, {
+            ...options,
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    }
+
+    isRefreshing = true;
+
+    return new Promise<Response>((resolve, reject) => {
+      refreshAccessToken(refreshToken!)
+        .then((res) => {
+          if (res) {
+            if (res.access && res.refresh) {
+              jwt.saveAccess(res.access);
+              jwt.saveRefresh(res.refresh);
+            }
+            processQueue(null, res.access);
+            resolve(
+              requestUmi(response.url, {
+                ...options,
+                headers: { Authorization: `Bearer ${res.access}` },
+              }),
+            );
+          } else {
+            throw new Error();
+          }
+        })
+        .catch((err) => {
+          failedQueue = [];
+          jwt.removeAccess();
+          jwt.removeRefresh();
+          cancel('Session time out.');
+          processQueue(err, null);
+          reject(err);
+        })
+        .then(() => {
+          isRefreshing = false;
+        });
+    });
+  }
+
+  return response;
+};
+
 // https://umijs.org/zh-CN/plugins/plugin-request
 export const request: RequestConfig = {
   errorHandler,
-  // credentials: 'include',
+  credentials: 'include',
   headers: {
-    Authorization: `Bearer ${jwt.get()}`,
+    Authorization: `Bearer ${jwt.getAccess()}`,
   },
+  // Handle refresh token: https://github.com/ant-design/ant-design-pro/issues/7159#issuecomment-680789397
+  responseInterceptors: [responseInterceptors],
 };

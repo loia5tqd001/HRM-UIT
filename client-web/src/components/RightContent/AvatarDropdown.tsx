@@ -26,7 +26,8 @@ const loginOut = async () => {
       }),
     });
   }
-  jwt.remove();
+  jwt.removeAccess();
+  jwt.removeRefresh();
 };
 
 const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
@@ -68,7 +69,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 
   const { currentUser } = initialState;
 
-  if (!currentUser || !currentUser.name) {
+  if (!(currentUser?.first_name || currentUser?.last_name)) {
     return loading;
   }
 
@@ -98,7 +99,9 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
     <HeaderDropdown overlay={menuHeaderDropdown}>
       <span className={`${styles.action} ${styles.account}`}>
         <Avatar size="small" className={styles.avatar} src={currentUser.avatar} alt="avatar" />
-        <span className={`${styles.name} anticon`}>{currentUser.name}</span>
+        <span className={`${styles.name} anticon`}>
+          {currentUser.first_name} {currentUser.last_name}
+        </span>
       </span>
     </HeaderDropdown>
   );

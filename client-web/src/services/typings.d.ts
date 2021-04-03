@@ -62,7 +62,7 @@ declare namespace API {
 
   type LoginResult = {
     access: string;
-    refresh?: string;
+    refresh: string;
   };
 
   type ErrorResponse = {

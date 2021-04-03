@@ -1,7 +1,10 @@
 import jwt_decode from 'jwt-decode';
 import isEmpty from 'lodash/isEmpty';
 
-const STORAGE_TOKEN_NAME = 'TOKEN';
+const STORAGE_TOKEN_NAME = {
+  access: 'ACCESS_TOKEN',
+  refresh: 'REFRESH_TOKEN',
+};
 
 export type JwtPayload = {
   exp: number;
@@ -14,20 +17,30 @@ export type JwtPayload = {
 export default {
   check() {
     try {
-      const payload = jwt_decode<JwtPayload>(this.get()!);
+      const payload = jwt_decode<JwtPayload>(this.getAccess()!);
       return !isEmpty(payload);
     } catch (ex) {
-      this.remove();
+      this.removeAccess();
+      this.removeRefresh();
       return false;
     }
   },
-  get() {
-    return localStorage.getItem(STORAGE_TOKEN_NAME);
+  getAccess() {
+    return localStorage.getItem(STORAGE_TOKEN_NAME.access);
   },
-  save(token: string) {
-    localStorage.setItem(STORAGE_TOKEN_NAME, token);
+  saveAccess(token: string) {
+    localStorage.setItem(STORAGE_TOKEN_NAME.access, token);
   },
-  remove() {
-    localStorage.removeItem(STORAGE_TOKEN_NAME);
+  removeAccess() {
+    localStorage.removeItem(STORAGE_TOKEN_NAME.access);
+  },
+  getRefresh() {
+    return localStorage.getItem(STORAGE_TOKEN_NAME.refresh);
+  },
+  saveRefresh(token: string) {
+    localStorage.setItem(STORAGE_TOKEN_NAME.refresh, token);
+  },
+  removeRefresh() {
+    localStorage.removeItem(STORAGE_TOKEN_NAME.refresh);
   },
 };

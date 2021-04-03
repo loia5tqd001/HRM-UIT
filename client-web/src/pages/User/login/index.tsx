@@ -85,14 +85,15 @@ const Login: React.FC = () => {
       await handleRecaptcha();
 
       // Login
-      const { access: access_token } = await login({ ...values });
+      const { access: access_token, refresh: refresh_token } = await login({ ...values });
       message.success(
         intl.formatMessage({
           id: 'pages.login.loginSuccesfully',
           defaultMessage: 'Login succesfully!',
         }),
       );
-      jwtUtils.save(access_token);
+      jwtUtils.saveAccess(access_token);
+      jwtUtils.saveRefresh(refresh_token);
       await fetchUserInfo();
       goto();
       setLoginState('idle');
