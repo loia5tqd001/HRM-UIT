@@ -1,25 +1,32 @@
-import { allEmployees } from '@/services/employee';
-import { useEffect, useState } from 'react';
+import type { ActionType } from '@ant-design/pro-table';
+import { message } from 'antd';
+import { useCallback, useRef, useState } from 'react';
+
+export type RecordType = API.Employee;
 
 export default function useEmployee() {
-  const [employees, setEmployees] = useState<API.EmployeeOnList[]>([]);
-  const [employeesPending, setEmployeesPending] = useState(false);
+  const actionRef = useRef<ActionType>();
+  const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
+    'hidden',
+  );
+  const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
 
-  useEffect(() => {
-    setEmployeesPending(true);
-    allEmployees()
-      .then((data) => {
-        if (data?.length > 0) {
-          setEmployees(data);
-        }
-      })
-      .finally(() => {
-        setEmployeesPending(false);
-      });
+  const onCrudOperation = useCallback(async (cb: () => Promise<any>, errorMessage: string) => {
+    try {
+      await cb();
+      actionRef.current?.reload();
+    } catch (err) {
+      message.error(errorMessage);
+      throw err;
+    }
   }, []);
 
   return {
-    employees,
-    employeesPending,
+    actionRef,
+    onCrudOperation,
+    crudModalVisible,
+    setCrudModalVisible,
+    seletectedRecord,
+    setSelectedRecord,
   };
 }

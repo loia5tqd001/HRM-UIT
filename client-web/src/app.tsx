@@ -182,9 +182,8 @@ const responseInterceptors = (response: Response, options: RequestOptionsInit) =
       refreshAccessToken(refreshToken!)
         .then((res) => {
           if (res) {
-            if (res.access && res.refresh) {
+            if (res.access) {
               jwt.saveAccess(res.access);
-              jwt.saveRefresh(res.refresh);
             }
             processQueue(null, res.access);
             resolve(
