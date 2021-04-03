@@ -69,7 +69,7 @@
           {
             path: '/admin/organization/location',
             name: 'location',
-            component: './Welcome',
+            component: './Admin/Organization/Location',
           },
           {
             path: '/admin/organization',
