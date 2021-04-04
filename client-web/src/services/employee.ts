@@ -40,6 +40,20 @@ export async function deleteEmployee(id: number, options?: { [key: string]: any 
   });
 }
 
+export async function changeEmployeePassword(
+  id: number,
+  new_password: string,
+  options?: { [key: string]: any },
+) {
+  return request(`${endpoint}${id}/password/`, {
+    method: 'PUT',
+    data: {
+      new_password,
+    },
+    ...(options || {}),
+  });
+}
+
 // export async function updateRole(id: string, body: API.RoleItem, options?: { [key: string]: any }) {
 //   return request<API.RoleItem>(`/api/auth/role/${id}/`, {
 //     method: 'PUT',
