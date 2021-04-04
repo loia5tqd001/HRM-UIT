@@ -27,7 +27,7 @@ export async function readEmployee(id: number, options?: { [key: string]: any })
 
 export async function updateEmployee(id: number, data: Item, options?: { [key: string]: any }) {
   return request<Item>(`${endpoint}${id}/`, {
-    method: 'PUT',
+    method: 'PATCH',
     data,
     ...(options || {}),
   });

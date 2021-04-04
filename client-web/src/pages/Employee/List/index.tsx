@@ -103,38 +103,40 @@ const EmployeeList: React.FC = () => {
         },
       },
     },
-    {
-      title: 'Actions',
-      key: 'action',
-      fixed: 'right',
-      align: 'center',
-      search: false,
-      render: (dom, record) => (
-        <Space size="small">
-          <Button
-            title="Edit this employee"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this employee?'}
-            onConfirm={async () => {
-              await onCrudOperation(() => deleteEmployee(record.id), 'Cannot delete employee!');
-            }}
-          >
-            <Button title="Delete this employee" size="small" danger>
-              <DeleteOutlined />
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
+    // NOTE: might need in the future
+    // {
+    //   title: 'Actions',
+    //   key: 'action',
+    //   fixed: 'right',
+    //   align: 'center',
+    //   search: false,
+    //   render: (dom, record) => (
+    //     <Space size="small">
+    //       <Button
+    //         title="Edit this employee"
+    //         size="small"
+    //         onClick={() => {
+    //           setCrudModalVisible('update');
+    //           setSelectedRecord(record);
+    //         }}
+    //       >
+    //         <EditOutlined />
+    //       </Button>
+    //       {/* Delete button: might need in the future */}
+    //       {/* <Popconfirm
+    //         placement="right"
+    //         title={'Delete this employee?'}
+    //         onConfirm={async () => {
+    //           await onCrudOperation(() => deleteEmployee(record.id), 'Cannot delete employee!');
+    //         }}
+    //       >
+    //         <Button title="Delete this employee" size="small" danger>
+    //           <DeleteOutlined />
+    //         </Button>
+    //       </Popconfirm> */}
+    //     </Space>
+    //   ),
+    // },
   ];
 
   return (

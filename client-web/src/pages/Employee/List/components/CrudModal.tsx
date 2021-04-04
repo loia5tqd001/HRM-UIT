@@ -55,7 +55,7 @@ export const CrudModal: React.FC = () => {
         if (crudModalVisible === 'create') {
           await onCrudOperation(() => createEmployee(record), 'Create unsuccessfully!');
         } else if (crudModalVisible === 'update') {
-          await onCrudOperation(() => updateEmployee(value.id, record), 'Update unsuccessfully!');
+          await onCrudOperation(() => updateEmployee(record.id, record), 'Update unsuccessfully!');
         }
         setCrudModalVisible('hidden');
         form.resetFields();
