@@ -35,6 +35,29 @@ export async function currentUser(options?: { [key: string]: any }) {
   });
 }
 
+export async function updateProfile(data: API.Employee, options?: { [key: string]: any }) {
+  return request<API.Employee>('/api/auth/current_user/', {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
+export async function changePassword(
+  password: string,
+  new_password: string,
+  options?: { [key: string]: any },
+) {
+  return request('/api/auth/current_user/password', {
+    method: 'PUT',
+    data: {
+      password,
+      new_password,
+    },
+    ...(options || {}),
+  });
+}
+
 export async function allRoles(options?: { [key: string]: any }) {
   return request<API.RoleItem[]>('/api/auth/roles/', {
     method: 'GET',

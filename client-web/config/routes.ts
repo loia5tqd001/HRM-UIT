@@ -16,6 +16,20 @@
     ],
   },
   {
+    path: '/account',
+    name: 'account',
+    icon: 'user',
+    // hideInMenu: true,
+    routes: [
+      {
+        path: '/account/profile',
+        name: 'profile',
+        icon: 'user',
+        component: './Account/Profile',
+      },
+    ],
+  },
+  {
     path: '/admin',
     name: 'admin',
     icon: 'control',

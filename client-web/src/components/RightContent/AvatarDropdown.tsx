@@ -88,7 +88,10 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
         </Menu.Item>
       )}
       {menu && <Menu.Divider />}
-
+      <Menu.Item key="profile">
+        <UserOutlined />
+        <FormattedMessage id="menu.account.profile" defaultMessage="Profile" />
+      </Menu.Item>
       <Menu.Item key="logout">
         <LogoutOutlined />
         <FormattedMessage id="menu.account.logout" defaultMessage="Logout" />
