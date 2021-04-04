@@ -217,9 +217,7 @@ const responseInterceptors = (response: Response, options: RequestOptionsInit) =
 export const request: RequestConfig = {
   errorHandler,
   credentials: 'include',
-  headers: {
-    Authorization: `Bearer ${jwt.getAccess()}`,
-  },
+  headers: { Authorization: `Bearer ${jwt.getAccess()}` },
   // Handle refresh token: https://github.com/ant-design/ant-design-pro/issues/7159#issuecomment-680789397
   responseInterceptors: [responseInterceptors],
 };
