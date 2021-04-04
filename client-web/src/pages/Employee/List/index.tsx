@@ -1,25 +1,18 @@
-import { allEmployees, deleteEmployee } from '@/services/employee';
-import {
-  DeleteOutlined,
-  EditOutlined,
-  ManOutlined,
-  PlusOutlined,
-  WomanOutlined,
-} from '@ant-design/icons';
+import { allEmployees } from '@/services/employee';
+import { ManOutlined, PlusOutlined, WomanOutlined } from '@ant-design/icons';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Popconfirm, Space } from 'antd';
+import { Button, Space } from 'antd';
 import React from 'react';
 import { FormattedMessage, Link, useIntl, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
+import { PageContainer } from '@ant-design/pro-layout';
 
 type RecordType = API.Employee;
 
 const EmployeeList: React.FC = () => {
   const intl = useIntl();
-  const { actionRef, setCrudModalVisible, setSelectedRecord, onCrudOperation } = useModel(
-    'employee',
-  );
+  const { actionRef, setCrudModalVisible, setSelectedRecord } = useModel('employee');
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -30,7 +23,7 @@ const EmployeeList: React.FC = () => {
       render: (avatar, record) => (
         <Space>
           <span>{avatar}</span>
-          <Link to={`/employee/${record.id}`}>
+          <Link to={`/employee/edit/${record.id}`}>
             {record.first_name} {record.last_name}
           </Link>
         </Space>
@@ -140,7 +133,7 @@ const EmployeeList: React.FC = () => {
   ];
 
   return (
-    <div>
+    <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
         headerTitle={intl.formatMessage({
           id: 'pages.employee.list.table.title',
@@ -224,7 +217,7 @@ const EmployeeList: React.FC = () => {
         columns={columns}
       />
       <CrudModal />
-    </div>
+    </PageContainer>
   );
 };
 
