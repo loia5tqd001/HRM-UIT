@@ -8,7 +8,7 @@ import merge from 'lodash/merge';
 import React from 'react';
 import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
 import { getIntl, history, request as requestUmi } from 'umi';
-import type { RequestOptionsInit, ResponseError } from 'umi-request';
+import type { RequestInterceptor, RequestOptionsInit, ResponseError } from 'umi-request';
 import Reqs from 'umi-request';
 import { currentUser as queryCurrentUser, refreshAccessToken } from './services/auth';
 import jwt from './utils/jwt';
@@ -139,85 +139,54 @@ const errorHandler = (error: ResponseError) => {
   throw error;
 };
 
-const { source } = Reqs.CancelToken;
-const { cancel } = source();
+const { cancel } = Reqs.CancelToken.source();
 
-let isRefreshing: boolean = false;
-let failedQueue: any = [];
-
-const processQueue = (error: any, token: any = null) => {
-  failedQueue.forEach((prom: any) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
+let refreshTokenRequest: Promise<API.LoginResult> | null = null;
+const responseInterceptors = async (response: Response, options: RequestOptionsInit) => {
+  const accessTokenExpired = response.status === 401;
+  if (accessTokenExpired) {
+    try {
+      if (!refreshTokenRequest) {
+        refreshTokenRequest = refreshAccessToken(jwt.getRefresh()!);
+      }
+      // multiple requests but awaiting for only 1 refreshTokenRequest, because of closure
+      const res = await refreshTokenRequest;
+      if (!res) throw new Error();
+      if (res.access) jwt.saveAccess(res.access);
+      if (res.refresh) jwt.saveRefresh(res.refresh);
+      return requestUmi(
+        response.url,
+        merge(cloneDeep(options), { headers: { Authorization: `Bearer ${res.access}` } }),
+      );
+    } catch (err) {
+      jwt.removeAccess();
+      jwt.removeRefresh();
+      cancel('Session time out.');
+      throw err;
+    } finally {
+      refreshTokenRequest = null;
     }
-  });
-
-  failedQueue = [];
-};
-
-const responseInterceptors = (response: Response, options: RequestOptionsInit) => {
-  const { status } = response;
-  // const originalRequest: RequestOptionsExtend = options;
-  const refreshToken = jwt.getRefresh();
-
-  if (status === 401) {
-    if (isRefreshing) {
-      return new Promise<Response>((resolve, reject) => {
-        failedQueue.push({ resolve, reject });
-      })
-        .then((token) => {
-          return requestUmi(
-            response.url,
-            merge(cloneDeep(options), { headers: { Authorization: `Bearer ${token}` } }),
-          );
-        })
-        .catch((err) => {
-          return Promise.reject(err);
-        });
-    }
-
-    isRefreshing = true;
-
-    return new Promise<Response>((resolve, reject) => {
-      refreshAccessToken(refreshToken!)
-        .then((res) => {
-          if (res) {
-            if (res.access) jwt.saveAccess(res.access);
-            if (res.refresh) jwt.saveRefresh(res.refresh);
-            processQueue(null, res.access);
-            resolve(
-              requestUmi(
-                response.url,
-                merge(cloneDeep(options), { headers: { Authorization: `Bearer ${res.access}` } }),
-              ),
-            );
-          } else {
-            throw new Error();
-          }
-        })
-        .catch((err) => {
-          failedQueue = [];
-          jwt.removeAccess();
-          jwt.removeRefresh();
-          cancel('Session time out.');
-          processQueue(err, null);
-          reject(err);
-        })
-        .then(() => {
-          isRefreshing = false;
-        });
-    });
   }
 
   return response;
 };
 
+const requestInterceptors: RequestInterceptor = (url, options) => {
+  return {
+    url,
+    options: merge(cloneDeep(options), { headers: { Authorization: `Bearer ${jwt.getAccess()}` } }),
+  };
+};
+
 // https://umijs.org/zh-CN/plugins/plugin-request
 export const request: RequestConfig = {
   errorHandler,
-  headers: { Authorization: `Bearer ${jwt.getAccess()}` },
-  // Handle refresh token: https://github.com/ant-design/ant-design-pro/issues/7159#issuecomment-680789397
+  // This would fuck the refresh token logic, use requestInterceptors instead,
+  // because jwt.getAccess() will not being called everytime, but only the first time => lead to stale access token
+  // headers: { Authorization: `Bearer ${jwt.getAccess()}` },
+
+  // Handle refresh token (old): https://github.com/ant-design/ant-design-pro/issues/7159#issuecomment-680789397
+  // Handle refresh token (new): https://gist.github.com/paulnguyen-mn/8a5996df9b082c69f41bc9c5a8653533
+  requestInterceptors: [requestInterceptors],
   responseInterceptors: [responseInterceptors],
 };
