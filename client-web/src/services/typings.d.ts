@@ -242,7 +242,7 @@ declare namespace API {
   }
 
   interface EmployeeContactInfo {
-    owner: number;
+    owner: number | undefined;
     address: string;
     country: string;
     province: string;
@@ -250,7 +250,7 @@ declare namespace API {
   }
 
   interface EmployeeEmergencyContact {
-    owner: number;
+    owner: number | undefined;
     fullname: string;
     relationship: 'Father' | 'Mother' | 'Parent' | 'Spouse' | 'Sibling' | 'Friend' | 'Other';
     phone: string;

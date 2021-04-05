@@ -1,5 +1,12 @@
-import { changePassword, updateProfile } from '@/services/auth';
-import { UploadOutlined } from '@ant-design/icons';
+import { __DEV__ } from '@/global';
+import { changeAvatar, changePassword } from '@/services/auth';
+import {
+  getEmergencyContact,
+  getHomeAddress,
+  updateEmergencyContact,
+  updateEmployee,
+  updateHomeAddress,
+} from '@/services/employee';
 import ProForm, {
   ModalForm,
   ProFormDatePicker,
@@ -7,64 +14,78 @@ import ProForm, {
   ProFormText,
 } from '@ant-design/pro-form';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
-import { Button, Card, message, Switch, Upload } from 'antd';
+import { Button, Card, message, Switch, Tooltip, Upload } from 'antd';
+import faker from 'faker';
 import { merge } from 'lodash';
-import React from 'react';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
 import { useModel } from 'umi';
 import styles from './index.less';
-import { useState } from 'react';
-import jwt from '@/utils/jwt';
 
 export const Edit: React.FC = () => {
   const { initialState, refresh } = useModel('@@initialState');
   const [modalVisible, setModalVisible] = useState(false);
+  const [homeAddress, setHomeAddress] = useState<API.EmployeeContactInfo>();
+  const [emergencyContact, setEmergencyContact] = useState<API.EmployeeEmergencyContact>();
+  const id = initialState?.currentUser?.id;
+
+  useEffect(() => {
+    if (id === undefined) return;
+    getHomeAddress(id).then((fetchData) => setHomeAddress(fetchData));
+    getEmergencyContact(id).then((fetchData) => setEmergencyContact(fetchData));
+  }, [id]);
 
   return (
-    <PageContainer title="Profile">
+    <PageContainer title="Profile" loading={!id}>
       <GridContent>
         <div className={styles.layout}>
           <Card bordered={false} loading={!initialState?.currentUser}>
-            <div className={styles.avatar}>
-              <img src={initialState?.currentUser?.avatar} alt="avatar" />
-            </div>
             <Upload
               showUploadList={false}
-              style={{ display: 'block' }}
-              accept="image/png, image/jpeg"
-              action="/api/auth/current_user/avatar"
-              headers={{
-                authorization: `Bearer ${jwt.getAccess()}`,
-              }}
-              onChange={function (info) {
-                if (info.file.status !== 'uploading') {
-                  console.log(info.file, info.fileList);
-                }
-                if (info.file.status === 'done') {
-                  message.success(`${info.file.name} file uploaded successfully`);
-                } else if (info.file.status === 'error') {
-                  message.error(`${info.file.name} file upload failed.`);
+              style={{ display: 'block', cursor: 'pointer' }}
+              maxCount={1}
+              accept="image/*"
+              customRequest={async (options) => {
+                const { file } = options;
+                const config = {
+                  headers: {
+                    'content-type': 'multipart/form-data',
+                  },
+                };
+                const hide = message.loading('Uploading...');
+                try {
+                  const data = new FormData();
+                  data.append('avatar', file);
+                  await changeAvatar(data, config);
+                  await refresh();
+                  message.success('Update avatar successfully!');
+                } catch (err) {
+                  message.error('Update avatar failed!');
+                } finally {
+                  hide?.();
                 }
               }}
             >
-              <Button style={{ width: '100%' }}>
-                <UploadOutlined />
-                Change avatar
-              </Button>
+              <Tooltip title="Change avatar" placement="top">
+                <div className={styles.avatar}>
+                  <img src={initialState?.currentUser?.avatar} alt="avatar" />
+                </div>
+              </Tooltip>
             </Upload>
             <h2 style={{ marginTop: 12, marginBottom: 0 }}>
               {initialState?.currentUser?.first_name} {initialState?.currentUser?.last_name}
             </h2>
-            <h4 style={{ marginBottom: 12 }}>@{initialState?.currentUser?.user?.username}</h4>
+            <h4 style={{ marginBottom: 12 }}>@{initialState?.currentUser?.user.username}</h4>
             <Button
-              onClick={() => setModalVisible(true)}
               style={{ display: 'block', marginBottom: 12 }}
+              onClick={() => setModalVisible(true)}
             >
               Change password
             </Button>
             <Switch
               checkedChildren="Active"
               unCheckedChildren="Inactive"
-              checked={initialState?.currentUser?.user?.is_active}
+              checked={initialState?.currentUser?.user.is_active}
               onChange={(checked) => {
                 console.log(checked);
               }}
@@ -128,70 +149,221 @@ export const Edit: React.FC = () => {
               ]}
             />
           </ModalForm>
-          <Card loading={!initialState?.currentUser} style={{ height: '100%' }} title="Basic info">
-            <ProForm<API.Employee>
-              onFinish={async (value) => {
-                const final = merge(initialState?.currentUser, value);
-                // @ts-ignore
-                delete final.user.username;
-                // @ts-ignore
-                delete final.avatar;
-                await updateProfile(final);
-                await refresh();
-                message.success('Updated successfully!');
-              }}
-              initialValues={initialState?.currentUser}
-            >
-              <ProForm.Group>
-                <ProFormText
-                  width="sm"
-                  rules={[{ required: true, type: 'email' }]}
-                  name="email"
-                  label="Email"
-                />
-                <ProFormText
-                  width="sm"
-                  rules={[{ required: true }]}
-                  name="first_name"
-                  label="First name"
-                />
-                <ProFormText
-                  width="sm"
-                  rules={[{ required: true }]}
-                  name="last_name"
-                  label="Last name"
-                />
-              </ProForm.Group>
-              <ProForm.Group>
-                <ProFormSelect
-                  width="sm"
-                  name="gender"
-                  label="Gender"
-                  options={[
-                    { value: 'Male', label: 'Male' },
-                    { value: 'Female', label: 'Female' },
-                    { value: 'Other', label: 'Other' },
-                  ]}
-                />
-                <ProFormDatePicker width="sm" name="date_of_birth" label="Date of birth" />
-                <ProFormSelect
-                  width="sm"
-                  name="marital_status"
-                  label="Marital status"
-                  options={[
-                    { value: 'Single', label: 'Single' },
-                    { value: 'Married', label: 'Married' },
-                    { value: 'Other', label: 'Other' },
-                  ]}
-                />
-                <ProFormText width="sm" name="personal_tax_id" label="Personal tax id" />
-                <ProFormText width="sm" name="nationality" label="Nationality" />
-                <ProFormText width="sm" name="phone" label="Phone" />
-                <ProFormText width="sm" name="social_insurance" label="Social insurance" />
-                <ProFormText width="sm" name="health_insurance" label="Health insurance" />
-              </ProForm.Group>
-            </ProForm>
-          </Card>
+          <div className={styles.right}>
+            <Card loading={!initialState?.currentUser} title="Basic info">
+              <ProForm<API.Employee>
+                onFinish={async (value) => {
+                  const final = merge(initialState?.currentUser, value);
+                  // @ts-ignore
+                  delete final.user.username;
+                  // @ts-ignore
+                  delete final.avatar;
+                  await updateEmployee(final.id, final);
+                  await refresh();
+                  message.success('Updated successfully!');
+                }}
+                initialValues={initialState?.currentUser}
+                submitter={{
+                  render: ({ form }, defaultDoms) => {
+                    return [
+                      ...defaultDoms,
+                      __DEV__ && (
+                        <Button
+                          key="autoFill"
+                          onClick={() => {
+                            form?.setFieldsValue({
+                              first_name: faker.name.firstName(),
+                              last_name: faker.name.lastName(),
+                              email: faker.internet.email(),
+                              gender: faker.helpers.randomize(['Male', 'Female', 'Other']),
+                              marital_status: faker.helpers.randomize([
+                                'Single',
+                                'Married',
+                                'Divorced',
+                                'Seperated',
+                                'Widowed',
+                                'Other',
+                              ]),
+                              date_of_birth: moment(faker.date.past(30)),
+                              personal_tax_id: faker.finance.account(),
+                              nationality: 'Việt Nam',
+                              phone: faker.phone.phoneNumber('(+84) #########'),
+                              social_insurance: String(
+                                faker.random.number({ min: 1000000000, max: 9999999999 }),
+                              ),
+                              health_insurance: String(
+                                faker.random.number({ min: 1000000000, max: 9999999999 }),
+                              ),
+                            });
+                          }}
+                        >
+                          Auto fill
+                        </Button>
+                      ),
+                    ];
+                  },
+                }}
+              >
+                <ProForm.Group>
+                  <ProFormText
+                    width="sm"
+                    rules={[{ required: true, type: 'email' }]}
+                    name="email"
+                    label="Email"
+                  />
+                  <ProFormText
+                    width="sm"
+                    rules={[{ required: true }]}
+                    name="first_name"
+                    label="First name"
+                  />
+                  <ProFormText
+                    width="sm"
+                    rules={[{ required: true }]}
+                    name="last_name"
+                    label="Last name"
+                  />
+                </ProForm.Group>
+                <ProForm.Group>
+                  <ProFormSelect
+                    width="sm"
+                    name="gender"
+                    label="Gender"
+                    options={[
+                      { value: 'Male', label: 'Male' },
+                      { value: 'Female', label: 'Female' },
+                      { value: 'Other', label: 'Other' },
+                    ]}
+                  />
+                  <ProFormDatePicker width="sm" name="date_of_birth" label="Date of birth" />
+                  <ProFormSelect
+                    width="sm"
+                    name="marital_status"
+                    label="Marital status"
+                    options={[
+                      { value: 'Single', label: 'Single' },
+                      { value: 'Married', label: 'Married' },
+                      { value: 'Other', label: 'Other' },
+                    ]}
+                  />
+                  <ProFormText width="sm" name="personal_tax_id" label="Personal tax id" />
+                  <ProFormText width="sm" name="nationality" label="Nationality" />
+                  <ProFormText width="sm" name="phone" label="Phone" />
+                  <ProFormText width="sm" name="social_insurance" label="Social insurance" />
+                  <ProFormText width="sm" name="health_insurance" label="Health insurance" />
+                </ProForm.Group>
+              </ProForm>
+            </Card>
+            <Card loading={!homeAddress} title="Home address">
+              <ProForm<API.EmployeeContactInfo>
+                onFinish={async (value) => {
+                  try {
+                    const final = merge(homeAddress, value);
+                    final.owner = id;
+                    await updateHomeAddress(id!, final);
+                    setHomeAddress(final);
+                    message.success('Updated successfully!');
+                  } catch {
+                    message.error('Update failed!');
+                  }
+                }}
+                initialValues={homeAddress}
+                submitter={{
+                  render: ({ form }, defaultDoms) => {
+                    return [
+                      ...defaultDoms,
+                      __DEV__ && (
+                        <Button
+                          key="autoFill"
+                          onClick={() => {
+                            form?.setFieldsValue({
+                              address: faker.address.streetAddress(),
+                              country: 'Việt Nam',
+                              province: faker.address.state(),
+                              city: faker.address.city(),
+                            });
+                          }}
+                        >
+                          Auto fill
+                        </Button>
+                      ),
+                    ];
+                  },
+                }}
+              >
+                <ProForm.Group>
+                  <ProFormText width="sm" name="address" label="Full address" />
+                  <ProFormText width="sm" name="country" label="Country" />
+                  <ProFormText width="sm" name="province" label="Province" />
+                  <ProFormText width="sm" name="city" label="City" />
+                </ProForm.Group>
+              </ProForm>
+            </Card>
+            <Card loading={!emergencyContact} title="Emergency contact">
+              <ProForm<API.EmployeeEmergencyContact>
+                onFinish={async (value) => {
+                  try {
+                    const final = merge(emergencyContact, value);
+                    final.owner = id;
+                    await updateEmergencyContact(id!, final);
+                    setEmergencyContact(final);
+                    message.success('Updated successfully!');
+                  } catch {
+                    message.error('Update failed!');
+                  }
+                }}
+                initialValues={emergencyContact}
+                submitter={{
+                  render: ({ form }, defaultDoms) => {
+                    return [
+                      ...defaultDoms,
+                      __DEV__ && (
+                        <Button
+                          key="autoFill"
+                          onClick={() => {
+                            form?.setFieldsValue({
+                              fullname: faker.name.findName(),
+                              relationship: faker.helpers.randomize([
+                                'Father',
+                                'Mother',
+                                'Parent',
+                                'Spouse',
+                                'Sibling',
+                                'Friend',
+                                'Other',
+                              ]),
+                              phone: faker.phone.phoneNumber('+84 #########'),
+                            });
+                          }}
+                        >
+                          Auto fill
+                        </Button>
+                      ),
+                    ];
+                  },
+                }}
+              >
+                <ProForm.Group>
+                  <ProFormText width="sm" name="fullname" label="Full name" />
+                  <ProFormSelect
+                    width="sm"
+                    name="relationship"
+                    label="Relationship"
+                    options={[
+                      { value: 'Father', label: 'Father' },
+                      { value: 'Mother', label: 'Mother' },
+                      { value: 'Parent', label: 'Parent' },
+                      { value: 'Spouse', label: 'Spouse' },
+                      { value: 'Sibling', label: 'Sibling' },
+                      { value: 'Friend', label: 'Friend' },
+                      { value: 'Other', label: 'Other' },
+                    ]}
+                  />
+                  <ProFormText width="sm" name="phone" label="Phone" />
+                </ProForm.Group>
+              </ProForm>
+            </Card>
+          </div>
         </div>
       </GridContent>
     </PageContainer>

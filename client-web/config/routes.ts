@@ -19,7 +19,6 @@
     path: '/account',
     name: 'account',
     icon: 'user',
-    // hideInMenu: true,
     routes: [
       {
         path: '/account/profile',
@@ -229,7 +228,7 @@
   },
   {
     path: '/',
-    redirect: '/admin/',
+    redirect: '/account/',
   },
   {
     component: './404',

@@ -3,11 +3,12 @@ import RightContent from '@/components/RightContent';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
 import { PageLoading } from '@ant-design/pro-layout';
-import { message } from 'antd';
+import { cloneDeep } from 'lodash';
+import merge from 'lodash/merge';
 import React from 'react';
 import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
 import { getIntl, history, request as requestUmi } from 'umi';
-import type { ResponseError, RequestOptionsInit } from 'umi-request';
+import type { RequestOptionsInit, ResponseError } from 'umi-request';
 import Reqs from 'umi-request';
 import { currentUser as queryCurrentUser, refreshAccessToken } from './services/auth';
 import jwt from './utils/jwt';
@@ -167,10 +168,10 @@ const responseInterceptors = (response: Response, options: RequestOptionsInit) =
         failedQueue.push({ resolve, reject });
       })
         .then((token) => {
-          return requestUmi(response.url, {
-            ...options,
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          return requestUmi(
+            response.url,
+            merge(cloneDeep(options), { headers: { Authorization: `Bearer ${token}` } }),
+          );
         })
         .catch((err) => {
           return Promise.reject(err);
@@ -183,15 +184,14 @@ const responseInterceptors = (response: Response, options: RequestOptionsInit) =
       refreshAccessToken(refreshToken!)
         .then((res) => {
           if (res) {
-            if (res.access) {
-              jwt.saveAccess(res.access);
-            }
+            if (res.access) jwt.saveAccess(res.access);
+            if (res.refresh) jwt.saveRefresh(res.refresh);
             processQueue(null, res.access);
             resolve(
-              requestUmi(response.url, {
-                ...options,
-                headers: { Authorization: `Bearer ${res.access}` },
-              }),
+              requestUmi(
+                response.url,
+                merge(cloneDeep(options), { headers: { Authorization: `Bearer ${res.access}` } }),
+              ),
             );
           } else {
             throw new Error();
