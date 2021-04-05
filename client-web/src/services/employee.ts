@@ -54,6 +54,52 @@ export async function changeEmployeePassword(
   });
 }
 
+export async function changeEmployeeAvatar(id: number, data: any, options?: { [key: string]: any }) {
+  return request(`${endpoint}${id}/avatar/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
+export async function getHomeAddress(employeeId: number, options?: { [key: string]: any }) {
+  return request<API.EmployeeContactInfo>(`${endpoint}${employeeId}/contact_info/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateHomeAddress(
+  employeeId: number,
+  data: API.EmployeeContactInfo,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeeContactInfo>(`${endpoint}${employeeId}/contact_info/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
+export async function getEmergencyContact(employeeId: number, options?: { [key: string]: any }) {
+  return request<API.EmployeeEmergencyContact>(`${endpoint}${employeeId}/emergency_contact/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateEmergencyContact(
+  employeeId: number,
+  data: API.EmployeeEmergencyContact,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeeEmergencyContact>(`${endpoint}${employeeId}/emergency_contact/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
 // export async function updateRole(id: string, body: API.RoleItem, options?: { [key: string]: any }) {
 //   return request<API.RoleItem>(`/api/auth/role/${id}/`, {
 //     method: 'PUT',

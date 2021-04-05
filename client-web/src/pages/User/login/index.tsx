@@ -98,7 +98,7 @@ const Login: React.FC = () => {
       goto();
       setLoginState('idle');
     } catch (err) {
-      setErrorMessage(err?.data?.errorMessage);
+      setErrorMessage("Login failed");
       setLoginState('error');
     }
   };

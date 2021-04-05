@@ -15,6 +15,10 @@ export type JwtPayload = {
  * @see https://github.com/ant-design/ant-design-pro/issues/298#issuecomment-354227772
  */
 export default {
+  memory: {
+    access: '',
+    refresh: '',
+  },
   check() {
     try {
       const payload = jwt_decode<JwtPayload>(this.getAccess()!);
@@ -26,21 +30,25 @@ export default {
     }
   },
   getAccess() {
-    return localStorage.getItem(STORAGE_TOKEN_NAME.access);
+    return this.memory.access || localStorage.getItem(STORAGE_TOKEN_NAME.access);
   },
   saveAccess(token: string) {
+    this.memory.access = token;
     localStorage.setItem(STORAGE_TOKEN_NAME.access, token);
   },
   removeAccess() {
+    this.memory.access = '';
     localStorage.removeItem(STORAGE_TOKEN_NAME.access);
   },
   getRefresh() {
-    return localStorage.getItem(STORAGE_TOKEN_NAME.refresh);
+    return this.memory.refresh || localStorage.getItem(STORAGE_TOKEN_NAME.refresh);
   },
   saveRefresh(token: string) {
+    this.memory.refresh = token;
     localStorage.setItem(STORAGE_TOKEN_NAME.refresh, token);
   },
   removeRefresh() {
+    this.memory.refresh = '';
     localStorage.removeItem(STORAGE_TOKEN_NAME.refresh);
   },
 };

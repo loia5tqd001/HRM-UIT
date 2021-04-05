@@ -241,6 +241,30 @@ declare namespace API {
     permissions: string[];
   }
 
+  interface EmployeeContactInfo {
+    owner: number;
+    address: string;
+    country: string;
+    province: string;
+    city: string;
+  }
+
+  interface EmployeeEmergencyContact {
+    owner: number;
+    fullname: string;
+    relationship: 'Father' | 'Mother' | 'Parent' | 'Spouse' | 'Sibling' | 'Friend' | 'Other';
+    phone: string;
+  }
+
+  interface EmployeeBankInfo {
+    bank_name: string;
+    account_name: string;
+    branch: string;
+    account_number: string;
+    swift_bic: string;
+    iban: string;
+  }
+
   type User = any;
 
   type PermissionItem = {

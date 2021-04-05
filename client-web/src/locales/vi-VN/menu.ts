@@ -18,6 +18,7 @@ export default {
   'menu.admin.qualification.customFields': 'Trường tuỳ chỉnh',
   'menu.employee': 'Nhân viên',
   'menu.employee.list': 'Danh sách',
+  'menu.employee.edit': 'Chi tiết',
   'menu.employee.add': 'Thêm mới',
   'menu.employee.import': 'Import',
   'menu.employee.terminateContract': 'Kết thúc hợp đồng',

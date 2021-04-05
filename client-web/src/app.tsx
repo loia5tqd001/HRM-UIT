@@ -123,16 +123,17 @@ const codeMessage = {
  * @see https://beta-pro.ant.design/docs/request-cn
  */
 const errorHandler = (error: ResponseError) => {
-  const { response } = error;
+  // const { response } = error;
 
-  if (response && response.status) {
-    const errorText = codeMessage[response.status] || response.statusText;
-    message.error(errorText);
-  }
+  // if (response && response.status) {
+  //   const errorText = codeMessage[response.status] || response.statusText;
+  //   message.error(errorText);
+  // }
 
-  if (!response) {
-    message.error('Cannot connect to the server');
-  }
+  // if (!response) {
+  //   message.error('Cannot connect to the server');
+  // }
+  console.log('HTTP ERROR', error);
 
   throw error;
 };
@@ -216,7 +217,6 @@ const responseInterceptors = (response: Response, options: RequestOptionsInit) =
 // https://umijs.org/zh-CN/plugins/plugin-request
 export const request: RequestConfig = {
   errorHandler,
-  credentials: 'include',
   headers: { Authorization: `Bearer ${jwt.getAccess()}` },
   // Handle refresh token: https://github.com/ant-design/ant-design-pro/issues/7159#issuecomment-680789397
   responseInterceptors: [responseInterceptors],

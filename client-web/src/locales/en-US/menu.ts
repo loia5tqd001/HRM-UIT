@@ -18,6 +18,7 @@ export default {
   'menu.admin.qualification.customFields': 'Custom Fields',
   'menu.employee': 'Employee',
   'menu.employee.list': 'List',
+  'menu.employee.edit': 'Edit',
   'menu.employee.add': 'Add',
   'menu.employee.import': 'Import',
   'menu.employee.terminateContract': 'Terminate Contract',

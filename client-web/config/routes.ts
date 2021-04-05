@@ -137,7 +137,6 @@
     // access: 'canAdmin',
     routes: [
       { path: '/employee/list', name: 'list', icon: 'unorderedList', component: './Employee/List' },
-      { path: '/employee/add', name: 'add', icon: 'userAdd', component: './Welcome' },
       { path: '/employee/import', name: 'import', icon: 'import', component: './Welcome' },
       {
         path: '/employee/terminateContract',
