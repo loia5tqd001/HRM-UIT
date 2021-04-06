@@ -48,9 +48,10 @@ export const Edit: React.FC = () => {
               customRequest={async (options) => {
                 const { file } = options;
                 const config = {
-                  headers: {
-                    'content-type': 'multipart/form-data',
-                  },
+                  // headers: {
+                  //   'content-type': 'multipart/form-data',
+                  // },
+                  // If you set the 'content-type' header manually yourself, you fucked up: https://stackoverflow.com/a/38271059/9787887
                 };
                 const hide = message.loading('Uploading...');
                 try {
@@ -243,6 +244,9 @@ export const Edit: React.FC = () => {
                     options={[
                       { value: 'Single', label: 'Single' },
                       { value: 'Married', label: 'Married' },
+                      { value: 'Divorced', label: 'Divorced' },
+                      { value: 'Seperated', label: 'Seperated' },
+                      { value: 'Widowed', label: 'Widowed' },
                       { value: 'Other', label: 'Other' },
                     ]}
                   />
