@@ -30,10 +30,10 @@ export const CrudModal: React.FC = () => {
 
   const treeData = departments.map((it) => ({
     id: it.id,
-    pId: it.parent_id,
+    pId: it.parent,
     value: it.id,
     title: it.name,
-    isLeaf: !departments.some((x) => x.parent_id === it.id),
+    isLeaf: !departments.some((x) => x.parent === it.id),
   }));
 
   return (
@@ -52,7 +52,7 @@ export const CrudModal: React.FC = () => {
           form.setFieldsValue({
             ...selectedDepartment,
             manager: managerToOptionValue(selectedDepartment.manager as API.Manager),
-            parent: treeData.find((it) => it.id === selectedDepartment?.parent_id),
+            parent: treeData.find((it) => it.id === selectedDepartment?.parent),
           });
         } else {
           form.setFieldsValue({
@@ -64,7 +64,7 @@ export const CrudModal: React.FC = () => {
         const convertedToSubmit = {
           ...value,
           manager: (value.manager as string).split(/\s+/g)[0],
-          parent_id: value.parent.id || value.parent,
+          parent: value.parent.id || value.parent,
         };
         if (crudModalVisible === 'create') {
           await onCreateDepartment(convertedToSubmit);

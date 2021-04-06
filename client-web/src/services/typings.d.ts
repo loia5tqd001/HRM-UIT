@@ -210,7 +210,7 @@ declare namespace API {
     description?: string;
     manager: number | Manager;
     employee_no: number;
-    parent_id: DepartmentUnit['id'];
+    parent: DepartmentUnit['id'];
   }
 
   interface User {

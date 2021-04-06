@@ -1,7 +1,6 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
-import { Avatar, Button, message, Popconfirm, Space, Table } from 'antd';
-import type { ColumnsType } from 'antd/lib/table';
+import { Avatar, Button, message, Popconfirm, Space } from 'antd';
 import React, { useCallback, useMemo } from 'react';
 import { useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
@@ -128,8 +127,8 @@ export const OrganziationStructure: React.FC = () => {
       });
       const dataTree: API.DepartmentUnit[] = [];
       dataset.forEach((dataItem) => {
-        if (dataItem.parent_id) {
-          const parentExist = hashTable[dataItem.parent_id];
+        if (dataItem.parent) {
+          const parentExist = hashTable[dataItem.parent];
           if (parentExist) {
             if (parentExist?.children) {
               parentExist.children.push(hashTable[String(dataItem.id)]);

@@ -22,7 +22,7 @@ const data = [
     description: 'Board of Directors',
     manager: sample(managers),
     employee_no: 5,
-    parent_id: null,
+    parent: null,
   },
   {
     id: 2,
@@ -30,7 +30,7 @@ const data = [
     description: 'Phòng ban kinh doanh',
     manager: sample(managers),
     employee_no: 2,
-    parent_id: 1,
+    parent: 1,
   },
   {
     id: 3,
@@ -38,7 +38,7 @@ const data = [
     description: 'Phòng ban marketing',
     manager: sample(managers),
     employee_no: 2,
-    parent_id: 1,
+    parent: 1,
   },
   {
     id: 4,
@@ -46,7 +46,7 @@ const data = [
     description: 'Phòng ban sales',
     manager: sample(managers),
     employee_no: 1,
-    parent_id: 1,
+    parent: 1,
   },
   {
     id: 5,
@@ -54,7 +54,7 @@ const data = [
     description: 'Phòng ban IT',
     manager: sample(managers),
     employee_no: 1,
-    parent_id: 1,
+    parent: 1,
   },
   {
     id: 6,
@@ -62,7 +62,7 @@ const data = [
     description: 'Team kinh doanh 1',
     manager: sample(managers),
     employee_no: 4,
-    parent_id: null,
+    parent: null,
   },
   {
     id: 7,
@@ -70,7 +70,7 @@ const data = [
     description: 'Team kinh doanh 22',
     manager: sample(managers),
     employee_no: 5,
-    parent_id: 2,
+    parent: 2,
   },
   {
     id: 9,
@@ -78,7 +78,7 @@ const data = [
     description: 'Team kinh doanh 1.2',
     manager: sample(managers),
     employee_no: 3,
-    parent_id: null,
+    parent: null,
   },
   {
     id: 10,
@@ -86,7 +86,7 @@ const data = [
     description: 'Team marketing 1',
     manager: sample(managers),
     employee_no: 2,
-    parent_id: null,
+    parent: null,
   },
   {
     id: 11,
@@ -94,7 +94,7 @@ const data = [
     description: 'Team sales 1',
     manager: sample(managers),
     employee_no: 4,
-    parent_id: 4,
+    parent: 4,
   },
   {
     id: 12,
@@ -102,7 +102,7 @@ const data = [
     description: 'Team IT 1',
     manager: sample(managers),
     employee_no: 2,
-    parent_id: 5,
+    parent: 5,
   },
   {
     id: 13,
@@ -110,7 +110,7 @@ const data = [
     description: 'Team IT 2',
     manager: sample(managers),
     employee_no: 1,
-    parent_id: 5,
+    parent: 5,
   },
   {
     id: 22,
@@ -118,7 +118,7 @@ const data = [
     description: '12',
     manager: sample(managers),
     employee_no: 1,
-    parent_id: 6,
+    parent: 6,
   },
 ];
 
@@ -135,7 +135,7 @@ export default {
       description: req.body.description,
       manager: (managers.find((it) => it.id == req.body.manager) as any) as API.Manager,
       employee_no: 1,
-      parent_id: +req.body.parent_id,
+      parent: +req.body.parent,
     } as API.DepartmentUnit;
     data.push(newItem as any);
     res.status(201).send(newItem);
@@ -168,8 +168,8 @@ export default {
       return;
     }
     data.forEach((it) => {
-      if (it.parent_id === toDeleteItem.id) {
-        it.parent_id = toDeleteItem.parent_id as any;
+      if (it.parent === toDeleteItem.id) {
+        it.parent = toDeleteItem.parent as any;
       }
     });
     data.splice(foundItemIndex, 1);

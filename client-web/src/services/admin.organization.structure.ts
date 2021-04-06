@@ -1,6 +1,6 @@
 import { request } from 'umi';
 
-const endpoint = '/api/admin/organization/structure/';
+const endpoint = '/api/departments/';
 type Item = API.DepartmentUnit;
 
 export async function allDepartments(options?: { [key: string]: any }) {
@@ -47,7 +47,7 @@ export async function deleteDepartment(id: number, options?: { [key: string]: an
 }
 
 export async function allManagers(options?: { [key: string]: any }) {
-  return request<API.Manager[]>(`/api/admin/managers/`, {
+  return request<API.Employee[]>(`/api/employees/`, {
     method: 'GET',
     ...(options || {}),
   });

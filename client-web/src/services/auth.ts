@@ -44,19 +44,19 @@ export async function updateProfile(data: API.Employee, options?: { [key: string
 }
 
 export async function changeAvatar(data: any, options?: { [key: string]: any }) {
-  return request(`api/auth/current_user/avatar/`, {
+  return request(`/api/auth/current_user/avatar/`, {
     method: 'POST',
     data,
     ...(options || {}),
   });
 }
-
+  
 export async function changePassword(
   password: string,
   new_password: string,
   options?: { [key: string]: any },
 ) {
-  return request('/api/auth/current_user/password', {
+  return request('/api/auth/current_user/password/', {
     method: 'PUT',
     data: {
       password,
