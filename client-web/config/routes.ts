@@ -26,6 +26,10 @@
         icon: 'user',
         component: './Account/Profile',
       },
+      {
+        path: '/account',
+        redirect: '/account/profile',
+      },
     ],
   },
   {
@@ -61,6 +65,10 @@
             path: '/admin/job/customFields',
             name: 'customFields',
             component: './Welcome',
+          },
+          {
+            path: '/admin/job',
+            redirect: '/admin/job/jobTitle',
           },
         ],
       },
