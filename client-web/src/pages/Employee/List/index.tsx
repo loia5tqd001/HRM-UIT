@@ -16,7 +16,9 @@ const EmployeeList: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Full name',
+      title: (
+        <FormattedMessage id="pages.employee.list.column.full_name" defaultMessage="Full name" />
+      ),
       key: 'full_name',
       dataIndex: 'avatar',
       valueType: 'avatar',
@@ -31,7 +33,7 @@ const EmployeeList: React.FC = () => {
       fixed: 'left',
     },
     {
-      title: 'Gender',
+      title: <FormattedMessage id="pages.employee.list.column.gender" defaultMessage="Gender" />,
       key: 'gender',
       dataIndex: 'gender',
       valueEnum: {
@@ -47,26 +49,79 @@ const EmployeeList: React.FC = () => {
       },
     },
     {
-      title: 'Email address',
+      title: (
+        <FormattedMessage id="pages.employee.list.column.email" defaultMessage="Email address" />
+      ),
+
       key: 'email',
       dataIndex: 'email',
     },
     {
-      title: 'Marital status',
+      title: (
+        <FormattedMessage
+          id="pages.employee.list.column.marital_status"
+          defaultMessage="Marital status"
+        />
+      ),
       key: 'marital_status',
       dataIndex: 'marital_status',
     },
     {
-      title: 'DoB (YYYY-MM-DD)',
+      title: (
+        <FormattedMessage
+          id="pages.employee.list.column.date_of_birth"
+          defaultMessage="DoB (YYYY-MM-DD)"
+        />
+      ),
       key: 'date_of_birth',
       dataIndex: 'date_of_birth',
       valueType: 'date',
     },
-    { title: 'Personal tax id', key: 'personal_tax_id', dataIndex: 'personal_tax_id' },
-    { title: 'Nationality', key: 'nationality', dataIndex: 'nationality' },
-    { title: 'Phone', key: 'phone', dataIndex: 'phone' },
-    { title: 'Social insurance', key: 'social_insurance', dataIndex: 'social_insurance' },
-    { title: 'Health insurance', key: 'health_insurance', dataIndex: 'health_insurance' },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.employee.list.column.personal_tax_id"
+          defaultMessage="Personal tax id"
+        />
+      ),
+      key: 'personal_tax_id',
+      dataIndex: 'personal_tax_id',
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.employee.list.column.nationality"
+          defaultMessage="Nationality"
+        />
+      ),
+      key: 'nationality',
+      dataIndex: 'nationality',
+    },
+    {
+      title: <FormattedMessage id="pages.employee.list.column.phone" defaultMessage="Phone" />,
+      key: 'phone',
+      dataIndex: 'phone',
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.employee.list.column.social_insurance"
+          defaultMessage="Social insurance"
+        />
+      ),
+      key: 'social_insurance',
+      dataIndex: 'social_insurance',
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.employee.list.column.health_insurance"
+          defaultMessage="Health insurance"
+        />
+      ),
+      key: 'health_insurance',
+      dataIndex: 'health_insurance',
+    },
     // {
     //   title: 'Supervisor',
     //   key: 'supervisor',
@@ -82,16 +137,26 @@ const EmployeeList: React.FC = () => {
     //   ),
     // },
     {
-      title: 'Status',
+      title: <FormattedMessage id="pages.employee.list.column.status" defaultMessage="Status" />,
       dataIndex: ['user', 'is_active'],
       hideInForm: true,
       valueEnum: {
         true: {
-          text: 'Active',
+          text: (
+            <FormattedMessage
+              id="pages.employee.list.column.status.active"
+              defaultMessage="Status"
+            />
+          ),
           status: 'Success',
         },
         false: {
-          text: 'Inactive',
+          text: (
+            <FormattedMessage
+              id="pages.employee.list.column.status.inactive"
+              defaultMessage="Status"
+            />
+          ),
           status: 'Error',
         },
       },

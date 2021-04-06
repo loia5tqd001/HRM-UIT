@@ -13,19 +13,27 @@ import faker from 'faker';
 import moment from 'moment';
 import React from 'react';
 import { useModel } from 'umi';
-
-const dict = {
-  title: {
-    create: 'New Employee',
-    update: 'Edit Employee',
-  },
-};
+import { useIntl } from 'umi';
 
 export const CrudModal: React.FC = () => {
   const [form] = useForm<RecordType>();
   const { crudModalVisible, setCrudModalVisible, onCrudOperation, seletectedRecord } = useModel(
     'employee',
   );
+  const intl = useIntl();
+
+  const dict = {
+    title: {
+      create: intl.formatMessage({
+        id: 'pages.employee.new.title',
+        defaultMessage: 'New Employee',
+      }),
+      update: intl.formatMessage({
+        id: 'pages.employee.edit.title',
+        defaultMessage: 'Edit Employee',
+      }),
+    },
+  };
 
   return (
     <ModalForm
@@ -115,56 +123,189 @@ export const CrudModal: React.FC = () => {
           width="sm"
           rules={[{ required: true }]}
           name={['user', 'username']}
-          label="Username"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.username',
+            defaultMessage: 'Username',
+          })}
         />
         <ProFormText.Password
           width="sm"
           rules={[{ required: true }]}
           name={['user', 'password']}
-          label="Password"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.password',
+            defaultMessage: 'Password',
+          })}
         />
         <ProFormText.Password
           width="sm"
           rules={[{ required: true }]}
           name={['user', 'confirm_password']}
-          label="Confirm Password"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.confirm_password',
+            defaultMessage: 'Confirm Password',
+          })}
         />
         <ProFormText
           width="sm"
           rules={[{ required: true, type: 'email' }]}
           name="email"
-          label="Email"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.email',
+            defaultMessage: 'Email',
+          })}
         />
-        <ProFormText width="sm" rules={[{ required: true }]} name="first_name" label="First name" />
-        <ProFormText width="sm" rules={[{ required: true }]} name="last_name" label="Last name" />
+        <ProFormText
+          width="sm"
+          rules={[{ required: true }]}
+          name="first_name"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.first_name',
+            defaultMessage: 'First name',
+          })}
+        />
+        <ProFormText
+          width="sm"
+          rules={[{ required: true }]}
+          name="last_name"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.last_name',
+            defaultMessage: 'Last name',
+          })}
+        />
       </ProForm.Group>
       <ProForm.Group>
         <ProFormSelect
           width="sm"
           name="gender"
-          label="Gender"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.gender',
+            defaultMessage: 'Gender',
+          })}
           options={[
-            { value: 'Male', label: 'Male' },
-            { value: 'Female', label: 'Female' },
-            { value: 'Other', label: 'Other' },
+            {
+              value: 'Male',
+              label: intl.formatMessage({
+                id: 'pages.employee.list.column.gender.male',
+                defaultMessage: 'Gender',
+              }),
+            },
+            {
+              value: 'Female',
+              label: intl.formatMessage({
+                id: 'pages.employee.list.column.gender.female',
+                defaultMessage: 'Gender',
+              }),
+            },
+            {
+              value: 'Other',
+              label: intl.formatMessage({
+                id: 'pages.employee.list.column.gender.other',
+                defaultMessage: 'Gender',
+              }),
+            },
           ]}
         />
-        <ProFormDatePicker width="sm" name="date_of_birth" label="Date of birth" />
+        <ProFormDatePicker
+          width="sm"
+          name="date_of_birth"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.date_of_birth',
+            defaultMessage: 'Date of birth',
+          })}
+        />
         <ProFormSelect
           width="sm"
           name="marital_status"
-          label="Marital status"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.marital_status',
+            defaultMessage: 'Marital status',
+          })}
           options={[
-            { value: 'Single', label: 'Single' },
-            { value: 'Married', label: 'Married' },
-            { value: 'Other', label: 'Other' },
+            {
+              value: 'Single',
+              label: intl.formatMessage({
+                id: 'pages.employee.list.column.marital_status.single',
+                defaultMessage: 'Single',
+              }),
+            },
+            {
+              value: 'Married',
+              label: intl.formatMessage({
+                id: 'pages.employee.list.column.marital_status.married',
+                defaultMessage: 'Married',
+              }),
+            },
+            {
+              value: 'Divorced',
+              label: intl.formatMessage({
+                id: 'pages.employee.list.column.marital_status.divorced',
+                defaultMessage: 'Divorced',
+              }),
+            },
+            {
+              value: 'Seperated',
+              label: intl.formatMessage({
+                id: 'pages.employee.list.column.marital_status.seperated',
+                defaultMessage: 'Seperated',
+              }),
+            },
+            {
+              value: 'Widowed',
+              label: intl.formatMessage({
+                id: 'pages.employee.list.column.marital_status.widowed',
+                defaultMessage: 'Widowed',
+              }),
+            },
+            {
+              value: 'Other',
+              label: intl.formatMessage({
+                id: 'pages.employee.list.column.marital_status.other',
+                defaultMessage: 'Other',
+              }),
+            },
           ]}
         />
-        <ProFormText width="sm" name="personal_tax_id" label="Personal tax id" />
-        <ProFormText width="sm" name="nationality" label="Nationality" />
-        <ProFormText width="sm" name="phone" label="Phone" />
-        <ProFormText width="sm" name="social_insurance" label="Social insurance" />
-        <ProFormText width="sm" name="health_insurance" label="Health insurance" />
+        <ProFormText
+          width="sm"
+          name="personal_tax_id"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.personal_tax_id',
+            defaultMessage: 'Personal tax id',
+          })}
+        />
+        <ProFormText
+          width="sm"
+          name="nationality"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.nationality',
+            defaultMessage: 'Nationality',
+          })}
+        />
+        <ProFormText
+          width="sm"
+          name="phone"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.phone',
+            defaultMessage: 'Phone',
+          })}
+        />
+        <ProFormText
+          width="sm"
+          name="social_insurance"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.social_insurance',
+            defaultMessage: 'Social insurance',
+          })}
+        />
+        <ProFormText
+          width="sm"
+          name="health_insurance"
+          label={intl.formatMessage({
+            id: 'pages.employee.list.column.health_insurance',
+            defaultMessage: 'Health insurance',
+          })}
+        />
       </ProForm.Group>
     </ModalForm>
   );

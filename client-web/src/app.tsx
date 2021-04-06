@@ -70,30 +70,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
       id: 'app.title',
       defaultMessage: 'HRM',
     }),
-    links: __DEV__
-      ? [
-          <>
-            <LinkOutlined />
-            <span
-              onClick={() => {
-                window.open('/umi/plugin/openapi');
-              }}
-            >
-              OpenAPI Docs
-            </span>
-          </>,
-          <>
-            <BookOutlined />
-            <span
-              onClick={() => {
-                window.open('/~docs');
-              }}
-            >
-              Components Docs
-            </span>
-          </>,
-        ]
-      : [],
+    links: [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
@@ -156,7 +133,7 @@ const responseInterceptors = async (response: Response, options: RequestOptionsI
       if (res.refresh) jwt.saveRefresh(res.refresh);
       return requestUmi(
         response.url,
-        merge(cloneDeep(options), { headers: { Authorization: `Bearer ${res.access}` } }),
+        merge(options, { headers: { Authorization: `Bearer ${res.access}` } }),
       );
     } catch (err) {
       jwt.removeAccess();
@@ -174,7 +151,7 @@ const responseInterceptors = async (response: Response, options: RequestOptionsI
 const requestInterceptors: RequestInterceptor = (url, options) => {
   return {
     url,
-    options: merge(cloneDeep(options), { headers: { Authorization: `Bearer ${jwt.getAccess()}` } }),
+    options: merge(options, { headers: { Authorization: `Bearer ${jwt.getAccess()}` } }),
   };
 };
 
