@@ -269,8 +269,6 @@ declare namespace API {
     id: number;
     name: string;
     description: string;
-    note: string;
-    specification: any;
     is_active: boolean;
   }
 
