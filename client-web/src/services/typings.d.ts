@@ -272,6 +272,24 @@ declare namespace API {
     is_active: boolean;
   }
 
+  interface Location {
+    id: number;
+    name: string;
+    province: string;
+    city: string;
+    address: string;
+    zipcode: string;
+    phone: string;
+    fax: string;
+    note: string;
+    country: number;
+  }
+
+  interface Country {
+    id: number;
+    name: string;
+  }
+
   type User = any;
 
   type PermissionItem = {

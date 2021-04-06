@@ -27,15 +27,19 @@ export const JobTitle: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
 
-  const onCrudOperation = useCallback(async (cb: () => Promise<any>, errorMessage: string) => {
-    try {
-      await cb();
-      actionRef.current?.reload();
-    } catch (err) {
-      message.error(errorMessage);
-      throw err;
-    }
-  }, []);
+  const onCrudOperation = useCallback(
+    async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
+      try {
+        await cb();
+        actionRef.current?.reload();
+        message.success(successMessage);
+      } catch (err) {
+        message.error(errorMessage);
+        throw err;
+      }
+    },
+    [],
+  );
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -104,7 +108,11 @@ export const JobTitle: React.FC = () => {
             placement="right"
             title={'Delete this job title?'}
             onConfirm={async () => {
-              await onCrudOperation(() => deleteJobTitle(record.id), 'Cannot delete job title!');
+              await onCrudOperation(
+                () => deleteJobTitle(record.id),
+                'Detete successfully!',
+                'Cannot delete job title!',
+              );
             }}
           >
             <Button title="Delete this job title" size="small" danger>
@@ -159,6 +167,7 @@ export const JobTitle: React.FC = () => {
         title={dict.title[crudModalVisible]}
         width="400px"
         visible={crudModalVisible !== 'hidden'}
+        form={form}
         onVisibleChange={(visible) => {
           if (!visible) {
             setCrudModalVisible('hidden');
@@ -180,10 +189,15 @@ export const JobTitle: React.FC = () => {
             ...value,
           };
           if (crudModalVisible === 'create') {
-            await onCrudOperation(() => createJobTitle(record), 'Create unsuccessfully!');
+            await onCrudOperation(
+              () => createJobTitle(record),
+              'Create successfully!',
+              'Create unsuccessfully!',
+            );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateJobTitle(record.id, record),
+              'Update successfully!',
               'Update unsuccessfully!',
             );
           }
