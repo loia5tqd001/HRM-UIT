@@ -49,7 +49,7 @@
           {
             path: '/admin/job/jobTitle',
             name: 'jobTitle',
-            component: './Welcome',
+            component: './Admin/Job/JobTitle',
           },
           {
             path: '/admin/job/employmentStatus',

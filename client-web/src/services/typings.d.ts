@@ -265,6 +265,15 @@ declare namespace API {
     iban: string;
   }
 
+  interface JobTitle {
+    id: number;
+    name: string;
+    description: string;
+    note: string;
+    specification: any;
+    is_active: boolean;
+  }
+
   type User = any;
 
   type PermissionItem = {
