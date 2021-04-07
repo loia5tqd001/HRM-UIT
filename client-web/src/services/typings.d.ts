@@ -208,7 +208,9 @@ declare namespace API {
     id: number;
     name: string;
     description?: string;
-    manager: number | Manager;
+    manager?: number;
+    manager_full_name?: string;
+    manager_avatar?: string;
     employee_no: number;
     parent: DepartmentUnit['id'];
   }

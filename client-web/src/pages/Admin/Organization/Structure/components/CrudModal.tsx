@@ -1,10 +1,14 @@
 import { __DEV__ } from '@/global';
-import type { CrudModalForm } from '@/models/admin.organization';
+import {
+  allManagers,
+  createDepartment,
+  updateDepartment,
+} from '@/services/admin.organization.structure';
 import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import { Button, Form, message, TreeSelect } from 'antd';
+import { Button, Form, TreeSelect } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import sample from 'lodash/sample';
-import React from 'react';
+import faker from 'faker';
+import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useModel } from 'umi';
 
 const dict = {
@@ -15,18 +19,20 @@ const dict = {
 };
 
 export const CrudModal: React.FC = () => {
-  const [form] = useForm<CrudModalForm>();
+  const [form] = useForm<API.DepartmentUnit>();
   const {
-    onCreateDepartment,
-    onUpdateDepartment,
     crudModalVisible,
     setCrudModalVisible,
     selectedDepartment,
-    optionManagers,
-    managerToOptionValue,
     departments,
     departmentsPending,
+    onCrudOperation,
   } = useModel('admin.organization');
+  const [managers, setManagers] = useState<API.Manager[]>([]);
+
+  useEffect(() => {
+    allManagers().then((data) => setManagers(data));
+  }, []);
 
   const treeData = departments.map((it) => ({
     id: it.id,
@@ -34,6 +40,7 @@ export const CrudModal: React.FC = () => {
     value: it.id,
     title: it.name,
     isLeaf: !departments.some((x) => x.parent === it.id),
+    disabled: it.id === selectedDepartment?.id,
   }));
 
   return (
@@ -51,27 +58,32 @@ export const CrudModal: React.FC = () => {
         if (crudModalVisible === 'update') {
           form.setFieldsValue({
             ...selectedDepartment,
-            manager: managerToOptionValue(selectedDepartment.manager as API.Manager),
-            parent: treeData.find((it) => it.id === selectedDepartment?.parent),
+            parent: selectedDepartment?.parent,
           });
         } else {
           form.setFieldsValue({
-            parent: treeData.find((it) => it.id === selectedDepartment?.id),
+            parent: selectedDepartment?.id,
           });
         }
       }}
       onFinish={async (value) => {
         const convertedToSubmit = {
+          ...selectedDepartment,
           ...value,
-          manager: (value.manager as string).split(/\s+/g)[0],
-          parent: value.parent.id || value.parent,
+          parent: value.parent,
         };
         if (crudModalVisible === 'create') {
-          await onCreateDepartment(convertedToSubmit);
-          message.success('Created successfully!');
+          await onCrudOperation(
+            () => createDepartment(convertedToSubmit),
+            'Created successfully!',
+            'Created failed!',
+          );
         } else if (crudModalVisible === 'update') {
-          await onUpdateDepartment(convertedToSubmit);
-          message.success('Updated successfully!');
+          await onCrudOperation(
+            () => updateDepartment(selectedDepartment!.id!, convertedToSubmit),
+            'Updated successfully!',
+            'Updated failed!',
+          );
         }
         setCrudModalVisible('hidden');
         form.resetFields();
@@ -85,9 +97,9 @@ export const CrudModal: React.FC = () => {
                 key="autoFill"
                 onClick={() => {
                   form.setFieldsValue({
-                    name: `Department${Math.random()}`,
-                    manager: String(sample(optionManagers)?.value),
-                    description: `${Math.random()}`,
+                    name: faker.commerce.department(),
+                    manager: faker.helpers.randomize(managers.map((it) => it.id)),
+                    description: faker.company.bs(),
                   });
                 }}
               >
@@ -128,7 +140,10 @@ export const CrudModal: React.FC = () => {
         name="manager"
         label="Manager"
         showSearch
-        options={optionManagers}
+        options={managers.map((it) => ({
+          value: it.id,
+          label: `${it.first_name} ${it.last_name}`,
+        }))}
         rules={[{ required: true, message: 'Manager is required' }]}
       />
       <ProFormTextArea name="description" label="Description" />

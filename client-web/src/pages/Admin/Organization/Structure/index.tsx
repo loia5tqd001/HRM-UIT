@@ -1,20 +1,36 @@
+import { allDepartments } from '@/services/admin.organization.structure';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
 import { Avatar, Button, message, Popconfirm, Space } from 'antd';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { calculateAllExpandedRowKeys } from './utils';
 
 export const OrganziationStructure: React.FC = () => {
-  const [expandedRowKeys, setExpandedRowKeys] = React.useState<string[]>([]);
+  const [expandedRowKeys, setExpandedRowKeys] = React.useState<number[]>([]);
   const {
     setCrudModalVisible,
     selectDepartment,
     departments: data,
+    setDepartments,
     departmentsPending,
+    setDepartmentsPending,
     onDeleteDepartment,
   } = useModel('admin.organization');
+
+  useEffect(() => {
+    setDepartmentsPending(true);
+    allDepartments()
+      .then((fetchData) => {
+        if (fetchData?.length > 0) {
+          setDepartments(fetchData);
+        }
+      })
+      .finally(() => {
+        setDepartmentsPending(false);
+      });
+  }, [setDepartments, setDepartmentsPending]);
 
   const columns: ProColumns<API.DepartmentUnit>[] = [
     {
@@ -35,16 +51,14 @@ export const OrganziationStructure: React.FC = () => {
     },
     {
       title: 'Manager',
-      dataIndex: 'manager',
+      dataIndex: 'manager_avatar',
       align: 'left',
       width: '20%',
-      renderText: (entity) => {
+      renderText: (avatar, record) => {
         return (
           <Space align="center">
-            <Avatar src={entity?.avatar} />
-            <span>
-              {entity?.first_name} {entity?.last_name}
-            </span>
+            <Avatar src={avatar} />
+            <span>{record.manager_full_name}</span>
           </Space>
         );
       },
@@ -149,9 +163,9 @@ export const OrganziationStructure: React.FC = () => {
   // recalculate expandedRowKeys
   const onTableTreeExpand = useCallback((expanded: boolean, record: API.DepartmentUnit) => {
     if (expanded) {
-      setExpandedRowKeys((old) => old.concat(String(record.id)));
+      setExpandedRowKeys((old) => old.concat(record.id));
     } else {
-      setExpandedRowKeys((old) => old.filter((it) => it !== String(record.id)));
+      setExpandedRowKeys((old) => old.filter((it) => it !== record.id));
     }
   }, []);
 
@@ -159,7 +173,9 @@ export const OrganziationStructure: React.FC = () => {
   // and it's expanded by default
   React.useEffect(() => {
     setExpandedRowKeys(
-      calculateAllExpandedRowKeys(dataSource, { level: -1, key: 'id' }).map((it) => String(it)),
+      calculateAllExpandedRowKeys(dataSource, { level: -1, key: 'id' }).map((it: string) =>
+        Number(it),
+      ),
     );
   }, [dataSource]);
 
