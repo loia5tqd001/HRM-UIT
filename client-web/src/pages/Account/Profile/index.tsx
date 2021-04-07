@@ -1,4 +1,5 @@
 import { __DEV__ } from '@/global';
+import { allCountries } from '@/services';
 import { changeAvatar, changePassword } from '@/services/auth';
 import {
   getEmergencyContact,
@@ -28,11 +29,13 @@ export const Edit: React.FC = () => {
   const [homeAddress, setHomeAddress] = useState<API.EmployeeContactInfo>();
   const [emergencyContact, setEmergencyContact] = useState<API.EmployeeEmergencyContact>();
   const id = initialState?.currentUser?.id;
+  const [countries, setCountries] = useState<API.Country[]>([]);
 
   useEffect(() => {
     if (id === undefined) return;
     getHomeAddress(id).then((fetchData) => setHomeAddress(fetchData));
     getEmergencyContact(id).then((fetchData) => setEmergencyContact(fetchData));
+    allCountries().then((fetchData) => setCountries(fetchData));
   }, [id]);
 
   return (
@@ -282,7 +285,7 @@ export const Edit: React.FC = () => {
                           onClick={() => {
                             form?.setFieldsValue({
                               address: faker.address.streetAddress(),
-                              country: 'Việt Nam',
+                              country: faker.helpers.randomize(countries.map((it) => it.name)),
                               province: faker.address.state(),
                               city: faker.address.city(),
                             });
@@ -298,6 +301,12 @@ export const Edit: React.FC = () => {
                 <ProForm.Group>
                   <ProFormText width="sm" name="address" label="Full address" />
                   <ProFormText width="sm" name="country" label="Country" />
+                  <ProFormSelect
+                    name="country"
+                    width="sm"
+                    label="Country"
+                    options={countries.map((it) => ({ value: it.name, label: it.name }))}
+                  />
                   <ProFormText width="sm" name="province" label="Province" />
                   <ProFormText width="sm" name="city" label="City" />
                 </ProForm.Group>
