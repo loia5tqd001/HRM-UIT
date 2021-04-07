@@ -66,6 +66,16 @@ export const Location: React.FC = () => {
     {
       title: (
         <FormattedMessage
+          id="pages.admin.organization.location.column.country"
+          defaultMessage="Country"
+        />
+      ),
+      dataIndex: 'country',
+      renderText: (text) => countries.find((it) => it.id === text)?.name,
+    },
+    {
+      title: (
+        <FormattedMessage
           id="pages.admin.organization.location.column.province"
           defaultMessage="Province"
         />
@@ -123,16 +133,7 @@ export const Location: React.FC = () => {
       ),
       dataIndex: 'note',
     },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.country"
-          defaultMessage="Country"
-        />
-      ),
-      dataIndex: 'country',
-      renderText: (text) => countries.find((it) => it.id === text)?.name,
-    },
+
     {
       title: 'Actions',
       key: 'action',

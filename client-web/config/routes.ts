@@ -59,7 +59,7 @@
           {
             path: '/admin/job/workShift',
             name: 'workShift',
-            component: './Welcome',
+            component: './Admin/Job/WorkShift',
           },
           {
             path: '/admin/job/customFields',

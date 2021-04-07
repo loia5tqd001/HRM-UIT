@@ -265,6 +265,14 @@ declare namespace API {
     iban: string;
   }
 
+  interface WorkShift {
+    id: number;
+    name: string;
+    start_time: moment.Moment | string;
+    end_time: moment.Moment | string;
+    duration: moment.Duration | string;
+  }
+
   interface JobTitle {
     id: number;
     name: string;
