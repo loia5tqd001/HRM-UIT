@@ -282,6 +282,11 @@ declare namespace API {
     is_active: boolean;
   }
 
+  interface EmploymentStatus {
+    id: number;
+    name: string;
+  }
+
   interface Location {
     id: number;
     name: string;

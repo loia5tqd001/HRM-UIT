@@ -54,17 +54,12 @@
           {
             path: '/admin/job/employmentStatus',
             name: 'employmentStatus',
-            component: './Welcome',
+            component: './Admin/Job/EmploymentStatus',
           },
           {
             path: '/admin/job/workShift',
             name: 'workShift',
             component: './Admin/Job/WorkShift',
-          },
-          {
-            path: '/admin/job/customFields',
-            name: 'customFields',
-            component: './Welcome',
           },
           {
             path: '/admin/job',

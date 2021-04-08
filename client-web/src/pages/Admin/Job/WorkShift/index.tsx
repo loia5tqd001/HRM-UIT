@@ -93,33 +93,33 @@ export const WorkShift: React.FC = () => {
       ),
       dataIndex: 'duration',
     },
-    {
-      title: (
-        <FormattedMessage id="pages.admin.job.workShift.column.is_active" defaultMessage="Status" />
-      ),
-      dataIndex: 'is_active',
-      hideInForm: true,
-      valueEnum: {
-        true: {
-          text: (
-            <FormattedMessage
-              id="pages.employee.list.column.status.active"
-              defaultMessage="Status"
-            />
-          ),
-          status: 'Success',
-        },
-        false: {
-          text: (
-            <FormattedMessage
-              id="pages.employee.list.column.status.inactive"
-              defaultMessage="Status"
-            />
-          ),
-          status: 'Error',
-        },
-      },
-    },
+    // {
+    //   title: (
+    //     <FormattedMessage id="pages.admin.job.workShift.column.is_active" defaultMessage="Status" />
+    //   ),
+    //   dataIndex: 'is_active',
+    //   hideInForm: true,
+    //   valueEnum: {
+    //     true: {
+    //       text: (
+    //         <FormattedMessage
+    //           id="pages.employee.list.column.status.active"
+    //           defaultMessage="Status"
+    //         />
+    //       ),
+    //       status: 'Success',
+    //     },
+    //     false: {
+    //       text: (
+    //         <FormattedMessage
+    //           id="pages.employee.list.column.status.inactive"
+    //           defaultMessage="Status"
+    //         />
+    //       ),
+    //       status: 'Error',
+    //     },
+    //   },
+    // },
     {
       title: 'Actions',
       key: 'action',

@@ -1,10 +1,10 @@
 import { __DEV__ } from '@/global';
 import {
-  allJobTitles,
-  createJobTitle,
-  deleteJobTitle,
-  updateJobTitle,
-} from '@/services/admin.job.jobTitle';
+  allEmploymentStatuses,
+  createEmploymentStatus,
+  deleteEmploymentStatus,
+  updateEmploymentStatus,
+} from '@/services/admin.job.employmentStatus';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -16,9 +16,9 @@ import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'umi';
 
-type RecordType = API.JobTitle;
+type RecordType = API.EmploymentStatus;
 
-export const JobTitle: React.FC = () => {
+export const EmploymentStatus: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
     'hidden',
@@ -44,48 +44,10 @@ export const JobTitle: React.FC = () => {
   const columns: ProColumns<RecordType>[] = [
     {
       title: (
-        <FormattedMessage id="pages.admin.job.jobTitle.column.name" defaultMessage="Job title" />
+        <FormattedMessage id="pages.admin.job.employmentStatus.column.name" defaultMessage="Employment status" />
       ),
       dataIndex: 'name',
     },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.jobTitle.column.description"
-          defaultMessage="Description"
-        />
-      ),
-      dataIndex: 'description',
-      valueType: 'textarea',
-      hideInForm: true,
-    },
-    // {
-    //   title: (
-    //     <FormattedMessage id="pages.admin.job.jobTitle.column.is_active" defaultMessage="Status" />
-    //   ),
-    //   dataIndex: 'is_active',
-    //   hideInForm: true,
-    //   valueEnum: {
-    //     true: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.active"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Success',
-    //     },
-    //     false: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.inactive"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Error',
-    //     },
-    //   },
-    // },
     {
       title: 'Actions',
       key: 'action',
@@ -95,7 +57,7 @@ export const JobTitle: React.FC = () => {
       render: (dom, record) => (
         <Space size="small">
           <Button
-            title="Edit this job title"
+            title="Edit this employment status"
             size="small"
             onClick={() => {
               setCrudModalVisible('update');
@@ -106,16 +68,16 @@ export const JobTitle: React.FC = () => {
           </Button>
           <Popconfirm
             placement="right"
-            title={'Delete this job title?'}
+            title={'Delete this employment status?'}
             onConfirm={async () => {
               await onCrudOperation(
-                () => deleteJobTitle(record.id),
+                () => deleteEmploymentStatus(record.id),
                 'Detete successfully!',
-                'Cannot delete job title!',
+                'Cannot delete employment status!',
               );
             }}
           >
-            <Button title="Delete this job title" size="small" danger>
+            <Button title="Delete this employment status" size="small" danger>
               <DeleteOutlined />
             </Button>
           </Popconfirm>
@@ -126,8 +88,8 @@ export const JobTitle: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create job title',
-      update: 'Create job title',
+      create: 'Create employment status',
+      update: 'Create employment status',
     },
   };
 
@@ -135,8 +97,8 @@ export const JobTitle: React.FC = () => {
     <PageContainer>
       <ProTable<RecordType>
         headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.jobTitle.list.title',
-          defaultMessage: 'Job Titles',
+          id: 'pages.admin.job.employmentStatus.list.title',
+          defaultMessage: 'Employment Statuses',
         })}
         actionRef={actionRef}
         rowKey="id"
@@ -155,7 +117,7 @@ export const JobTitle: React.FC = () => {
           </Button>,
         ]}
         request={async () => {
-          const data = await allJobTitles();
+          const data = await allEmploymentStatuses();
           return {
             data,
             success: true,
@@ -190,13 +152,13 @@ export const JobTitle: React.FC = () => {
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(
-              () => createJobTitle(record),
+              () => createEmploymentStatus(record),
               'Create successfully!',
               'Create unsuccessfully!',
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
-              () => updateJobTitle(record.id, record),
+              () => updateEmploymentStatus(record.id, record),
               'Update successfully!',
               'Update unsuccessfully!',
             );
@@ -212,8 +174,8 @@ export const JobTitle: React.FC = () => {
                   key="autoFill"
                   onClick={() => {
                     props.form?.setFieldsValue({
-                      name: faker.name.jobTitle(),
-                      description: faker.name.jobDescriptor(),
+                      name: faker.name.jobType(),
+                      // description: faker.name.jobDescriptor(),
                       // is_active: true,
                     });
                   }}
@@ -230,21 +192,21 @@ export const JobTitle: React.FC = () => {
           rules={[{ required: true }]}
           name="name"
           label={intl.formatMessage({
-            id: 'pages.admin.job.jobTitle.column.name',
-            defaultMessage: 'Job title',
+            id: 'pages.admin.job.employmentStatus.column.name',
+            defaultMessage: 'Employment status',
           })}
         />
-        <ProFormTextArea
+        {/* <ProFormTextArea
           rules={[{ required: true }]}
           name="description"
           label={intl.formatMessage({
-            id: 'pages.admin.job.jobTitle.column.description',
+            id: 'pages.admin.job.employmentStatus.column.description',
             defaultMessage: 'Description',
           })}
-        />
+        /> */}
       </ModalForm>
     </PageContainer>
   );
 };
 
-export default JobTitle;
+export default EmploymentStatus;

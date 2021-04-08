@@ -79,7 +79,7 @@ export const Edit: React.FC = () => {
             <h2 style={{ marginTop: 12, marginBottom: 0 }}>
               {initialState?.currentUser?.first_name} {initialState?.currentUser?.last_name}
             </h2>
-            <h4 style={{ marginBottom: 12 }}>@{initialState?.currentUser?.user.username}</h4>
+            <h4 style={{ marginBottom: 12 }}>@{initialState?.currentUser?.user?.username}</h4>
             <Button
               style={{ display: 'block', marginBottom: 12 }}
               onClick={() => setModalVisible(true)}
@@ -89,7 +89,7 @@ export const Edit: React.FC = () => {
             <Switch
               checkedChildren="Active"
               unCheckedChildren="Inactive"
-              checked={initialState?.currentUser?.user.is_active}
+              checked={initialState?.currentUser?.user?.is_active}
               onChange={(checked) => {
                 console.log(checked);
               }}
