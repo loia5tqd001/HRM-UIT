@@ -243,7 +243,7 @@ declare namespace API {
     permissions: string[];
   }
 
-  interface EmployeeContactInfo {
+  interface EmployeeHomeAddress {
     owner: number | undefined;
     address: string;
     country: string;

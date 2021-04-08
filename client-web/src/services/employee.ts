@@ -63,7 +63,7 @@ export async function changeEmployeeAvatar(id: number, data: any, options?: { [k
 }
 
 export async function getHomeAddress(employeeId: number, options?: { [key: string]: any }) {
-  return request<API.EmployeeContactInfo>(`${endpoint}${employeeId}/contact_info/`, {
+  return request<API.EmployeeHomeAddress>(`${endpoint}${employeeId}/contact_info/`, {
     method: 'GET',
     ...(options || {}),
   });
@@ -71,10 +71,10 @@ export async function getHomeAddress(employeeId: number, options?: { [key: strin
 
 export async function updateHomeAddress(
   employeeId: number,
-  data: API.EmployeeContactInfo,
+  data: API.EmployeeHomeAddress,
   options?: { [key: string]: any },
 ) {
-  return request<API.EmployeeContactInfo>(`${endpoint}${employeeId}/contact_info/`, {
+  return request<API.EmployeeHomeAddress>(`${endpoint}${employeeId}/contact_info/`, {
     method: 'POST',
     data,
     ...(options || {}),
