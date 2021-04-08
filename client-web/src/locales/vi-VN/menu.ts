@@ -4,6 +4,7 @@ export default {
   'menu.admin.user': 'Tài khoản',
   'menu.admin.job': 'Công việc',
   'menu.admin.job.jobTitle': 'Chức vụ',
+  'menu.admin.job.jobEvent': 'Sự kiện',
   'menu.admin.job.employmentStatus': 'Trạng thái làm việc',
   'menu.admin.job.workShift': 'Ca làm việc',
   'menu.admin.job.customFields': 'Trường tuỳ chỉnh',

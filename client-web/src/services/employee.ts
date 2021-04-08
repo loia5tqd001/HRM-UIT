@@ -4,14 +4,14 @@ const endpoint = '/api/employees/';
 type Item = API.Employee;
 
 export async function allEmployees(options?: { [key: string]: any }) {
-  return request<Item[]>(`${endpoint}`, {
+  return request<Item[]>(`${endpoint}/`, {
     method: 'GET',
     ...(options || {}),
   });
 }
 
 export async function createEmployee(data: Item, options?: { [key: string]: any }) {
-  return request<Item>(`${endpoint}`, {
+  return request<Item>(`${endpoint}/`, {
     method: 'POST',
     data,
     ...(options || {}),

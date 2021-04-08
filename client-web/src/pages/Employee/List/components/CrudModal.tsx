@@ -61,9 +61,17 @@ export const CrudModal: React.FC = () => {
         };
         record.user.is_staff = true;
         if (crudModalVisible === 'create') {
-          await onCrudOperation(() => createEmployee(record), 'Create unsuccessfully!');
+          await onCrudOperation(
+            () => createEmployee(record),
+            'Create successfully!',
+            'Create unsuccessfully!',
+          );
         } else if (crudModalVisible === 'update') {
-          await onCrudOperation(() => updateEmployee(record.id, record), 'Update unsuccessfully!');
+          await onCrudOperation(
+            () => updateEmployee(record.id, record),
+            'Update successfully!',
+            'Update unsuccessfully!',
+          );
         }
         setCrudModalVisible('hidden');
         form.resetFields();

@@ -62,6 +62,11 @@
             component: './Admin/Job/WorkShift',
           },
           {
+            path: '/admin/job/jobEvent',
+            name: 'jobEvent',
+            component: './Admin/Job/JobEvent',
+          },
+          {
             path: '/admin/job',
             redirect: '/admin/job/jobTitle',
           },
@@ -111,11 +116,6 @@
           {
             path: '/admin/qualification/language',
             name: 'language',
-            component: './Welcome',
-          },
-          {
-            path: '/admin/qualification/customFields',
-            name: 'customFields',
             component: './Welcome',
           },
         ],

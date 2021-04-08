@@ -287,6 +287,11 @@ declare namespace API {
     name: string;
   }
 
+  interface JobEvent {
+    id: number;
+    name: string;
+  }
+
   interface Location {
     id: number;
     name: string;

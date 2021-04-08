@@ -4,6 +4,7 @@ export default {
   'menu.admin.user': 'User',
   'menu.admin.job': 'Job',
   'menu.admin.job.jobTitle': 'Job Title',
+  'menu.admin.job.jobEvent': 'Job Event',
   'menu.admin.job.employmentStatus': 'Employment Status',
   'menu.admin.job.workShift': 'Work Shift',
   'menu.admin.job.customFields': 'Custom Fields',

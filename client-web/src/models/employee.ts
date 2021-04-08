@@ -11,15 +11,19 @@ export default function useEmployee() {
   );
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
 
-  const onCrudOperation = useCallback(async (cb: () => Promise<any>, errorMessage: string) => {
-    try {
-      await cb();
-      actionRef.current?.reload();
-    } catch (err) {
-      message.error(errorMessage);
-      throw err;
-    }
-  }, []);
+  const onCrudOperation = useCallback(
+    async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
+      try {
+        await cb();
+        actionRef.current?.reload();
+        message.success(successMessage);
+      } catch (err) {
+        message.error(errorMessage);
+        throw err;
+      }
+    },
+    [],
+  );
 
   return {
     actionRef,
