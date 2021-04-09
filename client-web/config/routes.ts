@@ -153,7 +153,12 @@
         component: './Welcome',
       },
       { path: '/employee/report', name: 'report', icon: 'barChart', component: './Welcome' },
-      { path: '/employee/edit/:id', name: 'edit', component: './Employee/Edit', hideInMenu: true },
+      {
+        path: '/employee/edit/:id',
+        name: 'edit',
+        component: './Employee/Edit',
+        hideInMenu: true,
+      },
       {
         path: '/employee',
         redirect: '/employee/list',

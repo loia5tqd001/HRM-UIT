@@ -19,6 +19,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import styles from './index.less';
+import { history, Link } from 'umi';
 
 export const Edit: React.FC = () => {
   const { id } = useParams<any>();
@@ -26,8 +27,9 @@ export const Edit: React.FC = () => {
   const [record, setRecord] = useState<API.Employee>();
   const [homeAddress, setHomeAddress] = useState<API.EmployeeHomeAddress>();
   const [emergencyContact, setEmergencyContact] = useState<API.EmployeeEmergencyContact>();
-  const [currentTab, setCurrentTab] = useState<'general' | 'job' | 'payroll'>('general');
   const [jobs, setJobs] = useState<API.EmployeeJob[]>();
+  const { tab } = history.location.query as { tab: 'general' | 'job' | 'payroll' | undefined };
+  if (tab === undefined) history.push('?tab=general');
 
   useEffect(() => {
     readEmployee(id).then((fetchData) => setRecord(fetchData));
@@ -155,16 +157,24 @@ export const Edit: React.FC = () => {
           <div className={styles.right}>
             <Card>
               <Radio.Group
-                value={currentTab}
-                onChange={(e) => setCurrentTab(e.target.value)}
+                value={tab}
+                onChange={(e) => {
+                  history.location.query = e.target.value;
+                }}
                 className={styles.radioGroup}
               >
-                <Radio.Button value="general">GENERAL</Radio.Button>
-                <Radio.Button value="job">JOB</Radio.Button>
-                <Radio.Button value="payroll">PAYROLL</Radio.Button>
+                <Link to="?tab=general">
+                  <Radio.Button value="general">GENERAL</Radio.Button>
+                </Link>
+                <Link to="?tab=job">
+                  <Radio.Button value="job">JOB</Radio.Button>
+                </Link>
+                <Link to="?tab=payroll">
+                  <Radio.Button value="payroll">PAYROLL</Radio.Button>
+                </Link>
               </Radio.Group>
             </Card>
-            {currentTab === 'general' ? (
+            {tab === 'general' ? (
               <EmployeeGeneral
                 basicInfo={record}
                 basicInfoSubmit={async (value) => {
@@ -185,7 +195,7 @@ export const Edit: React.FC = () => {
                 }}
               />
             ) : null}
-            {currentTab === 'job' ? (
+            {tab === 'job' ? (
               <EmployeeJob
                 jobs={jobs}
                 jobSubmit={async (value) => {
