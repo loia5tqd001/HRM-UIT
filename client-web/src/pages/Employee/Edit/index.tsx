@@ -4,9 +4,11 @@ import {
   allJobs,
   changeEmployeeAvatar,
   changeEmployeePassword,
+  getBankInfo,
   getEmergencyContact,
   getHomeAddress,
   readEmployee,
+  updateBankInfo,
   updateEmergencyContact,
   updateEmployee,
   updateHomeAddress,
@@ -27,6 +29,7 @@ export const Edit: React.FC = () => {
   const [record, setRecord] = useState<API.Employee>();
   const [homeAddress, setHomeAddress] = useState<API.EmployeeHomeAddress>();
   const [emergencyContact, setEmergencyContact] = useState<API.EmployeeEmergencyContact>();
+  const [bankInfo, setBankInfo] = useState<API.EmployeeBankInfo>();
   const [jobs, setJobs] = useState<API.EmployeeJob[]>();
   const { tab } = history.location.query as { tab: 'general' | 'job' | 'payroll' | undefined };
   if (tab === undefined) history.push('?tab=general');
@@ -35,6 +38,7 @@ export const Edit: React.FC = () => {
     readEmployee(id).then((fetchData) => setRecord(fetchData));
     getHomeAddress(id).then((fetchData) => setHomeAddress(fetchData));
     getEmergencyContact(id).then((fetchData) => setEmergencyContact(fetchData));
+    getBankInfo(id).then((fetchData) => setBankInfo(fetchData));
 
     allJobs(id).then((fetchData) => setJobs(fetchData));
   }, [id]);
@@ -192,6 +196,12 @@ export const Edit: React.FC = () => {
                   value.owner = id;
                   await updateEmergencyContact(id, value);
                   setEmergencyContact(value);
+                }}
+                bankInfo={bankInfo}
+                bankInfoSubmit={async (value) => {
+                  value.owner = id;
+                  await updateBankInfo(id, value);
+                  setBankInfo(value);
                 }}
               />
             ) : null}

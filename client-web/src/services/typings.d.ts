@@ -254,6 +254,17 @@ declare namespace API {
   }
 
   interface EmployeeBankInfo {
+    id: number;
+    bank_name: string;
+    account_name: string;
+    branch: string;
+    account_number: string;
+    swift_bic: string;
+    iban: string;
+    owner?: number;
+  }
+
+  interface EmployeeBankInfo {
     bank_name: string;
     account_name: string;
     branch: string;

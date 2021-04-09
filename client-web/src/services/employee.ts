@@ -104,6 +104,25 @@ export async function updateEmergencyContact(
   });
 }
 
+export async function getBankInfo(employeeId: number, options?: { [key: string]: any }) {
+  return request<API.EmployeeBankInfo>(`${endpoint}${employeeId}/bank_info/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateBankInfo(
+  employeeId: number,
+  data: API.EmployeeBankInfo,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeeBankInfo>(`${endpoint}${employeeId}/bank_info/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
 export async function allJobs(employeeId: number, options?: { [key: string]: any }) {
   return request<API.EmployeeJob[]>(`${endpoint}${employeeId}/jobs/`, {
     method: 'GET',

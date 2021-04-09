@@ -14,6 +14,8 @@ type Props = {
   homeAddressSubmit: (value: API.EmployeeHomeAddress) => Promise<void>;
   emergencyContact: API.EmployeeEmergencyContact | undefined;
   emergencyContactSubmit: (value: API.EmployeeEmergencyContact) => Promise<void>;
+  bankInfo: API.EmployeeBankInfo | undefined;
+  bankInfoSubmit: (value: API.EmployeeBankInfo) => Promise<void>;
 };
 
 export const EmployeeGeneral: React.FC<Props> = (props) => {
@@ -24,6 +26,8 @@ export const EmployeeGeneral: React.FC<Props> = (props) => {
     homeAddressSubmit,
     emergencyContact,
     emergencyContactSubmit,
+    bankInfo,
+    bankInfoSubmit,
   } = props;
   const [countries, setCountries] = useState<API.Country[]>([]);
 
@@ -250,6 +254,53 @@ export const EmployeeGeneral: React.FC<Props> = (props) => {
               ]}
             />
             <ProFormText width="sm" name="phone" label="Phone" />
+          </ProForm.Group>
+        </ProForm>
+      </Card>
+      <Card loading={!bankInfo} title="Bank info">
+        <ProForm<API.EmployeeBankInfo>
+          onFinish={async (value) => {
+            try {
+              const final = merge(bankInfo, value);
+              await bankInfoSubmit(final);
+              message.success('Updated successfully!');
+            } catch {
+              message.error('Updated unsuccessfully!');
+            }
+          }}
+          initialValues={bankInfo}
+          submitter={{
+            render: ({ form }, defaultDoms) => {
+              return [
+                ...defaultDoms,
+                __DEV__ && (
+                  <Button
+                    key="autoFill"
+                    onClick={() => {
+                      form?.setFieldsValue({
+                        bank_name: faker.company.companyName(),
+                        account_name: faker.finance.accountName(),
+                        branch: faker.company.companyName(),
+                        account_number: faker.finance.account(),
+                        swift_bic: faker.finance.bic(),
+                        iban: faker.finance.iban(),
+                      });
+                    }}
+                  >
+                    Auto fill
+                  </Button>
+                ),
+              ];
+            },
+          }}
+        >
+          <ProForm.Group>
+            <ProFormText width="sm" name="bank_name" label="Bank name" />
+            <ProFormText width="sm" name="account_name" label="Account name" />
+            <ProFormText width="sm" name="branch" label="Branch" />
+            <ProFormText width="sm" name="account_number" label="Account number" />
+            <ProFormText width="sm" name="swift_bic" label="Swift BIC" />
+            <ProFormText width="sm" name="iban" label="IBAN" />
           </ProForm.Group>
         </ProForm>
       </Card>

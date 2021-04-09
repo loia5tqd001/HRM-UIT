@@ -1,8 +1,10 @@
 import { EmployeeGeneral } from '@/components/EmployeeGeneral';
 import { changeAvatar, changePassword, updateProfile } from '@/services/auth';
 import {
+  getBankInfo,
   getEmergencyContact,
   getHomeAddress,
+  updateBankInfo,
   updateEmergencyContact,
   updateHomeAddress,
 } from '@/services/employee';
@@ -18,6 +20,7 @@ export const Edit: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [homeAddress, setHomeAddress] = useState<API.EmployeeHomeAddress>();
   const [emergencyContact, setEmergencyContact] = useState<API.EmployeeEmergencyContact>();
+  const [bankInfo, setBankInfo] = useState<API.EmployeeBankInfo>();
   const id = initialState?.currentUser?.id;
   const [currentTab, setCurrentTab] = useState<'general' | 'job' | 'payroll'>('general');
 
@@ -25,6 +28,7 @@ export const Edit: React.FC = () => {
     if (id === undefined) return;
     getHomeAddress(id).then((fetchData) => setHomeAddress(fetchData));
     getEmergencyContact(id).then((fetchData) => setEmergencyContact(fetchData));
+    getBankInfo(id).then((fetchData) => setBankInfo(fetchData));
   }, [id]);
 
   return (
@@ -171,6 +175,12 @@ export const Edit: React.FC = () => {
                 value.owner = id;
                 await updateEmergencyContact(id!, value);
                 setEmergencyContact(value);
+              }}
+              bankInfo={bankInfo}
+              bankInfoSubmit={async (value) => {
+                value.owner = id;
+                await updateBankInfo(id!, value);
+                setBankInfo(value);
               }}
             />
           </div>
