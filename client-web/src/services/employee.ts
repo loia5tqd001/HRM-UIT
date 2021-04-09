@@ -54,7 +54,11 @@ export async function changeEmployeePassword(
   });
 }
 
-export async function changeEmployeeAvatar(id: number, data: any, options?: { [key: string]: any }) {
+export async function changeEmployeeAvatar(
+  id: number,
+  data: any,
+  options?: { [key: string]: any },
+) {
   return request(`${endpoint}${id}/avatar/`, {
     method: 'POST',
     data,
@@ -94,6 +98,25 @@ export async function updateEmergencyContact(
   options?: { [key: string]: any },
 ) {
   return request<API.EmployeeEmergencyContact>(`${endpoint}${employeeId}/emergency_contact/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
+export async function allJobs(employeeId: number, options?: { [key: string]: any }) {
+  return request<API.EmployeeJob[]>(`${endpoint}${employeeId}/jobs/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateJob(
+  employeeId: number,
+  data: API.EmployeeJob,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeeJob>(`${endpoint}${employeeId}/jobs/`, {
     method: 'POST',
     data,
     ...(options || {}),

@@ -1,5 +1,7 @@
 import { EmployeeGeneral } from '@/components/EmployeeGeneral';
+import { EmployeeJob } from '@/components/EmployeeJob';
 import {
+  allJobs,
   changeEmployeeAvatar,
   changeEmployeePassword,
   getEmergencyContact,
@@ -8,10 +10,12 @@ import {
   updateEmergencyContact,
   updateEmployee,
   updateHomeAddress,
+  updateJob,
 } from '@/services/employee';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, message, Radio, Switch, Tooltip, Upload } from 'antd';
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import styles from './index.less';
@@ -23,11 +27,14 @@ export const Edit: React.FC = () => {
   const [homeAddress, setHomeAddress] = useState<API.EmployeeHomeAddress>();
   const [emergencyContact, setEmergencyContact] = useState<API.EmployeeEmergencyContact>();
   const [currentTab, setCurrentTab] = useState<'general' | 'job' | 'payroll'>('general');
+  const [jobs, setJobs] = useState<API.EmployeeJob[]>();
 
   useEffect(() => {
     readEmployee(id).then((fetchData) => setRecord(fetchData));
     getHomeAddress(id).then((fetchData) => setHomeAddress(fetchData));
     getEmergencyContact(id).then((fetchData) => setEmergencyContact(fetchData));
+
+    allJobs(id).then((fetchData) => setJobs(fetchData));
   }, [id]);
 
   return (
@@ -157,25 +164,45 @@ export const Edit: React.FC = () => {
                 <Radio.Button value="payroll">PAYROLL</Radio.Button>
               </Radio.Group>
             </Card>
-            <EmployeeGeneral
-              basicInfo={record}
-              basicInfoSubmit={async (value) => {
-                await updateEmployee(value.id, value);
-                setRecord(value);
-              }}
-              homeAddress={homeAddress}
-              homeAddressSubmit={async (value) => {
-                value.owner = id;
-                await updateHomeAddress(id, value);
-                setHomeAddress(value);
-              }}
-              emergencyContact={emergencyContact}
-              emergencyContactSubmit={async (value) => {
-                value.owner = id;
-                await updateEmergencyContact(id, value);
-                setEmergencyContact(value);
-              }}
-            />
+            {currentTab === 'general' ? (
+              <EmployeeGeneral
+                basicInfo={record}
+                basicInfoSubmit={async (value) => {
+                  await updateEmployee(value.id, value);
+                  setRecord(value);
+                }}
+                homeAddress={homeAddress}
+                homeAddressSubmit={async (value) => {
+                  value.owner = id;
+                  await updateHomeAddress(id, value);
+                  setHomeAddress(value);
+                }}
+                emergencyContact={emergencyContact}
+                emergencyContactSubmit={async (value) => {
+                  value.owner = id;
+                  await updateEmergencyContact(id, value);
+                  setEmergencyContact(value);
+                }}
+              />
+            ) : null}
+            {currentTab === 'job' ? (
+              <EmployeeJob
+                jobs={jobs}
+                jobSubmit={async (value) => {
+                  value.owner = id;
+                  value.probation_start_date = moment(value.probation_start_date).format(
+                    'YYYY-MM-DD',
+                  );
+                  value.probation_end_date = moment(value.probation_end_date).format('YYYY-MM-DD');
+                  value.contract_start_date = moment(value.contract_start_date).format(
+                    'YYYY-MM-DD',
+                  );
+                  value.contract_end_date = moment(value.contract_end_date).format('YYYY-MM-DD');
+                  await updateJob(id, value);
+                  await allJobs(id).then((fetchData) => setJobs(fetchData));
+                }}
+              />
+            ) : null}
           </div>
         </div>
       </GridContent>

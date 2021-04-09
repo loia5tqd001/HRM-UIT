@@ -127,27 +127,6 @@ declare namespace API {
     };
   }
 
-  interface EmployeeJob {
-    jobInfo: {
-      joinDate?: string | Date;
-      jobTitle?: any;
-      employmentType?: any;
-      department?: any;
-      location?: any;
-      skills?: any;
-      education?: any;
-      license?: any;
-      languages?: any;
-      supervisor?: Employee;
-      probationStartDate?: string | Date;
-      probationEndDate?: string | Date;
-      contractStartDate?: string | Date;
-      contractEndDate?: string | Date;
-    };
-    jobHistory: {
-      [year: string]: [];
-    };
-  }
 
   interface EmployeePayroll {
     payCycle: 'monthly' | 'biweekly';
@@ -241,6 +220,22 @@ declare namespace API {
     health_insurance: string;
     role: string;
     permissions: string[];
+  }
+
+  interface EmployeeJob {
+    id: number;
+    department: string;
+    job_title: string;
+    work_shift: string;
+    location: string;
+    employment_status: string;
+    probation_start_date: moment.Moment | string;
+    probation_end_date: moment.Moment | string;
+    contract_start_date: moment.Moment | string;
+    contract_end_date: moment.Moment | string;
+    event: string;
+    timestamp: moment.Moment | string;
+    owner: number;
   }
 
   interface EmployeeHomeAddress {
