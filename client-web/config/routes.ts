@@ -98,24 +98,41 @@
           },
         ],
       },
+      // {
+      //   path: '/admin/qualification',
+      //   name: 'qualification',
+      //   icon: 'contacts',
+      //   routes: [
+      //     {
+      //       path: '/admin/qualification/skills',
+      //       name: 'skills',
+      //       component: './Welcome',
+      //     },
+      //     {
+      //       path: '/admin/qualification/education',
+      //       name: 'education',
+      //       component: './Welcome',
+      //     },
+      //     {
+      //       path: '/admin/qualification/language',
+      //       name: 'language',
+      //       component: './Welcome',
+      //     },
+      //   ],
+      // },
       {
-        path: '/admin/qualification',
-        name: 'qualification',
-        icon: 'contacts',
+        path: '/admin/payroll',
+        name: 'payroll',
+        icon: 'moneyCollect',
         routes: [
           {
-            path: '/admin/qualification/skills',
-            name: 'skills',
+            path: '/admin/payroll/taxPlan',
+            name: 'taxPlan',
             component: './Welcome',
           },
           {
-            path: '/admin/qualification/education',
-            name: 'education',
-            component: './Welcome',
-          },
-          {
-            path: '/admin/qualification/language',
-            name: 'language',
+            path: '/admin/qualification/insurancePlan',
+            name: 'insurancePlan',
             component: './Welcome',
           },
         ],

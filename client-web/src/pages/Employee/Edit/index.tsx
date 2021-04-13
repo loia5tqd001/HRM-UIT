@@ -1,5 +1,6 @@
 import { EmployeeGeneral } from '@/components/EmployeeGeneral';
 import { EmployeeJob } from '@/components/EmployeeJob';
+import { EmployeePayroll } from '@/components/EmployeePayroll';
 import {
   allJobs,
   changeEmployeeAvatar,
@@ -209,6 +210,24 @@ export const Edit: React.FC = () => {
               <EmployeeJob
                 jobs={jobs}
                 jobSubmit={async (value) => {
+                  value.owner = id;
+                  value.probation_start_date = moment(value.probation_start_date).format(
+                    'YYYY-MM-DD',
+                  );
+                  value.probation_end_date = moment(value.probation_end_date).format('YYYY-MM-DD');
+                  value.contract_start_date = moment(value.contract_start_date).format(
+                    'YYYY-MM-DD',
+                  );
+                  value.contract_end_date = moment(value.contract_end_date).format('YYYY-MM-DD');
+                  await updateJob(id, value);
+                  await allJobs(id).then((fetchData) => setJobs(fetchData));
+                }}
+              />
+            ) : null}
+            {tab === 'payroll' ? (
+              <EmployeePayroll
+                payrolls={jobs}
+                payrollSubmit={async (value) => {
                   value.owner = id;
                   value.probation_start_date = moment(value.probation_start_date).format(
                     'YYYY-MM-DD',

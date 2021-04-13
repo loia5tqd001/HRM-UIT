@@ -1,19 +1,17 @@
+import { FormattedMessage } from '@/.umi/plugin-locale/localeExports';
 import { __DEV__ } from '@/global';
-import { allCountries } from '@/services';
-import ProForm, { ProFormDatePicker, ProFormSelect, ProFormText } from '@ant-design/pro-form';
-import { Button, Card, Form, message, TreeSelect } from 'antd';
-import faker from 'faker';
-import merge from 'lodash/merge';
-import moment from 'moment';
-import React, { useEffect, useState } from 'react';
-import { allDepartments } from '@/services/admin.organization.structure';
+import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
+import { allJobEvents } from '@/services/admin.job.jobEvent';
 import { allJobTitles } from '@/services/admin.job.jobTitle';
 import { allWorkShifts } from '@/services/admin.job.workShift';
 import { allLocations } from '@/services/admin.organization.location';
-import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
-import { allJobEvents } from '@/services/admin.job.jobEvent';
+import { allDepartments } from '@/services/admin.organization.structure';
+import ProForm, { ProFormDatePicker, ProFormSelect } from '@ant-design/pro-form';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
-import { FormattedMessage } from '@/.umi/plugin-locale/localeExports';
+import { Button, Card, Form, message, TreeSelect } from 'antd';
+import faker from 'faker';
+import moment from 'moment';
+import React, { useEffect, useState } from 'react';
 
 type Props = {
   jobs: API.EmployeeJob[] | undefined;
@@ -48,55 +46,32 @@ export const EmployeeJob: React.FC<Props> = (props) => {
 
   const columns: ProColumns<API.EmployeeJob>[] = [
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.workShift.column.timestamp"
-          defaultMessage="Timestamp"
-        />
-      ),
+      title: <FormattedMessage id="pages.admin.job.column.timestamp" defaultMessage="Timestamp" />,
       dataIndex: 'timestamp',
       renderText: (it) => moment(it).format('YYYY-MM-DD hh:mm:ss'),
     },
     {
       title: (
-        <FormattedMessage
-          id="pages.admin.job.workShift.column.department"
-          defaultMessage="Department"
-        />
+        <FormattedMessage id="pages.admin.job.column.department" defaultMessage="Department" />
       ),
       dataIndex: 'department',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.workShift.column.jobTitle"
-          defaultMessage="Job title"
-        />
-      ),
+      title: <FormattedMessage id="pages.admin.job.column.jobTitle" defaultMessage="Job title" />,
       dataIndex: 'job_title',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.workShift.column.workShift"
-          defaultMessage="Work shift"
-        />
-      ),
+      title: <FormattedMessage id="pages.admin.job.column.workShift" defaultMessage="Work shift" />,
       dataIndex: 'work_shift',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.workShift.column.location"
-          defaultMessage="Location"
-        />
-      ),
+      title: <FormattedMessage id="pages.admin.job.column.location" defaultMessage="Location" />,
       dataIndex: 'location',
     },
     {
       title: (
         <FormattedMessage
-          id="pages.admin.job.workShift.column.employmentStatus"
+          id="pages.admin.job.column.employmentStatus"
           defaultMessage="Employment status"
         />
       ),
@@ -105,7 +80,7 @@ export const EmployeeJob: React.FC<Props> = (props) => {
     {
       title: (
         <FormattedMessage
-          id="pages.admin.job.workShift.column.probationStartDate"
+          id="pages.admin.job.column.probationStartDate"
           defaultMessage="Probation start date"
         />
       ),
@@ -114,7 +89,7 @@ export const EmployeeJob: React.FC<Props> = (props) => {
     {
       title: (
         <FormattedMessage
-          id="pages.admin.job.workShift.column.probationEndDate"
+          id="pages.admin.job.column.probationEndDate"
           defaultMessage="Probation end date"
         />
       ),
@@ -123,7 +98,7 @@ export const EmployeeJob: React.FC<Props> = (props) => {
     {
       title: (
         <FormattedMessage
-          id="pages.admin.job.workShift.column.contractStartDate"
+          id="pages.admin.job.column.contractStartDate"
           defaultMessage="Contract start date"
         />
       ),
@@ -132,7 +107,7 @@ export const EmployeeJob: React.FC<Props> = (props) => {
     {
       title: (
         <FormattedMessage
-          id="pages.admin.job.workShift.column.contractEndDate"
+          id="pages.admin.job.column.contractEndDate"
           defaultMessage="Contract end date"
         />
       ),
