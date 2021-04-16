@@ -80,7 +80,7 @@
           {
             path: '/admin/organization/information',
             name: 'information',
-            component: './Welcome',
+            component: './Admin/Organization/Information',
           },
           {
             path: '/admin/organization/structure',
