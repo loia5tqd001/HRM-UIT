@@ -6,7 +6,7 @@ export default {
   'menu.admin.job.jobTitle': 'Job Title',
   'menu.admin.job.jobEvent': 'Job Event',
   'menu.admin.job.employmentStatus': 'Employment Status',
-  'menu.admin.job.workShift': 'Work Shift',
+  'menu.admin.job.workSchedule': 'Work Schedule',
   'menu.admin.job.customFields': 'Custom Fields',
   'menu.admin.organization': 'Organization',
   'menu.admin.organization.information': 'Information',

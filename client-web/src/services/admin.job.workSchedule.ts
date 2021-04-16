@@ -1,16 +1,16 @@
 import { request } from 'umi';
 
 const endpoint = '/api/work_shifts/';
-type Item = API.WorkShift;
+type Item = API.WorkSchedule;
 
-export async function allWorkShifts(options?: { [key: string]: any }) {
+export async function allWorkSchedules(options?: { [key: string]: any }) {
   return request<Item[]>(`${endpoint}`, {
     method: 'GET',
     ...(options || {}),
   });
 }
 
-export async function createWorkShift(body: Item, options?: { [key: string]: any }) {
+export async function createWorkSchedule(body: Item, options?: { [key: string]: any }) {
   return request<Item>(`${endpoint}`, {
     method: 'POST',
     data: body,
@@ -18,14 +18,14 @@ export async function createWorkShift(body: Item, options?: { [key: string]: any
   });
 }
 
-export async function readWorkShift(id: number, options?: { [key: string]: any }) {
+export async function readWorkSchedule(id: number, options?: { [key: string]: any }) {
   return request<Item>(`${endpoint}${id}`, {
     method: 'GET',
     ...(options || {}),
   });
 }
 
-export async function updateWorkShift(id: number, body: Item, options?: { [key: string]: any }) {
+export async function updateWorkSchedule(id: number, body: Item, options?: { [key: string]: any }) {
   return request<Item>(`${endpoint}${id}/`, {
     method: 'PUT',
     headers: {
@@ -36,7 +36,7 @@ export async function updateWorkShift(id: number, body: Item, options?: { [key: 
   });
 }
 
-export async function deleteWorkShift(id: number, options?: { [key: string]: any }) {
+export async function deleteWorkSchedule(id: number, options?: { [key: string]: any }) {
   return request<Item[]>(`${endpoint}${id}/`, {
     method: 'DELETE',
     headers: {

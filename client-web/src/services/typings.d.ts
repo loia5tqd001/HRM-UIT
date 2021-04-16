@@ -127,7 +127,6 @@ declare namespace API {
     };
   }
 
-
   interface EmployeePayroll {
     payCycle: 'monthly' | 'biweekly';
     salary: number;
@@ -273,12 +272,15 @@ declare namespace API {
     iban: string;
   }
 
-  interface WorkShift {
+  interface WorkSchedule {
     id: number;
     name: string;
     start_time: moment.Moment | string;
     end_time: moment.Moment | string;
-    duration: moment.Duration | string;
+    duration: moment.Duration | number;
+    morning: [moment.Moment | string, moment.Moment | string];
+    afternoon: [moment.Moment | string, moment.Moment | string];
+    days: ('Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun')[];
   }
 
   interface JobTitle {
@@ -286,6 +288,17 @@ declare namespace API {
     name: string;
     description: string;
     is_active: boolean;
+  }
+
+  interface CustomField {
+    id: number;
+    name: string;
+    variable_name: string | undefined;
+    description: string;
+    screen: 'general' | 'job' | 'payroll' | 'dependent';
+    required: boolean;
+    type: 'text' | 'dropdown' | 'number' | 'email' | 'textarea' | 'checkbox' | 'radio';
+    options: string | undefined; // seperated by comma, undefined for text, number, email, textarea;
   }
 
   interface EmploymentStatus {

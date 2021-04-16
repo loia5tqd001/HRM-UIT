@@ -57,9 +57,9 @@
             component: './Admin/Job/EmploymentStatus',
           },
           {
-            path: '/admin/job/workShift',
-            name: 'workShift',
-            component: './Admin/Job/WorkShift',
+            path: '/admin/job/workSchedule',
+            name: 'workSchedule',
+            component: './Admin/Job/WorkSchedule',
           },
           {
             path: '/admin/job/jobEvent',
@@ -167,7 +167,7 @@
         path: '/employee/customFields',
         name: 'customFields',
         icon: 'setting',
-        component: './Welcome',
+        component: './Employee/CustomField',
       },
       { path: '/employee/report', name: 'report', icon: 'barChart', component: './Welcome' },
       {

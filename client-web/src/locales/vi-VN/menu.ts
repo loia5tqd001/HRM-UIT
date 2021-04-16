@@ -6,7 +6,7 @@ export default {
   'menu.admin.job.jobTitle': 'Chức vụ',
   'menu.admin.job.jobEvent': 'Sự kiện',
   'menu.admin.job.employmentStatus': 'Trạng thái làm việc',
-  'menu.admin.job.workShift': 'Ca làm việc',
+  'menu.admin.job.workSchedule': 'Lịch làm việc',
   'menu.admin.job.customFields': 'Trường tuỳ chỉnh',
   'menu.admin.organization': 'Tổ chức',
   'menu.admin.organization.information': 'Thông tin',

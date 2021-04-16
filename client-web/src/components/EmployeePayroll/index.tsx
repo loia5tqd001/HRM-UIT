@@ -3,7 +3,7 @@ import { __DEV__ } from '@/global';
 import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
 import { allJobEvents } from '@/services/admin.job.jobEvent';
 import { allJobTitles } from '@/services/admin.job.jobTitle';
-import { allWorkShifts } from '@/services/admin.job.workShift';
+import { allWorkSchedules } from '@/services/admin.job.workSchedule';
 import { allLocations } from '@/services/admin.organization.location';
 import { allDepartments } from '@/services/admin.organization.structure';
 import ProForm, { ProFormSelect } from '@ant-design/pro-form';
@@ -22,7 +22,7 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
   const { payrolls, payrollSubmit } = props;
   const [departments, setDepartments] = useState<API.DepartmentUnit[]>();
   const [jobTitles, setJobTitles] = useState<API.JobTitle[]>();
-  const [workShifts, setWorkShifts] = useState<API.WorkShift[]>();
+  const [workShifts, setWorkShifts] = useState<API.WorkSchedule[]>();
   const [locations, setLocations] = useState<API.Location[]>();
   const [employmentStatuses, setEmploymentStatuses] = useState<API.EmploymentStatus[]>();
   const [jobEvents, setJobEvents] = useState<API.JobEvent[]>();
@@ -30,7 +30,7 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
   useEffect(() => {
     allDepartments().then((fetchData) => setDepartments(fetchData));
     allJobTitles().then((fetchData) => setJobTitles(fetchData));
-    allWorkShifts().then((fetchData) => setWorkShifts(fetchData));
+    allWorkSchedules().then((fetchData) => setWorkShifts(fetchData));
     allLocations().then((fetchData) => setLocations(fetchData));
     allEmploymentStatuses().then((fetchData) => setEmploymentStatuses(fetchData));
     allJobEvents().then((fetchData) => setJobEvents(fetchData));
