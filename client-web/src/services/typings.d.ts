@@ -322,6 +322,12 @@ declare namespace API {
     fax: string;
     note: string;
     country: number;
+
+    accurate_address: string;
+    radius: number;
+    allow_outside: boolean;
+    lng: number;
+    lat: number;
   }
 
   interface Country {

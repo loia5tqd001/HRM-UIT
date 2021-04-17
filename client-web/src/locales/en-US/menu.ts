@@ -39,6 +39,7 @@ export default {
   'menu.attendance.list': 'List',
   'menu.attendance.import': 'Import',
   'menu.attendance.configuration': 'Configuration',
+  'menu.attendance.configuration.office': 'Office',
   'menu.attendance.report': 'Report',
   'menu.payroll': 'Payroll',
   'menu.payroll.configuration': 'Configuration',

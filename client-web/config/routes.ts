@@ -222,7 +222,22 @@
         path: '/attendance/configuration',
         name: 'configuration',
         icon: 'setting',
-        component: './Welcome',
+        routes: [
+          {
+            path: '/attendance/configuration/office',
+            name: 'office',
+            component: './Attendance/Configuration/Office',
+          },
+          {
+            path: '/attendance/configuration/office/:id',
+            component: './Attendance/Configuration/OfficeEdit',
+            hideInMenu: true,
+          },
+          {
+            path: '/attendance/configuration',
+            redirect: '/attendance/configuration/office',
+          },
+        ],
       },
       { path: '/attendance/report', name: 'report', icon: 'barChart', component: './Welcome' },
       {

@@ -39,6 +39,7 @@ export default {
   'menu.attendance.list': 'Danh sách',
   'menu.attendance.import': 'Import',
   'menu.attendance.configuration': 'Tuỳ chỉnh',
+  'menu.attendance.configuration.office': 'Văn phòng làm việc',
   'menu.attendance.report': 'Báo cáo',
   'menu.payroll': 'Tính lương',
   'menu.payroll.configuration': 'Tuỳ chỉnh',
