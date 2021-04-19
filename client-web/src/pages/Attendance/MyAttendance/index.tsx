@@ -11,18 +11,24 @@ import {
 } from '@ant-design/icons';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Space, Tag, Tooltip } from 'antd';
-import React from 'react';
+import { Button, DatePicker, Form, Space, Tag, TimePicker, Tooltip } from 'antd';
+import React, { useState } from 'react';
 import { FormattedMessage, Link, useIntl, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { PageContainer } from '@ant-design/pro-layout';
 import moment from 'moment';
+import { ClockInOutModal } from './components/ClockInOutModal';
+import ProForm, { ModalForm, ProFormDatePicker, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 
 type RecordType = API.AttendanceRecord;
 
 const MyAttendance: React.FC = () => {
   const intl = useIntl();
-  const { actionRef, setCrudModalVisible, setSelectedRecord } = useModel('employee');
+  const { actionRef } = useModel('employee');
+  const [clockModalVisible, setClockModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
+  const [editedTime, setEditedTime] = useState();
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -126,7 +132,7 @@ const MyAttendance: React.FC = () => {
       title: 'Decifit',
       key: 'actual',
       dataIndex: 'decifit',
-      renderText: (decifit) => decifit === undefined ? ' ' : decifit,
+      renderText: (decifit) => (decifit === undefined ? ' ' : decifit),
     },
     {
       title: 'Status',
@@ -162,8 +168,8 @@ const MyAttendance: React.FC = () => {
               title="Edit actual"
               size="small"
               onClick={() => {
-                setCrudModalVisible('update');
-                // setSelectedRecord(record);
+                setEditModalVisible(true);
+                setSelectedRecord(record);
               }}
             >
               <EditOutlined />
@@ -191,9 +197,7 @@ const MyAttendance: React.FC = () => {
         headerTitle="My attendance"
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
+        search={false}
         scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Tag>First clock in 15:01</Tag>,
@@ -202,8 +206,7 @@ const MyAttendance: React.FC = () => {
             type="primary"
             key="primary"
             onClick={() => {
-              setCrudModalVisible('create');
-              setSelectedRecord(undefined);
+              setClockModalVisible(true);
             }}
           >
             <Space>
@@ -339,6 +342,36 @@ const MyAttendance: React.FC = () => {
         columns={columns}
       />
       <CrudModal />
+      <ModalForm
+        visible={clockModalVisible}
+        title={`Clock in at ${moment().format('HH:mm:ss')}`}
+        width="400px"
+        onFinish={() => setClockModalVisible(false)}
+        onVisibleChange={(visible) => setClockModalVisible(visible)}
+      >
+        <Space style={{ marginBottom: 20 }}>
+          <EnvironmentOutlined />
+          Outside the designated area
+        </Space>
+        <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
+      </ModalForm>
+      <ModalForm
+        visible={editModalVisible}
+        title={`Edit actual attendance`}
+        width="400px"
+        onFinish={() => setEditModalVisible(false)}
+        onVisibleChange={(visible) => setEditModalVisible(visible)}
+      >
+        <ProForm.Group>
+          <Form.Item>
+            <DatePicker value={seletectedRecord?.date} disabled />
+          </Form.Item>
+          <Form.Item>
+            <TimePicker format="HH:mm" minuteStep={5} />
+          </Form.Item>
+        </ProForm.Group>
+        <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
+      </ModalForm>
     </PageContainer>
   );
 };

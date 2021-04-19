@@ -330,7 +330,7 @@ declare namespace API {
     clock_out_note: string | undefined;
     clock_out_location: 'Outside' | Location['name'] | undefined;
     hours_work_by_schedule: number;
-    actual: number;
+    actual: moment.Duration;
     deficit: number;
     overtime: string | number | undefined;
     status: 'pending' | 'approved' | 'confirmed' | undefined;
