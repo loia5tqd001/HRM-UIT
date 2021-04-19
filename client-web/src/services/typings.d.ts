@@ -290,6 +290,56 @@ declare namespace API {
     is_active: boolean;
   }
 
+  interface OvertimeType {
+    id: number;
+    name: string;
+    point_rate: number;
+  }
+
+  interface Tracking {
+    id: number;
+    type: 'checkin' | 'checkout';
+    time: moment.Moment;
+    note: string;
+    is_ot: boolean;
+    ot_type: OvertimeType['id'] | undefined; // undefined khi is_ot = false
+    location: Location['id']; // dựa vô employee.job.location
+    longitude: number; // location thực tế khi checkin/checkout
+    latitude: number; // location thực tế khi checkin/checkout
+    outside_office: boolean;
+  }
+  interface AttendanceDay {
+    id: number;
+    date: moment.Moment;
+    employee: Employee['id'];
+    hours_work_by_schedule: number; // depends on holidays + schedule of employee
+    tracking: Tracking[]; // => clock in, clock in location, clock out, clock out location, actual, overtime,
+    edited_by: Employee['id'];
+    edited_when: moment.Moment;
+    edited_to: number; // edit "actual hour" to xx hours
+    status: 'pending' | 'approved' | 'confirmed';
+  }
+  interface AttendanceRecord<Type extends 'AttendanceDay' | 'Tracking' = 'AttendanceDay'> {
+    id: number;
+    type: Type;
+    date: Type extends 'AttendanceDay' ? moment.Moment : undefined; // undefined when Tracking
+    clock_in: moment.Moment | undefined; 
+    clock_in_note: string | undefined;
+    clock_in_location: 'Outside' | Location['name'] | undefined;
+    clock_out: moment.Moment | undefined; 
+    clock_out_note: string | undefined;
+    clock_out_location: 'Outside' | Location['name'] | undefined;
+    hours_work_by_schedule: number;
+    actual: number;
+    deficit: number;
+    overtime: string | number | undefined;
+    status: 'pending' | 'approved' | 'confirmed' | undefined;
+    edited_by: Employee['id'] | undefined;
+    edited_when: moment.Moment | undefined;
+    edited_to: number | undefined; // edit "actual hour" to xx hours
+    children: AttendanceRecord<'Tracking'>[];
+  }
+
   interface CustomField {
     id: number;
     name: string;

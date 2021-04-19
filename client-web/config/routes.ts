@@ -215,7 +215,12 @@
     icon: 'table',
     // access: 'canAdmin',
     routes: [
-      { path: '/attendance/checkin', name: 'checkin', icon: 'checkSquare', component: './Welcome' },
+      {
+        path: '/attendance/me',
+        name: 'me',
+        icon: 'checkSquare',
+        component: './Attendance/MyAttendance',
+      },
       { path: '/attendance/list', name: 'list', icon: 'unorderedList', component: './Welcome' },
       { path: '/attendance/import', name: 'import', icon: 'import', component: './Welcome' },
       {
@@ -234,6 +239,11 @@
             hideInMenu: true,
           },
           {
+            path: '/attendance/configuration/overtimeType',
+            name: 'overtimeType',
+            component: './Attendance/Configuration/OvertimeType',
+          },
+          {
             path: '/attendance/configuration',
             redirect: '/attendance/configuration/office',
           },
@@ -242,7 +252,7 @@
       { path: '/attendance/report', name: 'report', icon: 'barChart', component: './Welcome' },
       {
         path: '/attendance',
-        redirect: '/attendance/checkin',
+        redirect: '/attendance/me',
       },
     ],
   },
