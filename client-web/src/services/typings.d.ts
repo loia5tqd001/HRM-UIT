@@ -323,10 +323,10 @@ declare namespace API {
     id: number;
     type: Type;
     date: Type extends 'AttendanceDay' ? moment.Moment : undefined; // undefined when Tracking
-    clock_in: moment.Moment | undefined; 
+    clock_in: moment.Moment | undefined;
     clock_in_note: string | undefined;
     clock_in_location: 'Outside' | Location['name'] | undefined;
-    clock_out: moment.Moment | undefined; 
+    clock_out: moment.Moment | undefined;
     clock_out_note: string | undefined;
     clock_out_location: 'Outside' | Location['name'] | undefined;
     hours_work_by_schedule: number;
@@ -338,6 +338,20 @@ declare namespace API {
     edited_when: moment.Moment | undefined;
     edited_to: number | undefined; // edit "actual hour" to xx hours
     children: AttendanceRecord<'Tracking'>[];
+  }
+
+  interface AttendanceEmployee {
+    employee: Employee;
+    actual: number; // in seconds
+    work_schedule: number; // in seconds
+    status: {
+      pending: number;
+      approved: number;
+      confirmed: number;
+    };
+    attendances: {
+      [date: string]: number; // 14 Apr - 600 (date - seconds)
+    }
   }
 
   interface CustomField {

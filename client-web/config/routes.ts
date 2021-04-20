@@ -221,7 +221,7 @@
         icon: 'checkSquare',
         component: './Attendance/MyAttendance',
       },
-      { path: '/attendance/list', name: 'list', icon: 'unorderedList', component: './Welcome' },
+      { path: '/attendance/list', name: 'list', icon: 'unorderedList', component: './Attendance/EmployeeAttendance' },
       { path: '/attendance/import', name: 'import', icon: 'import', component: './Welcome' },
       {
         path: '/attendance/configuration',
