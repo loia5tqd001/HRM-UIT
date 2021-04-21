@@ -1,48 +1,84 @@
-import ProForm, { ProFormSelect, ProFormText } from '@ant-design/pro-form';
+import ProForm from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Card, Checkbox, Col, Form, Row, Space } from 'antd';
-import React, { useState } from 'react';
-import { useParams } from 'umi';
+import { Card, Checkbox, Col, Form, Row, Select } from 'antd';
 import GoogleMapReact from 'google-map-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import GooglePlacesAutocomplete, {
-  geocodeByAddress,
+  geocodeByLatLng,
   geocodeByPlaceId,
   getLatLng,
 } from 'react-google-places-autocomplete';
-import { EnvironmentOutlined } from '@ant-design/icons';
-
-const AnyReactComponent = () => {
-  return (
-    <div style={{ width: 300, height: '100%' }}>
-      <img
-        alt=""
-        src="https://maps.gstatic.com/mapfiles/transparent.png"
-        draggable="false"
-        // usemap="#gmimap0"
-        style={{
-          width: '27px',
-          height: '43px',
-          userSelect: 'none',
-          border: '0px',
-          padding: '0px',
-          margin: '0px',
-          maxWidth: 'none',
-        }}
-      />sdfd
-    </div>
-  );
-  // <EnvironmentOutlined
-  //   style={{ color: 'red', fontSize: 30, transform: 'translate(-50%, -50%)' }}
-  // />;
-};
+import { useParams } from 'umi';
 
 const googleApiKey = 'AIzaSyA7EpBEIp80TiSD15D85_Kra8TLtbdsr1c';
 
 export const OfficeEdit: React.FC = () => {
   const { id } = useParams<any>();
-  const [value, setValue] = useState<any>(null);
-  const [center, setCenter] = useState<any>(null);
-  const [marker, setMarker] = useState<any>(null);
+  const [accurateAddress, setAccurateAddress] = useState<{ label: string; value: any }>();
+  const [center, setCenter] = useState<google.maps.LatLngLiteral>();
+  const mapRef = useRef<google.maps.Map>();
+  const markerRef = useRef<google.maps.Marker>();
+  const circleRef = useRef<google.maps.Circle>();
+  const [radius, setRadius] = useState<10 | 25 | 50 | 100 | 200 | 500>(100);
+
+  // how to add and remove marker google-map: https://developers.google.com/maps/documentation/javascript/examples/marker-remove
+  const setMarker = useCallback(
+    (coord: google.maps.LatLngLiteral) => {
+      if (!mapRef.current) return;
+      markerRef.current?.setMap(null); // remove old marker
+      circleRef.current?.setMap(null); // remove old circle
+      const map = mapRef.current;
+      // add new marker
+      markerRef.current = new google.maps.Marker({
+        position: coord,
+        map,
+        title: accurateAddress?.label,
+      });
+      // add new circle
+      circleRef.current = new google.maps.Circle({
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.35,
+        strokeWeight: 2,
+        fillColor: '#FF0000',
+        fillOpacity: 0.35,
+        map,
+        center: coord,
+        radius,
+      });
+    },
+    [mapRef, accurateAddress, radius],
+  );
+
+  useEffect(() => {
+    const map = mapRef.current;
+    circleRef.current?.setMap(null);
+    circleRef.current = new google.maps.Circle({
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.35,
+      strokeWeight: 2,
+      fillColor: '#FF0000',
+      fillOpacity: 0.35,
+      map,
+      center: markerRef.current?.getPosition()?.toJSON(),
+      radius,
+    });
+  }, [radius]);
+
+  // const serRadius = useCallback((radius: number) => {
+  //   setRadius(radius);
+  //   const map = mapRef.current;
+  //   circleRef.current?.setMap(null);
+  //   circleRef.current = new google.maps.Circle({
+  //     strokeColor: '#FF0000',
+  //     strokeOpacity: 0.35,
+  //     strokeWeight: 2,
+  //     fillColor: '#FF0000',
+  //     fillOpacity: 0.35,
+  //     map,
+  //     center: markerRef.current?.getPosition()?.toJSON(),
+  //     radius,
+  //   });
+  // }, []);
 
   // function success(position: any) {
   //   const { latitude, longitude } = position.coords;
@@ -69,23 +105,21 @@ export const OfficeEdit: React.FC = () => {
                 <GooglePlacesAutocomplete
                   apiKey={googleApiKey}
                   selectProps={{
-                    value,
-                    onChange: async (value) => {
-                      geocodeByPlaceId(value.value.place_id)
+                    value: accurateAddress,
+                    onChange: (newValue: any) => {
+                      setAccurateAddress(newValue);
+                      geocodeByPlaceId(newValue.value.place_id)
                         .then((results) => getLatLng(results[0]))
                         .then(({ lat, lng }) => {
-                          const pos = { lat, lng };
-                          setCenter(pos);
-                          setMarker(pos);
-                        })
-                        .catch((error) => console.error(error));
+                          setCenter({ lat, lng });
+                          setMarker({ lat, lng });
+                        });
                     },
                     placeholder: 'Search for address...',
                     styles: {
                       control: (provided: any, state: any) => ({
                         ...provided,
                         background: '#fff',
-                        // borderColor: '#9e9e9e',
                         border: '1px solid #d9d9d9',
                         minHeight: '32px',
                         height: '32px',
@@ -115,14 +149,16 @@ export const OfficeEdit: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span="4">
-              <ProFormSelect
-                name="radius"
-                label="Radius"
-                options={[10, 25, 50, 100, 200, 500].map((it) => ({
-                  value: it,
-                  label: `${it} (meters)`,
-                }))}
-              />
+              <Form.Item name="radius" label="Radius" initialValue={radius}>
+                <Select
+                  value={radius}
+                  options={[10, 25, 50, 100, 200, 500].map((it) => ({
+                    value: it,
+                    label: `${it} (meters)`,
+                  }))}
+                  onChange={(value: any) => setRadius(value)}
+                />
+              </Form.Item>
             </Col>
           </Row>
           <div
@@ -161,30 +197,34 @@ export const OfficeEdit: React.FC = () => {
                   minZoom: 11,
                   maxZoom: 18,
                   mapTypeControl: true,
-                  mapTypeId: maps.MapTypeId.HYBRID,
+                  // mapTypeId: maps.MapTypeId.HYBRID, // do not init mapTypeId, otherwise onClick will fuck it up
                   mapTypeControlOptions: {
                     style: maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                    position: maps.ControlPosition.BOTTOM_CENTER,
+                    position: maps.ControlPosition.TOP_CENTER,
                     mapTypeIds: [
-                      maps.MapTypeId.ROADMAP,
-                      // maps.MapTypeId.SATELLITE,
                       maps.MapTypeId.HYBRID,
+                      maps.MapTypeId.ROADMAP,
+                      maps.MapTypeId.SATELLITE,
                     ],
                   },
                   zoomControl: true,
                   clickableIcons: true,
                 };
               }}
-              onClick={({ lat, lng }) => setMarker({ lat, lng })}
-              // onChildClick={() => console.log('childclick')}
-              // yesIWantToUseGoogleMapApiInternals
-              // onGoogleApiLoaded={({ map, maps }) => {
-              //   console.log(map, maps);
-
-              // }}
-            >
-              <AnyReactComponent {...marker} />
-            </GoogleMapReact>
+              onClick={({ lat, lng }) => {
+                setMarker({ lat, lng });
+                geocodeByLatLng({ lat, lng }).then((results) => {
+                  setAccurateAddress({
+                    label: results[0].formatted_address,
+                    value: results[0],
+                  });
+                });
+              }}
+              yesIWantToUseGoogleMapApiInternals
+              onGoogleApiLoaded={({ map }) => {
+                mapRef.current = map;
+              }}
+            />
           </div>
         </ProForm>
       </Card>

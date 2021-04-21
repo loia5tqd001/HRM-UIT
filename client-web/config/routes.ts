@@ -188,13 +188,33 @@
     icon: 'clockCircle',
     // access: 'canAdmin',
     routes: [
-      { path: '/timeOff/list', name: 'list', icon: 'unorderedList', component: './Welcome' },
-      { path: '/timeOff/submit', name: 'submit', icon: 'frown', component: './Welcome' },
+      { path: '/timeOff/me', name: 'me', icon: 'frown', component: './Timeoff/MyAttendance' },
+      {
+        path: '/timeOff/list',
+        name: 'list',
+        icon: 'unorderedList',
+        component: './Timeoff/EmployeeAttendance',
+      },
       {
         path: '/timeOff/configuration',
         name: 'configuration',
         icon: 'setting',
-        component: './Welcome',
+        routes: [
+          {
+            path: '/timeOff/configuration/holiday',
+            name: 'holiday',
+            component: './Timeoff/Configuration/Holiday',
+          },
+          {
+            path: '/timeOff/configuration/timeoffType',
+            name: 'timeoffType',
+            component: './Timeoff/Configuration/TimeoffType',
+          },
+          {
+            path: '/timeOff/configuration',
+            redirect: '/timeOff/configuration/holiday',
+          },
+        ],
       },
       {
         path: '/timeOff/entitlement',
@@ -205,7 +225,7 @@
       { path: '/timeOff/report', name: 'report', icon: 'barChart', component: './Welcome' },
       {
         path: '/timeOff',
-        redirect: '/timeOff/list',
+        redirect: '/timeOff/me',
       },
     ],
   },
@@ -221,7 +241,12 @@
         icon: 'checkSquare',
         component: './Attendance/MyAttendance',
       },
-      { path: '/attendance/list', name: 'list', icon: 'unorderedList', component: './Attendance/EmployeeAttendance' },
+      {
+        path: '/attendance/list',
+        name: 'list',
+        icon: 'unorderedList',
+        component: './Attendance/EmployeeAttendance',
+      },
       { path: '/attendance/import', name: 'import', icon: 'import', component: './Welcome' },
       {
         path: '/attendance/configuration',
