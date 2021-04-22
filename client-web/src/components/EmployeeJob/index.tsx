@@ -3,7 +3,7 @@ import { __DEV__ } from '@/global';
 import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
 import { allJobEvents } from '@/services/admin.job.jobEvent';
 import { allJobTitles } from '@/services/admin.job.jobTitle';
-import { allWorkSchedules } from '@/services/admin.job.workSchedule';
+import { allSchedules } from '@/services/admin.job.workSchedule';
 import { allLocations } from '@/services/admin.organization.location';
 import { allDepartments } from '@/services/admin.organization.structure';
 import ProForm, { ProFormDatePicker, ProFormSelect } from '@ant-design/pro-form';
@@ -16,13 +16,15 @@ import React, { useEffect, useState } from 'react';
 type Props = {
   jobs: API.EmployeeJob[] | undefined;
   jobSubmit: (value: API.EmployeeJob) => Promise<void>;
+  schedule: API.EmployeeSchedule | undefined;
+  scheduleSubmit: (value: API.EmployeeSchedule) => Promise<void>;
 };
 
 export const EmployeeJob: React.FC<Props> = (props) => {
-  const { jobs, jobSubmit } = props;
+  const { jobs, jobSubmit, schedule, scheduleSubmit } = props;
   const [departments, setDepartments] = useState<API.DepartmentUnit[]>();
   const [jobTitles, setJobTitles] = useState<API.JobTitle[]>();
-  const [workShifts, setWorkShifts] = useState<API.Schedule[]>();
+  const [schedules, setSchedules] = useState<API.Schedule[]>();
   const [locations, setLocations] = useState<API.Location[]>();
   const [employmentStatuses, setEmploymentStatuses] = useState<API.EmploymentStatus[]>();
   const [jobEvents, setJobEvents] = useState<API.JobEvent[]>();
@@ -30,10 +32,10 @@ export const EmployeeJob: React.FC<Props> = (props) => {
   useEffect(() => {
     allDepartments().then((fetchData) => setDepartments(fetchData));
     allJobTitles().then((fetchData) => setJobTitles(fetchData));
-    allWorkSchedules().then((fetchData) => setWorkShifts(fetchData));
     allLocations().then((fetchData) => setLocations(fetchData));
     allEmploymentStatuses().then((fetchData) => setEmploymentStatuses(fetchData));
     allJobEvents().then((fetchData) => setJobEvents(fetchData));
+    allSchedules().then((fetchData) => setSchedules(fetchData));
   }, []);
 
   const treeData = departments?.map((it) => ({
@@ -59,10 +61,6 @@ export const EmployeeJob: React.FC<Props> = (props) => {
     {
       title: <FormattedMessage id="pages.admin.job.column.jobTitle" defaultMessage="Job title" />,
       dataIndex: 'job_title',
-    },
-    {
-      title: <FormattedMessage id="pages.admin.job.column.workShift" defaultMessage="Work shift" />,
-      dataIndex: 'work_shift',
     },
     {
       title: <FormattedMessage id="pages.admin.job.column.location" defaultMessage="Location" />,
@@ -113,6 +111,10 @@ export const EmployeeJob: React.FC<Props> = (props) => {
       ),
       dataIndex: 'contract_end_date',
     },
+    {
+      title: <FormattedMessage id="pages.admin.job.column.event" defaultMessage="Event" />,
+      dataIndex: 'event',
+    },
   ];
 
   return (
@@ -143,7 +145,6 @@ export const EmployeeJob: React.FC<Props> = (props) => {
                           departments?.map((it) => it.name) || [],
                         ),
                         job_title: faker.helpers.randomize(jobTitles?.map((it) => it.name) || []),
-                        work_shift: faker.helpers.randomize(workShifts?.map((it) => it.name) || []),
                         location: faker.helpers.randomize(locations?.map((it) => it.name) || []),
                         employment_status: faker.helpers.randomize(
                           employmentStatuses?.map((it) => it.name) || [],
@@ -191,13 +192,6 @@ export const EmployeeJob: React.FC<Props> = (props) => {
               />
             </Form.Item>
             <ProFormSelect
-              name="work_shift"
-              width="lg"
-              label="Work shift"
-              options={workShifts?.map((it) => ({ value: it.name, label: it.name }))}
-              hasFeedback={!workShifts}
-            />
-            <ProFormSelect
               name="location"
               width="lg"
               label="Location"
@@ -227,6 +221,29 @@ export const EmployeeJob: React.FC<Props> = (props) => {
           />
         </ProForm>
       </Card>
+      <Card loading={schedules === undefined} title="Work schedule">
+        <ProForm<API.EmployeeSchedule>
+          onFinish={async (value) => {
+            try {
+              await scheduleSubmit(value);
+              message.success('Updated successfully!');
+            } catch {
+              message.error('Updated unsuccessfully!');
+            }
+          }}
+          initialValues={schedule}
+        >
+          <ProFormSelect
+            rules={[{ required: true }]}
+            name="schedule"
+            width="lg"
+            label="Work schedule"
+            options={schedules?.map((it) => ({ value: it.name, label: it.name }))}
+            hasFeedback={!schedules}
+          />
+        </ProForm>
+      </Card>
+
       <ProTable<API.EmployeeJob>
         headerTitle="Job history"
         rowKey="id"

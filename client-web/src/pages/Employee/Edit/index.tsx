@@ -14,6 +14,8 @@ import {
   updateEmployee,
   updateHomeAddress,
   updateJob,
+  getSchedule,
+  updateSchedule,
 } from '@/services/employee';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
@@ -32,6 +34,7 @@ export const Edit: React.FC = () => {
   const [emergencyContact, setEmergencyContact] = useState<API.EmployeeEmergencyContact>();
   const [bankInfo, setBankInfo] = useState<API.EmployeeBankInfo>();
   const [jobs, setJobs] = useState<API.EmployeeJob[]>();
+  const [schedule, setSchedule] = useState<API.EmployeeSchedule>();
   const { tab } = history.location.query as { tab: 'general' | 'job' | 'payroll' | undefined };
   if (tab === undefined) history.push('?tab=general');
 
@@ -42,6 +45,7 @@ export const Edit: React.FC = () => {
     getBankInfo(id).then((fetchData) => setBankInfo(fetchData));
 
     allJobs(id).then((fetchData) => setJobs(fetchData));
+    getSchedule(id).then((fetchData) => setSchedule(fetchData));
   }, [id]);
 
   return (
@@ -221,6 +225,11 @@ export const Edit: React.FC = () => {
                   value.contract_end_date = moment(value.contract_end_date).format('YYYY-MM-DD');
                   await updateJob(id, value);
                   await allJobs(id).then((fetchData) => setJobs(fetchData));
+                }}
+                schedule={schedule}
+                scheduleSubmit={async (value) => {
+                  value.owner = id;
+                  await updateSchedule(id, value);
                 }}
               />
             ) : null}

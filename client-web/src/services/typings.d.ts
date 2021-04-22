@@ -225,7 +225,6 @@ declare namespace API {
     id: number;
     department: string;
     job_title: string;
-    work_shift: string;
     location: string;
     employment_status: string;
     probation_start_date: moment.Moment | string;
@@ -270,6 +269,11 @@ declare namespace API {
     account_number: string;
     swift_bic: string;
     iban: string;
+  }
+
+  interface EmployeeSchedule {
+    owner?: number;
+    schedule: string;
   }
 
   interface Schedule {

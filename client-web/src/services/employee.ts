@@ -142,6 +142,25 @@ export async function updateJob(
   });
 }
 
+export async function getSchedule(employeeId: number, options?: { [key: string]: any }) {
+  return request<API.EmployeeSchedule>(`${endpoint}${employeeId}/schedule/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateSchedule(
+  employeeId: number,
+  data: API.EmployeeSchedule,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeeSchedule>(`${endpoint}${employeeId}/schedule/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
 // export async function updateRole(id: string, body: API.RoleItem, options?: { [key: string]: any }) {
 //   return request<API.RoleItem>(`/api/auth/role/${id}/`, {
 //     method: 'PUT',
