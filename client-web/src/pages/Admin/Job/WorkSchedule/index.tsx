@@ -1,50 +1,29 @@
 import { __DEV__ } from '@/global';
 import {
-  allWorkSchedules,
-  createWorkSchedule,
-  deleteWorkSchedule,
-  updateWorkSchedule,
+  createSchedule,
+  allSchedules,
+  updateSchedule,
+  deleteSchedule,
 } from '@/services/admin.job.workSchedule';
 import {
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
   SwapOutlined,
-  SwapRightOutlined,
-  SyncOutlined,
   VerticalAlignBottomOutlined,
 } from '@ant-design/icons';
-import ProForm, {
-  ModalForm,
-  ProFormCheckbox,
-  ProFormText,
-  ProFormTimePicker,
-} from '@ant-design/pro-form';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import {
-  Button,
-  Checkbox,
-  Col,
-  Form,
-  Input,
-  message,
-  Popconfirm,
-  Row,
-  Space,
-  TimePicker,
-} from 'antd';
+import { Button, Checkbox, Form, Input, message, Popconfirm, Space, TimePicker } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
+import produce from 'immer';
+import { range } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'umi';
-import produce from 'immer';
-import styles from './index.less';
-import { range } from 'lodash';
-
-type RecordType = API.WorkSchedule;
 
 type DayInWeek = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 type DayItem = {
@@ -54,11 +33,12 @@ type DayItem = {
   afternoon_enabled: boolean;
   afternoon: [moment.Moment, moment.Moment] | null;
 };
-type DayItemOpen = {
-  day: DayInWeek;
-  morning_open: boolean;
-  afternoon_open: boolean;
+type RecordType = {
+  id: number;
+  name: string;
+  workdays: DayItem[];
 };
+
 const initDays: DayItem[] = [
   {
     day: 'Mon',
@@ -110,43 +90,6 @@ const initDays: DayItem[] = [
     afternoon: null,
   },
 ];
-const initDayOpens: DayItemOpen[] = [
-  {
-    day: 'Mon',
-    morning_open: false,
-    afternoon_open: false,
-  },
-  {
-    day: 'Tue',
-    morning_open: false,
-    afternoon_open: false,
-  },
-  {
-    day: 'Wed',
-    morning_open: false,
-    afternoon_open: false,
-  },
-  {
-    day: 'Thu',
-    morning_open: false,
-    afternoon_open: false,
-  },
-  {
-    day: 'Fri',
-    morning_open: false,
-    afternoon_open: false,
-  },
-  {
-    day: 'Sat',
-    morning_open: false,
-    afternoon_open: false,
-  },
-  {
-    day: 'Sun',
-    morning_open: false,
-    afternoon_open: false,
-  },
-];
 
 export const WorkSchedule: React.FC = () => {
   const actionRef = useRef<ActionType>();
@@ -157,7 +100,23 @@ export const WorkSchedule: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const [days, setDays] = useState(initDays);
-  const [dayOpens, setDayOpens] = useState(initDayOpens);
+  const [curOpen, setCurOpen] = useState<
+    | 'Mon-morning'
+    | 'Tue-morning'
+    | 'Wed-morning'
+    | 'Thu-morning'
+    | 'Fri-morning'
+    | 'Sat-morning'
+    | 'Sun-morning'
+    | 'Mon-afternoon'
+    | 'Tue-afternoon'
+    | 'Wed-afternoon'
+    | 'Thu-afternoon'
+    | 'Fri-afternoon'
+    | 'Sat-afternoon'
+    | 'Sun-afternoon'
+    | 'closed'
+  >('closed');
 
   const getDisabledHours = (day: DayInWeek, when: 'morning' | 'afternoon') => {
     const foundDay = days.find((it) => it.day === day);
@@ -208,15 +167,6 @@ export const WorkSchedule: React.FC = () => {
     );
   };
 
-  const onOpenChange = (day: DayInWeek, key: keyof DayItemOpen, value: boolean) => {
-    const index = dayOpens.findIndex((it) => it.day === day);
-    setDayOpens(
-      produce(dayOpens, (draft) => {
-        (draft[index] as any)[key] = value;
-      }),
-    );
-  };
-
   const onCopyAbove = (day: DayInWeek, when: 'morning' | 'afternoon') => {
     const index = days.findIndex((it) => it.day === day);
     setDays(
@@ -253,6 +203,53 @@ export const WorkSchedule: React.FC = () => {
     return Number(hours.toFixed(1));
   };
 
+  const convertToBackend = (_days: DayItem[]): API.Schedule['workdays'] => {
+    return _days
+      .filter((it) => (it.morning_enabled && it.morning) || (it.afternoon_enabled && it.afternoon))
+      .map((it) => {
+        return {
+          day: it.day,
+          morning_from: it.morning_enabled ? it.morning?.[0].format('HH:mm:ss') : null,
+          morning_to: it.morning_enabled ? it.morning?.[1].format('HH:mm:ss') : null,
+          afternoon_from: it.afternoon_enabled ? it.afternoon?.[0].format('HH:mm:ss') : null,
+          afternoon_to: it.afternoon_enabled ? it.afternoon?.[1].format('HH:mm:ss') : null,
+        };
+      });
+  };
+
+  const convertFromBackend = (workdays: API.Schedule['workdays']): DayItem[] => {
+    return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => {
+      const dayItem = {
+        day,
+        morning_enabled: false,
+        morning: null,
+        afternoon_enabled: false,
+        afternoon: null,
+      } as DayItem;
+
+      const workday = workdays.find((it) => it.day === day);
+      if (!workday) return dayItem;
+
+      if (workday.morning_from && workday.morning_to) {
+        dayItem.morning_enabled = true;
+        dayItem.morning = [
+          moment(workday.morning_from, 'HH:mm:ss'),
+          moment(workday.morning_to, 'HH:mm:ss'),
+        ];
+      }
+
+      if (workday.afternoon_from && workday.afternoon_to) {
+        dayItem.afternoon_enabled = true;
+        dayItem.afternoon = [
+          moment(workday.afternoon_from, 'HH:mm:ss'),
+          moment(workday.afternoon_to, 'HH:mm:ss'),
+        ];
+      }
+
+      return dayItem;
+    });
+  };
+
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
       try {
@@ -267,40 +264,6 @@ export const WorkSchedule: React.FC = () => {
     [],
   );
 
-  // const calcDuration = (record: RecordType) => {
-  //   const hours = moment
-  //     .duration(moment(record.morning[0], 'hh:mm').diff(moment(record.morning[1], 'hh:mm')))
-  //     .asHours();
-  //   return Number(hours.toFixed(1));
-  // };
-
-  const calcDuration = (record: RecordType) => {
-    return 8; // mock first
-    const hours =
-      moment
-        .duration(moment(record.morning[0], 'hh:mm:ss').diff(moment(record.morning[1], 'hh:mm:ss')))
-        .asHours() +
-      moment
-        .duration(
-          moment(record.afternoon[0], 'hh:mm:ss').diff(moment(record.afternoon[1], 'hh:mm:ss')),
-        )
-        .asHours();
-
-    return Number(hours.toFixed(1));
-  };
-
-  const addDuration = useCallback((record: RecordType) => {
-    return {
-      ...record,
-      duration: calcDuration(record),
-    } as RecordType;
-  }, []);
-
-  const midifiedSelectedRecord = useMemo(() => {
-    if (!selectedRecord) return selectedRecord;
-    return addDuration(selectedRecord);
-  }, [addDuration, selectedRecord]);
-
   const columns: ProColumns<RecordType>[] = [
     {
       title: (
@@ -310,61 +273,28 @@ export const WorkSchedule: React.FC = () => {
     },
     {
       title: (
-        <FormattedMessage id="pages.admin.job.workShift.column.morning" defaultMessage="Morning" />
+        <FormattedMessage id="pages.admin.job.workShift.column.days" defaultMessage="Work days" />
       ),
-      dataIndex: 'morning_from',
-      renderText: (_, record) => `${record.start_time} → ${record.end_time}`,
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.workShift.column.afternoon"
-          defaultMessage="Afternoon"
-        />
-      ),
-      dataIndex: 'afternoon_from',
+      dataIndex: 'workdays',
+      renderText: (workdays: DayItem[]) =>
+        workdays
+          .filter(
+            (it) => (it.morning_enabled && it.morning) || (it.afternoon_enabled && it.afternoon),
+          )
+          .map((it) => it.day)
+          .join(', '),
     },
     {
       title: (
         <FormattedMessage
           id="pages.admin.job.workShift.column.duration"
-          defaultMessage="Duration"
+          defaultMessage="Weekly work hours"
         />
       ),
-      dataIndex: 'duration',
+      dataIndex: 'workdays',
+      renderText: (workdays: DayItem[]) =>
+        `${workdays.reduce((acc, cur) => acc + calcHours(cur), 0)} hrs`,
     },
-    {
-      title: <FormattedMessage id="pages.admin.job.workShift.column.days" defaultMessage="Days" />,
-      dataIndex: 'days',
-    },
-
-    // {
-    //   title: (
-    //     <FormattedMessage id="pages.admin.job.workShift.column.is_active" defaultMessage="Status" />
-    //   ),
-    //   dataIndex: 'is_active',
-    //   hideInForm: true,
-    //   valueEnum: {
-    //     true: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.active"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Success',
-    //     },
-    //     false: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.inactive"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Error',
-    //     },
-    //   },
-    // },
     {
       title: 'Actions',
       key: 'action',
@@ -374,7 +304,7 @@ export const WorkSchedule: React.FC = () => {
       render: (dom, record) => (
         <Space size="small">
           <Button
-            title="Edit this work shift"
+            title="Edit this schedule"
             size="small"
             onClick={() => {
               setCrudModalVisible('update');
@@ -385,16 +315,16 @@ export const WorkSchedule: React.FC = () => {
           </Button>
           <Popconfirm
             placement="right"
-            title={'Delete this work shift?'}
+            title={'Delete this schedule?'}
             onConfirm={async () => {
               await onCrudOperation(
-                () => deleteWorkSchedule(record.id),
+                () => deleteSchedule(record.id),
                 'Detete successfully!',
-                'Cannot delete work shift!',
+                'Cannot delete schedule!',
               );
             }}
           >
-            <Button title="Delete this work shift" size="small" danger>
+            <Button title="Delete this schedule" size="small" danger>
               <DeleteOutlined />
             </Button>
           </Popconfirm>
@@ -419,9 +349,7 @@ export const WorkSchedule: React.FC = () => {
         })}
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
+        search={false}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -434,9 +362,9 @@ export const WorkSchedule: React.FC = () => {
           </Button>,
         ]}
         request={async () => {
-          const data = await allWorkSchedules();
+          const data = await allSchedules();
           return {
-            data: data.map((it) => addDuration(it)),
+            data: data.map((it) => ({ ...it, workdays: convertFromBackend(it.workdays) })),
             success: true,
           };
         }}
@@ -453,45 +381,39 @@ export const WorkSchedule: React.FC = () => {
             form.resetFields();
             return;
           }
-          if (!midifiedSelectedRecord) return;
+          // if (!midifiedSelectedRecord) return;
           if (crudModalVisible === 'update') {
+            if (!selectedRecord) return;
             form.setFieldsValue({
-              ...midifiedSelectedRecord,
-              start_time: moment(midifiedSelectedRecord.start_time, 'hh:mm:ss'),
-              end_time: moment(midifiedSelectedRecord.end_time, 'hh:mm:ss'),
+              name: selectedRecord.name,
             });
+            setDays(selectedRecord.workdays);
           } else if (crudModalVisible === 'create') {
             form.setFieldsValue({});
+            setDays(initDays);
           }
         }}
         onFinish={async (value) => {
           const record = {
-            ...midifiedSelectedRecord,
+            ...selectedRecord,
             ...value,
+            workdays: convertToBackend(days),
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(
-              () => createWorkSchedule(record),
+              () => createSchedule(record),
               'Create successfully!',
               'Create unsuccessfully!',
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
-              () => updateWorkSchedule(record.id, record),
+              () => updateSchedule(record.id, record),
               'Update successfully!',
               'Update unsuccessfully!',
             );
           }
           setCrudModalVisible('hidden');
           form.resetFields();
-        }}
-        onValuesChange={(changedValues) => {
-          if (changedValues.morning || changedValues.afternoon) {
-            form.setFieldsValue({
-              ...form.getFieldsValue(),
-              duration: calcDuration(form.getFieldsValue()),
-            });
-          }
         }}
         submitter={{
           render: (props, defaultDoms) => {
@@ -500,26 +422,9 @@ export const WorkSchedule: React.FC = () => {
                 <Button
                   key="autoFill"
                   onClick={() => {
-                    // @ts-ignore
-                    const newValue = {
+                    props.form?.setFieldsValue({
                       name: `Schedule ${faker.name.title()}`,
-                      morning: [moment('08:00', 'hh:mm'), moment('12:00:00', 'hh:mm:ss')],
-                      afternoon: [moment('13:00:00', 'hh:mm:ss'), moment('17:00:00', 'hh:mm:ss')],
-                      days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-                      // start_time: faker.helpers.randomize([
-                      //   moment('08:00:00', 'hh:mm:ss'),
-                      //   moment('08:30:00', 'hh:mm:ss'),
-                      //   moment('09:00:00', 'hh:mm:ss'),
-                      // ]),
-                      // end_time: faker.helpers.randomize([
-                      //   moment('18:00:00', 'hh:mm:ss'),
-                      //   moment('17:30:00', 'hh:mm:ss'),
-                      //   moment('17:00:00', 'hh:mm:ss'),
-                      // ]),
-                      duration: '',
-                      // is_active: true,
-                    } as RecordType;
-                    props.form?.setFieldsValue(addDuration(newValue));
+                    });
                   }}
                 >
                   Auto fill
@@ -539,7 +444,7 @@ export const WorkSchedule: React.FC = () => {
             defaultMessage: 'Schedule name',
           })}
         />
-        {days.map((it, index) => (
+        {days.map((it) => (
           <Form.Item
             name={it.day}
             label={intl.formatMessage({
@@ -566,8 +471,8 @@ export const WorkSchedule: React.FC = () => {
                   getDisabledMinutes(it.day, 'morning', selectedHour)
                 }
                 onChange={(values) => onValueChange(it.day, 'morning', values)}
-                open={dayOpens[index].morning_open}
-                onOpenChange={(open) => onOpenChange(it.day, 'morning_open', open)}
+                open={`${it.day}-morning` === curOpen}
+                onOpenChange={(open) => setCurOpen(open ? (`${it.day}-morning` as any) : 'closed')}
                 renderExtraFooter={() => (
                   <Space>
                     <Button
@@ -575,7 +480,7 @@ export const WorkSchedule: React.FC = () => {
                       type="primary"
                       onClick={() => {
                         onSyncAll('morning', it.morning);
-                        onOpenChange(it.day, 'morning_open', false);
+                        setCurOpen('closed');
                       }}
                       icon={<SwapOutlined />}
                       title="Sync all"
@@ -585,7 +490,7 @@ export const WorkSchedule: React.FC = () => {
                       type="primary"
                       onClick={() => {
                         onCopyAbove(it.day, 'morning');
-                        onOpenChange(it.day, 'morning_open', false);
+                        setCurOpen('closed');
                       }}
                       icon={<VerticalAlignBottomOutlined />}
                       title="Copy above"
@@ -608,8 +513,10 @@ export const WorkSchedule: React.FC = () => {
                   getDisabledMinutes(it.day, 'afternoon', selectedHour)
                 }
                 onChange={(values) => onValueChange(it.day, 'afternoon', values)}
-                open={dayOpens[index].afternoon_open}
-                onOpenChange={(open) => onOpenChange(it.day, 'afternoon_open', open)}
+                open={`${it.day}-afternoon` === curOpen}
+                onOpenChange={(open) =>
+                  setCurOpen(open ? (`${it.day}-afternoon` as any) : 'closed')
+                }
                 renderExtraFooter={() => (
                   <Space>
                     <Button
@@ -617,7 +524,7 @@ export const WorkSchedule: React.FC = () => {
                       type="primary"
                       onClick={() => {
                         onSyncAll('afternoon', it.afternoon);
-                        onOpenChange(it.day, 'afternoon_open', false);
+                        setCurOpen('closed');
                       }}
                       icon={<SwapOutlined />}
                       title="Sync all"
@@ -627,7 +534,7 @@ export const WorkSchedule: React.FC = () => {
                       type="primary"
                       onClick={() => {
                         onCopyAbove(it.day, 'afternoon');
-                        onOpenChange(it.day, 'afternoon_open', false);
+                        setCurOpen('closed');
                       }}
                       icon={<VerticalAlignBottomOutlined />}
                       title="Copy above"

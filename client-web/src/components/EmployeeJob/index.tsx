@@ -22,7 +22,7 @@ export const EmployeeJob: React.FC<Props> = (props) => {
   const { jobs, jobSubmit } = props;
   const [departments, setDepartments] = useState<API.DepartmentUnit[]>();
   const [jobTitles, setJobTitles] = useState<API.JobTitle[]>();
-  const [workShifts, setWorkShifts] = useState<API.WorkSchedule[]>();
+  const [workShifts, setWorkShifts] = useState<API.Schedule[]>();
   const [locations, setLocations] = useState<API.Location[]>();
   const [employmentStatuses, setEmploymentStatuses] = useState<API.EmploymentStatus[]>();
   const [jobEvents, setJobEvents] = useState<API.JobEvent[]>();

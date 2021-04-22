@@ -272,15 +272,16 @@ declare namespace API {
     iban: string;
   }
 
-  interface WorkSchedule {
+  interface Schedule {
     id: number;
     name: string;
-    start_time: moment.Moment | string;
-    end_time: moment.Moment | string;
-    duration: moment.Duration | number;
-    morning: [moment.Moment | string, moment.Moment | string];
-    afternoon: [moment.Moment | string, moment.Moment | string];
-    days: ('Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun')[];
+    workdays: {
+      day: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
+      morning_from?: string | null;
+      morning_to?: string | null;
+      afternoon_from?: string | null;
+      afternoon_to?: string | null;
+    }[];
   }
 
   interface JobTitle {
@@ -351,7 +352,7 @@ declare namespace API {
     };
     attendances: {
       [date: string]: number; // 14 Apr - 600 (date - seconds)
-    }
+    };
   }
 
   interface CustomField {
