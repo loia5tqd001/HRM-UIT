@@ -6,7 +6,7 @@ import {
   updateOvertimeType,
 } from '@/services/attendance.config.overtimeType';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { ModalForm, ProFormDigit, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import { ModalForm, ProFormDigit, ProFormText } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -43,41 +43,14 @@ export const OvertimeType: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: "Overtime type",
+      title: 'Overtime type',
       dataIndex: 'name',
     },
     {
-      title: "Point rate",
+      title: 'Point rate',
       dataIndex: 'point_rate',
       hideInForm: true,
     },
-    // {
-    //   title: (
-    //     <FormattedMessage id="pages.admin.job.jobTitle.column.is_active" defaultMessage="Status" />
-    //   ),
-    //   dataIndex: 'is_active',
-    //   hideInForm: true,
-    //   valueEnum: {
-    //     true: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.active"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Success',
-    //     },
-    //     false: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.inactive"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Error',
-    //     },
-    //   },
-    // },
     {
       title: 'Actions',
       key: 'action',
@@ -202,8 +175,7 @@ export const OvertimeType: React.FC = () => {
                   onClick={() => {
                     props.form?.setFieldsValue({
                       name: faker.name.jobTitle(),
-                      description: faker.name.jobDescriptor(),
-                      // is_active: true,
+                      point_rate: faker.helpers.randomize([1, 1.5, 2, 2.5, 3, 3.5, 4]),
                     });
                   }}
                 >
@@ -215,11 +187,7 @@ export const OvertimeType: React.FC = () => {
           },
         }}
       >
-        <ProFormText
-          rules={[{ required: true }]}
-          name="name"
-          label="Overtime type"
-        />
+        <ProFormText rules={[{ required: true }]} name="name" label="Overtime type" />
         <ProFormDigit
           rules={[{ required: true }]}
           name="point_rate"
