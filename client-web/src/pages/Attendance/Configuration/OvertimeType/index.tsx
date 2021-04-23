@@ -102,9 +102,7 @@ export const OvertimeType: React.FC = () => {
         headerTitle="Overtime types"
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
+        search={false}
         toolBarRender={() => [
           <Button
             type="primary"
