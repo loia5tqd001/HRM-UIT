@@ -276,6 +276,48 @@ declare namespace API {
     schedule: string;
   }
 
+  interface EmployeeAttendance {
+    id: number;
+    owner: number;
+    date: moment.Moment | string;
+    actual_work_hours: number;
+    actual_hours_modified: boolean;
+    actual_hours_modification_note: string | null;
+    ot_work_hours: number;
+    ot_hours_modified: boolean;
+    ot_hours_modification_note: string | null;
+    reviewed_by: Employee['id'];
+    confirmed_by: Employee['id'];
+    status: 'Pending' | 'Approved' | 'Confirmed';
+    tracking_data: {
+      overtime_type: string;
+      check_in_time: moment.Moment | string;
+      check_in_lat: number;
+      check_in_lng: number;
+      check_in_outside: boolean;
+      check_out_time: moment.Moment | string | null;
+      check_out_lat: number | null;
+      check_out_lng: number | null;
+      check_out_outside: boolean | null;
+      check_in_note: string | null;
+      check_out_note: string | null;
+      location: string | null;
+    }[];
+  }
+
+  interface CheckInBody {
+    overtime_type?: string;
+    check_in_lat: number;
+    check_in_lng: number;
+    check_in_note?: string;
+  }
+
+  interface CheckOutBody {
+    check_out_lat: number;
+    check_out_lng: number;
+    check_out_note?: string;
+  }
+
   interface Schedule {
     id: number;
     name: string;
@@ -328,20 +370,22 @@ declare namespace API {
     id: number;
     type: Type;
     date: Type extends 'AttendanceDay' ? moment.Moment : undefined; // undefined when Tracking
-    clock_in: moment.Moment | undefined;
-    clock_in_note: string | undefined;
-    clock_in_location: 'Outside' | Location['name'] | undefined;
-    clock_out: moment.Moment | undefined;
-    clock_out_note: string | undefined;
-    clock_out_location: 'Outside' | Location['name'] | undefined;
+    check_in: moment.Moment | undefined;
+    check_in_note: string | undefined;
+    check_in_location: 'Outside' | Location['name'] | undefined;
+    check_out: moment.Moment | undefined;
+    check_out_note: string | undefined;
+    check_out_location: 'Outside' | Location['name'] | undefined;
     hours_work_by_schedule: number;
     actual: moment.Duration;
+    actual_hours_modified: boolean;
+    actual_hours_modification_note: string | null;
     deficit: number;
     overtime: string | number | undefined;
     status: 'pending' | 'approved' | 'confirmed' | undefined;
-    edited_by: Employee['id'] | undefined;
-    edited_when: moment.Moment | undefined;
-    edited_to: number | undefined; // edit "actual hour" to xx hours
+    // edited_by: Employee['id'] | undefined;
+    // edited_when: moment.Moment | undefined;
+    // edited_to: number | undefined; // edit "actual hour" to xx hours
     children: AttendanceRecord<'Tracking'>[];
   }
 

@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import GooglePlacesAutocomplete, {
   geocodeByLatLng,
   geocodeByPlaceId,
-  getLatLng
+  getLatLng,
 } from 'react-google-places-autocomplete';
 import { useParams } from 'umi';
 
@@ -87,6 +87,22 @@ export const OfficeEdit: React.FC = () => {
     setMarker({ lat, lng });
     setCircle(office.radius as any);
     setOfficeInit(true);
+
+    // Add an additional Marker in the manager's location on the Map
+    let currentLocation: google.maps.Marker | null;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        currentLocation = new google.maps.Marker({
+          position: { lat: latitude, lng: longitude },
+          map: mapRef,
+          title: 'Current location',
+        });
+      });
+    }
+    return () => {
+      currentLocation = null;
+    };
   }, [office, setMarker, officeInit, setCircle, mapRef]);
 
   // function success(position: any) {
