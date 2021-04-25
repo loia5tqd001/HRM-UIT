@@ -216,12 +216,6 @@
           },
         ],
       },
-      {
-        path: '/timeOff/entitlement',
-        name: 'entitlement',
-        icon: 'control',
-        component: './Welcome',
-      },
       { path: '/timeOff/report', name: 'report', icon: 'barChart', component: './Welcome' },
       {
         path: '/timeOff',

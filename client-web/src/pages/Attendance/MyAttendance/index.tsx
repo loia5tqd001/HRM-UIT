@@ -23,6 +23,7 @@ type CurrentLocation = {
   lat: number;
   lng: number;
   office: 'Outside' | string;
+  allow_outside: boolean;
 };
 
 const MyAttendance: React.FC = () => {
@@ -31,8 +32,6 @@ const MyAttendance: React.FC = () => {
   const [clockModalVisible, setClockModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
-  const [editedTime, setEditedTime] = useState();
-  // const isOutsideRef = useRef(true);
   const currentLocationRef = useRef<CurrentLocation>();
   const [nextStep, setNextStep] = useState<'Clock in' | 'Clock out'>('Clock in');
   const [firstClockIn, setFirstClockIn] = useState<string>('--:--');
@@ -48,7 +47,7 @@ const MyAttendance: React.FC = () => {
     navigator.geolocation.getCurrentPosition((position) => {
       const { latitude, longitude } = position.coords;
 
-      readLocation(id).then(({ lat, lng, radius, name }) => {
+      readLocation(id).then(({ lat, lng, radius, name, allow_outside }) => {
         const distance = google.maps.geometry.spherical.computeDistanceBetween(
           new google.maps.LatLng(lat, lng),
           new google.maps.LatLng(latitude, longitude),
@@ -57,6 +56,7 @@ const MyAttendance: React.FC = () => {
           lat: latitude,
           lng: longitude,
           office: distance > radius ? 'Outside' : name,
+          allow_outside,
         };
       });
     });
@@ -254,6 +254,16 @@ const MyAttendance: React.FC = () => {
           <Button
             type="primary"
             key="primary"
+            title={
+              (currentLocationRef.current?.office === 'Outside' &&
+                !currentLocationRef.current?.allow_outside &&
+                'Your office does not allow clock in / clock out outside of the designated area.') ||
+              ''
+            }
+            disabled={
+              currentLocationRef.current?.office === 'Outside' &&
+              !currentLocationRef.current?.allow_outside
+            }
             onClick={async () => {
               if (currentLocationRef.current?.office === 'Outside') {
                 setClockModalVisible(true);
