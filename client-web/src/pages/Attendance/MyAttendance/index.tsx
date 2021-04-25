@@ -1,17 +1,22 @@
 import { readLocation } from '@/services/admin.organization.location';
-import { checkIn, checkOut, readAttendances } from '@/services/employee';
+import { checkIn, checkOut, editActual, readAttendances } from '@/services/employee';
 import { formatDurationHm } from '@/utils/utils';
 import {
   EditOutlined,
   EnvironmentOutlined,
   HistoryOutlined,
-  MessageOutlined,
+  MessageOutlined
 } from '@ant-design/icons';
-import ProForm, { ModalForm, ProFormTextArea } from '@ant-design/pro-form';
+import ProForm, {
+  ModalForm,
+  ProFormDatePicker,
+  ProFormTextArea
+} from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, DatePicker, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
+import { Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
+import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useRef, useState } from 'react';
 import { useIntl, useModel } from 'umi';
@@ -37,8 +42,7 @@ const MyAttendance: React.FC = () => {
   const [firstClockIn, setFirstClockIn] = useState<string>('--:--');
   const [lastClockOut, setLastClockOut] = useState<string>('--:--');
   const [lastAction, setLastAction] = useState<string>();
-  // const [attendances, setAttendances] = useState<API.EmployeeAttendance[]>();
-  // console.log('>  ~ file: index.tsx ~ line 42 ~ attendances', attendances);
+  const [editModalForm] = useForm();
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
@@ -139,7 +143,8 @@ const MyAttendance: React.FC = () => {
               </Tag>
             </Tooltip>
           );
-        if (check_out_location) return <Tag icon={<EnvironmentOutlined />}>{check_out_location}</Tag>;
+        if (check_out_location)
+          return <Tag icon={<EnvironmentOutlined />}>{check_out_location}</Tag>;
         return '-';
       },
     },
@@ -150,7 +155,7 @@ const MyAttendance: React.FC = () => {
       renderText: (_, record) => {
         if (record.actual_hours_modified) {
           return (
-            <Tooltip title={record.actual_hours_modified}>
+            <Tooltip title={record.actual_hours_modification_note}>
               <Tag icon={<EditOutlined />}>{record.actual}</Tag>
             </Tooltip>
           );
@@ -214,6 +219,13 @@ const MyAttendance: React.FC = () => {
               onClick={() => {
                 setEditModalVisible(true);
                 setSelectedRecord(record);
+                editModalForm.setFieldsValue({
+                  date: record.date,
+                  actual_work_hours: moment(
+                    formatDurationHm(record.actual_work_hours * 3600),
+                    'HH:mm',
+                  ),
+                });
               }}
             >
               <EditOutlined />
@@ -537,14 +549,27 @@ const MyAttendance: React.FC = () => {
         visible={editModalVisible}
         title={`Edit actual attendance`}
         width="400px"
-        onFinish={() => setEditModalVisible(false)}
+        onFinish={async (values) => {
+          try {
+            const edited_to = moment(values.actual_work_hours);
+            const work_hours = edited_to.hour() + edited_to.minute() / 60;
+            await editActual(id, seletectedRecord!.id, {
+              actual_work_hours: work_hours,
+              actual_hours_modification_note: values.note,
+            });
+            message.success('Edit succesfully');
+            setEditModalVisible(false);
+            actionRef.current?.reload();
+          } catch {
+            message.error('Edit unsuccesfully');
+          }
+        }}
         onVisibleChange={(visible) => setEditModalVisible(visible)}
+        form={editModalForm}
       >
         <ProForm.Group>
-          <Form.Item>
-            <DatePicker value={seletectedRecord?.date} disabled />
-          </Form.Item>
-          <Form.Item>
+          <ProFormDatePicker name="date" label="Date" disabled rules={[{ required: true }]} />
+          <Form.Item name="actual_work_hours" label="Actual hours" rules={[{ required: true }]}>
             <TimePicker format="HH:mm" minuteStep={5} />
           </Form.Item>
         </ProForm.Group>

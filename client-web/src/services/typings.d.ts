@@ -318,6 +318,11 @@ declare namespace API {
     check_out_note?: string;
   }
 
+  interface EditActual {
+    actual_work_hours: number;
+    actual_hours_modification_note: string;
+  }
+
   interface Schedule {
     id: number;
     name: string;
@@ -392,6 +397,7 @@ declare namespace API {
     check_out_location: 'Outside' | Location['name'] | undefined;
     hours_work_by_schedule: number;
     actual: moment.Duration;
+    actual_work_hours: number;
     actual_hours_modified: boolean;
     actual_hours_modification_note: string | null;
     deficit: number;
