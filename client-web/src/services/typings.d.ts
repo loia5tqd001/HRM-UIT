@@ -343,6 +343,13 @@ declare namespace API {
     point_rate: number;
   }
 
+  interface Holiday {
+    id: number;
+    name: string;
+    start_date: moment.Moment | string;
+    end_date: moment.Moment | string;
+  }
+
   interface TimeOffType {
     id: number;
     name: string;

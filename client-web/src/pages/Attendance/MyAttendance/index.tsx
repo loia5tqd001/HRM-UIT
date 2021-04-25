@@ -80,30 +80,32 @@ const MyAttendance: React.FC = () => {
       renderText: (check_in, record) => {
         if (!check_in) return '-';
 
-        const renderLocation = (check_in_location = record.check_in_location) => {
-          if (check_in_location === 'Outside')
-            return (
-              <Tooltip title="Clock in outside of office">
-                <Tag icon={<EnvironmentOutlined />} color="error">
-                  {check_in_location}
-                </Tag>
-              </Tooltip>
-            );
-          if (check_in_location)
-            return <Tag icon={<EnvironmentOutlined />}>{check_in_location}</Tag>;
-          return '-';
-        };
+        return record.check_in_note ? (
+          <Tooltip title={`Note: ${record.check_in_note}`}>
+            <Tag icon={<MessageOutlined />}>{moment(record.check_in).format('HH:mm')}</Tag>
+          </Tooltip>
+        ) : (
+          moment(record.check_in).format('HH:mm')
+        );
+      },
+    },
+    {
+      title: 'Clock in location',
+      key: 'check_in_location',
+      dataIndex: 'check_in_location',
+      renderText: (check_in_location) => {
+        if (!check_in_location) return '-';
 
-        return (
-          <>
-            <Tooltip title={record.check_in_note ? `Note: ${record.check_in_note}` : false}>
-              <Tag icon={record.check_in_note ? <MessageOutlined /> : null}>
-                {moment(record.check_in).format('HH:mm')}
+        if (check_in_location === 'Outside')
+          return (
+            <Tooltip title="Clock in outside of office">
+              <Tag icon={<EnvironmentOutlined />} color="error">
+                {check_in_location}
               </Tag>
             </Tooltip>
-            {renderLocation(record.check_in_location)}
-          </>
-        );
+          );
+        if (check_in_location) return <Tag icon={<EnvironmentOutlined />}>{check_in_location}</Tag>;
+        return '-';
       },
     },
     {
@@ -113,30 +115,32 @@ const MyAttendance: React.FC = () => {
       renderText: (check_out, record) => {
         if (!check_out) return '-';
 
-        const renderLocation = (check_out_location = record.check_out_location) => {
-          if (check_out_location === 'Outside')
-            return (
-              <Tooltip title="Clock out outside of office">
-                <Tag icon={<EnvironmentOutlined />} color="error">
-                  {check_out_location}
-                </Tag>
-              </Tooltip>
-            );
-          if (check_out_location)
-            return <Tag icon={<EnvironmentOutlined />}>{check_out_location}</Tag>;
-          return '-';
-        };
+        return record.check_out_note ? (
+          <Tooltip title={`Note: ${record.check_out_note}`}>
+            <Tag icon={<MessageOutlined />}>{moment(record.check_out).format('HH:mm')}</Tag>
+          </Tooltip>
+        ) : (
+          moment(record.check_out).format('HH:mm')
+        );
+      },
+    },
+    {
+      title: 'Clock out location',
+      key: 'check_out_location',
+      dataIndex: 'check_out_location',
+      renderText: (check_out_location) => {
+        if (!check_out_location) return '-';
 
-        return (
-          <>
-            <Tooltip title={record.check_out_note ? `Note: ${record.check_out_note}` : false}>
-              <Tag icon={record.check_out_note ? <MessageOutlined /> : null}>
-                {moment(record.check_out).format('HH:mm')}
+        if (check_out_location === 'Outside')
+          return (
+            <Tooltip title="Clock in outside of office">
+              <Tag icon={<EnvironmentOutlined />} color="error">
+                {check_out_location}
               </Tag>
             </Tooltip>
-            {renderLocation(record.check_out_location)}
-          </>
-        );
+          );
+        if (check_out_location) return <Tag icon={<EnvironmentOutlined />}>{check_out_location}</Tag>;
+        return '-';
       },
     },
     {

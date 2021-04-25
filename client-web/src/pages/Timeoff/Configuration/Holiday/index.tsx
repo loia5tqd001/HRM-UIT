@@ -1,29 +1,26 @@
 import { __DEV__ } from '@/global';
 import {
-  allLocations,
-  createLocation,
-  deleteLocation,
-  updateLocation,
-} from '@/services/admin.organization.location';
+  allHolidays,
+  createHoliday,
+  deleteHoliday,
+  updateHoliday,
+} from '@/services/timeOff.holiday';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import ProForm, {
-  ModalForm,
-  ProFormSelect,
-  ProFormText,
-  ProFormTextArea,
-} from '@ant-design/pro-form';
+import { ModalForm, ProFormDateRangePicker, ProFormText } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
+import moment from 'moment';
 import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, Link, useIntl } from 'umi';
-import { useEffect } from 'react';
-import { allCountries } from '@/services';
+import { FormattedMessage, useIntl } from 'umi';
 
-type RecordType = API.Location;
+type RecordType = API.Holiday & {
+  date?: [moment.Moment, moment.Moment];
+  days?: number;
+};
 
 export const Holiday: React.FC = () => {
   const actionRef = useRef<ActionType>();
@@ -33,11 +30,6 @@ export const Holiday: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
   const intl = useIntl();
-  const [countries, setCountries] = useState<API.Country[]>([]);
-
-  useEffect(() => {
-    allCountries().then((data) => setCountries(data));
-  }, []);
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -55,53 +47,98 @@ export const Holiday: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.name"
-          defaultMessage="Location"
-        />
-      ),
+      title: 'Holiday',
       dataIndex: 'name',
-      renderText: (text, record) => (
-        <Link to={`/attendance/configuration/office/${record.id}`}>{text}</Link>
+      search: false,
+    },
+    {
+      title: 'Year',
+      dataIndex: 'start_date',
+      valueType: 'dateYear',
+    },
+    {
+      title: 'Time',
+      dataIndex: 'start_date',
+      search: false,
+      renderText: (_, record) =>
+        `${moment(record.start_date).format('DD MMM')} → ${moment(record.end_date).format(
+          'DD MMM',
+        )}`,
+    },
+    {
+      title: 'Number of days',
+      dataIndex: 'start_date',
+      search: false,
+      renderText: (_, record) =>
+        moment(record.end_date).diff(moment(record.start_date), 'days') + 1,
+    },
+    {
+      title: 'Actions',
+      key: 'action',
+      fixed: 'right',
+      align: 'center',
+      search: false,
+      render: (dom, record) => (
+        <Space size="small">
+          <Button
+            title="Edit this holiday"
+            size="small"
+            onClick={() => {
+              setCrudModalVisible('update');
+              setSelectedRecord(record);
+            }}
+          >
+            <EditOutlined />
+          </Button>
+          <Popconfirm
+            placement="right"
+            title={'Delete this holiday?'}
+            onConfirm={async () => {
+              await onCrudOperation(
+                () => deleteHoliday(record.id),
+                'Detete successfully!',
+                'Cannot delete holiday!',
+              );
+            }}
+          >
+            <Button title="Delete this holiday" size="small" danger>
+              <DeleteOutlined />
+            </Button>
+          </Popconfirm>
+        </Space>
       ),
-    },
-    {
-      title: 'Accurate address',
-      dataIndex: 'accurate_address',
-    },
-    {
-      title: 'Radius',
-      dataIndex: 'radius',
-      renderText: (text) => `${text}m`,
-    },
-    {
-      title: 'Allow outside',
-      dataIndex: 'allow_outside',
     },
   ];
 
   const dict = {
     title: {
-      create: 'Create location',
-      update: 'Create location',
+      create: 'Create holiday',
+      update: 'Create holiday',
     },
   };
 
   return (
     <PageContainer>
       <ProTable<RecordType>
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.organization.location.list.title',
-          defaultMessage: 'Locations',
-        })}
+        headerTitle="Holidays"
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
-        request={async () => {
-          const data = await allLocations();
+        // search={false}
+        toolBarRender={() => [
+          <Button
+            type="primary"
+            key="primary"
+            onClick={() => {
+              setCrudModalVisible('create');
+            }}
+          >
+            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+          </Button>,
+        ]}
+        request={async (query) => {
+          let data = await allHolidays();
+          if (query.start_date)
+            data = data.filter((it) => (it.start_date as string).startsWith(query.start_date));
           return {
             data,
             success: true,
@@ -111,6 +148,7 @@ export const Holiday: React.FC = () => {
       />
       <ModalForm<RecordType>
         title={dict.title[crudModalVisible]}
+        width="400px"
         visible={crudModalVisible !== 'hidden'}
         form={form}
         onVisibleChange={(visible) => {
@@ -123,6 +161,15 @@ export const Holiday: React.FC = () => {
           if (crudModalVisible === 'update') {
             form.setFieldsValue({
               ...selectedRecord,
+              date: [
+                moment(selectedRecord.start_date, 'YYYY-MM-DD'),
+                moment(selectedRecord.end_date, 'YYYY-MM-DD'),
+              ],
+              days:
+                moment(selectedRecord.end_date, 'YYYY-MM-DD').diff(
+                  moment(selectedRecord.start_date, 'YYYY-MM-DD'),
+                  'days',
+                ) + 1,
             });
           } else if (crudModalVisible === 'create') {
             form.setFieldsValue({});
@@ -130,24 +177,32 @@ export const Holiday: React.FC = () => {
         }}
         onFinish={async (value) => {
           const record = {
-            ...selectedRecord,
             ...value,
+            start_date: value.date![0],
+            end_date: value.date![1],
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(
-              () => createLocation(record),
+              () => createHoliday(record),
               'Create successfully!',
               'Create unsuccessfully!',
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
-              () => updateLocation(record.id, record),
+              () => updateHoliday(record.id, record),
               'Update successfully!',
               'Update unsuccessfully!',
             );
           }
           setCrudModalVisible('hidden');
           form.resetFields();
+        }}
+        onValuesChange={({ date }) => {
+          if (date) {
+            form.setFieldsValue({
+              days: moment(date[1]).diff(moment(date[0]), 'days') + 1,
+            });
+          }
         }}
         submitter={{
           render: (props, defaultDoms) => {
@@ -156,16 +211,12 @@ export const Holiday: React.FC = () => {
                 <Button
                   key="autoFill"
                   onClick={() => {
+                    const from = moment(faker.date.soon(10));
+                    const to = moment(from).add(faker.random.number(5), 'days');
                     props.form?.setFieldsValue({
-                      name: faker.address.streetName(),
-                      province: faker.address.state(),
-                      city: faker.address.city(),
-                      address: faker.address.streetName(),
-                      zipcode: faker.address.zipCode(),
-                      phone: faker.phone.phoneNumber('+## ########'),
-                      fax: faker.random.number({ min: 1000000, max: 9999999 }),
-                      note: faker.lorem.words(),
-                      country: faker.helpers.randomize(countries.map((it) => it.id)),
+                      name: faker.name.title(),
+                      date: [from.format('YYYY-MM-DD'), to.format('YYYY-MM-DD')],
+                      days: to.diff(from, 'days') + 1,
                     });
                   }}
                 >
@@ -177,94 +228,9 @@ export const Holiday: React.FC = () => {
           },
         }}
       >
-        <ProForm.Group>
-          <ProFormText
-            rules={[{ required: true }]}
-            name="name"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.name',
-              defaultMessage: 'Location',
-            })}
-          />
-          {/* <ProFormText
-            rules={[{ required: true }]}
-            name="country"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.country',
-              defaultMessage: 'Country',
-            })}
-          /> */}
-          <ProFormSelect
-            rules={[{ required: true }]}
-            name="country"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.country',
-              defaultMessage: 'Country',
-            })}
-            options={countries.map((it) => ({ value: it.id, label: it.name }))}
-          />
-          <ProFormText
-            name="province"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.province',
-              defaultMessage: 'Province',
-            })}
-          />
-          <ProFormText
-            name="city"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.city',
-              defaultMessage: 'City',
-            })}
-          />
-          <ProFormText
-            name="address"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.address',
-              defaultMessage: 'Address',
-            })}
-          />
-        </ProForm.Group>
-        <ProForm.Group>
-          <ProFormText
-            name="zipcode"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.zipcode',
-              defaultMessage: 'Zipcode',
-            })}
-          />
-          <ProFormText
-            name="phone"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.phone',
-              defaultMessage: 'Phone',
-            })}
-          />
-          <ProFormText
-            name="fax"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.fax',
-              defaultMessage: 'Fax',
-            })}
-          />
-          <ProFormTextArea
-            name="note"
-            width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.note',
-              defaultMessage: 'Note',
-            })}
-          />
-        </ProForm.Group>
+        <ProFormText rules={[{ required: true }]} name="name" label="Holiday" width="md" />
+        <ProFormDateRangePicker rules={[{ required: true }]} name="date" label="Time" width="md" />
+        <ProFormText name="days" label="Number of days" width="md" readonly />
       </ModalForm>
     </PageContainer>
   );
