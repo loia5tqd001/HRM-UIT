@@ -1,24 +1,30 @@
 import { __DEV__ } from '@/global';
 import {
-  allOvertimeTypes,
-  createOvertimeType,
-  deleteOvertimeType,
-  updateOvertimeType,
-} from '@/services/attendance.config.overtimeType';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { ModalForm, ProFormDigit, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+  allTimeOffTypes,
+  createTimeOffType,
+  deleteTimeOffType,
+  updateTimeOffType,
+} from '@/services/timeOff.timeOffType';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
+import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, message, Popconfirm, Space } from 'antd';
+import { Button, message, Popconfirm, Space, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'umi';
 
-type RecordType = API.OvertimeType;
+type RecordType = API.TimeOffType;
 
-export const OvertimeType: React.FC = () => {
+export const TimeOffType: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
     'hidden',
@@ -43,41 +49,28 @@ export const OvertimeType: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: "Overtime type",
+      title: 'Timeoff type',
       dataIndex: 'name',
     },
     {
-      title: "Point rate",
-      dataIndex: 'point_rate',
-      hideInForm: true,
+      title: 'Paid',
+      dataIndex: 'is_paid',
+      align: 'center',
+      renderText: (it) =>
+        it ? (
+          <Tooltip title="Paid">
+            <CheckOutlined />
+          </Tooltip>
+        ) : (
+          <Tooltip title="Unpaid">
+            <CloseOutlined />
+          </Tooltip>
+        ),
     },
-    // {
-    //   title: (
-    //     <FormattedMessage id="pages.admin.job.jobTitle.column.is_active" defaultMessage="Status" />
-    //   ),
-    //   dataIndex: 'is_active',
-    //   hideInForm: true,
-    //   valueEnum: {
-    //     true: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.active"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Success',
-    //     },
-    //     false: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.inactive"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Error',
-    //     },
-    //   },
-    // },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+    },
     {
       title: 'Actions',
       key: 'action',
@@ -87,7 +80,7 @@ export const OvertimeType: React.FC = () => {
       render: (dom, record) => (
         <Space size="small">
           <Button
-            title="Edit this overtime type"
+            title="Edit this timeoff type"
             size="small"
             onClick={() => {
               setCrudModalVisible('update');
@@ -98,16 +91,16 @@ export const OvertimeType: React.FC = () => {
           </Button>
           <Popconfirm
             placement="right"
-            title={'Delete this overtime type?'}
+            title={'Delete this timeoff type?'}
             onConfirm={async () => {
               await onCrudOperation(
-                () => deleteOvertimeType(record.id),
+                () => deleteTimeOffType(record.id),
                 'Detete successfully!',
-                'Cannot delete overtime type!',
+                'Cannot delete timeoff type!',
               );
             }}
           >
-            <Button title="Delete this overtime type" size="small" danger>
+            <Button title="Delete this timeoff type" size="small" danger>
               <DeleteOutlined />
             </Button>
           </Popconfirm>
@@ -118,20 +111,18 @@ export const OvertimeType: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create overtime type',
-      update: 'Create overtime type',
+      create: 'Create timeoff type',
+      update: 'Create timeoff type',
     },
   };
 
   return (
     <PageContainer>
       <ProTable<RecordType>
-        headerTitle="Overtime types"
+        headerTitle="Timeoff types"
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
+        search={false}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -144,7 +135,7 @@ export const OvertimeType: React.FC = () => {
           </Button>,
         ]}
         request={async () => {
-          const data = await allOvertimeTypes();
+          const data = await allTimeOffTypes();
           return {
             data,
             success: true,
@@ -179,13 +170,13 @@ export const OvertimeType: React.FC = () => {
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(
-              () => createOvertimeType(record),
+              () => createTimeOffType(record),
               'Create successfully!',
               'Create unsuccessfully!',
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
-              () => updateOvertimeType(record.id, record),
+              () => updateTimeOffType(record.id, record),
               'Update successfully!',
               'Update unsuccessfully!',
             );
@@ -215,20 +206,17 @@ export const OvertimeType: React.FC = () => {
           },
         }}
       >
-        <ProFormText
+        <ProFormText rules={[{ required: true }]} name="name" label="Timeoff type" />
+        <ProFormTextArea name="description" label="Description" />
+        <ProFormSwitch
           rules={[{ required: true }]}
-          name="name"
-          label="Overtime type"
-        />
-        <ProFormDigit
-          rules={[{ required: true }]}
-          name="point_rate"
-          label="Point rate"
-          initialValue={1}
+          name="is_paid"
+          label="Paid"
+          initialValue={true}
         />
       </ModalForm>
     </PageContainer>
   );
 };
 
-export default OvertimeType;
+export default TimeOffType;

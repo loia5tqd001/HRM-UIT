@@ -343,6 +343,13 @@ declare namespace API {
     point_rate: number;
   }
 
+  interface TimeOffType {
+    id: number;
+    name: string;
+    description: string;
+    is_paid: boolean;
+  }
+
   interface Tracking {
     id: number;
     type: 'checkin' | 'checkout';
