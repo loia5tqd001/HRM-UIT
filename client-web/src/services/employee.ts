@@ -188,3 +188,63 @@ export async function editActual(employeeId: number, recordId: number, data: API
     data,
   });
 }
+
+export async function allEmployeeTimeoffs(employeeId: number, options?: { [key: string]: any }) {
+  return request<API.TimeoffRequest[]>(`${endpoint}${employeeId}/time_off/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function createEmployeeTimeoff(
+  employeeId: number,
+  body: API.TimeoffRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.TimeoffRequest>(`${endpoint}${employeeId}/time_off/`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function readEmployeeTimeoff(
+  employeeId: number,
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request<API.TimeoffRequest>(`${endpoint}${employeeId}/time_off/${id}/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateEmployeeTimeoff(
+  employeeId: number,
+  id: number,
+  body: API.TimeoffRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.TimeoffRequest>(`${endpoint}${employeeId}/time_off/${id}/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function deleteEmployeeTimeoff(
+  employeeId: number,
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request<API.TimeoffRequest[]>(`${endpoint}${employeeId}/time_off/${id}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}

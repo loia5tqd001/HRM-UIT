@@ -3,7 +3,7 @@ import { __DEV__ } from '@/global';
 import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
 import { allJobEvents } from '@/services/admin.job.jobEvent';
 import { allJobTitles } from '@/services/admin.job.jobTitle';
-import { allWorkSchedules } from '@/services/admin.job.workSchedule';
+import { allSchedules } from '@/services/admin.job.workSchedule';
 import { allLocations } from '@/services/admin.organization.location';
 import { allDepartments } from '@/services/admin.organization.structure';
 import ProForm, { ProFormSelect } from '@ant-design/pro-form';
@@ -30,7 +30,7 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
   useEffect(() => {
     allDepartments().then((fetchData) => setDepartments(fetchData));
     allJobTitles().then((fetchData) => setJobTitles(fetchData));
-    allWorkSchedules().then((fetchData) => setWorkShifts(fetchData));
+    allSchedules().then((fetchData) => setWorkShifts(fetchData));
     allLocations().then((fetchData) => setLocations(fetchData));
     allEmploymentStatuses().then((fetchData) => setEmploymentStatuses(fetchData));
     allJobEvents().then((fetchData) => setJobEvents(fetchData));

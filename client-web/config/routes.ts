@@ -188,12 +188,12 @@
     icon: 'clockCircle',
     // access: 'canAdmin',
     routes: [
-      { path: '/timeOff/me', name: 'me', icon: 'frown', component: './Timeoff/MyAttendance' },
+      { path: '/timeOff/me', name: 'me', icon: 'frown', component: './Timeoff/MyTimeoff' },
       {
         path: '/timeOff/list',
         name: 'list',
         icon: 'unorderedList',
-        component: './Timeoff/EmployeeAttendance',
+        component: './Timeoff/EmployeeTimeoff',
       },
       {
         path: '/timeOff/configuration',

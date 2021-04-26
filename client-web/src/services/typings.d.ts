@@ -362,6 +362,17 @@ declare namespace API {
     is_paid: boolean;
   }
 
+  interface TimeoffRequest {
+    id: number;
+    owner?: number;
+    start_date: moment.Moment | string;
+    end_date: moment.Moment | string;
+    time_off_type: string;
+    note: string;
+    status: 'Pending' | 'Canceled' | 'Approved' | 'Rejected';
+    reviewed_by?: number;
+  }
+
   interface Tracking {
     id: number;
     type: 'checkin' | 'checkout';
