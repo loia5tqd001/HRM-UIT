@@ -364,7 +364,7 @@ declare namespace API {
 
   interface TimeoffRequest {
     id: number;
-    owner?: number;
+    owner: Employee;
     start_date: moment.Moment | string;
     end_date: moment.Moment | string;
     time_off_type: string;
