@@ -279,13 +279,22 @@
     name: 'payroll',
     icon: 'calculator',
     path: '/payroll',
-    component: './TableList',
     routes: [
       {
-        path: '/payroll/configuration',
-        name: 'configuration',
-        icon: 'setting',
-        component: './Welcome',
+        path: '/payroll/template',
+        name: 'template',
+        icon: 'profile',
+        component: './Payroll/Template/List',
+      },
+      {
+        path: '/payroll/template/:id',
+        component: './Payroll/Template/Detail',
+        hideInMenu: true,
+      },
+      {
+        path: '/payroll/template/:id/columns',
+        component: './Payroll/Template/Columns',
+        hideInMenu: true,
       },
       {
         path: '/payroll/report',
@@ -293,6 +302,7 @@
         icon: 'barChart',
         component: './Welcome',
       },
+      { path: '/payroll', redirect: '/payroll/template' },
     ],
   },
   {

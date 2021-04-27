@@ -45,7 +45,7 @@ export default {
   'menu.attendance.configuration.overtimeType': 'Overtime Types',
   'menu.attendance.report': 'Report',
   'menu.payroll': 'Payroll',
-  'menu.payroll.configuration': 'Configuration',
+  'menu.payroll.template': 'Template',
   'menu.payroll.report': 'Report',
 
   'menu.welcome': 'Welcome',
