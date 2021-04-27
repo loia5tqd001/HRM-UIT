@@ -73,6 +73,7 @@ export const Timeoff: React.FC = () => {
       title: 'Start date',
       dataIndex: 'start_date',
       valueType: 'date',
+      sorter: (a, b) => (moment(a.start_date).isSameOrAfter(b.start_date) ? 1 : -1),
     },
     {
       title: 'End date',
@@ -82,12 +83,13 @@ export const Timeoff: React.FC = () => {
     {
       title: 'Number of days',
       dataIndex: 'days',
-      valueType: 'date',
+      renderText: (_, record) =>
+        moment(record.end_date).diff(moment(record.start_date), 'days') + 1,
     },
     {
       title: 'Note',
       dataIndex: 'note',
-      valueType: 'textarea',
+      hideInForm: true,
     },
     {
       title: 'Status',
@@ -102,44 +104,63 @@ export const Timeoff: React.FC = () => {
           text: 'Pending',
           status: 'Warning',
         },
+        Cancelled: {
+          text: 'Cancelled',
+          status: 'Default',
+        },
+        Canceled: {
+          text: 'Canceled',
+          status: 'Default',
+        },
+        Rejected: {
+          text: 'Rejected',
+          status: 'Error',
+        },
       },
     },
-    {
-      title: 'Actions',
-      key: 'action',
-      fixed: 'right',
-      align: 'center',
-      search: false,
-      render: (dom, record) => (
-        <Space size="small">
-          <Button
-            title="Edit this timeoff"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this timeoff?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteEmployeeTimeoff(id, record.id),
-                'Detete successfully!',
-                'Cannot delete timeoff!',
-              );
-            }}
-          >
-            <Button title="Delete this timeoff" size="small" danger>
-              <DeleteOutlined />
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
+    // {
+    //   title: 'Actions',
+    //   key: 'action',
+    //   fixed: 'right',
+    //   align: 'center',
+    //   search: false,
+    //   render: (dom, record) => (
+    //     <Space size="small">
+    //       <Button
+    //         title="Edit this timeoff"
+    //         size="small"
+    //         onClick={() => {
+    //           setCrudModalVisible('update');
+    //           setSelectedRecord(record);
+    //         }}
+    //         disabled={record.status !== 'Pending'}
+    //       >
+    //         <EditOutlined />
+    //       </Button>
+    //       <Popconfirm
+    //         placement="right"
+    //         title={'Delete this timeoff?'}
+    //         onConfirm={async () => {
+    //           await onCrudOperation(
+    //             () => deleteEmployeeTimeoff(id, record.id),
+    //             'Detete successfully!',
+    //             'Cannot delete timeoff!',
+    //           );
+    //         }}
+    //         disabled={record.status !== 'Pending'}
+    //       >
+    //         <Button
+    //           title="Delete this timeoff"
+    //           size="small"
+    //           danger
+    //           disabled={record.status !== 'Pending'}
+    //         >
+    //           <DeleteOutlined />
+    //         </Button>
+    //       </Popconfirm>
+    //     </Space>
+    //   ),
+    // },
   ];
 
   const dict = {
@@ -187,22 +208,26 @@ export const Timeoff: React.FC = () => {
             form.resetFields();
             return;
           }
-          if (!selectedRecord) return;
           if (crudModalVisible === 'update') {
+            if (!selectedRecord) return;
             form.setFieldsValue({
               ...selectedRecord,
+              off_days: [moment(selectedRecord.start_date), moment(selectedRecord.end_date)],
+              days:
+                moment(selectedRecord.end_date).diff(moment(selectedRecord.start_date), 'days') + 1,
             });
           } else if (crudModalVisible === 'create') {
             form.setFieldsValue({
               off_days: [moment(), moment()],
+              days: 1,
             });
           }
         }}
         onFinish={async (value) => {
           const record = {
             ...value,
-            start_date: moment(value.off_days![0]).format('YYYY-MM-DD'),
-            end_date: moment(value.off_days![1]).format('YYYY-MM-DD'),
+            start_date: moment(value.off_days![0]),
+            end_date: moment(value.off_days![1]),
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(
@@ -234,12 +259,9 @@ export const Timeoff: React.FC = () => {
                 <Button
                   key="autoFill"
                   onClick={() => {
-                    // const from = moment(faker.date.soon(10));
-                    // const to = moment(from).add(faker.random.number(5), 'days');
-                    // props.form?.setFieldsValue({
-                    //   time_off_type: faker.helpers.randomize(timeoffTypes!.map((it) => it.name)),
-                    //   off_days: [from.format('YYYY-MM-DD'), to.format('YYYY-MM-DD')],
-                    // });
+                    props.form?.setFieldsValue({
+                      time_off_type: faker.helpers.randomize(timeoffTypes!.map((it) => it.name)),
+                    });
                   }}
                 >
                   Auto fill
@@ -261,19 +283,26 @@ export const Timeoff: React.FC = () => {
         <Form.Item rules={[{ required: true }]} name="off_days" label="Off days">
           <DatePicker.RangePicker
             style={{ width: 328 }}
-            disabledDate={(date) =>
-              !!holidays?.some((it) => moment(it.start_date) < date && date < moment(it.end_date))
-            }
+            disabledDate={(theDate) => {
+              const isHoliday = (date: moment.Moment) =>
+                !!holidays?.some(
+                  (it) =>
+                    moment(it.start_date).isSameOrBefore(date, 'days') &&
+                    moment(it.end_date).isSameOrAfter(date, 'days'),
+                );
+              const disabledDays = [0];
+              return isHoliday(theDate) || disabledDays.includes(theDate.day());
+            }}
           />
         </Form.Item>
-        {/* <ProFormText
+        <ProFormText
           rules={[{ required: true }]}
           name="days"
           label="Number of days"
           width="md"
           readonly
           initialValue={0}
-        /> */}
+        />
         <ProFormTextArea name="note" label="Note" width="md" />
       </ModalForm>
     </PageContainer>

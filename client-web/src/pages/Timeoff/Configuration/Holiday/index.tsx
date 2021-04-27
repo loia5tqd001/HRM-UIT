@@ -119,7 +119,7 @@ export const Holiday: React.FC = () => {
   };
 
   return (
-    <PageContainer>
+    <PageContainer title={false}>
       <ProTable<RecordType>
         headerTitle="Holidays"
         actionRef={actionRef}
