@@ -328,10 +328,10 @@ declare namespace API {
     name: string;
     workdays: {
       day: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
-      morning_from?: string | null;
-      morning_to?: string | null;
-      afternoon_from?: string | null;
-      afternoon_to?: string | null;
+      morning_from?: moment.Moment | null;
+      morning_to?: moment.Moment | null;
+      afternoon_from?: moment.Moment | null;
+      afternoon_to?: moment.Moment | null;
     }[];
   }
 

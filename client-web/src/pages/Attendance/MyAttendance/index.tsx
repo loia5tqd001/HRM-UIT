@@ -5,13 +5,9 @@ import {
   EditOutlined,
   EnvironmentOutlined,
   HistoryOutlined,
-  MessageOutlined
+  MessageOutlined,
 } from '@ant-design/icons';
-import ProForm, {
-  ModalForm,
-  ProFormDatePicker,
-  ProFormTextArea
-} from '@ant-design/pro-form';
+import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -463,15 +459,15 @@ const MyAttendance: React.FC = () => {
               type: 'AttendanceDay',
               date: moment(it.date, 'YYYY-MM-DD'),
               check_in: first_check_in?.check_in_time,
-              check_in_note: first_check_in?.check_in_note,
-              check_in_location: first_check_in?.check_in_outside
-                ? 'Outside'
-                : first_check_in?.location,
+              check_in_note: first_check_in?.check_in_time && first_check_in?.check_in_note,
+              check_in_location:
+                first_check_in?.check_in_time &&
+                (first_check_in?.check_in_outside ? 'Outside' : first_check_in?.location),
               check_out: last_check_out?.check_out_time,
-              check_out_note: last_check_out?.check_out_note,
-              check_out_location: last_check_out?.check_out_outside
-                ? 'Outside'
-                : last_check_out?.location,
+              check_out_note: last_check_out?.check_out_time && last_check_out?.check_out_note,
+              check_out_location:
+                last_check_out?.check_out_time &&
+                (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
               // hours_work_by_schedule: '8h',
               actual: formatDurationHm(it.actual_work_hours * 3600),
               // decifit: 0,
@@ -482,9 +478,11 @@ const MyAttendance: React.FC = () => {
                   id: x.check_in_time,
                   date: undefined,
                   check_in: x.check_in_time,
-                  check_in_location: x.check_in_outside ? 'Outside' : x.location,
+                  check_in_location:
+                    x.check_in_time && (x.check_in_outside ? 'Outside' : x.location),
                   check_out: x.check_out_time,
-                  check_out_location: x.check_out_outside ? 'Outside' : x.location,
+                  check_out_location:
+                    x.check_out_time && (x.check_out_outside ? 'Outside' : x.location),
                   overtime: x.overtime_type,
                   status: ' ',
                   actual:

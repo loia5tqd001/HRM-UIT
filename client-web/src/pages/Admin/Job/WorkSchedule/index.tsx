@@ -193,13 +193,9 @@ export const WorkSchedule: React.FC = () => {
   }: typeof days[0]) => {
     let hours = 0;
     if (morning_enabled && morning)
-      hours += moment
-        .duration(moment(morning[1], 'hh:mm').diff(moment(morning[0], 'hh:mm')))
-        .asHours();
+      hours += moment.duration(morning[1].diff(morning[0])).asHours() % 24;
     if (afternoon_enabled && afternoon)
-      hours += moment
-        .duration(moment(afternoon[1], 'hh:mm').diff(moment(afternoon[0], 'hh:mm')))
-        .asHours();
+      hours += moment.duration(afternoon[1].diff(afternoon[0])).asHours() % 24;
     return Number(hours.toFixed(1));
   };
 
@@ -209,10 +205,10 @@ export const WorkSchedule: React.FC = () => {
       .map((it) => {
         return {
           day: it.day,
-          morning_from: it.morning_enabled ? it.morning?.[0].format('HH:mm:ss') : null,
-          morning_to: it.morning_enabled ? it.morning?.[1].format('HH:mm:ss') : null,
-          afternoon_from: it.afternoon_enabled ? it.afternoon?.[0].format('HH:mm:ss') : null,
-          afternoon_to: it.afternoon_enabled ? it.afternoon?.[1].format('HH:mm:ss') : null,
+          morning_from: it.morning_enabled ? it.morning?.[0] : null,
+          morning_to: it.morning_enabled ? it.morning?.[1] : null,
+          afternoon_from: it.afternoon_enabled ? it.afternoon?.[0] : null,
+          afternoon_to: it.afternoon_enabled ? it.afternoon?.[1] : null,
         };
       });
   };
@@ -232,18 +228,12 @@ export const WorkSchedule: React.FC = () => {
 
       if (workday.morning_from && workday.morning_to) {
         dayItem.morning_enabled = true;
-        dayItem.morning = [
-          moment(workday.morning_from, 'HH:mm:ss'),
-          moment(workday.morning_to, 'HH:mm:ss'),
-        ];
+        dayItem.morning = [moment(workday.morning_from), moment(workday.morning_to)];
       }
 
       if (workday.afternoon_from && workday.afternoon_to) {
         dayItem.afternoon_enabled = true;
-        dayItem.afternoon = [
-          moment(workday.afternoon_from, 'HH:mm:ss'),
-          moment(workday.afternoon_to, 'HH:mm:ss'),
-        ];
+        dayItem.afternoon = [moment(workday.afternoon_from), moment(workday.afternoon_to)];
       }
 
       return dayItem;
