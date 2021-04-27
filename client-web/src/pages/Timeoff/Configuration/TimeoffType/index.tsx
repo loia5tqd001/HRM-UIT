@@ -12,7 +12,7 @@ import {
   EditOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { ModalForm, ProFormDigit, ProFormSwitch, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import { ModalForm, ProFormSwitch, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -117,7 +117,7 @@ export const TimeOffType: React.FC = () => {
   };
 
   return (
-    <PageContainer>
+    <PageContainer title={false}>
       <ProTable<RecordType>
         headerTitle="Timeoff types"
         actionRef={actionRef}
@@ -191,11 +191,36 @@ export const TimeOffType: React.FC = () => {
                 <Button
                   key="autoFill"
                   onClick={() => {
-                    props.form?.setFieldsValue({
-                      name: faker.name.jobTitle(),
-                      description: faker.name.jobDescriptor(),
-                      // is_active: true,
-                    });
+                    const types = [
+                      { name: 'Annual leave', description: '18 days per calendar year' },
+                      { name: 'Sick Leave', description: '14 days per calendar year' },
+                      {
+                        name: 'Maternity Leave',
+                        description: '16 weeks, regardless of nationality',
+                      },
+                      {
+                        name: 'Paternity Leave',
+                        description: '2 weeks within 12 months of birth of the child',
+                      },
+                      { name: 'Marriage Leave', description: '3 days per calendar year' },
+                      {
+                        name: 'Hospitalisation Leave',
+                        description:
+                          '46 days per calendar year. 6 days child care leave per calendar year for working parents with children below 7 years’ old & 2 days extended childcare leave for working parents with children between 7–12 years old',
+                      },
+                      {
+                        name: 'Compassionate Leave',
+                        description:
+                          '3 days per calendar year (applicable for full-time employee’s parents, parents-in-laws, siblings, children, spouse, grandparents)',
+                      },
+                      { name: 'National Service leave', description: 'as required' },
+                      {
+                        name: 'Time off in lieu',
+                        description:
+                          'for official work day such as 9.9, 11.11; TOIL must be utilised within 6 months',
+                      },
+                    ];
+                    props.form?.setFieldsValue(faker.helpers.randomize(types));
                   }}
                 >
                   Auto fill

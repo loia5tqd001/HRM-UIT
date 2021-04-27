@@ -60,6 +60,7 @@ export const Holiday: React.FC = () => {
       title: 'Time',
       dataIndex: 'start_date',
       search: false,
+      sorter: (a, b) =>  moment(a.start_date).isSameOrAfter(b.start_date) ? 1 : -1,
       renderText: (_, record) =>
         `${moment(record.start_date).format('DD MMM')} → ${moment(record.end_date).format(
           'DD MMM',
@@ -178,8 +179,8 @@ export const Holiday: React.FC = () => {
         onFinish={async (value) => {
           const record = {
             ...value,
-            start_date: value.date![0],
-            end_date: value.date![1],
+            start_date: moment(value.date![0]),
+            end_date: moment(value.date![1]),
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(
@@ -211,13 +212,57 @@ export const Holiday: React.FC = () => {
                 <Button
                   key="autoFill"
                   onClick={() => {
-                    const from = moment(faker.date.soon(10));
-                    const to = moment(from).add(faker.random.number(5), 'days');
-                    props.form?.setFieldsValue({
-                      name: faker.name.title(),
-                      date: [from.format('YYYY-MM-DD'), to.format('YYYY-MM-DD')],
-                      days: to.diff(from, 'days') + 1,
-                    });
+                    const dates = [
+                      {
+                        name: 'Tet Holiday',
+                        date: [
+                          moment('2021-02-10', 'YYYY-MM-DD'),
+                          moment('2021-02-16', 'YYYY-MM-DD'),
+                        ],
+                        days: 7,
+                      },
+                      {
+                        name: "New Year's Day",
+                        date: [
+                          moment('2021-01-01', 'YYYY-MM-DD'),
+                          moment('2021-01-01', 'YYYY-MM-DD'),
+                        ],
+                        days: 1,
+                      },
+                      {
+                        name: 'Hung Kings Temple Festival',
+                        date: [
+                          moment('2021-04-21', 'YYYY-MM-DD'),
+                          moment('2021-04-21', 'YYYY-MM-DD'),
+                        ],
+                        days: 1,
+                      },
+                      {
+                        name: 'Reunification Day',
+                        date: [
+                          moment('2021-04-30', 'YYYY-MM-DD'),
+                          moment('2021-04-30', 'YYYY-MM-DD'),
+                        ],
+                        days: 1,
+                      },
+                      {
+                        name: 'Labour Day',
+                        date: [
+                          moment('2021-05-01', 'YYYY-MM-DD'),
+                          moment('2021-05-03', 'YYYY-MM-DD'),
+                        ],
+                        days: 3,
+                      },
+                      {
+                        name: 'National Day',
+                        date: [
+                          moment('2021-09-02', 'YYYY-MM-DD'),
+                          moment('2021-09-05', 'YYYY-MM-DD'),
+                        ],
+                        days: 4,
+                      },
+                    ];
+                    props.form?.setFieldsValue(faker.helpers.randomize(dates));
                   }}
                 >
                   Auto fill
