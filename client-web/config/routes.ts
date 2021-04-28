@@ -216,7 +216,7 @@
           },
         ],
       },
-      { path: '/timeOff/report', name: 'report', icon: 'barChart', component: './Welcome' },
+      { path: '/timeOff/report', name: '__report', icon: 'barChart', component: './Welcome' },
       {
         path: '/timeOff',
         redirect: '/timeOff/me',

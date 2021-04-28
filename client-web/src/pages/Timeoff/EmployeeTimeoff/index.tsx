@@ -1,86 +1,96 @@
-import { allEmployees } from '@/services/employee';
+import { __DEV__ } from '@/global';
 import {
-  CheckOutlined,
-  EditOutlined,
-  EnvironmentOutlined,
-  ExclamationCircleOutlined,
-  HistoryOutlined,
-  ManOutlined,
-  MessageOutlined,
-  PlusOutlined,
-  RollbackOutlined,
-  WomanOutlined,
-} from '@ant-design/icons';
-import type { ProColumns } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
-import { Button, DatePicker, Form, Progress, Space, Tag, TimePicker, Tooltip } from 'antd';
-import React, { useState } from 'react';
-import { FormattedMessage, Link, useIntl, useModel } from 'umi';
-import { PageContainer } from '@ant-design/pro-layout';
-import moment from 'moment';
-import ProForm, {
+  allEmployeeTimeoffs,
+  createEmployeeTimeoff,
+  deleteEmployeeTimeoff,
+  updateEmployeeTimeoff,
+} from '@/services/employee';
+import { allTimeoffs } from '@/services/timeOff';
+import { allHolidays } from '@/services/timeOff.holiday';
+import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
   ModalForm,
-  ProFormDatePicker,
+  ProFormDateRangePicker,
   ProFormText,
+  ProFormSelect,
+  ProFormDatePicker,
   ProFormTextArea,
 } from '@ant-design/pro-form';
-import { allTimeoffs } from '@/services/timeOff';
+import { PageContainer } from '@ant-design/pro-layout';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import { Button, DatePicker, Form, message, Popconfirm, Space } from 'antd';
+import { useForm } from 'antd/lib/form/Form';
+import faker from 'faker';
+import moment from 'moment';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FormattedMessage, useIntl, useModel } from 'umi';
 
-type RecordType = API.TimeoffRequest;
+type RecordType = API.TimeoffRequest & {
+  off_days?: [moment.Moment, moment.Moment];
+  days?: number;
+};
 
-const EmployeeAttendance: React.FC = () => {
+export const Timeoff: React.FC = () => {
+  const actionRef = useRef<ActionType>();
+  const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
+    'hidden',
+  );
+  const [selectedRecord, setSelectedRecord] = useState<RecordType>();
+  const [form] = useForm<RecordType>();
   const intl = useIntl();
-  const { actionRef } = useModel('employee');
-  const [clockModalVisible, setClockModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
-  const [editedTime, setEditedTime] = useState();
-  const [selectedRowsState, setSelectedRows] = useState<RecordType[]>([]);
+  const [timeoffTypes, setTimeoffTypes] = useState<API.TimeOffType[]>();
+  const [holidays, setHolidays] = useState<API.Holiday[]>();
 
-  const formatDuration = (seconds: number) => {
-    const duration = moment.duration(seconds, 'seconds');
-    return `${Math.floor(duration.asHours())}h${
-      duration.minutes() ? `${duration.minutes()}m` : ''
-    }`;
-  };
+  const { initialState } = useModel('@@initialState');
+  const { id } = initialState!.currentUser!;
+
+  useEffect(() => {
+    allTimeOffTypes().then((fetchData) => setTimeoffTypes(fetchData));
+    allHolidays().then((fetchData) => setHolidays(fetchData));
+  }, []);
+
+  const onCrudOperation = useCallback(
+    async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
+      try {
+        await cb();
+        actionRef.current?.reload();
+        message.success(successMessage);
+      } catch (err) {
+        message.error(errorMessage);
+        throw err;
+      }
+    },
+    [],
+  );
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Employee',
-      fixed: 'left',
-      key: 'employee',
-      dataIndex: ['owner', 'avatar'],
-      valueType: 'avatar',
-      render: (avatar, record) => (
-        <Space>
-          <span>{avatar}</span>
-          <span>
-            {record.owner.first_name} {record.owner.last_name}
-          </span>
-        </Space>
-      ),
+      title: 'Type',
+      dataIndex: 'time_off_type',
     },
     {
-      title: 'From',
-      key: 'start_date',
+      title: 'Start date',
       dataIndex: 'start_date',
       valueType: 'date',
+      sorter: (a, b) => (moment(a.start_date).isSameOrAfter(b.start_date) ? 1 : -1),
     },
     {
-      title: 'To',
-      key: 'end_date',
+      title: 'End date',
       dataIndex: 'end_date',
       valueType: 'date',
     },
     {
       title: 'Number of days',
-      key: 'start_date',
-      dataIndex: 'start_date',
+      dataIndex: 'days',
+      renderText: (_, record) =>
+        moment(record.end_date).diff(moment(record.start_date), 'days') + 1,
     },
     {
-      title: 'Type',
-      key: 'time_off_type',
-      dataIndex: 'time_off_type',
+      title: 'Note',
+      dataIndex: 'note',
+      hideInForm: true,
     },
     {
       title: 'Status',
@@ -95,125 +105,209 @@ const EmployeeAttendance: React.FC = () => {
           text: 'Pending',
           status: 'Warning',
         },
+        Cancelled: {
+          text: 'Cancelled',
+          status: 'Default',
+        },
+        Canceled: {
+          text: 'Canceled',
+          status: 'Default',
+        },
+        Rejected: {
+          text: 'Rejected',
+          status: 'Error',
+        },
       },
     },
-    {
-      title: 'Actions',
-      key: 'action',
-      fixed: 'right',
-      align: 'center',
-      search: false,
-      render: (dom, record) => (
-        <Space size="small">
-          <Button
-            title="Edit actual"
-            size="small"
-            onClick={() => {
-              setEditModalVisible(true);
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          {/* Delete button: might need in the future */}
-          {/* <Popconfirm
-            placement="right"
-            title={'Delete this employee?'}
-            onConfirm={async () => {
-              await onCrudOperation(() => deleteEmployee(record.id), 'Cannot delete employee!');
-            }}
-          >
-            <Button title="Delete this employee" size="small" danger>
-              <DeleteOutlined />
-            </Button>
-          </Popconfirm> */}
-        </Space>
-      ),
-    },
+    // {
+    //   title: 'Actions',
+    //   key: 'action',
+    //   fixed: 'right',
+    //   align: 'center',
+    //   search: false,
+    //   render: (dom, record) => (
+    //     <Space size="small">
+    //       <Button
+    //         title="Edit this timeoff"
+    //         size="small"
+    //         onClick={() => {
+    //           setCrudModalVisible('update');
+    //           setSelectedRecord(record);
+    //         }}
+    //         disabled={record.status !== 'Pending'}
+    //       >
+    //         <EditOutlined />
+    //       </Button>
+    //       <Popconfirm
+    //         placement="right"
+    //         title={'Delete this timeoff?'}
+    //         onConfirm={async () => {
+    //           await onCrudOperation(
+    //             () => deleteEmployeeTimeoff(id, record.id),
+    //             'Detete successfully!',
+    //             'Cannot delete timeoff!',
+    //           );
+    //         }}
+    //         disabled={record.status !== 'Pending'}
+    //       >
+    //         <Button
+    //           title="Delete this timeoff"
+    //           size="small"
+    //           danger
+    //           disabled={record.status !== 'Pending'}
+    //         >
+    //           <DeleteOutlined />
+    //         </Button>
+    //       </Popconfirm>
+    //     </Space>
+    //   ),
+    // },
   ];
+
+  const dict = {
+    title: {
+      create: 'Create timeoff request',
+      update: 'Create timeoff request',
+    },
+  };
 
   return (
     <PageContainer title={false}>
-      <ProTable<RecordType, API.PageParams>
-        headerTitle="My attendance"
+      <ProTable<RecordType>
+        headerTitle="My requests"
         actionRef={actionRef}
         rowKey="id"
         search={false}
-        scroll={{ x: 'max-content' }}
-        rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
-          },
-        }}
         toolBarRender={() => [
           <Button
             type="primary"
+            key="primary"
             onClick={() => {
-              setClockModalVisible(true);
+              setCrudModalVisible('create');
             }}
           >
-            <Space>
-              <HistoryOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Confirm"
-              />
-            </Space>
-          </Button>,
-          <Button
-            type="primary"
-            onClick={() => {
-              setClockModalVisible(true);
-            }}
-          >
-            <Space>
-              <CheckOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Approve"
-              />
-            </Space>
-          </Button>,
-          <Button
-            onClick={() => {
-              setClockModalVisible(true);
-            }}
-          >
-            <Space>
-              <RollbackOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Revert"
-              />
-            </Space>
+            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
           </Button>,
         ]}
         request={async () => {
-          const fetchData = await allTimeoffs();
-
+          const data = await allTimeoffs();
           return {
+            data,
             success: true,
-            data: fetchData,
-            total: fetchData.length,
           };
         }}
         columns={columns}
       />
-      <ModalForm
-        visible={clockModalVisible}
-        title={`Clock in at ${moment().format('HH:mm:ss')}`}
+      <ModalForm<RecordType>
+        title={dict.title[crudModalVisible]}
         width="400px"
-        onFinish={() => setClockModalVisible(false)}
-        onVisibleChange={(visible) => setClockModalVisible(visible)}
+        visible={crudModalVisible !== 'hidden'}
+        form={form}
+        onVisibleChange={(visible) => {
+          if (!visible) {
+            setCrudModalVisible('hidden');
+            form.resetFields();
+            return;
+          }
+          if (crudModalVisible === 'update') {
+            if (!selectedRecord) return;
+            form.setFieldsValue({
+              ...selectedRecord,
+              off_days: [moment(selectedRecord.start_date), moment(selectedRecord.end_date)],
+              days:
+                moment(selectedRecord.end_date).diff(moment(selectedRecord.start_date), 'days') + 1,
+            });
+          } else if (crudModalVisible === 'create') {
+            form.setFieldsValue({
+              off_days: [moment(), moment()],
+              days: 1,
+            });
+          }
+        }}
+        onFinish={async (value) => {
+          const record = {
+            ...value,
+            start_date: moment(value.off_days![0]),
+            end_date: moment(value.off_days![1]),
+          };
+          if (crudModalVisible === 'create') {
+            await onCrudOperation(
+              () => createEmployeeTimeoff(id, record),
+              'Create successfully!',
+              'Create unsuccessfully!',
+            );
+          } else if (crudModalVisible === 'update') {
+            await onCrudOperation(
+              () => updateEmployeeTimeoff(id, record.id, record),
+              'Update successfully!',
+              'Update unsuccessfully!',
+            );
+          }
+          setCrudModalVisible('hidden');
+          form.resetFields();
+        }}
+        onValuesChange={({ off_days }) => {
+          if (off_days) {
+            form.setFieldsValue({
+              days: moment(off_days[1]).diff(moment(off_days[0]), 'days') + 1,
+            });
+          }
+        }}
+        submitter={{
+          render: (props, defaultDoms) => {
+            return [
+              __DEV__ && (
+                <Button
+                  key="autoFill"
+                  onClick={() => {
+                    props.form?.setFieldsValue({
+                      time_off_type: faker.helpers.randomize(timeoffTypes!.map((it) => it.name)),
+                    });
+                  }}
+                >
+                  Auto fill
+                </Button>
+              ),
+              ...defaultDoms,
+            ];
+          },
+        }}
       >
-        <Space style={{ marginBottom: 20 }}>
-          <EnvironmentOutlined />
-          Outside the designated area
-        </Space>
-        <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
+        <ProFormSelect
+          name="time_off_type"
+          rules={[{ required: true }]}
+          width="md"
+          label="Timeoff type"
+          options={timeoffTypes?.map((it) => ({ value: it.name, label: it.name }))}
+          hasFeedback={!timeoffTypes}
+        />
+        <Form.Item rules={[{ required: true }]} name="off_days" label="Off days">
+          <DatePicker.RangePicker
+            style={{ width: 328 }}
+            disabledDate={(theDate) => {
+              const isHoliday = (date: moment.Moment) =>
+                !!holidays?.some(
+                  (it) =>
+                    moment(it.start_date).isSameOrBefore(date, 'days') &&
+                    moment(it.end_date).isSameOrAfter(date, 'days'),
+                );
+              const disabledDays = [0];
+              return isHoliday(theDate) || disabledDays.includes(theDate.day());
+            }}
+          />
+        </Form.Item>
+        <ProFormText
+          rules={[{ required: true }]}
+          name="days"
+          label="Number of days"
+          width="md"
+          readonly
+          initialValue={0}
+        />
+        <ProFormTextArea name="note" label="Note" width="md" />
       </ModalForm>
     </PageContainer>
   );
 };
 
-export default EmployeeAttendance;
+export default Timeoff;

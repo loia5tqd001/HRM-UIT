@@ -59,11 +59,11 @@ export const TimeOffType: React.FC = () => {
       renderText: (it) =>
         it ? (
           <Tooltip title="Paid">
-            <CheckOutlined />
+            <CheckOutlined style={{ color: '#52c41a' }} />
           </Tooltip>
         ) : (
           <Tooltip title="Unpaid">
-            <CloseOutlined />
+            <CloseOutlined style={{ color: '#ff4d4f' }} />
           </Tooltip>
         ),
     },

@@ -273,7 +273,7 @@ declare namespace API {
 
   interface EmployeeSchedule {
     owner?: number;
-    schedule: string;
+    schedule: Schedule | Schedule['name'];
   }
 
   interface EmployeeAttendance {

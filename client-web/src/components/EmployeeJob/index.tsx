@@ -7,7 +7,8 @@ import { allSchedules } from '@/services/admin.job.workSchedule';
 import { allLocations } from '@/services/admin.organization.location';
 import { allDepartments } from '@/services/admin.organization.structure';
 import ProForm, { ProFormDatePicker, ProFormSelect } from '@ant-design/pro-form';
-import ProTable, { ProColumns } from '@ant-design/pro-table';
+import type { ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
 import { Button, Card, Form, message, TreeSelect } from 'antd';
 import faker from 'faker';
 import moment from 'moment';
@@ -221,10 +222,11 @@ export const EmployeeJob: React.FC<Props> = (props) => {
           />
         </ProForm>
       </Card>
-      <Card loading={schedules === undefined} title="Work schedule">
+      <Card loading={schedules === undefined || schedule === undefined} title="Work schedule">
         <ProForm<API.EmployeeSchedule>
           onFinish={async (value) => {
             try {
+              value.schedule = (value.schedule as API.Schedule).name;
               await scheduleSubmit(value);
               message.success('Updated successfully!');
             } catch {
@@ -235,7 +237,7 @@ export const EmployeeJob: React.FC<Props> = (props) => {
         >
           <ProFormSelect
             rules={[{ required: true }]}
-            name="schedule"
+            name={['schedule', 'name']}
             width="lg"
             label="Work schedule"
             options={schedules?.map((it) => ({ value: it.name, label: it.name }))}
