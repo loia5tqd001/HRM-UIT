@@ -2,28 +2,21 @@ import { __DEV__ } from '@/global';
 import {
   allEmployeeTimeoffs,
   createEmployeeTimeoff,
-  deleteEmployeeTimeoff,
+  getSchedule,
   updateEmployeeTimeoff,
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import {
-  ModalForm,
-  ProFormDateRangePicker,
-  ProFormText,
-  ProFormSelect,
-  ProFormDatePicker,
-  ProFormTextArea,
-} from '@ant-design/pro-form';
+import { PlusOutlined } from '@ant-design/icons';
+import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, DatePicker, Form, message, Popconfirm, Space } from 'antd';
+import { Button, DatePicker, Form, message } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, useIntl, useModel } from 'umi';
 
 type RecordType = API.TimeoffRequest & {
@@ -41,6 +34,7 @@ export const Timeoff: React.FC = () => {
   const intl = useIntl();
   const [timeoffTypes, setTimeoffTypes] = useState<API.TimeOffType[]>();
   const [holidays, setHolidays] = useState<API.Holiday[]>();
+  const [schedule, setSchedule] = useState<API.Schedule>();
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
@@ -48,7 +42,8 @@ export const Timeoff: React.FC = () => {
   useEffect(() => {
     allTimeOffTypes().then((fetchData) => setTimeoffTypes(fetchData));
     allHolidays().then((fetchData) => setHolidays(fetchData));
-  }, []);
+    getSchedule(id).then((fetchData) => setSchedule(fetchData.schedule as API.Schedule));
+  }, [id]);
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -63,6 +58,30 @@ export const Timeoff: React.FC = () => {
     },
     [],
   );
+
+  const isHoliday = useCallback(
+    (date: moment.Moment) =>
+      !!holidays?.some(
+        (it) =>
+          moment(it.start_date).isSameOrBefore(date, 'days') &&
+          moment(it.end_date).isSameOrAfter(date, 'days'),
+      ),
+    [holidays],
+  );
+
+  const workWeekdays = useMemo(() => {
+    if (!schedule) return [];
+    const mapWeekdayToValue = {
+      Sun: 0,
+      Mon: 1,
+      Tue: 2,
+      Wed: 3,
+      Thu: 4,
+      Fri: 5,
+      Sat: 6,
+    };
+    return schedule.workdays.map((it) => mapWeekdayToValue[it.day]);
+  }, [schedule]);
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -284,14 +303,8 @@ export const Timeoff: React.FC = () => {
           <DatePicker.RangePicker
             style={{ width: 328 }}
             disabledDate={(theDate) => {
-              const isHoliday = (date: moment.Moment) =>
-                !!holidays?.some(
-                  (it) =>
-                    moment(it.start_date).isSameOrBefore(date, 'days') &&
-                    moment(it.end_date).isSameOrAfter(date, 'days'),
-                );
-              const disabledDays = [0];
-              return isHoliday(theDate) || disabledDays.includes(theDate.day());
+              const notAWorkDay = !workWeekdays.includes(theDate.day());
+              return notAWorkDay || isHoliday(theDate);
             }}
           />
         </Form.Item>
