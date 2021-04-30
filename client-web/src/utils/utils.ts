@@ -1,3 +1,4 @@
+import { uniqBy } from 'lodash';
 import moment from 'moment';
 
 /* eslint no-useless-escape:0 import/prefer-default-export:0 */
@@ -24,3 +25,13 @@ export const formatDurationHm = (seconds: number) => {
   const duration = moment.duration(seconds, 'seconds');
   return `${Math.floor(duration.asHours())}h${duration.minutes() ? `${duration.minutes()}m` : ''}`;
 };
+
+// Dropdown filter for Table antd: https://stackoverflow.com/a/53894312/9787887
+export const filterData = <T extends unknown>(data: T[]) => (formatter: (x: T) => any) =>
+  uniqBy(
+    data.map((item) => ({
+      text: formatter(item),
+      value: formatter(item),
+    })),
+    'value',
+  );

@@ -5,6 +5,7 @@ import {
   deleteHoliday,
   updateHoliday,
 } from '@/services/timeOff.holiday';
+import { filterData } from '@/utils/utils';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ModalForm, ProFormDateRangePicker, ProFormText } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -20,6 +21,7 @@ import { FormattedMessage, useIntl } from 'umi';
 type RecordType = API.Holiday & {
   date?: [moment.Moment, moment.Moment];
   days?: number;
+  start_year?: number;
 };
 
 export const Holiday: React.FC = () => {
@@ -30,6 +32,7 @@ export const Holiday: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
   const intl = useIntl();
+  const [dataNek, setData] = useState<RecordType[]>();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -49,18 +52,17 @@ export const Holiday: React.FC = () => {
     {
       title: 'Holiday',
       dataIndex: 'name',
-      search: false,
     },
     {
       title: 'Year',
-      dataIndex: 'start_date',
-      valueType: 'dateYear',
+      dataIndex: 'start_year',
+      filters: filterData(dataNek || [])((it) => it.start_year),
+      onFilter: true,
     },
     {
       title: 'Time',
       dataIndex: 'start_date',
-      search: false,
-      sorter: (a, b) =>  moment(a.start_date).isSameOrAfter(b.start_date) ? 1 : -1,
+      sorter: (a, b) => (moment(a.start_date).isSameOrAfter(b.start_date) ? 1 : -1),
       renderText: (_, record) =>
         `${moment(record.start_date).format('DD MMM')} → ${moment(record.end_date).format(
           'DD MMM',
@@ -69,7 +71,6 @@ export const Holiday: React.FC = () => {
     {
       title: 'Number of days',
       dataIndex: 'start_date',
-      search: false,
       renderText: (_, record) =>
         moment(record.end_date).diff(moment(record.start_date), 'days') + 1,
     },
@@ -78,7 +79,6 @@ export const Holiday: React.FC = () => {
       key: 'action',
       fixed: 'right',
       align: 'center',
-      search: false,
       render: (dom, record) => (
         <Space size="small">
           <Button
@@ -124,7 +124,7 @@ export const Holiday: React.FC = () => {
         headerTitle="Holidays"
         actionRef={actionRef}
         rowKey="id"
-        // search={false}
+        search={false}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -137,9 +137,14 @@ export const Holiday: React.FC = () => {
           </Button>,
         ]}
         request={async (query) => {
-          let data = await allHolidays();
-          if (query.start_date)
-            data = data.filter((it) => (it.start_date as string).startsWith(query.start_date));
+          let data: RecordType[] = await allHolidays();
+          // if (query.start_date)
+          //   data = data.filter((it) => (it.start_date as string).startsWith(query.start_date));
+          data = data.map((it) => ({
+            ...it,
+            start_year: moment(it.start_date).year(),
+          }));
+          setData(data);
           return {
             data,
             success: true,

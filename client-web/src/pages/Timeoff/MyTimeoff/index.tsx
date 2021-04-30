@@ -3,10 +3,11 @@ import {
   allEmployeeTimeoffs,
   createEmployeeTimeoff,
   getSchedule,
-  updateEmployeeTimeoff,
+  updateEmployeeTimeoff
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
+import { filterData } from '@/utils/utils';
 import { PlusOutlined } from '@ant-design/icons';
 import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -35,6 +36,7 @@ export const Timeoff: React.FC = () => {
   const [timeoffTypes, setTimeoffTypes] = useState<API.TimeOffType[]>();
   const [holidays, setHolidays] = useState<API.Holiday[]>();
   const [schedule, setSchedule] = useState<API.Schedule>();
+  const [dataNek, setData] = useState<RecordType[]>();
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
@@ -87,6 +89,8 @@ export const Timeoff: React.FC = () => {
     {
       title: 'Type',
       dataIndex: 'time_off_type',
+      onFilter: true,
+      filters: filterData(dataNek || [])((it) => it.time_off_type),
     },
     {
       title: 'Start date',
@@ -209,6 +213,7 @@ export const Timeoff: React.FC = () => {
         ]}
         request={async () => {
           const data = await allEmployeeTimeoffs(id);
+          setData(data);
           return {
             data,
             success: true,
@@ -236,10 +241,12 @@ export const Timeoff: React.FC = () => {
                 moment(selectedRecord.end_date).diff(moment(selectedRecord.start_date), 'days') + 1,
             });
           } else if (crudModalVisible === 'create') {
-            form.setFieldsValue({
-              off_days: [moment(), moment()],
-              days: 1,
-            });
+            const todayIsHoliday = isHoliday(moment());
+            if (!todayIsHoliday)
+              form.setFieldsValue({
+                off_days: [moment(), moment()],
+                days: 1,
+              });
           }
         }}
         onFinish={async (value) => {
