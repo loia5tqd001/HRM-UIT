@@ -1,5 +1,6 @@
 import { readLocation } from '@/services/admin.organization.location';
-import { checkIn, checkOut, editActual, readAttendances } from '@/services/employee';
+import { checkIn, checkOut, editActual, getSchedule, readAttendances } from '@/services/employee';
+import { allHolidays } from '@/services/timeOff.holiday';
 import { formatDurationHm } from '@/utils/utils';
 import {
   EditOutlined,
@@ -14,7 +15,7 @@ import ProTable from '@ant-design/pro-table';
 import { Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useIntl, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 
@@ -39,9 +40,61 @@ const MyAttendance: React.FC = () => {
   const [lastClockOut, setLastClockOut] = useState<string>('--:--');
   const [lastAction, setLastAction] = useState<string>();
   const [editModalForm] = useForm();
+  const [holidays, setHolidays] = useState<API.Holiday[]>();
+  const [schedule, setSchedule] = useState<API.Schedule>();
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
+
+  useEffect(() => {
+    allHolidays().then((fetchData) => setHolidays(fetchData));
+    getSchedule(id).then((fetchData) => setSchedule(fetchData.schedule as API.Schedule));
+  }, [id]);
+
+  const isHoliday = useCallback(
+    (date: moment.Moment) =>
+      !!holidays?.some(
+        (it) =>
+          moment(it.start_date).isSameOrBefore(date, 'days') &&
+          moment(it.end_date).isSameOrAfter(date, 'days'),
+      ),
+    [holidays],
+  );
+
+  const getHourWorkDay = useCallback(
+    (date: moment.Moment) => {
+      if (!schedule) return 0;
+      if (isHoliday(date)) return 0;
+      const mapWeekdayToValue = {
+        Sun: 0,
+        Mon: 1,
+        Tue: 2,
+        Wed: 3,
+        Thu: 4,
+        Fri: 5,
+        Sat: 6,
+      };
+
+      const calcHours = ({
+        morning_from,
+        morning_to,
+        afternoon_from,
+        afternoon_to,
+      }: typeof schedule.workdays[0]) => {
+        let hours = 0;
+        if (morning_from && morning_to)
+          hours += moment.duration(morning_to.diff(morning_from)).asHours() % 24;
+        if (afternoon_from && afternoon_to)
+          hours += moment.duration(afternoon_to.diff(afternoon_from)).asHours() % 24;
+        return Number(hours.toFixed(1));
+      };
+
+      const workDay = schedule.workdays.find((it) => mapWeekdayToValue[it.day] === date.day());
+      if (!workDay) return 0;
+      return calcHours(workDay);
+    },
+    [schedule, isHoliday],
+  );
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -166,18 +219,30 @@ const MyAttendance: React.FC = () => {
       title: 'Work schedule',
       key: 'hours_work_by_schedule',
       dataIndex: 'hours_work_by_schedule',
-      renderText: (hours_work_by_schedule) => hours_work_by_schedule || ' ',
+      renderText: (hours_work_by_schedule) => {
+        if (hours_work_by_schedule === undefined || hours_work_by_schedule === null) return ' ';
+        return formatDurationHm(hours_work_by_schedule * 3600);
+      },
     },
     {
       title: 'Overtime',
       key: 'overtime',
       dataIndex: 'overtime',
+      renderText: (overtime) => {
+        if (typeof overtime === 'string') return overtime;
+        if (typeof overtime !== 'number') return overtime;
+        return formatDurationHm(overtime * 3600);
+      },
     },
     {
       title: 'Decifit',
       key: 'actual',
       dataIndex: 'decifit',
-      renderText: (decifit) => (decifit === undefined ? ' ' : decifit),
+      renderText: (decifit, record) => {
+        if (record.hours_work_by_schedule === undefined || record.hours_work_by_schedule === null)
+          return ' ';
+        return formatDurationHm((record.actual_work_hours - record.hours_work_by_schedule) * 3600);
+      },
     },
     {
       title: 'Status',
@@ -194,12 +259,12 @@ const MyAttendance: React.FC = () => {
         },
       },
     },
-    {
-      title: 'Note',
-      key: 'edited_by',
-      dataIndex: 'edited_by',
-      // renderText: (_, record) => (record.edited_by ? 'hello' : null),
-    },
+    // {
+    //   title: 'Note',
+    //   key: 'edited_by',
+    //   dataIndex: 'edited_by',
+    //   renderText: (_, record) => (record.edited_by ? 'hello' : null),
+    // },
     {
       title: 'Actions',
       key: 'action',
@@ -307,7 +372,6 @@ const MyAttendance: React.FC = () => {
             </Space>
           </Button>,
         ]}
-        // @ts-ignore
         request={async () => {
           // const fetchData = [
           //   {
@@ -468,10 +532,10 @@ const MyAttendance: React.FC = () => {
               check_out_location:
                 last_check_out?.check_out_time &&
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
-              // hours_work_by_schedule: '8h',
+              hours_work_by_schedule: getHourWorkDay(moment(it.date)),
               actual: formatDurationHm(it.actual_work_hours * 3600),
               // decifit: 0,
-              overtime: formatDurationHm(it.ot_work_hours * 3600),
+              overtime: it.ot_work_hours, // formatDurationHm(it.ot_work_hours * 3600),
               children: it.tracking_data.map((x) => {
                 return {
                   ...x,
