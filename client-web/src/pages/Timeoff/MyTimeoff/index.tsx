@@ -3,7 +3,7 @@ import {
   allEmployeeTimeoffs,
   createEmployeeTimeoff,
   getSchedule,
-  updateEmployeeTimeoff
+  updateEmployeeTimeoff,
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
@@ -118,6 +118,8 @@ export const Timeoff: React.FC = () => {
       title: 'Status',
       dataIndex: 'status',
       hideInForm: true,
+      onFilter: true,
+      filters: filterData(dataNek || [])((it) => it.status),
       valueEnum: {
         Approved: {
           text: 'Approved',
@@ -250,10 +252,12 @@ export const Timeoff: React.FC = () => {
           }
         }}
         onFinish={async (value) => {
+          const end_date = moment(value.off_days![1]);
+          end_date.set({ hours: 23, minutes: 59 });
           const record = {
             ...value,
             start_date: moment(value.off_days![0]),
-            end_date: moment(value.off_days![1]),
+            end_date,
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(

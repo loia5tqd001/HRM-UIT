@@ -27,11 +27,14 @@ export const formatDurationHm = (seconds: number) => {
 };
 
 // Dropdown filter for Table antd: https://stackoverflow.com/a/53894312/9787887
-export const filterData = <T extends unknown>(data: T[]) => (formatter: (x: T) => any) =>
+export const filterData = <T extends unknown>(data: T[]) => (
+  formatterValue: (x: T) => any,
+  formatterText?: (x: T) => string,
+) =>
   uniqBy(
     data.map((item) => ({
-      text: formatter(item),
-      value: formatter(item),
+      text: formatterText ? formatterText(item) : formatterValue(item),
+      value: formatterValue(item),
     })),
     'value',
   );

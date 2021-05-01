@@ -248,3 +248,45 @@ export async function deleteEmployeeTimeoff(
     ...(options || {}),
   });
 }
+
+export async function approveEmployeeTimeoff(
+  employeeId: number,
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request(`${endpoint}${employeeId}/time_off/${id}/approve/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}
+
+export async function rejectEmployeeTimeoff(
+  employeeId: number,
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request(`${endpoint}${employeeId}/time_off/${id}/reject/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}
+
+export async function cancelEmployeeTimeoff(
+  employeeId: number,
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request(`${endpoint}${employeeId}/time_off/${id}/cancel/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}

@@ -58,10 +58,12 @@ export const Holiday: React.FC = () => {
       dataIndex: 'start_year',
       filters: filterData(dataNek || [])((it) => it.start_year),
       onFilter: true,
+      width: 150,
     },
     {
       title: 'Time',
       dataIndex: 'start_date',
+      width: 250,
       sorter: (a, b) => (moment(a.start_date).isSameOrAfter(b.start_date) ? 1 : -1),
       renderText: (_, record) =>
         `${moment(record.start_date).format('DD MMM')} → ${moment(record.end_date).format(
@@ -71,6 +73,8 @@ export const Holiday: React.FC = () => {
     {
       title: 'Number of days',
       dataIndex: 'start_date',
+      width: 150,
+      align: 'right',
       renderText: (_, record) =>
         moment(record.end_date).diff(moment(record.start_date), 'days') + 1,
     },
@@ -79,6 +83,7 @@ export const Holiday: React.FC = () => {
       key: 'action',
       fixed: 'right',
       align: 'center',
+      width: 200,
       render: (dom, record) => (
         <Space size="small">
           <Button
@@ -182,10 +187,12 @@ export const Holiday: React.FC = () => {
           }
         }}
         onFinish={async (value) => {
+          const end_date = moment(value.date![1]);
+          end_date.set({ hours: 23, minutes: 59 });
           const record = {
             ...value,
             start_date: moment(value.date![0]),
-            end_date: moment(value.date![1]),
+            end_date,
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(

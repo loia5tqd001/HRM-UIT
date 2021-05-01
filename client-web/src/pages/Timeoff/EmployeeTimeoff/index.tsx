@@ -1,31 +1,18 @@
-import { __DEV__ } from '@/global';
 import {
-  allEmployeeTimeoffs,
-  createEmployeeTimeoff,
-  deleteEmployeeTimeoff,
-  updateEmployeeTimeoff,
+  approveEmployeeTimeoff,
+  cancelEmployeeTimeoff,
+  rejectEmployeeTimeoff
 } from '@/services/employee';
 import { allTimeoffs } from '@/services/timeOff';
-import { allHolidays } from '@/services/timeOff.holiday';
-import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import {
-  ModalForm,
-  ProFormDateRangePicker,
-  ProFormText,
-  ProFormSelect,
-  ProFormDatePicker,
-  ProFormTextArea,
-} from '@ant-design/pro-form';
+import { filterData } from '@/utils/utils';
+import { CheckOutlined, CloseOutlined, EnterOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, DatePicker, Form, message, Popconfirm, Space } from 'antd';
-import { useForm } from 'antd/lib/form/Form';
-import faker from 'faker';
+import { Avatar, Button, message, Popconfirm, Space } from 'antd';
 import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FormattedMessage, useIntl, useModel } from 'umi';
+import React, { useCallback, useRef, useState } from 'react';
+import { useIntl } from 'umi';
 
 type RecordType = API.TimeoffRequest & {
   off_days?: [moment.Moment, moment.Moment];
@@ -34,22 +21,8 @@ type RecordType = API.TimeoffRequest & {
 
 export const Timeoff: React.FC = () => {
   const actionRef = useRef<ActionType>();
-  const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
-    'hidden',
-  );
-  const [selectedRecord, setSelectedRecord] = useState<RecordType>();
-  const [form] = useForm<RecordType>();
   const intl = useIntl();
-  const [timeoffTypes, setTimeoffTypes] = useState<API.TimeOffType[]>();
-  const [holidays, setHolidays] = useState<API.Holiday[]>();
-
-  const { initialState } = useModel('@@initialState');
-  const { id } = initialState!.currentUser!;
-
-  useEffect(() => {
-    allTimeOffTypes().then((fetchData) => setTimeoffTypes(fetchData));
-    allHolidays().then((fetchData) => setHolidays(fetchData));
-  }, []);
+  const [dataNek, setData] = useState<RecordType[]>();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -67,8 +40,29 @@ export const Timeoff: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Type',
+      title: 'Employee',
+      dataIndex: ['owner', 'id'],
+      render: (avatar, record) => (
+        <Space>
+          <span>
+            <Avatar src={record.owner.avatar} />
+          </span>
+          <span>
+            {record.owner.first_name} {record.owner.last_name}
+          </span>
+        </Space>
+      ),
+      onFilter: true,
+      filters: filterData(dataNek || [])(
+        (it) => it.owner.id,
+        (it) => `${it.owner.first_name} ${it.owner.last_name}`,
+      ),
+    },
+    {
+      title: 'Timeoff type',
       dataIndex: 'time_off_type',
+      onFilter: true,
+      filters: filterData(dataNek || [])((it) => it.time_off_type),
     },
     {
       title: 'Start date',
@@ -96,6 +90,8 @@ export const Timeoff: React.FC = () => {
       title: 'Status',
       dataIndex: 'status',
       hideInForm: true,
+      onFilter: true,
+      filters: filterData(dataNek || [])((it) => it.status),
       valueEnum: {
         Approved: {
           text: 'Approved',
@@ -119,78 +115,92 @@ export const Timeoff: React.FC = () => {
         },
       },
     },
-    // {
-    //   title: 'Actions',
-    //   key: 'action',
-    //   fixed: 'right',
-    //   align: 'center',
-    //   search: false,
-    //   render: (dom, record) => (
-    //     <Space size="small">
-    //       <Button
-    //         title="Edit this timeoff"
-    //         size="small"
-    //         onClick={() => {
-    //           setCrudModalVisible('update');
-    //           setSelectedRecord(record);
-    //         }}
-    //         disabled={record.status !== 'Pending'}
-    //       >
-    //         <EditOutlined />
-    //       </Button>
-    //       <Popconfirm
-    //         placement="right"
-    //         title={'Delete this timeoff?'}
-    //         onConfirm={async () => {
-    //           await onCrudOperation(
-    //             () => deleteEmployeeTimeoff(id, record.id),
-    //             'Detete successfully!',
-    //             'Cannot delete timeoff!',
-    //           );
-    //         }}
-    //         disabled={record.status !== 'Pending'}
-    //       >
-    //         <Button
-    //           title="Delete this timeoff"
-    //           size="small"
-    //           danger
-    //           disabled={record.status !== 'Pending'}
-    //         >
-    //           <DeleteOutlined />
-    //         </Button>
-    //       </Popconfirm>
-    //     </Space>
-    //   ),
-    // },
-  ];
-
-  const dict = {
-    title: {
-      create: 'Create timeoff request',
-      update: 'Create timeoff request',
+    {
+      title: 'Actions',
+      key: 'action',
+      fixed: 'right',
+      align: 'center',
+      search: false,
+      render: (dom, record) => (
+        <Space size="small">
+          <Popconfirm
+            placement="right"
+            title={'Approve this request?'}
+            onConfirm={async () => {
+              await onCrudOperation(
+                () => approveEmployeeTimeoff(record.owner.id, record.id),
+                'Approved successfully!',
+                'Cannot approve this request!',
+              );
+            }}
+            disabled={record.status !== 'Pending'}
+          >
+            <Button
+              title="Approve this request"
+              size="small"
+              type="default"
+              disabled={record.status !== 'Pending'}
+            >
+              <CheckOutlined />
+            </Button>
+          </Popconfirm>
+          <Popconfirm
+            placement="right"
+            title={'Reject this request?'}
+            onConfirm={async () => {
+              await onCrudOperation(
+                () => rejectEmployeeTimeoff(record.owner.id, record.id),
+                'Rejected successfully!',
+                'Cannot reject this request!',
+              );
+            }}
+            disabled={record.status !== 'Pending'}
+          >
+            <Button
+              title="Reject this request"
+              size="small"
+              danger
+              disabled={record.status !== 'Pending'}
+            >
+              <CloseOutlined />
+            </Button>
+          </Popconfirm>
+          <Popconfirm
+            placement="right"
+            title={'Cancel this request?'}
+            onConfirm={async () => {
+              await onCrudOperation(
+                () => cancelEmployeeTimeoff(record.owner.id, record.id),
+                'Canceled successfully!',
+                'Cannot cancel this request!',
+              );
+            }}
+            disabled={record.status !== 'Approved'}
+          >
+            <Button
+              title="Cancel this request"
+              size="small"
+              danger
+              disabled={record.status !== 'Approved'}
+            >
+              <EnterOutlined />
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
     },
-  };
+  ];
 
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
-        headerTitle="My requests"
+        headerTitle="Timeoff Requests"
         actionRef={actionRef}
         rowKey="id"
         search={false}
-        toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
-        ]}
         request={async () => {
           const data = await allTimeoffs();
+          setData(data);
           return {
             data,
             success: true,
@@ -198,114 +208,6 @@ export const Timeoff: React.FC = () => {
         }}
         columns={columns}
       />
-      <ModalForm<RecordType>
-        title={dict.title[crudModalVisible]}
-        width="400px"
-        visible={crudModalVisible !== 'hidden'}
-        form={form}
-        onVisibleChange={(visible) => {
-          if (!visible) {
-            setCrudModalVisible('hidden');
-            form.resetFields();
-            return;
-          }
-          if (crudModalVisible === 'update') {
-            if (!selectedRecord) return;
-            form.setFieldsValue({
-              ...selectedRecord,
-              off_days: [moment(selectedRecord.start_date), moment(selectedRecord.end_date)],
-              days:
-                moment(selectedRecord.end_date).diff(moment(selectedRecord.start_date), 'days') + 1,
-            });
-          } else if (crudModalVisible === 'create') {
-            form.setFieldsValue({
-              off_days: [moment(), moment()],
-              days: 1,
-            });
-          }
-        }}
-        onFinish={async (value) => {
-          const record = {
-            ...value,
-            start_date: moment(value.off_days![0]),
-            end_date: moment(value.off_days![1]),
-          };
-          if (crudModalVisible === 'create') {
-            await onCrudOperation(
-              () => createEmployeeTimeoff(id, record),
-              'Create successfully!',
-              'Create unsuccessfully!',
-            );
-          } else if (crudModalVisible === 'update') {
-            await onCrudOperation(
-              () => updateEmployeeTimeoff(id, record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
-            );
-          }
-          setCrudModalVisible('hidden');
-          form.resetFields();
-        }}
-        onValuesChange={({ off_days }) => {
-          if (off_days) {
-            form.setFieldsValue({
-              days: moment(off_days[1]).diff(moment(off_days[0]), 'days') + 1,
-            });
-          }
-        }}
-        submitter={{
-          render: (props, defaultDoms) => {
-            return [
-              __DEV__ && (
-                <Button
-                  key="autoFill"
-                  onClick={() => {
-                    props.form?.setFieldsValue({
-                      time_off_type: faker.helpers.randomize(timeoffTypes!.map((it) => it.name)),
-                    });
-                  }}
-                >
-                  Auto fill
-                </Button>
-              ),
-              ...defaultDoms,
-            ];
-          },
-        }}
-      >
-        <ProFormSelect
-          name="time_off_type"
-          rules={[{ required: true }]}
-          width="md"
-          label="Timeoff type"
-          options={timeoffTypes?.map((it) => ({ value: it.name, label: it.name }))}
-          hasFeedback={!timeoffTypes}
-        />
-        <Form.Item rules={[{ required: true }]} name="off_days" label="Off days">
-          <DatePicker.RangePicker
-            style={{ width: 328 }}
-            disabledDate={(theDate) => {
-              const isHoliday = (date: moment.Moment) =>
-                !!holidays?.some(
-                  (it) =>
-                    moment(it.start_date).isSameOrBefore(date, 'days') &&
-                    moment(it.end_date).isSameOrAfter(date, 'days'),
-                );
-              const disabledDays = [0];
-              return isHoliday(theDate) || disabledDays.includes(theDate.day());
-            }}
-          />
-        </Form.Item>
-        <ProFormText
-          rules={[{ required: true }]}
-          name="days"
-          label="Number of days"
-          width="md"
-          readonly
-          initialValue={0}
-        />
-        <ProFormTextArea name="note" label="Note" width="md" />
-      </ModalForm>
     </PageContainer>
   );
 };
