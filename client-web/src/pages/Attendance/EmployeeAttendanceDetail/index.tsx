@@ -1,12 +1,23 @@
 import { readLocation } from '@/services/admin.organization.location';
-import { checkIn, checkOut, editActual, getSchedule, readAttendances } from '@/services/employee';
+import {
+  checkIn,
+  checkOut,
+  editActual,
+  getSchedule,
+  readAttendances,
+  allEmployees,
+  readEmployee,
+} from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { formatDurationHm } from '@/utils/utils';
 import {
+  CheckCircleOutlined,
+  CheckOutlined,
   EditOutlined,
   EnvironmentOutlined,
   HistoryOutlined,
   MessageOutlined,
+  RollbackOutlined,
 } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -16,7 +27,7 @@ import { Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useIntl, useModel } from 'umi';
+import { FormattedMessage, useIntl, useModel, useParams } from 'umi';
 
 type RecordType = API.AttendanceRecord;
 
@@ -41,13 +52,15 @@ const MyAttendance: React.FC = () => {
   const [editModalForm] = useForm();
   const [holidays, setHolidays] = useState<API.Holiday[]>();
   const [schedule, setSchedule] = useState<API.Schedule>();
+  const [selectedRowsState, setSelectedRows] = useState<RecordType[]>([]);
 
-  const { initialState } = useModel('@@initialState');
-  const { id } = initialState!.currentUser!;
+  const [employee, setEmployee] = useState<API.Employee>();
+  const { id } = useParams<any>();
 
   useEffect(() => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
     getSchedule(id).then((fetchData) => setSchedule(fetchData.schedule as API.Schedule));
+    readEmployee(id).then((fetchData) => setEmployee(fetchData));
   }, [id]);
 
   const isHoliday = useCallback(
@@ -308,184 +321,62 @@ const MyAttendance: React.FC = () => {
   ];
 
   return (
-    <PageContainer title={false}>
+    <PageContainer title={employee && `${employee.first_name} ${employee.last_name}`}>
       <ProTable<RecordType, API.PageParams>
-        headerTitle="My attendance"
+        headerTitle="Attendance"
         actionRef={actionRef}
         rowKey="id"
         search={false}
         scroll={{ x: 'max-content' }}
+        rowSelection={{
+          onChange: (_, selectedRows) => {
+            setSelectedRows(selectedRows);
+          },
+        }}
         toolBarRender={() => [
-          <>
-            {lastAction ? (
-              <>
-                <Tag>First clock in: {firstClockIn}</Tag>
-                <Tag>Last clock out: {lastClockOut}</Tag>
-                <Tag>Last action: {lastAction}</Tag>
-              </>
-            ) : (
-              <Tag>No activities today yet</Tag>
-            )}
-          </>,
           <Button
-            type="primary"
-            key="primary"
-            title={
-              (currentLocationRef.current?.office === 'Outside' &&
-                !currentLocationRef.current?.allow_outside &&
-                'Your office does not allow clock in / clock out outside of the designated area.') ||
-              ''
-            }
-            disabled={
-              currentLocationRef.current?.office === 'Outside' &&
-              !currentLocationRef.current?.allow_outside
-            }
-            onClick={async () => {
-              if (currentLocationRef.current?.office === 'Outside') {
-                setClockModalVisible(true);
-              } else {
-                try {
-                  const { lat, lng } = currentLocationRef.current!;
-                  if (nextStep === 'Clock in') {
-                    await checkIn(id, { check_in_lat: lat, check_in_lng: lng });
-                    message.success('Clocked in successfully');
-                  } else {
-                    await checkOut(id, { check_out_lat: lat, check_out_lng: lng });
-                    message.success('Clocked out successfully');
-                  }
-                  actionRef.current?.reload();
-                } catch {
-                  message.error(`${nextStep} unsuccessfully`);
-                }
-              }
+            onClick={() => {
+              setClockModalVisible(true);
             }}
-            loading={!nextStep}
           >
             <Space>
-              <HistoryOutlined />
-              {nextStep}
-              {/* <FormattedMessage
+              <CheckOutlined />
+              <FormattedMessage
                 id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Clock in"
-              /> */}
+                defaultMessage="Approve"
+              />
+            </Space>
+          </Button>,
+          <Button
+            onClick={() => {
+              setClockModalVisible(true);
+            }}
+            danger
+          >
+            <Space>
+              <RollbackOutlined />
+              <FormattedMessage
+                id="pages.attendance.myAttendance.list.table.clockIn"
+                defaultMessage="Revert"
+              />
+            </Space>
+          </Button>,
+          <Button
+            onClick={() => {
+              setClockModalVisible(true);
+            }}
+          >
+            <Space>
+              <CheckCircleOutlined />
+              <FormattedMessage
+                id="pages.attendance.myAttendance.list.table.clockIn"
+                defaultMessage="Confirm"
+              />
             </Space>
           </Button>,
         ]}
         request={async () => {
-          // const fetchData = [
-          //   {
-          //     id: 1,
-          //     type: 'AttendanceDay',
-          //     date: moment('08:00', 'hh:mm'),
-          //     check_in: moment('08:00', 'hh:mm'),
-          //     check_in_note: 'Em di som',
-          //     check_in_location: 'Hawaii',
-          //     check_out: moment('20:00', 'hh:mm'),
-          //     check_out_note: 'Em OT',
-          //     check_out_location: 'Outside',
-          //     hours_work_by_schedule: '8h',
-          //     actual: '8h',
-          //     decifit: 0,
-          //     overtime: '1h30m',
-          //     status: 'Approved',
-          //     edited_by: 1,
-          //     edited_when: moment(),
-          //     edited_to: '10h',
-          //     children: [
-          //       {
-          //         id: 2,
-          //         date: undefined,
-          //         check_in: moment('08:00', 'hh:mm'),
-          //         check_in_note: 'Em di som',
-          //         check_in_location: 'Hawaii',
-          //         check_out: moment('12:00', 'hh:mm'),
-          //         check_out_note: undefined,
-          //         check_out_location: 'Outside',
-          //         hours_work_by_schedule: undefined,
-          //         actual: undefined,
-          //         overtime: undefined,
-          //         status: undefined,
-          //         edited_by: undefined,
-          //         edited_when: undefined,
-          //         edited_to: undefined,
-          //       },
-          //       {
-          //         id: 2,
-          //         date: undefined,
-          //         check_in: moment('13:00', 'hh:mm'),
-          //         check_in_note: undefined,
-          //         check_in_location: 'Outside',
-          //         check_out: moment('17:00', 'hh:mm'),
-          //         check_out_note: undefined,
-          //         check_out_location: 'Outside',
-          //         hours_work_by_schedule: undefined,
-          //         actual: undefined,
-          //         overtime: undefined,
-          //         status: undefined,
-          //         edited_by: undefined,
-          //         edited_when: undefined,
-          //         edited_to: undefined,
-          //       },
-          //       {
-          //         id: 2,
-          //         date: undefined,
-          //         check_in: moment('18:30', 'hh:mm'),
-          //         check_in_note: undefined,
-          //         check_in_location: 'Outside',
-          //         check_out: moment('20:00', 'hh:mm'),
-          //         check_out_note: undefined,
-          //         check_out_location: 'Outside',
-          //         hours_work_by_schedule: undefined,
-          //         actual: undefined,
-          //         overtime: 'OT ngoài giờ',
-          //         status: undefined,
-          //         edited_by: undefined,
-          //         edited_when: undefined,
-          //         edited_to: undefined,
-          //       },
-          //     ],
-          //   },
-          //   {
-          //     id: 3,
-          //     type: 'AttendanceDay',
-          //     date: moment('08:00', 'hh:mm'),
-          //     check_in: moment('08:00', 'hh:mm'),
-          //     check_in_note: 'Em di som',
-          //     check_in_location: 'Hawaii',
-          //     check_out: moment('20:00', 'hh:mm'),
-          //     check_out_note: 'Em OT',
-          //     check_out_location: 'Outside',
-          //     hours_work_by_schedule: '8h',
-          //     actual: '8h',
-          //     decifit: 0,
-          //     overtime: '1h30m',
-          //     status: 'Pending',
-          //     edited_by: 1,
-          //     edited_when: moment(),
-          //     edited_to: '10h',
-          //     children: [
-          //       {
-          //         id: 2,
-          //         date: undefined,
-          //         check_in: moment('08:00', 'hh:mm'),
-          //         check_in_note: 'Em di som',
-          //         check_in_location: 'Hawaii',
-          //         check_out: moment('12:00', 'hh:mm'),
-          //         check_out_note: undefined,
-          //         check_out_location: 'Outside',
-          //         hours_work_by_schedule: undefined,
-          //         actual: undefined,
-          //         overtime: undefined,
-          //         status: undefined,
-          //         edited_by: undefined,
-          //         edited_when: undefined,
-          //         edited_to: undefined,
-          //       },
-          //     ],
-          //   },
-          // ];
-
-          const fetchData = await readAttendances(initialState!.currentUser!.id);
+          const fetchData = await readAttendances(id);
           // Handle for today data
           const todayData = fetchData.find((it) => it.date === moment().format('YYYY-MM-DD'));
           if (todayData) {

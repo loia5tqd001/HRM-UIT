@@ -1,7 +1,15 @@
-import { allEmployees } from '@/services/employee';
 import {
+  allEmployees,
+  approveEmployeeAttendance,
+  cancelEmployeeAttendance,
+  rejectEmployeeAttendance,
+} from '@/services/employee';
+import {
+  CheckCircleOutlined,
   CheckOutlined,
+  CloseOutlined,
   EditOutlined,
+  EnterOutlined,
   EnvironmentOutlined,
   ExclamationCircleOutlined,
   HistoryOutlined,
@@ -13,8 +21,19 @@ import {
 } from '@ant-design/icons';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, DatePicker, Form, Progress, Space, Tag, TimePicker, Tooltip } from 'antd';
-import React, { useState } from 'react';
+import {
+  Button,
+  DatePicker,
+  Form,
+  message,
+  Popconfirm,
+  Progress,
+  Space,
+  Tag,
+  TimePicker,
+  Tooltip,
+} from 'antd';
+import React, { useCallback, useState } from 'react';
 import { FormattedMessage, Link, useIntl, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -27,8 +46,19 @@ import ProForm, {
   ProFormTextArea,
 } from '@ant-design/pro-form';
 import styles from './index.less';
+import { allAttendances } from '@/services/attendance';
+import { uniq, groupBy, countBy, sumBy, mapValues } from 'lodash';
 
-type RecordType = API.AttendanceEmployee;
+type RecordType = API.AttendanceEmployee & {
+  status?: {
+    Pending: number;
+    Approved: number;
+    Confirmed: number;
+  };
+  actual?: number;
+  work_schedule?: number;
+  attendances?: Record<string, number>;
+};
 
 const EmployeeAttendance: React.FC = () => {
   const intl = useIntl();
@@ -38,29 +68,21 @@ const EmployeeAttendance: React.FC = () => {
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
   const [editedTime, setEditedTime] = useState();
   const [selectedRowsState, setSelectedRows] = useState<RecordType[]>([]);
+  const [attendanceKeys, setAttendanceKeys] = useState<string[]>([]);
 
-  const attendanceKeys = [
-    'Mar 31',
-    'Apr 1',
-    'Apr 2',
-    'Apr 3',
-    'Apr 4',
-    'Apr 5',
-    'Apr 6',
-    'Apr 7',
-    'Apr 8',
-    'Apr 9',
-    'Apr 10',
-    'Apr 11',
-    'Apr 12',
-    'Apr 13',
-    'Apr 14',
-    'Apr 15',
-    'Apr 16',
-    'Apr 17',
-    'Apr 18',
-    'Apr 19',
-  ];
+  const onCrudOperation = useCallback(
+    async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
+      try {
+        await cb();
+        actionRef.current?.reload();
+        message.success(successMessage);
+      } catch (err) {
+        message.error(errorMessage);
+        throw err;
+      }
+    },
+    [actionRef],
+  );
 
   const formatDuration = (seconds: number) => {
     const duration = moment.duration(seconds, 'seconds');
@@ -74,13 +96,13 @@ const EmployeeAttendance: React.FC = () => {
       title: 'Employee',
       fixed: 'left',
       key: 'employee',
-      dataIndex: ['employee', 'avatar'],
+      dataIndex: 'avatar',
       valueType: 'avatar',
       render: (avatar, record) => (
         <Space>
           <span>{avatar}</span>
-          <Link to={`/employee/edit/${record.employee.id}`}>
-            {record.employee.first_name} {record.employee.last_name}
+          <Link to={`/attendance/detail/${record.id}`}>
+            {record.first_name} {record.last_name}
           </Link>
         </Space>
       ),
@@ -90,26 +112,29 @@ const EmployeeAttendance: React.FC = () => {
       fixed: 'left',
       key: 'actual',
       dataIndex: 'actual',
-      renderText: (_, record) => (
-        <div style={{ position: 'relative' }}>
-          <Progress
-            percent={(record.actual / record.work_schedule) * 100}
-            showInfo={false}
-            strokeWidth={20}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              left: 10,
-              top: 2,
-              color: '#f5f5f5',
-              fontWeight: 600,
-            }}
-          >
-            {formatDuration(record.actual)} / {formatDuration(record.work_schedule)}
+      renderText: (_, record) => {
+        if (!record.actual || !record.work_schedule) return null;
+        return (
+          <div style={{ position: 'relative' }}>
+            <Progress
+              percent={(record.actual / record.work_schedule) * 100}
+              showInfo={false}
+              strokeWidth={20}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: 10,
+                top: 2,
+                color: '#151515',
+                fontWeight: 600,
+              }}
+            >
+              {formatDuration(record.actual)} / {formatDuration(record.work_schedule)}
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       title: 'Status',
@@ -121,7 +146,6 @@ const EmployeeAttendance: React.FC = () => {
           .map((it) => (it[1] ? `${it[1]} ${it[0]}` : ''))
           .filter((it) => it !== '')
           .join(', ');
-
         const commonDotStyle = {
           width: 10,
           height: 10,
@@ -129,12 +153,11 @@ const EmployeeAttendance: React.FC = () => {
           borderRadius: '50%',
           marginRight: 5,
         };
-
         return (
           <Tooltip title={title}>
-            {status.pending ? (
+            {status.Pending ? (
               <>
-                {status.pending}{' '}
+                {status.Pending}{' '}
                 <span
                   style={{
                     ...commonDotStyle,
@@ -143,9 +166,9 @@ const EmployeeAttendance: React.FC = () => {
                 />
               </>
             ) : null}
-            {status.approved ? (
+            {status.Approved ? (
               <>
-                {status.approved}{' '}
+                {status.Approved}{' '}
                 <span
                   style={{
                     ...commonDotStyle,
@@ -154,9 +177,9 @@ const EmployeeAttendance: React.FC = () => {
                 />
               </>
             ) : null}
-            {status.confirmed ? (
+            {status.Confirmed ? (
               <>
-                {status.confirmed}{' '}
+                {status.Confirmed}{' '}
                 <span
                   style={{
                     ...commonDotStyle,
@@ -177,45 +200,86 @@ const EmployeeAttendance: React.FC = () => {
       dataIndex: ['attendances', it],
       renderText: (seconds: number) => formatDuration(seconds),
     })),
-    {
-      title: 'Actions',
-      key: 'action',
-      fixed: 'right',
-      align: 'center',
-      search: false,
-      render: (dom, record) => (
-        <Space size="small">
-          <Button
-            title="Edit actual"
-            size="small"
-            onClick={() => {
-              setEditModalVisible(true);
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          {/* Delete button: might need in the future */}
-          {/* <Popconfirm
-            placement="right"
-            title={'Delete this employee?'}
-            onConfirm={async () => {
-              await onCrudOperation(() => deleteEmployee(record.id), 'Cannot delete employee!');
-            }}
-          >
-            <Button title="Delete this employee" size="small" danger>
-              <DeleteOutlined />
-            </Button>
-          </Popconfirm> */}
-        </Space>
-      ),
-    },
+    // {
+    //   title: 'Actions',
+    //   key: 'action',
+    //   fixed: 'right',
+    //   align: 'center',
+    //   search: false,
+    //   render: (dom, record) => (
+    //     <Space size="small">
+    //       <Popconfirm
+    //         placement="right"
+    //         title={'Approve this request?'}
+    //         onConfirm={async () => {
+    //           // await onCrudOperation(
+    //           //   () => approveEmployeeAttendance(record.owner.id, record.id),
+    //           //   'Approved successfully!',
+    //           //   'Cannot approve this request!',
+    //           // );
+    //         }}
+    //         // disabled={record.status !== 'Pending'}
+    //       >
+    //         <Button
+    //           title="Approve this request"
+    //           size="small"
+    //           type="default"
+    //           // disabled={record.status !== 'Pending'}
+    //         >
+    //           <CheckOutlined />
+    //         </Button>
+    //       </Popconfirm>
+    //       <Popconfirm
+    //         placement="right"
+    //         title={'Reject this request?'}
+    //         onConfirm={async () => {
+    //           // await onCrudOperation(
+    //           //   () => rejectEmployeeAttendance(record.owner.id, record.id),
+    //           //   'Rejected successfully!',
+    //           //   'Cannot reject this request!',
+    //           // );
+    //         }}
+    //         // disabled={record.status !== 'Pending'}
+    //       >
+    //         <Button
+    //           title="Reject this request"
+    //           size="small"
+    //           danger
+    //           // disabled={record.status !== 'Pending'}
+    //         >
+    //           <CloseOutlined />
+    //         </Button>
+    //       </Popconfirm>
+    //       <Popconfirm
+    //         placement="right"
+    //         title={'Cancel this request?'}
+    //         onConfirm={async () => {
+    //           // await onCrudOperation(
+    //           //   () => cancelEmployeeAttendance(record.owner.id, record.id),
+    //           //   'Canceled successfully!',
+    //           //   'Cannot cancel this request!',
+    //           // );
+    //         }}
+    //         // disabled={record.status !== 'Approved'}
+    //       >
+    //         <Button
+    //           title="Cancel this request"
+    //           size="small"
+    //           danger
+    //           // disabled={record.status !== 'Approved'}
+    //         >
+    //           <EnterOutlined />
+    //         </Button>
+    //       </Popconfirm>
+    //     </Space>
+    //   ),
+    // },
   ];
 
   return (
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
-        headerTitle="My attendance"
+        headerTitle="Employee attendance"
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -227,21 +291,6 @@ const EmployeeAttendance: React.FC = () => {
         }}
         toolBarRender={() => [
           <Button
-            type="primary"
-            onClick={() => {
-              setClockModalVisible(true);
-            }}
-          >
-            <Space>
-              <HistoryOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Confirm"
-              />
-            </Space>
-          </Button>,
-          <Button
-            type="primary"
             onClick={() => {
               setClockModalVisible(true);
             }}
@@ -258,6 +307,7 @@ const EmployeeAttendance: React.FC = () => {
             onClick={() => {
               setClockModalVisible(true);
             }}
+            danger
           >
             <Space>
               <RollbackOutlined />
@@ -267,82 +317,124 @@ const EmployeeAttendance: React.FC = () => {
               />
             </Space>
           </Button>,
+          <Button
+            onClick={() => {
+              setClockModalVisible(true);
+            }}
+          >
+            <Space>
+              <CheckCircleOutlined />
+              <FormattedMessage
+                id="pages.attendance.myAttendance.list.table.clockIn"
+                defaultMessage="Confirm"
+              />
+            </Space>
+          </Button>,
         ]}
-        // @ts-ignore
         request={async () => {
-          const fetchData = [
-            {
-              id: 1,
-              employee: {
-                id: 1,
-                first_name: 'Nguyen',
-                last_name: 'Huynh Loi',
-                avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
-              },
-              actual: 250000,
-              work_schedule: 288000,
+          let data: RecordType[] = await allAttendances();
+          setAttendanceKeys(
+            uniq(
+              data.flatMap((it) => it.attendance.flatMap((x) => moment(x.date).format('DD MMM'))),
+            ),
+          );
+          data = data.map((it) => {
+            return {
+              ...it,
               status: {
-                pending: 5,
-                approved: 6,
-                confirmed: 0,
+                Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
+                Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
+                Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
               },
-              attendances: {
-                'Apr 5': 28800,
-                'Apr 6': 28800,
-                'Apr 7': 28800,
-                'Apr 8': 28800,
-                'Apr 9': 28800,
-                'Apr 10': 28800,
-                'Apr 11': 28800,
-                'Apr 12': 28800,
-                'Apr 13': 28800,
-                'Apr 14': 28800,
-                'Apr 15': 28800,
-                'Apr 16': 28800,
-                'Apr 17': 28800,
-                'Apr 18': 28800,
-                'Apr 19': 28800,
-              },
-            },
-            {
-              id: 2,
-              employee: {
-                id: 2,
-                first_name: 'Dao',
-                last_name: 'Manh Dung',
-                avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
-              },
-              actual: 280000,
+              actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
               work_schedule: 288000,
-              status: {
-                pending: 1,
-                approved: 6,
-                confirmed: 2,
-              },
-              attendances: {
-                'Apr 10': 28800,
-                'Apr 11': 28800,
-                'Apr 12': 28800,
-                'Apr 13': 28800,
-                'Apr 14': 25000,
-                'Apr 15': 28800,
-                'Apr 16': 28800,
-                'Apr 17': 28800,
-                'Apr 18': 28800,
-                'Apr 19': 28800,
-              },
-            },
-          ];
+              attendances: mapValues(
+                groupBy(
+                  it.attendance.map((x) => ({
+                    ...x,
+                    date: moment(x.date).format('DD MMM'),
+                    work_load: x.actual_work_hours * 3600,
+                  })),
+                  'date',
+                ),
+                (x) => x.reduce((acc, cur) => acc + cur.actual_work_hours * 3600, 0),
+              ),
+            };
+          });
+
+          // const fetchData = [
+          //   {
+          //     id: 1,
+          //     employee: {
+          //       id: 1,
+          //       first_name: 'Nguyen',
+          //       last_name: 'Huynh Loi',
+          //       avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
+          //     },
+          //     actual: 250000,
+          //     work_schedule: 288000,
+          //     status: {
+          //       pending: 5,
+          //       approved: 6,
+          //       confirmed: 0,
+          //     },
+          //     attendances: {
+          //       'Apr 5': 28800,
+          //       'Apr 6': 28800,
+          //       'Apr 7': 28800,
+          //       'Apr 8': 28800,
+          //       'Apr 9': 28800,
+          //       'Apr 10': 28800,
+          //       'Apr 11': 28800,
+          //       'Apr 12': 28800,
+          //       'Apr 13': 28800,
+          //       'Apr 14': 28800,
+          //       'Apr 15': 28800,
+          //       'Apr 16': 28800,
+          //       'Apr 17': 28800,
+          //       'Apr 18': 28800,
+          //       'Apr 19': 28800,
+          //     },
+          //   },
+          //   {
+          //     id: 2,
+          //     employee: {
+          //       id: 2,
+          //       first_name: 'Dao',
+          //       last_name: 'Manh Dung',
+          //       avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
+          //     },
+          //     actual: 280000,
+          //     work_schedule: 288000,
+          //     status: {
+          //       pending: 1,
+          //       approved: 6,
+          //       confirmed: 2,
+          //     },
+          //     attendances: {
+          //       'Apr 10': 28800,
+          //       'Apr 11': 28800,
+          //       'Apr 12': 28800,
+          //       'Apr 13': 28800,
+          //       'Apr 14': 25000,
+          //       'Apr 15': 28800,
+          //       'Apr 16': 28800,
+          //       'Apr 17': 28800,
+          //       'Apr 18': 28800,
+          //       'Apr 19': 28800,
+          //     },
+          //   },
+          // ];
 
           return {
             success: true,
-            data: fetchData,
-            total: fetchData.length,
+            data,
+            total: data.length,
           };
         }}
         columns={columns}
       />
-      <CrudModal />
+      {/* <CrudModal />
       <ModalForm
         visible={clockModalVisible}
         title={`Clock in at ${moment().format('HH:mm:ss')}`}
@@ -372,7 +464,7 @@ const EmployeeAttendance: React.FC = () => {
           </Form.Item>
         </ProForm.Group>
         <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
-      </ModalForm>
+      </ModalForm> */}
     </PageContainer>
   );
 };

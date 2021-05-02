@@ -421,17 +421,24 @@ declare namespace API {
   }
 
   interface AttendanceEmployee {
-    employee: Employee;
-    actual: number; // in seconds
-    work_schedule: number; // in seconds
-    status: {
-      pending: number;
-      approved: number;
-      confirmed: number;
-    };
-    attendances: {
-      [date: string]: number; // 14 Apr - 600 (date - seconds)
-    };
+    id: 1;
+    first_name: string;
+    last_name: string;
+    avatar: string;
+    attendance: {
+      id: number;
+      owner: number;
+      date: string | moment.Moment;
+      actual_work_hours: number;
+      actual_hours_modified: boolean;
+      actual_hours_modification_note: string | null;
+      ot_work_hours: number;
+      ot_hours_modified: boolean;
+      ot_hours_modification_note: string | null;
+      reviewed_by: number | null;
+      confirmed_by: number | null;
+      status: 'Pending' | 'Approved' | 'Confirmed' | undefined;
+    }[];
   }
 
   interface CustomField {

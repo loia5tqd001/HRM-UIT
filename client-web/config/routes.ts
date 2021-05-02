@@ -241,6 +241,10 @@
         icon: 'unorderedList',
         component: './Attendance/EmployeeAttendance',
       },
+      {
+        path: '/attendance/detail/:id',
+        component: './Attendance/EmployeeAttendanceDetail',
+      },
       { path: '/attendance/import', name: '__import', icon: 'import', component: './Welcome' },
       {
         path: '/attendance/configuration',
