@@ -342,6 +342,22 @@ declare namespace API {
     is_active: boolean;
   }
 
+  interface TaxPlan {
+    id: number;
+    name: string;
+    code: string;
+    tax_type: string;
+  }
+
+  interface InsurancePlan {
+    id: number;
+    name: string;
+    code: string;
+    base_on: string;
+    percent_company: number;
+    percent_employee: number;
+  }
+
   interface OvertimeType {
     id: number;
     name: string;

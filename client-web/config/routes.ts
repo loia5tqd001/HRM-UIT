@@ -128,12 +128,12 @@
           {
             path: '/admin/payroll/taxPlan',
             name: 'taxPlan',
-            component: './Welcome',
+            component: './Admin/Payroll/TaxPlan',
           },
           {
-            path: '/admin/qualification/insurancePlan',
+            path: '/admin/payroll/insurancePlan',
             name: 'insurancePlan',
-            component: './Welcome',
+            component: './Admin/Payroll/InsurancePlan',
           },
         ],
       },
