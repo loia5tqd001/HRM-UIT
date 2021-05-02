@@ -128,10 +128,9 @@ declare namespace API {
   }
 
   interface EmployeePayroll {
-    payCycle: 'monthly' | 'biweekly';
+    insurance_policy: string;
+    tax_policy: string;
     salary: number;
-    effectiveDateFrom: string | Date;
-    effectiveDateTo?: string | Date;
   }
 
   // interface Employee {
@@ -262,14 +261,14 @@ declare namespace API {
     owner?: number;
   }
 
-  interface EmployeeBankInfo {
-    bank_name: string;
-    account_name: string;
-    branch: string;
-    account_number: string;
-    swift_bic: string;
-    iban: string;
-  }
+  // interface EmployeeBankInfo {
+  //   bank_name: string;
+  //   account_name: string;
+  //   branch: string;
+  //   account_number: string;
+  //   swift_bic: string;
+  //   iban: string;
+  // }
 
   interface EmployeeSchedule {
     owner?: number;

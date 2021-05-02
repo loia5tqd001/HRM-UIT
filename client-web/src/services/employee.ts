@@ -161,6 +161,25 @@ export async function updateSchedule(
   });
 }
 
+export async function allEmployeePayrolls(employeeId: number, options?: { [key: string]: any }) {
+  return request<API.EmployeePayroll>(`${endpoint}${employeeId}/salary_info/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateEmployeePayroll(
+  employeeId: number,
+  data: API.EmployeePayroll,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeePayroll>(`${endpoint}${employeeId}/salary_info/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
 export async function readAttendances(employeeId: number, options?: { [key: string]: any }) {
   return request<API.EmployeeAttendance[]>(`${endpoint}${employeeId}/attendance/`, {
     method: 'GET',

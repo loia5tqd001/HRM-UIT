@@ -1,42 +1,31 @@
 import { FormattedMessage } from '@/.umi/plugin-locale/localeExports';
 import { __DEV__ } from '@/global';
-import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
-import { allJobEvents } from '@/services/admin.job.jobEvent';
-import { allJobTitles } from '@/services/admin.job.jobTitle';
-import { allSchedules } from '@/services/admin.job.workSchedule';
-import { allLocations } from '@/services/admin.organization.location';
-import { allDepartments } from '@/services/admin.organization.structure';
+import { allInsurancePlans } from '@/services/admin.payroll.insurancePlan';
+import { allTaxPlans } from '@/services/admin.payroll.taxPlan';
 import ProForm, { ProFormSelect } from '@ant-design/pro-form';
-import ProTable, { ProColumns } from '@ant-design/pro-table';
+import type { ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
 import { Button, Card, Form, InputNumber, message } from 'antd';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 
 type Props = {
-  payrolls: API.EmployeeJob[] | undefined;
-  payrollSubmit: (value: API.EmployeeJob) => Promise<void>;
+  payroll: API.EmployeePayroll | undefined;
+  payrollSubmit: (value: API.EmployeePayroll) => Promise<void>;
 };
 
 export const EmployeePayroll: React.FC<Props> = (props) => {
-  const { payrolls, payrollSubmit } = props;
-  const [departments, setDepartments] = useState<API.DepartmentUnit[]>();
-  const [jobTitles, setJobTitles] = useState<API.JobTitle[]>();
-  const [workShifts, setWorkShifts] = useState<API.Schedule[]>();
-  const [locations, setLocations] = useState<API.Location[]>();
-  const [employmentStatuses, setEmploymentStatuses] = useState<API.EmploymentStatus[]>();
-  const [jobEvents, setJobEvents] = useState<API.JobEvent[]>();
+  const { payroll, payrollSubmit } = props;
+  const [taxPlans, setTaxPlans] = useState<API.TaxPlan[]>();
+  const [insurancePlans, setInsurancePlans] = useState<API.InsurancePlan[]>();
 
   useEffect(() => {
-    allDepartments().then((fetchData) => setDepartments(fetchData));
-    allJobTitles().then((fetchData) => setJobTitles(fetchData));
-    allSchedules().then((fetchData) => setWorkShifts(fetchData));
-    allLocations().then((fetchData) => setLocations(fetchData));
-    allEmploymentStatuses().then((fetchData) => setEmploymentStatuses(fetchData));
-    allJobEvents().then((fetchData) => setJobEvents(fetchData));
+    allTaxPlans().then((fetchData) => setTaxPlans(fetchData));
+    allInsurancePlans().then((fetchData) => setInsurancePlans(fetchData));
   }, []);
 
-  const columns: ProColumns<API.EmployeeJob>[] = [
+  const columns: ProColumns<API.EmployeePayroll>[] = [
     {
       title: (
         <FormattedMessage id="pages.admin.payroll.column.timestamp" defaultMessage="Timestamp" />
@@ -47,16 +36,17 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
     {
       title: <FormattedMessage id="pages.admin.payroll.column.salary" defaultMessage="Salary" />,
       dataIndex: 'salary',
+      renderText: (value) => `${parseInt(value, 10)}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
     },
-    {
-      title: (
-        <FormattedMessage id="pages.admin.payroll.column.salaryType" defaultMessage="Salary type" />
-      ),
-      dataIndex: 'salary_type',
-    },
+    // {
+    //   title: (
+    //     <FormattedMessage id="pages.admin.payroll.column.salaryType" defaultMessage="Salary type" />
+    //   ),
+    //   dataIndex: 'salary_type',
+    // },
     {
       title: <FormattedMessage id="pages.admin.payroll.column.taxPlan" defaultMessage="Tax plan" />,
-      dataIndex: 'tax_plan',
+      dataIndex: 'tax_policy',
     },
     {
       title: (
@@ -65,14 +55,14 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
           defaultMessage="Insurance plan"
         />
       ),
-      dataIndex: 'insurance_plan',
+      dataIndex: 'insurance_policy',
     },
   ];
 
   return (
     <>
-      <Card loading={payrolls === undefined} title="Payroll info">
-        <ProForm<API.EmployeeJob>
+      <Card loading={payroll === undefined} title="Payroll info">
+        <ProForm<API.EmployeePayroll>
           onFinish={async (value) => {
             try {
               await payrollSubmit(value);
@@ -81,7 +71,7 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
               message.error('Updated unsuccessfully!');
             }
           }}
-          initialValues={payrolls?.[0]}
+          initialValues={payroll}
           submitter={{
             render: ({ form }, defaultDoms) => {
               return [
@@ -91,12 +81,14 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
                     key="autoFill"
                     onClick={() => {
                       form?.setFieldsValue({
-                        salary: faker.random.number({
-                          min: 1000000,
-                          max: 100000000,
-                          precision: -3,
-                        }),
-                        salary_type: faker.helpers.randomize(['Gross', 'Net']),
+                        salary:
+                          faker.random.number({
+                            min: 10,
+                            max: 100,
+                          }) * 100000,
+                        // salary_type: faker.helpers.randomize(['Gross', 'Net']),
+                        tax_policy: faker.helpers.randomize(taxPlans || [])?.name,
+                        insurance_policy: faker.helpers.randomize(insurancePlans || [])?.name,
                       });
                     }}
                   >
@@ -114,42 +106,33 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={(value) => Number(value?.replace(/\D+/g, ''))}
                 placeholder="1,000,000"
+                step={1000000}
               />
             </Form.Item>
             <ProFormSelect
-              name="salary_type"
-              width="lg"
-              label="Salary type"
-              options={[
-                { value: 'Gross', label: 'Gross' },
-                { value: 'Net', label: 'Net' },
-              ]}
-              rules={[{ required: true }]}
-            />
-            <ProFormSelect
-              name="tax_plan"
+              name="tax_policy"
               width="lg"
               label="Tax plan"
-              options={employmentStatuses?.map((it) => ({ value: it.name, label: it.name }))}
-              hasFeedback={!employmentStatuses}
+              options={taxPlans?.map((it) => ({ value: it.name, label: it.name }))}
+              hasFeedback={!taxPlans}
               rules={[{ required: true }]}
             />
             <ProFormSelect
-              name="insurance_plan"
+              name="insurance_policy"
               width="lg"
               label="Insurance plan"
-              options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
-              hasFeedback={!jobTitles}
+              options={insurancePlans?.map((it) => ({ value: it.name, label: it.name }))}
+              hasFeedback={!insurancePlans}
               rules={[{ required: true }]}
             />
           </ProForm.Group>
         </ProForm>
       </Card>
-      <ProTable<API.EmployeeJob>
+      <ProTable<API.EmployeePayroll>
         headerTitle="Payroll history"
         rowKey="id"
         columns={columns}
-        dataSource={payrolls}
+        dataSource={payroll ? [payroll] : []}
         search={false}
         style={{ width: '100%' }}
       />

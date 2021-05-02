@@ -16,6 +16,8 @@ import {
   updateJob,
   getSchedule,
   updateSchedule,
+  allEmployeePayrolls,
+  updateEmployeePayroll,
 } from '@/services/employee';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
@@ -35,6 +37,7 @@ export const Edit: React.FC = () => {
   const [bankInfo, setBankInfo] = useState<API.EmployeeBankInfo>();
   const [jobs, setJobs] = useState<API.EmployeeJob[]>();
   const [schedule, setSchedule] = useState<API.EmployeeSchedule>();
+  const [payroll, setPayroll] = useState<API.EmployeePayroll>();
   const { tab } = history.location.query as { tab: 'general' | 'job' | 'payroll' | undefined };
   if (tab === undefined) history.push('?tab=general');
 
@@ -46,6 +49,7 @@ export const Edit: React.FC = () => {
 
     allJobs(id).then((fetchData) => setJobs(fetchData));
     getSchedule(id).then((fetchData) => setSchedule(fetchData));
+    allEmployeePayrolls(id).then((fetchData) => setPayroll(fetchData));
   }, [id]);
 
   return (
@@ -235,19 +239,10 @@ export const Edit: React.FC = () => {
             ) : null}
             {tab === 'payroll' ? (
               <EmployeePayroll
-                payrolls={jobs}
+                payroll={payroll}
                 payrollSubmit={async (value) => {
-                  value.owner = id;
-                  value.probation_start_date = moment(value.probation_start_date).format(
-                    'YYYY-MM-DD',
-                  );
-                  value.probation_end_date = moment(value.probation_end_date).format('YYYY-MM-DD');
-                  value.contract_start_date = moment(value.contract_start_date).format(
-                    'YYYY-MM-DD',
-                  );
-                  value.contract_end_date = moment(value.contract_end_date).format('YYYY-MM-DD');
-                  await updateJob(id, value);
-                  await allJobs(id).then((fetchData) => setJobs(fetchData));
+                  await updateEmployeePayroll(id, value);
+                  await allEmployeePayrolls(id).then((fetchData) => setPayroll(fetchData));
                 }}
               />
             ) : null}
