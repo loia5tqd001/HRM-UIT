@@ -501,6 +501,24 @@ declare namespace API {
     name: string;
   }
 
+  interface SystemField {
+    id: 1;
+    code_name: string;
+    name: string;
+    description: string;
+  }
+
+  interface PayrollTemplate {
+    id: number;
+    name: string;
+    fields: {
+      index: number;
+      type: 'System Field';
+      display_name: string;
+      code_name: string;
+    }[];
+  }
+
   type User = any;
 
   type PermissionItem = {

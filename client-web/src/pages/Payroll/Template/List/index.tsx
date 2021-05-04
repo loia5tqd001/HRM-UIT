@@ -1,172 +1,50 @@
-import { allEmployees } from '@/services/employee';
+import { __DEV__ } from '@/global';
 import {
-  CheckOutlined,
-  EditOutlined,
-  EnvironmentOutlined,
-  ExclamationCircleOutlined,
-  HistoryOutlined,
-  ManOutlined,
-  MessageOutlined,
-  PlusOutlined,
-  RollbackOutlined,
-  WomanOutlined,
-} from '@ant-design/icons';
-import type { ProColumns } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
-import { Button, DatePicker, Form, Progress, Space, Tag, TimePicker, Tooltip } from 'antd';
-import React, { useState } from 'react';
-import { FormattedMessage, Link, useIntl, useModel } from 'umi';
+  allPayrollTemplates,
+  createPayrollTemplate,
+  deletePayrollTemplate,
+  updatePayrollTemplate,
+} from '@/services/payroll.template';
+import { DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
-import moment from 'moment';
-import ProForm, {
-  ModalForm,
-  ProFormDatePicker,
-  ProFormText,
-  ProFormTextArea,
-} from '@ant-design/pro-form';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import { Button, message, Popconfirm, Space } from 'antd';
+import { useForm } from 'antd/lib/form/Form';
+import faker from 'faker';
+import React, { useCallback, useRef, useState } from 'react';
+import { FormattedMessage, Link, useIntl } from 'umi';
 
-type RecordType = API.AttendanceEmployee;
+type RecordType = API.PayrollTemplate;
 
-const EmployeeAttendance: React.FC = () => {
+export const PayrollTemplate: React.FC = () => {
+  const actionRef = useRef<ActionType>();
+  const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
+    'hidden',
+  );
+  const [selectedRecord, setSelectedRecord] = useState<RecordType>();
+  const [form] = useForm<RecordType>();
   const intl = useIntl();
-  const { actionRef } = useModel('employee');
-  const [clockModalVisible, setClockModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
-  const [editedTime, setEditedTime] = useState();
-  const [selectedRowsState, setSelectedRows] = useState<RecordType[]>([]);
 
-  const attendanceKeys = [
-    'Mar 31',
-    'Apr 1',
-    'Apr 2',
-    'Apr 3',
-    'Apr 4',
-    'Apr 5',
-    'Apr 6',
-    'Apr 7',
-    'Apr 8',
-    'Apr 9',
-    'Apr 10',
-    'Apr 11',
-    'Apr 12',
-    'Apr 13',
-    'Apr 14',
-    'Apr 15',
-    'Apr 16',
-    'Apr 17',
-    'Apr 18',
-    'Apr 19',
-  ];
-
-  const formatDuration = (seconds: number) => {
-    const duration = moment.duration(seconds, 'seconds');
-    return `${Math.floor(duration.asHours())}h${
-      duration.minutes() ? `${duration.minutes()}m` : ''
-    }`;
-  };
+  const onCrudOperation = useCallback(
+    async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
+      try {
+        await cb();
+        actionRef.current?.reload();
+        message.success(successMessage);
+      } catch (err) {
+        message.error(errorMessage);
+        throw err;
+      }
+    },
+    [],
+  );
 
   const columns: ProColumns<RecordType>[] = [
     {
       title: 'Name',
-      key: 'employee',
-      dataIndex: ['employee', 'avatar'],
-      valueType: 'avatar',
-      render: (avatar, record) => (
-        <Space>
-          <span>{avatar}</span>
-          <Link to={`/employee/edit/${record.employee.id}`}>
-            {record.employee.first_name} {record.employee.last_name}
-          </Link>
-        </Space>
-      ),
-    },
-    {
-      title: 'Creator',
-      key: 'employee',
-      dataIndex: ['employee', 'avatar'],
-      valueType: 'avatar',
-      render: (avatar, record) => (
-        <Space>
-          <span>{avatar}</span>
-          <Link to={`/employee/edit/${record.employee.id}`}>
-            {record.employee.first_name} {record.employee.last_name}
-          </Link>
-        </Space>
-      ),
-    },
-    {
-      title: 'Workflow',
-      key: 'employee',
-      dataIndex: ['employee', 'avatar'],
-      valueType: 'avatar',
-      render: (avatar, record) => (
-        <Space>
-          <span>{avatar}</span>
-          <Link to={`/employee/edit/${record.employee.id}`}>
-            {record.employee.first_name} {record.employee.last_name}
-          </Link>
-        </Space>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      width: 100,
-      renderText: (status) => {
-        const title = Object.entries(status)
-          .map((it) => (it[1] ? `${it[1]} ${it[0]}` : ''))
-          .filter((it) => it !== '')
-          .join(', ');
-
-        const commonDotStyle = {
-          width: 10,
-          height: 10,
-          display: 'inline-block',
-          borderRadius: '50%',
-          marginRight: 5,
-        };
-
-        return (
-          <Tooltip title={title}>
-            {status.pending ? (
-              <>
-                {status.pending}{' '}
-                <span
-                  style={{
-                    ...commonDotStyle,
-                    background: 'rgb(242, 145, 50)',
-                  }}
-                />
-              </>
-            ) : null}
-            {status.approved ? (
-              <>
-                {status.approved}{' '}
-                <span
-                  style={{
-                    ...commonDotStyle,
-                    background: '#2ad25f',
-                  }}
-                />
-              </>
-            ) : null}
-            {status.confirmed ? (
-              <>
-                {status.confirmed}{' '}
-                <span
-                  style={{
-                    ...commonDotStyle,
-                    background: '#2ad25f',
-                    border: '1px solid white',
-                    boxShadow: '0 0 0 1px #2ad25f',
-                  }}
-                />
-              </>
-            ) : null}
-          </Tooltip>
-        );
-      },
+      dataIndex: 'name',
     },
     {
       title: 'Actions',
@@ -177,71 +55,143 @@ const EmployeeAttendance: React.FC = () => {
       render: (dom, record) => (
         <Space size="small">
           <Button
-            title="Edit actual"
+            title="Edit this template"
             size="small"
             onClick={() => {
-              setEditModalVisible(true);
+              setCrudModalVisible('update');
               setSelectedRecord(record);
             }}
           >
             <EditOutlined />
           </Button>
-          {/* Delete button: might need in the future */}
-          {/* <Popconfirm
+          <Link to={`/payroll/template/${record.id}?tab=columns`}>
+            <Button title="Config this template" size="small">
+              <SettingOutlined />
+            </Button>
+          </Link>
+          <Popconfirm
             placement="right"
-            title={'Delete this employee?'}
+            title={'Delete this template?'}
             onConfirm={async () => {
-              await onCrudOperation(() => deleteEmployee(record.id), 'Cannot delete employee!');
+              await onCrudOperation(
+                () => deletePayrollTemplate(record.id),
+                'Detete successfully!',
+                'Cannot delete template!',
+              );
             }}
           >
-            <Button title="Delete this employee" size="small" danger>
+            <Button title="Delete this template" size="small" danger>
               <DeleteOutlined />
             </Button>
-          </Popconfirm> */}
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
+  const dict = {
+    title: {
+      create: 'Create template',
+      update: 'Create template',
+    },
+  };
+
   return (
-    <PageContainer title={false}>
-      <ProTable<RecordType, API.PageParams>
-        headerTitle="My attendance"
+    <PageContainer>
+      <ProTable<RecordType>
+        headerTitle={intl.formatMessage({
+          id: 'pages.admin.job.jobTitle.list.title',
+          defaultMessage: 'Tax Plans',
+        })}
         actionRef={actionRef}
         rowKey="id"
         search={false}
-        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
+            key="primary"
             onClick={() => {
-              setClockModalVisible(true);
+              setCrudModalVisible('create');
             }}
           >
-            <Space>
-              <PlusOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="New"
-              />
-            </Space>
+            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
           </Button>,
         ]}
         request={async () => {
-          const fetchData: any[] = [
-
-          ];
-
+          const data = await allPayrollTemplates();
           return {
+            data,
             success: true,
-            data: fetchData,
-            total: fetchData.length,
           };
         }}
         columns={columns}
       />
+      <ModalForm<RecordType>
+        title={dict.title[crudModalVisible]}
+        width="400px"
+        visible={crudModalVisible !== 'hidden'}
+        form={form}
+        onVisibleChange={(visible) => {
+          if (!visible) {
+            setCrudModalVisible('hidden');
+            form.resetFields();
+            return;
+          }
+          if (!selectedRecord) return;
+          if (crudModalVisible === 'update') {
+            form.setFieldsValue({
+              ...selectedRecord,
+            });
+          } else if (crudModalVisible === 'create') {
+            form.setFieldsValue({});
+          }
+        }}
+        onFinish={async (value) => {
+          const record = {
+            ...selectedRecord,
+            ...value,
+          };
+          if (crudModalVisible === 'create') {
+            record.fields = [];
+            await onCrudOperation(
+              () => createPayrollTemplate(record),
+              'Create successfully!',
+              'Create unsuccessfully!',
+            );
+          } else if (crudModalVisible === 'update') {
+            await onCrudOperation(
+              () => updatePayrollTemplate(record.id, record),
+              'Update successfully!',
+              'Update unsuccessfully!',
+            );
+          }
+          setCrudModalVisible('hidden');
+          form.resetFields();
+        }}
+        submitter={{
+          render: (props, defaultDoms) => {
+            return [
+              __DEV__ && (
+                <Button
+                  key="autoFill"
+                  onClick={() => {
+                    props.form?.setFieldsValue({
+                      name: 'Bảng lương chính',
+                    });
+                  }}
+                >
+                  Auto fill
+                </Button>
+              ),
+              ...defaultDoms,
+            ];
+          },
+        }}
+      >
+        <ProFormText rules={[{ required: true }]} name="name" label="Name" />
+      </ModalForm>
     </PageContainer>
   );
 };
 
-export default EmployeeAttendance;
+export default PayrollTemplate;

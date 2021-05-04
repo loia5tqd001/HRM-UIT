@@ -1,38 +1,57 @@
+import { readPayrollTemplate } from '@/services/payroll.template';
 import { PageContainer } from '@ant-design/pro-layout';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { history, useParams } from 'umi';
 import { GeneralInformation } from './GeneralInformation';
 import { PayrollColumns } from './PayrollColumns';
 
 export const List: React.FC = () => {
-  const [activeKey, setActiveKey] = useState('general-information');
+  const { tab } = history.location.query as {
+    tab: 'general' | 'columns' | 'payslip' | undefined;
+  };
+  if (tab === undefined) history.push('?tab=general');
 
-  const renderContent = (key: string) => {
-    if (key === 'general-information') return <GeneralInformation />;
-    if (key === 'payroll-columns') return <PayrollColumns />;
-    if (key === 'payslip-template') return <div>payslip-template</div>;
+  const { id } = useParams<any>();
+  const [payrollTemplate, setPayrollTemplate] = useState<API.PayrollTemplate>();
+
+  useEffect(() => {
+    readPayrollTemplate(id)
+      .then((fetchData) => {
+        setPayrollTemplate(fetchData);
+      })
+      // .catch(() => setPayrollTemplate(null));
+  }, [id]);
+
+  const renderContent = (key: string | undefined) => {
+    if (key === 'general') return <GeneralInformation payrollTemplate={payrollTemplate} />;
+    if (key === 'columns') return <PayrollColumns payrollTemplate={payrollTemplate} />;
+    if (key === 'payslip') return <div>payslip</div>;
     return null;
   };
 
   return (
     <PageContainer
-      title="Bảng lương chính"
+      title={payrollTemplate?.name}
       tabList={[
         {
           tab: 'General Information',
-          key: 'general-information',
+          key: 'general',
         },
         {
           tab: 'Payroll Columns',
-          key: 'payroll-columns',
+          key: 'columns',
         },
         {
           tab: 'Payslip Template',
-          key: 'payslip-template',
+          key: 'payslip',
         },
       ]}
-      onTabChange={(key) => setActiveKey(key)}
+      onTabChange={(key) => {
+        history.push(`?tab=${key}`);
+      }}
+      tabActiveKey={tab}
     >
-      {renderContent(activeKey)}
+      {renderContent(tab)}
     </PageContainer>
   );
 };

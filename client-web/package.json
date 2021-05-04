@@ -57,6 +57,7 @@
     "@umijs/plugin-openapi": "^1.0.1",
     "@umijs/route-utils": "^1.0.33",
     "antd": "^4.9.4",
+    "array-move": "^3.0.1",
     "classnames": "^2.2.6",
     "google-map-react": "^2.1.9",
     "immer": "^9.0.1",

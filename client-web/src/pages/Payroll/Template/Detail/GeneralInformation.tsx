@@ -1,47 +1,64 @@
+import { readPayrollTemplate, updatePayrollTemplate } from '@/services/payroll.template';
 import ProForm, { ProFormText } from '@ant-design/pro-form';
 import ProList from '@ant-design/pro-list';
-import { Card, Space, Tag } from 'antd';
+import { Card, Space, Tag, message } from 'antd';
+import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
-import React from 'react';
+import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { useParams } from 'umi';
 
-export const GeneralInformation: React.FC = () => {
-  const dataSource = [
-    {
-      name: 'Work day',
-      desc: 'Description: number of days of working',
-    },
-    {
-      name: 'Career change day',
-      desc: 'Description: no description',
-    },
-    {
-      name: 'Old stage salary',
-      desc: 'Description: the previous position salary',
-    },
-    {
-      name: 'Salary',
-      desc: 'Description: The current salary',
-    },
-  ];
+type Props = {
+  payrollTemplate: API.PayrollTemplate | undefined;
+};
+
+export const GeneralInformation: React.FC<Props> = (props) => {
+  const { payrollTemplate } = props;
+
+  // const dataSource = [
+  //   {
+  //     name: 'Work day',
+  //     desc: 'Description: number of days of working',
+  //   },
+  //   {
+  //     name: 'Career change day',
+  //     desc: 'Description: no description',
+  //   },
+  //   {
+  //     name: 'Old stage salary',
+  //     desc: 'Description: the previous position salary',
+  //   },
+  //   {
+  //     name: 'Salary',
+  //     desc: 'Description: The current salary',
+  //   },
+  // ];
 
   return (
     <div style={{ display: 'grid', gap: 24 }}>
-      <Card title="Information">
+      <Card title="Information" loading={!payrollTemplate}>
         <ProForm
           submitter={{
             searchConfig: {
               submitText: 'Update',
             },
           }}
+          initialValues={payrollTemplate!}
+          onFinish={async (value) => {
+            try {
+              await updatePayrollTemplate(payrollTemplate!.id, {
+                ...payrollTemplate,
+                ...value,
+              } as any);
+              message.success('Updated successfully!');
+            } catch {
+              message.error('Updated unsuccessfully!');
+            }
+          }}
         >
           <ProForm.Group>
-            <ProFormText
-              width="sm"
-              rules={[{ required: true, type: 'email' }]}
-              name="email"
-              label="Name"
-            />
-            <ProFormText
+            <ProFormText width="sm" rules={[{ required: true }]} name="name" label="Name" />
+            {/* <ProFormText
               width="sm"
               rules={[{ required: true }]}
               name="first_name"
@@ -59,7 +76,7 @@ export const GeneralInformation: React.FC = () => {
               rules={[{ required: true }]}
               name="last_name"
               label="Workflow"
-            />
+            /> */}
           </ProForm.Group>
         </ProForm>
       </Card>
@@ -67,7 +84,7 @@ export const GeneralInformation: React.FC = () => {
         <ProList<any>
           rowKey="name"
           headerTitle={false}
-          dataSource={dataSource}
+          // dataSource={dataSource}
           showActions="hover"
           showExtra="hover"
           toolBarRender={false}
