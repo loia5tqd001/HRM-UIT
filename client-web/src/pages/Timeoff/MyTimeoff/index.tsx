@@ -255,7 +255,7 @@ export const Timeoff: React.FC = () => {
           const start_date = moment(value.off_days![0]);
           const end_date = moment(value.off_days![1]);
           start_date.set({ hours: 23, minutes: 59 });
-          end_date.set({ hours: 23, minutes: 59 });
+          end_date.set({ hours: 0, minutes: 0 });
           const record = {
             ...value,
             start_date,
