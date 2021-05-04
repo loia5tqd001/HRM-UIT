@@ -12,7 +12,7 @@ import { colorText } from '../constants/Colors'
 import { ICON_IMG, SPACING } from '../constants/Layout'
 
 interface DetailProps {
-  imgUri: ImageURISource
+  imgUri: string
   name: string
   time?: string
 }
@@ -21,7 +21,7 @@ const DetailInformation = ({ imgUri, name }: DetailProps) => {
   return (
     <>
       <Image
-        source={imgUri}
+        source={{uri:imgUri}}
         style={{
           width: 100,
           height: 100,
