@@ -19,7 +19,7 @@ import {
   RollbackOutlined,
   WomanOutlined,
 } from '@ant-design/icons';
-import type { ProColumns } from '@ant-design/pro-table';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import {
   Button,
@@ -62,7 +62,7 @@ type RecordType = API.AttendanceEmployee & {
 
 const EmployeeAttendance: React.FC = () => {
   const intl = useIntl();
-  const { actionRef } = useModel('employee');
+  const actionRef = useRef<ActionType>();
   const [clockModalVisible, setClockModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();

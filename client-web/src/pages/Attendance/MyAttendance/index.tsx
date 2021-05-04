@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
-import type { ProColumns } from '@ant-design/pro-table';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
@@ -29,7 +29,7 @@ type CurrentLocation = {
 
 const MyAttendance: React.FC = () => {
   const intl = useIntl();
-  const { actionRef } = useModel('employee');
+  const actionRef = useRef<ActionType>();
   const [clockModalVisible, setClockModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
@@ -82,9 +82,10 @@ const MyAttendance: React.FC = () => {
       }: typeof schedule.workdays[0]) => {
         let hours = 0;
         if (morning_from && morning_to)
-          hours += moment.duration(morning_to.diff(morning_from)).asHours() % 24;
+          hours += moment.duration(moment(morning_to).diff(moment(morning_from))).asHours() % 24;
         if (afternoon_from && afternoon_to)
-          hours += moment.duration(afternoon_to.diff(afternoon_from)).asHours() % 24;
+          hours +=
+            moment.duration(moment(afternoon_to).diff(moment(afternoon_from))).asHours() % 24;
         return Number(hours.toFixed(1));
       };
 
@@ -341,23 +342,7 @@ const MyAttendance: React.FC = () => {
               !currentLocationRef.current?.allow_outside
             }
             onClick={async () => {
-              if (currentLocationRef.current?.office === 'Outside') {
-                setClockModalVisible(true);
-              } else {
-                try {
-                  const { lat, lng } = currentLocationRef.current!;
-                  if (nextStep === 'Clock in') {
-                    await checkIn(id, { check_in_lat: lat, check_in_lng: lng });
-                    message.success('Clocked in successfully');
-                  } else {
-                    await checkOut(id, { check_out_lat: lat, check_out_lng: lng });
-                    message.success('Clocked out successfully');
-                  }
-                  actionRef.current?.reload();
-                } catch {
-                  message.error(`${nextStep} unsuccessfully`);
-                }
-              }
+              setClockModalVisible(true);
             }}
             loading={!nextStep}
           >
@@ -372,122 +357,9 @@ const MyAttendance: React.FC = () => {
           </Button>,
         ]}
         request={async () => {
-          // const fetchData = [
-          //   {
-          //     id: 1,
-          //     type: 'AttendanceDay',
-          //     date: moment('08:00', 'hh:mm'),
-          //     check_in: moment('08:00', 'hh:mm'),
-          //     check_in_note: 'Em di som',
-          //     check_in_location: 'Hawaii',
-          //     check_out: moment('20:00', 'hh:mm'),
-          //     check_out_note: 'Em OT',
-          //     check_out_location: 'Outside',
-          //     hours_work_by_schedule: '8h',
-          //     actual: '8h',
-          //     decifit: 0,
-          //     overtime: '1h30m',
-          //     status: 'Approved',
-          //     edited_by: 1,
-          //     edited_when: moment(),
-          //     edited_to: '10h',
-          //     children: [
-          //       {
-          //         id: 2,
-          //         date: undefined,
-          //         check_in: moment('08:00', 'hh:mm'),
-          //         check_in_note: 'Em di som',
-          //         check_in_location: 'Hawaii',
-          //         check_out: moment('12:00', 'hh:mm'),
-          //         check_out_note: undefined,
-          //         check_out_location: 'Outside',
-          //         hours_work_by_schedule: undefined,
-          //         actual: undefined,
-          //         overtime: undefined,
-          //         status: undefined,
-          //         edited_by: undefined,
-          //         edited_when: undefined,
-          //         edited_to: undefined,
-          //       },
-          //       {
-          //         id: 2,
-          //         date: undefined,
-          //         check_in: moment('13:00', 'hh:mm'),
-          //         check_in_note: undefined,
-          //         check_in_location: 'Outside',
-          //         check_out: moment('17:00', 'hh:mm'),
-          //         check_out_note: undefined,
-          //         check_out_location: 'Outside',
-          //         hours_work_by_schedule: undefined,
-          //         actual: undefined,
-          //         overtime: undefined,
-          //         status: undefined,
-          //         edited_by: undefined,
-          //         edited_when: undefined,
-          //         edited_to: undefined,
-          //       },
-          //       {
-          //         id: 2,
-          //         date: undefined,
-          //         check_in: moment('18:30', 'hh:mm'),
-          //         check_in_note: undefined,
-          //         check_in_location: 'Outside',
-          //         check_out: moment('20:00', 'hh:mm'),
-          //         check_out_note: undefined,
-          //         check_out_location: 'Outside',
-          //         hours_work_by_schedule: undefined,
-          //         actual: undefined,
-          //         overtime: 'OT ngoài giờ',
-          //         status: undefined,
-          //         edited_by: undefined,
-          //         edited_when: undefined,
-          //         edited_to: undefined,
-          //       },
-          //     ],
-          //   },
-          //   {
-          //     id: 3,
-          //     type: 'AttendanceDay',
-          //     date: moment('08:00', 'hh:mm'),
-          //     check_in: moment('08:00', 'hh:mm'),
-          //     check_in_note: 'Em di som',
-          //     check_in_location: 'Hawaii',
-          //     check_out: moment('20:00', 'hh:mm'),
-          //     check_out_note: 'Em OT',
-          //     check_out_location: 'Outside',
-          //     hours_work_by_schedule: '8h',
-          //     actual: '8h',
-          //     decifit: 0,
-          //     overtime: '1h30m',
-          //     status: 'Pending',
-          //     edited_by: 1,
-          //     edited_when: moment(),
-          //     edited_to: '10h',
-          //     children: [
-          //       {
-          //         id: 2,
-          //         date: undefined,
-          //         check_in: moment('08:00', 'hh:mm'),
-          //         check_in_note: 'Em di som',
-          //         check_in_location: 'Hawaii',
-          //         check_out: moment('12:00', 'hh:mm'),
-          //         check_out_note: undefined,
-          //         check_out_location: 'Outside',
-          //         hours_work_by_schedule: undefined,
-          //         actual: undefined,
-          //         overtime: undefined,
-          //         status: undefined,
-          //         edited_by: undefined,
-          //         edited_when: undefined,
-          //         edited_to: undefined,
-          //       },
-          //     ],
-          //   },
-          // ];
-
           const fetchData = await readAttendances(initialState!.currentUser!.id);
           // Handle for today data
-          const todayData = fetchData.find((it) => it.date === moment().format('YYYY-MM-DD'));
+          const todayData = fetchData.find((it) => moment(it.date).isSame(moment(), 'day'));
           if (todayData) {
             if (todayData.tracking_data.length) {
               // Handle for: firstClock, lastClockOut, lastAction, nextStep
@@ -517,10 +389,11 @@ const MyAttendance: React.FC = () => {
           const data = fetchData.map((it) => {
             const first_check_in = it.tracking_data[0];
             const last_check_out = it.tracking_data[it.tracking_data.length - 1];
+
             return {
               ...it,
               type: 'AttendanceDay',
-              date: moment(it.date, 'YYYY-MM-DD'),
+              date: moment(it.date),
               check_in: first_check_in?.check_in_time,
               check_in_note: first_check_in?.check_in_time && first_check_in?.check_in_note,
               check_in_location:
@@ -535,7 +408,7 @@ const MyAttendance: React.FC = () => {
               actual: formatDurationHm(it.actual_work_hours * 3600),
               // decifit: 0,
               overtime: it.ot_work_hours, // formatDurationHm(it.ot_work_hours * 3600),
-              children: it.tracking_data.map((x) => {
+              children: it.tracking_data?.map((x) => {
                 return {
                   ...x,
                   id: x.check_in_time,
@@ -588,12 +461,11 @@ const MyAttendance: React.FC = () => {
               });
               message.success('Clocked out successfully');
             }
-            actionRef.current?.reload();
           } catch {
             message.error(`${nextStep} unsuccessfully`);
           }
-
           setClockModalVisible(false);
+          actionRef.current?.reload();
         }}
         onVisibleChange={(visible) => setClockModalVisible(visible)}
       >
@@ -603,7 +475,14 @@ const MyAttendance: React.FC = () => {
             ? 'Outside the designated area'
             : currentLocationRef.current?.office}
         </Space>
-        <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
+        <ProFormTextArea
+          width="md"
+          rules={
+            currentLocationRef.current?.office === 'Outside' ? [{ required: true }] : undefined
+          }
+          name="note"
+          label="Note"
+        />
       </ModalForm>
       <ModalForm
         visible={editModalVisible}

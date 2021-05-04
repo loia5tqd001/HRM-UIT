@@ -21,7 +21,7 @@ import {
 } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
-import type { ProColumns } from '@ant-design/pro-table';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
@@ -40,7 +40,7 @@ type CurrentLocation = {
 
 const MyAttendance: React.FC = () => {
   const intl = useIntl();
-  const { actionRef } = useModel('employee');
+  const actionRef = useRef<ActionType>();
   const [clockModalVisible, setClockModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
