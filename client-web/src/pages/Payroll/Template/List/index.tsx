@@ -45,6 +45,9 @@ export const PayrollTemplate: React.FC = () => {
     {
       title: 'Name',
       dataIndex: 'name',
+      renderText: (it, record) => (
+        <Link to={`/payroll/template/${record.id}?tab=columns`}>{it}</Link>
+      ),
     },
     {
       title: 'Actions',

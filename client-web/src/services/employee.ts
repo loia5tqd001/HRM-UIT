@@ -324,12 +324,12 @@ export async function approveEmployeeAttendance(
   });
 }
 
-export async function rejectEmployeeAttendance(
+export async function revertEmployeeAttendance(
   employeeId: number,
   id: number,
   options?: { [key: string]: any },
 ) {
-  return request(`${endpoint}${employeeId}/attendance/${id}/reject/`, {
+  return request(`${endpoint}${employeeId}/attendance/${id}/revert/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -338,12 +338,12 @@ export async function rejectEmployeeAttendance(
   });
 }
 
-export async function cancelEmployeeAttendance(
+export async function confirmEmployeeAttendance(
   employeeId: number,
   id: number,
   options?: { [key: string]: any },
 ) {
-  return request(`${endpoint}${employeeId}/attendance/${id}/cancel/`, {
+  return request(`${endpoint}${employeeId}/attendance/${id}/confirm/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -39,6 +39,7 @@ export default {
   'menu.attendance': 'Attendance',
   'menu.attendance.me': 'My Attendance',
   'menu.attendance.list': 'Employee Attendance',
+  'menu.attendance.detail': 'Detail',
   'menu.attendance.import': 'Import',
   'menu.attendance.configuration': 'Configuration',
   'menu.attendance.configuration.office': 'Office',

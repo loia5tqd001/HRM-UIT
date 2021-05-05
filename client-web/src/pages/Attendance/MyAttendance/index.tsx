@@ -257,6 +257,10 @@ const MyAttendance: React.FC = () => {
           text: 'Pending',
           status: 'Warning',
         },
+        Confirmed: {
+          text: 'Confirmed',
+          status: 'Success',
+        },
       },
     },
     // {

@@ -36,17 +36,31 @@ const EditableCell = ({
   handleSave,
   ...restProps
 }) => {
+  const [editing, setEditing] = useState(false);
   const inputRef = useRef(null);
   const form = useContext(EditableContext);
+  useEffect(() => {
+    if (editing) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
+
+  const toggleEdit = () => {
+    setEditing(!editing);
+    form.setFieldsValue({
+      [dataIndex]: record[dataIndex],
+    });
+  };
 
   const save = async () => {
     try {
       const values = await form.validateFields();
+      toggleEdit();
       form.setFieldsValue({
         ...record,
         ...values,
       });
-      // handleSave({ ...record, ...values });
+      handleSave({ ...record, ...values });
     } catch (errInfo) {
       console.log('Save failed:', errInfo);
     }
@@ -134,9 +148,9 @@ const DraggableBodyRow = ({ className, style, ...restProps }) => {
 
   if (form && record) form.setFieldsValue(record);
   // console.log('>  ~ file: PayrollColumns.tsx ~ line 144 ~ restProps', restProps.children[0]?.props.record)
-  const { tableDataRef } = useContext(TableContext);
+  const { tableData } = useContext(TableContext);
   // function findIndex base on Table rowKey props and should always be a right array index
-  const index = tableDataRef.current?.findIndex((x) => x.index === restProps['data-row-key']);
+  const index = tableData?.findIndex((x) => x.index === restProps['data-row-key']);
   return (
     <Form form={form} component={false} name={`${record?.name}_${record?.index}`}>
       <EditableContext.Provider value={form}>
@@ -147,7 +161,7 @@ const DraggableBodyRow = ({ className, style, ...restProps }) => {
 };
 
 function SortableTable() {
-  const { tableDataReady, tableDataRef, forceRender } = useContext<any>(TableContext);
+  const { tableDataReady, tableData, setTableData } = useContext<any>(TableContext);
 
   const columns = [
     {
@@ -182,7 +196,7 @@ function SortableTable() {
       title: 'Actions',
       dataIndex: 'actions',
       render: (_, record) =>
-        tableDataRef.current.length >= 1 ? (
+        tableData.length >= 1 ? (
           <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
             <a>Delete</a>
           </Popconfirm>
@@ -192,12 +206,10 @@ function SortableTable() {
 
   const onSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex !== newIndex) {
-      tableDataRef.current = arrayMove([...tableDataRef.current], oldIndex, newIndex)
+      const newData = arrayMove([...tableData], oldIndex, newIndex)
         .filter((el) => !!el)
         .map((it: any, index) => ({ ...it, index }));
-      forceRender();
-      // console.log('Sorted items: ', newData);
-      // setTableData(newData);
+      setTableData(newData);
     }
   };
 
@@ -212,24 +224,27 @@ function SortableTable() {
   );
 
   const handleDelete = (key) => {
-    const dataSource = [...tableDataRef.current];
-    tableDataRef.current = dataSource.filter((item) => item.key !== key);
+    const dataSource = [...tableData];
+    const newData = dataSource.filter((item) => item.key !== key);
+    setTableData(newData);
   };
   const handleAdd = () => {
-    const count = tableDataRef.current.length;
+    const count = tableData.length;
     const newData = {
       key: count,
       name: `Edward King ${count}`,
       age: '32',
       address: `London, Park Lane no. ${count}`,
     };
-    tableDataRef.current = [...tableDataRef.current, newData];
+    setTableData([...tableData, newData]);
   };
 
   const handleSave = (row) => {
+    const newData = [...tableData];
     const { index } = row;
-    const item = tableDataRef.current[index];
-    tableDataRef.current.splice(index, 1, { ...item, ...row });
+    const item = newData[index];
+    newData.splice(index, 1, { ...item, ...row });
+    setTableData(newData);
   };
 
   // console.log(tableData);
@@ -238,7 +253,7 @@ function SortableTable() {
     <Table
       pagination={false}
       loading={!tableDataReady}
-      dataSource={tableDataRef.current}
+      dataSource={tableData}
       columns={columns.map((col) => {
         if (!col.editable) {
           return col;
@@ -410,52 +425,18 @@ type Props = {
 export const PayrollColumns: React.FC<Props> = (props) => {
   const { payrollTemplate } = props;
   const [systemFields, setSystemFields] = useState<API.SystemField[]>();
-  // const [tableData, setTableData] = useState<any>(payrollTemplate?.fields || []);
-  const tableDataRef = useRef<any>();
-  const [_, forceRender] = useReducer((x) => x + 1, 0);
+  const [tableData, setTableData] = useState<any>([]);
 
   useEffect(() => {
-    // setTableData(
-    //   sortBy(payrollTemplate?.fields, 'index').map((it, index) => ({ ...it, index })) || [],
-    // );
-    tableDataRef.current =
-      sortBy(payrollTemplate?.fields, 'index').map((it, index) => ({ ...it, index })) || [];
+    setTableData(
+      sortBy(payrollTemplate?.fields, 'index').map((it, index) => ({ ...it, index })) || [],
+    );
   }, [payrollTemplate?.fields]);
-  // const [tableData, setTableData] = useState<any>([
-  //   {
-  //     key: '1',
-  //     name: 'John Brown',
-  //     age: 32,
-  //     address: 'New York No. 1 Lake Park',
-  //     index: 0,
-  //   },
-  //   {
-  //     key: '2',
-  //     name: 'Jim Green',
-  //     age: 42,
-  //     address: 'London No. 1 Lake Park',
-  //     index: 1,
-  //   },
-  //   {
-  //     key: '3',
-  //     name: 'Joe Black',
-  //     age: 32,
-  //     address: 'Sidney No. 1 Lake Park',
-  //     index: 2,
-  //   },
-  // ]);
 
   useEffect(() => {
     allPayrollSystemFields().then((fetchData) => setSystemFields(fetchData));
   }, []);
 
-  const [visible, setVisible] = useState(true);
-  const showDrawer = () => {
-    setVisible(true);
-  };
-  const onClose = () => {
-    setVisible(false);
-  };
   const [collapsed, setCollapse] = useState(false);
 
   const resizerCss = {
@@ -475,7 +456,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
 
   return (
     <TableContext.Provider
-      value={{ tableDataRef, forceRender, tableDataReady: !!payrollTemplate?.fields }}
+      value={{ tableData, setTableData, tableDataReady: !!payrollTemplate?.fields }}
     >
       <div style={{ display: 'grid', gap: 24 }}>
         {/* <Button onClick={() => setVisible(!visible)}>Toggle</Button> */}
@@ -521,18 +502,16 @@ export const PayrollColumns: React.FC<Props> = (props) => {
               renderItem={(item, index) => (
                 <List.Item
                   onClick={(e) => {
-                    tableDataRef.current = [
-                      ...tableDataRef.current,
+                    setTableData([
+                      ...tableData,
                       {
                         type: 'System Field',
                         code_name: systemFields?.[index].code_name,
                         define: '',
                         display_name: systemFields?.[index].name,
-                        index: tableDataRef.current.length,
+                        index: tableData.length,
                       },
-                    ];
-                    console.log('yes');
-                    forceRender();
+                    ]);
                   }}
                   className={styles.listItem}
                 >

@@ -39,6 +39,7 @@ export default {
   'menu.attendance': 'Bảng công',
   'menu.attendance.me': 'Chấm công của tôi',
   'menu.attendance.list': 'Chấm công nhân viên',
+  'menu.attendance.detail': 'Chi tiết',
   'menu.attendance.import': 'Import',
   'menu.attendance.configuration': 'Tuỳ chỉnh',
   'menu.attendance.configuration.office': 'Văn phòng làm việc',

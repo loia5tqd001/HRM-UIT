@@ -244,6 +244,8 @@
       {
         path: '/attendance/detail/:id',
         component: './Attendance/EmployeeAttendanceDetail',
+        name: 'detail',
+        hideInMenu: true,
       },
       { path: '/attendance/import', name: '__import', icon: 'import', component: './Welcome' },
       {

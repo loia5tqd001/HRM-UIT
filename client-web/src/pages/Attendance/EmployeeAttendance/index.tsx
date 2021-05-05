@@ -2,7 +2,9 @@ import {
   allEmployees,
   approveEmployeeAttendance,
   cancelEmployeeAttendance,
+  confirmEmployeeAttendance,
   rejectEmployeeAttendance,
+  revertEmployeeAttendance,
 } from '@/services/employee';
 import {
   CheckCircleOutlined,
@@ -33,7 +35,7 @@ import {
   TimePicker,
   Tooltip,
 } from 'antd';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { FormattedMessage, Link, useIntl, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -67,8 +69,9 @@ const EmployeeAttendance: React.FC = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
   const [editedTime, setEditedTime] = useState();
-  const [selectedRowsState, setSelectedRows] = useState<RecordType[]>([]);
+  const [selectedRows, setSelectedRows] = useState<RecordType[]>([]);
   const [attendanceKeys, setAttendanceKeys] = useState<string[]>([]);
+  const backendData = useRef<any>();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -291,9 +294,26 @@ const EmployeeAttendance: React.FC = () => {
         }}
         toolBarRender={() => [
           <Button
-            onClick={() => {
-              setClockModalVisible(true);
+            onClick={async () => {
+              const bulkApprove = Promise.all(
+                selectedRows
+                  .flatMap((it) => it.attendance)
+                  .filter((it) => it.status === 'Pending')
+                  .map((it) => approveEmployeeAttendance(it.owner, it.id)),
+              );
+              try {
+                await bulkApprove;
+                message.success('Approve successfully!');
+                actionRef.current?.reload();
+              } catch (err) {
+                message.error('Some error occurred!');
+                console.log(err);
+              }
             }}
+            disabled={
+              selectedRows.flatMap((it) => it.attendance).filter((it) => it.status === 'Pending')
+                .length === 0
+            }
           >
             <Space>
               <CheckOutlined />
@@ -304,10 +324,26 @@ const EmployeeAttendance: React.FC = () => {
             </Space>
           </Button>,
           <Button
-            onClick={() => {
-              setClockModalVisible(true);
+            onClick={async () => {
+              const bulkRevert = Promise.all(
+                selectedRows
+                  .flatMap((it) => it.attendance)
+                  .filter((it) => it.status === 'Approved')
+                  .map((it) => revertEmployeeAttendance(it.owner, it.id)),
+              );
+              try {
+                await bulkRevert;
+                message.success('Revert successfully!');
+                actionRef.current?.reload();
+              } catch (err) {
+                message.error('Some error occurred!');
+                console.log(err);
+              }
             }}
-            danger
+            disabled={
+              selectedRows.flatMap((it) => it.attendance).filter((it) => it.status === 'Approved')
+                .length === 0
+            }
           >
             <Space>
               <RollbackOutlined />
@@ -318,9 +354,27 @@ const EmployeeAttendance: React.FC = () => {
             </Space>
           </Button>,
           <Button
-            onClick={() => {
-              setClockModalVisible(true);
+            onClick={async () => {
+              const bulkConfirm = Promise.all(
+                selectedRows
+                  .flatMap((it) => it.attendance)
+                  .filter((it) => it.status !== 'Confirmed')
+                  .map((it) => confirmEmployeeAttendance(it.owner, it.id)),
+              );
+              try {
+                await bulkConfirm;
+                message.success('Confirm successfully!');
+                actionRef.current?.reload();
+              } catch (err) {
+                message.error('Some error occurred!');
+                console.log(err);
+              }
             }}
+            disabled={
+              selectedRows.flatMap((it) => it.attendance).filter((it) => it.status !== 'Confirmed')
+                .length === 0
+            }
+            type="primary"
           >
             <Space>
               <CheckCircleOutlined />
@@ -333,6 +387,7 @@ const EmployeeAttendance: React.FC = () => {
         ]}
         request={async () => {
           let data: RecordType[] = await allAttendances();
+          backendData.current = data;
           setAttendanceKeys(
             uniq(
               data.flatMap((it) => it.attendance.flatMap((x) => moment(x.date).format('DD MMM'))),
@@ -361,70 +416,6 @@ const EmployeeAttendance: React.FC = () => {
               ),
             };
           });
-
-          // const fetchData = [
-          //   {
-          //     id: 1,
-          //     employee: {
-          //       id: 1,
-          //       first_name: 'Nguyen',
-          //       last_name: 'Huynh Loi',
-          //       avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
-          //     },
-          //     actual: 250000,
-          //     work_schedule: 288000,
-          //     status: {
-          //       pending: 5,
-          //       approved: 6,
-          //       confirmed: 0,
-          //     },
-          //     attendances: {
-          //       'Apr 5': 28800,
-          //       'Apr 6': 28800,
-          //       'Apr 7': 28800,
-          //       'Apr 8': 28800,
-          //       'Apr 9': 28800,
-          //       'Apr 10': 28800,
-          //       'Apr 11': 28800,
-          //       'Apr 12': 28800,
-          //       'Apr 13': 28800,
-          //       'Apr 14': 28800,
-          //       'Apr 15': 28800,
-          //       'Apr 16': 28800,
-          //       'Apr 17': 28800,
-          //       'Apr 18': 28800,
-          //       'Apr 19': 28800,
-          //     },
-          //   },
-          //   {
-          //     id: 2,
-          //     employee: {
-          //       id: 2,
-          //       first_name: 'Dao',
-          //       last_name: 'Manh Dung',
-          //       avatar: 'https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png',
-          //     },
-          //     actual: 280000,
-          //     work_schedule: 288000,
-          //     status: {
-          //       pending: 1,
-          //       approved: 6,
-          //       confirmed: 2,
-          //     },
-          //     attendances: {
-          //       'Apr 10': 28800,
-          //       'Apr 11': 28800,
-          //       'Apr 12': 28800,
-          //       'Apr 13': 28800,
-          //       'Apr 14': 25000,
-          //       'Apr 15': 28800,
-          //       'Apr 16': 28800,
-          //       'Apr 17': 28800,
-          //       'Apr 18': 28800,
-          //       'Apr 19': 28800,
-          //     },
-          //   },
-          // ];
 
           return {
             success: true,
