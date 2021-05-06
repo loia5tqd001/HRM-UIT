@@ -8,6 +8,8 @@ import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler'
 import { ListHistory } from '../components/ListHistory'
 import ModalTimeOff from '../components/ModalTimeOff'
 import { ListTimeOff, STATE } from '../constants/type'
+import { useContext } from 'react'
+import { AuthContext } from '../Context/AuthContext'
 
 export type TypeTimeOff = {
   label: string
@@ -26,7 +28,11 @@ export default function TabTwoScreen() {
 
   // const [typeOff, setTypeOff] = React.useState([])
 
+  const { user } = useContext(AuthContext)
+  
   React.useEffect(() => {
+    console.log("user",user);
+    
     setState(STATE.LOADING)
     getListTimeOff().then(() => {
       setState(STATE.LOADED)

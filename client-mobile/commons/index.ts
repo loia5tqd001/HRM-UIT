@@ -25,7 +25,7 @@ export const storeInfoUser = async (value: string) => {
   }
 };
 
-const getData = async (name: string) => {
+export const getDataAsync = async (name: string) => {
   try {
     const value = await AsyncStorage.getItem(name);
     if (value !== null) {
@@ -37,7 +37,7 @@ const getData = async (name: string) => {
   }
 };
 
-const clearData = async () => {
+export const clearDataAsync = async () => {
   try {
     await AsyncStorage.clear();
   } catch (e) {

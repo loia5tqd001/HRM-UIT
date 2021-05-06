@@ -22,14 +22,19 @@ import { BASE_URL } from '../constants/confgi'
 import { AuthContext } from '../Context/AuthContext'
 import { storeAccessToken, storeRefreshToken, storeInfoUser } from '../commons'
 import { STATE } from '../constants/type'
+import { FancyAlert } from 'react-native-expo-fancy-alerts'
 const { width } = Dimensions.get('window')
-
 
 const LoginScreen = ({ navigation }: { navigation: any }) => {
   const [user, onChangeUser] = React.useState<string | undefined>('')
   const [password, onChangePassword] = React.useState<string | undefined>('')
 
   const [state, setState] = useState<STATE>(STATE.IDLE)
+
+  const [visible, setVisible] = useState<{ show: boolean; text: string }>({
+    show: false,
+    text: '',
+  })
 
   const { setUser } = useContext(AuthContext)
   const checkLogin = () => {
@@ -45,6 +50,8 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
 
         storeAccessToken(access)
         storeRefreshToken(refresh)
+
+        setVisible({ show: true, text: 'Success Login' })
 
         return access
       })
@@ -62,7 +69,10 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
 
             setState(STATE.LOADED)
           })
-          .then(() => navigation.navigate('Root'))
+          // .then(() => setVisible({ show: true, text: 'Success Login' }))
+          .then(() => setTimeout(() => {
+            navigation.navigate('Root')
+          }, 1000))
           .catch((er) => {
             setState(STATE.ERROR)
             console.log('err', er)
@@ -70,7 +80,14 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
       })
       .catch((er) => {
         console.log('er', er)
+        // setVisible({ ...visible, show: true })
+        setVisible({ show: true, text: 'Something went wrong!!' })
         setState(STATE.ERROR)
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setVisible({ ...visible, show: false })
+        }, 1000)
       })
   }
 
@@ -143,8 +160,9 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
       {/* Modal */}
       <Modal
         animationType="slide"
-        transparent={true}
-        visible={state === STATE.LOADING ? true : false}
+        transparent={false}
+        visible={ false}
+        // visible={state === STATE.LOADING ? true : false}
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
@@ -152,6 +170,31 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Alert */}
+      <FancyAlert
+        visible={visible.show}
+        onRequestClose={() => {}}
+        icon={
+          <View
+            style={{
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'red',
+              borderRadius: 50,
+              width: '100%',
+            }}
+          >
+            <Text>🤓</Text>
+          </View>
+        }
+        style={{ backgroundColor: 'white' }}
+      >
+        <Text style={{ marginTop: -16, marginBottom: 32 }}>{visible.text}</Text>
+      </FancyAlert>
+      {/* Alert */}
     </SafeAreaView>
   )
 }

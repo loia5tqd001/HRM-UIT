@@ -7,7 +7,14 @@ import { TypeTimeOff } from '../screens/TabTwoScreen'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Platform } from 'react-native'
 import { TextInput } from 'react-native'
-import { GET_WIDTH } from '../constants/confgi'
+import { BASE_URL, GET_WIDTH } from '../constants/confgi'
+import DateTimePickerModal from 'react-native-modal-datetime-picker'
+import { preventAutoHide } from 'expo-splash-screen'
+import moment from 'moment'
+import axios from 'axios'
+import { useContext } from 'react'
+import { AuthContext } from '../Context/AuthContext'
+import { getDataAsync } from '../commons'
 
 type TypeModal = {
   show: boolean
@@ -15,17 +22,73 @@ type TypeModal = {
   items: TypeTimeOff[]
   setItems: React.Dispatch<React.SetStateAction<TypeTimeOff[]>>
 }
+
+const widthDefault = GET_WIDTH - 110
+
 const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
   const [open, setOpen] = useState<boolean>(false)
   const [value, setValue] = useState<string>('')
-  const [date, setDate] = useState(new Date(1598051730000))
+  const [showPickDate, setShowPickDate] = useState({ show: false, type: 1 })
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
   //   const [show, setShow] = useState(false);
 
+  const { user } = useContext(AuthContext)
+
   const [noteValue, setNoteValue] = useState<string>('')
+
+  const setDate = (date: Date) => {
+    if (showPickDate.type == 1) {
+      var m = moment(date).utcOffset(0)
+      m.set({ hour: 6, minute: 59, second: 0 })
+      m.toISOString()
+
+      setStartDate(m.toISOString())
+    } else {
+      var m = moment(date).utcOffset(0)
+      m.set({ hour: 7, minute: 0, second: 0 })
+      m.toISOString()
+
+      setEndDate(m.toISOString())
+    }
+    setShowPickDate({ ...showPickDate, show: false })
+  }
+
+  const submitData = async () => {
+    console.log('data', {
+      time_off_type: value,
+      start_date: startDate,
+      end_date: endDate,
+      note: noteValue,
+    })
+
+    const dataSubmit = {
+      time_off_type: value,
+      start_date: startDate,
+      end_date: endDate,
+      note: noteValue,
+    }
+    const token = await getDataAsync('token');
+    console.log("token",token);
+    
+
+    console.log('ủl', `${BASE_URL}/employees/${user.id}/time_off/ `)
+
+    await axios
+      .post(`${BASE_URL}/employees/${user.id}/time_off/ `, dataSubmit, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log('res', res)
+      })
+      .catch((er) => console.log('er', er))
+  }
   return (
     <Modal animationType="slide" transparent={true} visible={show}>
       <View style={styles.centeredView}>
-        <View style={[styles.modalView, { minWidth: GET_WIDTH - 110 }]}>
+        <View style={[styles.modalView, { minWidth: widthDefault }]}>
           <DropDownPicker
             open={open}
             value={value}
@@ -35,38 +98,72 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
             setOpen={setOpen}
           />
 
-          <View
-            style={{
-              padding: 10,
-              width: '100%',
-              minWidth: GET_WIDTH - 110,
-              borderColor: '#000',
-              borderWidth: 0.3,
-              marginVertical: 10,
-            }}
-          >
+          {/* Date Picker */}
+          <View style={styles.timeContain}>
+            {/* Start Date */}
+            <View style={styles.pickDate}>
+              <TouchableOpacity
+                style={styles.buttonRed}
+                onPress={() => setShowPickDate({ show: true, type: 1 })}
+              >
+                <Text style={{ color: 'white' }}>Start Date</Text>
+              </TouchableOpacity>
+
+              <Text style={{ color: 'black', padding: 10 }}>{startDate}</Text>
+            </View>
+            {/* End date */}
+            <View style={styles.pickDate}>
+              <TouchableOpacity
+                style={styles.buttonRed}
+                onPress={() => setShowPickDate({ show: true, type: 2 })}
+              >
+                <Text style={{ color: 'white' }}>End Date</Text>
+              </TouchableOpacity>
+
+              <Text style={{ color: 'black', padding: 10 }}>{endDate}</Text>
+            </View>
+          </View>
+
+          <DateTimePickerModal
+            isVisible={showPickDate.show}
+            mode="date"
+            onConfirm={(date) => setDate(date)}
+            onCancel={() => setShowPickDate({ ...showPickDate, show: false })}
+          />
+
+          {/* Date Pick */}
+
+          {/* Note */}
+          <View style={styles.noteContain}>
             <TextInput
-              style={{ height: 40 }}
-              numberOfLines={3}
-              placeholder="Type here to translate!"
+              style={{ height: 60 }}
+              numberOfLines={5}
+              placeholder="Type here!"
               onChangeText={(text: string) => setNoteValue(text)}
               value={noteValue}
+              multiline={true}
             />
-           
           </View>
-          {/* <Text>{noteValue}</Text> */}
+
+          {/* Footer */}
           <View
             style={{
-              backgroundColor: '#C61D1D',
-              alignSelf: 'flex-end',
-              marginVertical: 10,
-              padding: 10,
-              borderRadius: 5,
+              flexDirection: 'row',
+              width: widthDefault,
+              justifyContent: 'flex-end',
             }}
           >
-            <TouchableOpacity onPress={() => setShow(false)}>
-              <Text style={{ color: 'white' }}>Cancel</Text>
-            </TouchableOpacity>
+            {/* Cancel Button */}
+            <View style={styles.buttonSubmit}>
+              <TouchableOpacity onPress={() => submitData()}>
+                <Text style={{ color: 'white' }}>Submit</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.buttonCancel}>
+              <TouchableOpacity onPress={() => setShow(false)}>
+                <Text style={{ color: 'white' }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
@@ -105,5 +202,43 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     // fontSize: 22,
     fontWeight: '600',
+  },
+  timeContain: {
+    flexDirection: 'row',
+    width: widthDefault,
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  pickDate: {
+    marginVertical: 10,
+    maxWidth: widthDefault / 2,
+  },
+  buttonRed: {
+    backgroundColor: '#C61D1D',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonCancel: {
+    backgroundColor: '#C61D1D',
+    alignSelf: 'flex-end',
+    marginVertical: 10,
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonSubmit: {
+    backgroundColor: '#2196F3',
+    alignSelf: 'flex-end',
+    marginVertical: 10,
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  noteContain: {
+    padding: 10,
+    width: '100%',
+    minWidth: widthDefault,
+    borderColor: '#000',
+    borderWidth: 0.3,
+    marginVertical: 10,
   },
 })
