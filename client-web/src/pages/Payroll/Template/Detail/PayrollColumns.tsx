@@ -268,12 +268,13 @@ function SortableTable() {
 
 type Props = {
   payrollTemplate: API.PayrollTemplate | undefined;
+  onUpdateColumns: (fields: API.PayrollTemplate['fields']) => Promise<void>;
 };
 
 export const PayrollColumns: React.FC<Props> = (props) => {
-  const { payrollTemplate } = props;
+  const { payrollTemplate, onUpdateColumns } = props;
   const [systemFields, setSystemFields] = useState<API.SystemField[]>();
-  const [tableData, setTableData] = useState<any>([]);
+  const [tableData, setTableData] = useState<API.PayrollTemplate['fields']>([]);
 
   useEffect(() => {
     setTableData(
@@ -308,7 +309,24 @@ export const PayrollColumns: React.FC<Props> = (props) => {
     >
       <div style={{ display: 'grid', gap: 24 }}>
         {/* <Button onClick={() => setVisible(!visible)}>Toggle</Button> */}
-        <Card title="Columns configuration" style={{ minHeight: '100vh', height: '100%' }}>
+        <Card
+          title="Columns configuration"
+          style={{ minHeight: '100vh', height: '100%' }}
+          extra={
+            <Button
+              children="Save"
+              type="primary"
+              onClick={async () => {
+                try {
+                  await onUpdateColumns(tableData);
+                  message.success('Updated successfully!');
+                } catch {
+                  message.error('Updated unsuccessfully!');
+                }
+              }}
+            />
+          }
+        >
           {/* <SplitPane style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}> */}
           <SplitPane
             split="vertical"
@@ -355,7 +373,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                       type: 'Formula',
                       code_name: `formula_${tableData.length + 1}`,
                       define: '',
-                      display_name: '',
+                      display_name: `Column ${tableData.length + 1}`,
                       index: tableData.length,
                     },
                   ]);
@@ -369,6 +387,10 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                 renderItem={(item, index) => (
                   <List.Item
                     onClick={(e) => {
+                      if (!systemFields) {
+                        message.error('Cannot find system fields');
+                        return;
+                      }
                       const codeName = systemFields?.[index].code_name;
                       const codeNameExists = tableData.some((it) => it.code_name === codeName);
                       if (codeNameExists) {
@@ -379,9 +401,9 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                         ...tableData,
                         {
                           type: 'System Field',
-                          code_name: systemFields?.[index].code_name,
+                          code_name: systemFields[index].code_name,
                           define: '',
-                          display_name: systemFields?.[index].name,
+                          display_name: systemFields[index].name,
                           index: tableData.length,
                         },
                       ]);

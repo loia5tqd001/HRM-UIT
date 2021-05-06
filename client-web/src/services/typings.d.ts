@@ -513,9 +513,10 @@ declare namespace API {
     name: string;
     fields: {
       index: number;
-      type: 'System Field';
+      type: 'System Field' | 'Input' | 'Formula';
       display_name: string;
       code_name: string;
+      define: string;
     }[];
   }
 

@@ -1,4 +1,4 @@
-import { readPayrollTemplate } from '@/services/payroll.template';
+import { readPayrollTemplate, updatePayrollTemplate } from '@/services/payroll.template';
 import { PageContainer } from '@ant-design/pro-layout';
 import React, { useEffect, useState } from 'react';
 import { history, useParams } from 'umi';
@@ -23,7 +23,16 @@ export const List: React.FC = () => {
 
   const renderContent = (key: string | undefined) => {
     if (key === 'general') return <GeneralInformation payrollTemplate={payrollTemplate} />;
-    if (key === 'columns') return <PayrollColumns payrollTemplate={payrollTemplate} />;
+    if (key === 'columns')
+      return (
+        <PayrollColumns
+          payrollTemplate={payrollTemplate}
+          onUpdateColumns={async (fields) => {
+            if (!payrollTemplate) return;
+            updatePayrollTemplate(id, { ...payrollTemplate, fields });
+          }}
+        />
+      );
     if (key === 'payslip') return <div>payslip</div>;
     return null;
   };
