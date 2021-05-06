@@ -1,27 +1,33 @@
-import { ArrowLeftOutlined, ArrowRightOutlined, MenuOutlined } from '@ant-design/icons';
+import { allPayrollSystemFields } from '@/services/payroll.template';
 import {
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
+  CloseOutlined,
+  EyeOutlined,
+  MenuOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
+import {
+  Button,
   Card,
   Form,
   Input,
-  Popconfirm,
-  Table,
   List,
-  Avatar,
-  Drawer,
-  Menu,
-  Button,
+  message,
+  Popconfirm,
+  Select,
   Space,
+  Table,
   Typography,
 } from 'antd';
-// import 'antd/dist/antd.css';
-import React, { useContext, useEffect, useReducer, useRef, useState } from 'react';
-import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
-import './index.css';
-import { SplitPane } from 'react-collapse-pane';
-import { allPayrollSystemFields } from '@/services/payroll.template';
-import styles from './index.less';
 import { sortBy } from 'lodash';
+// import 'antd/dist/antd.css';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { SplitPane } from 'react-collapse-pane';
+import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+import './index.css';
+import styles from './index.less';
 
 const EditableContext = React.createContext<any>(null);
 
@@ -35,13 +41,13 @@ const EditableCell = ({
   record,
   handleSave,
   ...restProps
-}) => {
+}: any) => {
   const [editing, setEditing] = useState(false);
-  const inputRef = useRef(null);
+  const inputRef = useRef<any>(null);
   const form = useContext(EditableContext);
   useEffect(() => {
     if (editing) {
-      inputRef.current.focus();
+      inputRef.current?.focus();
     }
   }, [editing]);
 
@@ -68,33 +74,44 @@ const EditableCell = ({
 
   let childNode = children;
 
-  // console.log('dataIndex', dataIndex);
-
   if (editable) {
-    childNode = editable ? (
-      <Form.Item
-        style={{
-          margin: 0,
-        }}
-        name={dataIndex}
-      >
-        <Input
-          ref={inputRef}
-          // onPressEnter={save}
-          onBlur={save}
-          // onInput={save}
-        />
-      </Form.Item>
-    ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{
-          paddingRight: 24,
-        }}
-      >
-        {children}
-      </div>
-    );
+    if (dataIndex === 'type') {
+      childNode = (
+        <Form.Item name={dataIndex} style={{ margin: 0 }}>
+          <Select
+            allowClear={false}
+            options={[
+              { value: 'System Field', label: 'System Field' },
+              { value: 'Input', label: 'Input' },
+              { value: 'Formula', label: 'Formula' },
+            ]}
+            ref={inputRef}
+            onChange={save}
+          />
+        </Form.Item>
+      );
+    } else if (dataIndex === 'define') {
+      childNode = (
+        <Form.Item name={dataIndex} style={{ margin: 0 }}>
+          <Input
+            addonBefore={record.type === 'Formula' && '='}
+            ref={inputRef}
+            onBlur={save}
+            disabled={record.type !== 'Formula'}
+          />
+        </Form.Item>
+      );
+    } else {
+      childNode = (
+        <Form.Item style={{ margin: 0 }} name={dataIndex}>
+          <Input
+            ref={inputRef}
+            disabled={dataIndex === 'code_name' && record.type === 'System Field'}
+            onBlur={save}
+          />
+        </Form.Item>
+      );
+    }
   }
 
   return <td {...restProps}>{childNode}</td>;
@@ -102,42 +119,12 @@ const EditableCell = ({
 
 const DragHandle = SortableHandle(({ index }) => (
   <Space>
-    <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
-    <Typography.Title level={3} style={{ marginTop: 5 }}>
+    <Typography.Title level={5} style={{ marginTop: 5 }}>
       {index + 1}
     </Typography.Title>
+    <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
   </Space>
 ));
-
-// this.columns = [
-//   {
-//     title: "name",
-//     dataIndex: "name",
-//     width: "30%",
-//     editable: true
-//   },
-//   {
-//     title: "age",
-//     dataIndex: "age"
-//   },
-//   {
-//     title: "address",
-//     dataIndex: "address"
-//   },
-// {
-//   title: "operation",
-//   dataIndex: "operation",
-//   render: (_, record) =>
-//     this.state.dataSource.length >= 1 ? (
-//       <Popconfirm
-//         title="Sure to delete?"
-//         onConfirm={() => this.handleDelete(record.key)}
-//       >
-//         <a>Delete</a>
-//       </Popconfirm>
-//     ) : null
-// }
-// ];
 
 const SortableItem = SortableElement((props) => <tr {...props} />);
 const SortableList = SortableContainer((props) => <tbody {...props} />);
@@ -167,7 +154,7 @@ function SortableTable() {
     {
       title: '#',
       dataIndex: 'index',
-      width: 30,
+      width: 65,
       className: 'drag-visible',
       render: (_, __, index) => <DragHandle index={index} />,
     },
@@ -191,15 +178,20 @@ function SortableTable() {
       title: 'Define',
       dataIndex: 'define',
       editable: true,
+      width: '30%',
     },
     {
       title: 'Actions',
       dataIndex: 'actions',
+      width: 'min-content',
       render: (_, record) =>
         tableData.length >= 1 ? (
-          <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
-            <a>Delete</a>
-          </Popconfirm>
+          <Space>
+            <Button icon={<EyeOutlined />} size="small" disabled />
+            <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.index)}>
+              <Button icon={<CloseOutlined />} danger size="small" />
+            </Popconfirm>
+          </Space>
         ) : null,
     },
   ];
@@ -223,20 +215,12 @@ function SortableTable() {
     />
   );
 
-  const handleDelete = (key) => {
+  const handleDelete = (index: number) => {
     const dataSource = [...tableData];
-    const newData = dataSource.filter((item) => item.key !== key);
+    const newData = dataSource
+      .filter((item) => item.index !== index)
+      .map((it, newIndex) => ({ ...it, index: newIndex }));
     setTableData(newData);
-  };
-  const handleAdd = () => {
-    const count = tableData.length;
-    const newData = {
-      key: count,
-      name: `Edward King ${count}`,
-      age: '32',
-      address: `London, Park Lane no. ${count}`,
-    };
-    setTableData([...tableData, newData]);
   };
 
   const handleSave = (row) => {
@@ -246,8 +230,6 @@ function SortableTable() {
     newData.splice(index, 1, { ...item, ...row });
     setTableData(newData);
   };
-
-  // console.log(tableData);
 
   return (
     <Table
@@ -284,140 +266,6 @@ function SortableTable() {
   );
 }
 
-// class SortableTable extends React.Component {
-//   state = {
-//     dataSource: data,
-//     count: 2,
-//   };
-
-//   columns = [
-//     {
-//       title: '#',
-//       dataIndex: 'sort',
-//       width: 30,
-//       className: 'drag-visible',
-//       render: (_, __, index) => <DragHandle index={index} />,
-//     },
-//     {
-//       title: 'Type',
-//       dataIndex: 'name',
-//       className: 'drag-visible',
-//       editable: true,
-//     },
-//     {
-//       title: 'Display name',
-//       dataIndex: 'age',
-//       editable: true,
-//     },
-//     {
-//       title: 'Code name',
-//       dataIndex: 'age',
-//       editable: true,
-//     },
-//     {
-//       title: 'Define',
-//       dataIndex: 'address',
-//       editable: true,
-//     },
-//     {
-//       title: 'operation',
-//       dataIndex: 'operation',
-//       render: (_, record) =>
-//         this.state.dataSource.length >= 1 ? (
-//           <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.key)}>
-//             <a>Delete</a>
-//           </Popconfirm>
-//         ) : null,
-//     },
-//   ];
-
-//   onSortEnd = ({ oldIndex, newIndex }) => {
-//     const { dataSource } = this.state;
-//     if (oldIndex !== newIndex) {
-//       const newData = arrayMove([].concat(dataSource), oldIndex, newIndex).filter((el) => !!el);
-//       console.log('Sorted items: ', newData);
-//       this.setState({ dataSource: newData });
-//     }
-//   };
-
-//   DraggableContainer = (props) => (
-//     <SortableList
-//       useDragHandle
-//       disableAutoscroll
-//       helperClass="row-dragging"
-//       onSortEnd={this.onSortEnd}
-//       {...props}
-//     />
-//   );
-
-//   handleDelete = (key) => {
-//     const dataSource = [...this.state.dataSource];
-//     this.setState({
-//       dataSource: dataSource.filter((item) => item.key !== key),
-//     });
-//   };
-//   handleAdd = () => {
-//     const { count, dataSource } = this.state;
-//     const newData = {
-//       key: count,
-//       name: `Edward King ${count}`,
-//       age: '32',
-//       address: `London, Park Lane no. ${count}`,
-//     };
-//     this.setState({
-//       dataSource: [...dataSource, newData],
-//       count: count + 1,
-//     });
-//   };
-//   handleSave = (row) => {
-//     const newData = [...this.state.dataSource];
-//     const index = newData.findIndex((item) => row.key === item.key);
-//     const item = newData[index];
-//     newData.splice(index, 1, { ...item, ...row });
-//     this.setState({
-//       dataSource: newData,
-//     });
-//   };
-
-//   render() {
-//     const { dataSource } = this.state;
-
-//     const columns = this.columns.map((col) => {
-//       if (!col.editable) {
-//         return col;
-//       }
-
-//       return {
-//         ...col,
-//         onCell: (record) => ({
-//           record,
-//           editable: col.editable,
-//           dataIndex: col.dataIndex,
-//           title: col.title,
-//           handleSave: this.handleSave,
-//         }),
-//       };
-//     });
-
-//     return (
-//       <Table
-//         pagination={false}
-//         dataSource={dataSource}
-//         columns={columns}
-//         rowKey="index"
-//         components={{
-//           body: {
-//             wrapper: this.DraggableContainer,
-//             row: DraggableBodyRow,
-//             cell: EditableCell,
-//           },
-//         }}
-//         rowClassName={() => 'editable-row'}
-//         bordered
-//       />
-//     );
-//   }
-// }
 type Props = {
   payrollTemplate: API.PayrollTemplate | undefined;
 };
@@ -460,7 +308,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
     >
       <div style={{ display: 'grid', gap: 24 }}>
         {/* <Button onClick={() => setVisible(!visible)}>Toggle</Button> */}
-        <Card title="Columns configuration" style={{ minHeight: '50vh', height: '100%' }}>
+        <Card title="Columns configuration" style={{ minHeight: '100vh', height: '100%' }}>
           {/* <SplitPane style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}> */}
           <SplitPane
             split="vertical"
@@ -493,70 +341,61 @@ export const PayrollColumns: React.FC<Props> = (props) => {
             <div style={{ margin: '0 12px' }}>
               <SortableTable />
             </div>
-            <List
+            <div
               style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.3s', marginRight: 12 }}
-              itemLayout="horizontal"
-              dataSource={systemFields}
-              loading={!systemFields}
-              bordered
-              renderItem={(item, index) => (
-                <List.Item
-                  onClick={(e) => {
-                    setTableData([
-                      ...tableData,
-                      {
-                        type: 'System Field',
-                        code_name: systemFields?.[index].code_name,
-                        define: '',
-                        display_name: systemFields?.[index].name,
-                        index: tableData.length,
-                      },
-                    ]);
-                  }}
-                  className={styles.listItem}
-                >
-                  <List.Item.Meta
-                    title={`${item.code_name} (${item.name})`}
-                    description={item.description}
-                  />
-                </List.Item>
-              )}
-            />
-            {/* <div
-            style={{
-              width: visible ? 300 : 0,
-              height: visible ? '100%' : 0,
-              transition: 'width 0.5s, opacity 0.5s',
-              opacity: visible ? 1 : 0,
-              overflow: 'hidden',
-            }}
-          ></div> */}
-
-            {/* <Drawer
-            title="Basic Drawer"
-            placement="right"
-            closable={false}
-            onClose={onClose}
-            visible={visible}
-            mask={false}
-          >
-            <List
-              itemLayout="horizontal"
-              dataSource={data}
-              renderItem={(item) => (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                    }
-                    title={<a href="https://ant.design">{item.title}</a>}
-                    description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-                  />
-                </List.Item>
-              )}
-            />
-          </Drawer> */}
-            {/* <Menu></Menu> */}
+            >
+              <Button
+                icon={<PlusOutlined />}
+                style={{ width: '100%' }}
+                children="Add Column"
+                onClick={() => {
+                  setTableData([
+                    ...tableData,
+                    {
+                      type: 'Formula',
+                      code_name: `formula_${tableData.length + 1}`,
+                      define: '',
+                      display_name: '',
+                      index: tableData.length,
+                    },
+                  ]);
+                }}
+              />
+              <List
+                itemLayout="horizontal"
+                dataSource={systemFields}
+                loading={!systemFields}
+                bordered
+                renderItem={(item, index) => (
+                  <List.Item
+                    onClick={(e) => {
+                      const codeName = systemFields?.[index].code_name;
+                      const codeNameExists = tableData.some((it) => it.code_name === codeName);
+                      if (codeNameExists) {
+                        message.error(`${codeName} already exists`);
+                        return;
+                      }
+                      setTableData([
+                        ...tableData,
+                        {
+                          type: 'System Field',
+                          code_name: systemFields?.[index].code_name,
+                          define: '',
+                          display_name: systemFields?.[index].name,
+                          index: tableData.length,
+                        },
+                      ]);
+                    }}
+                    className={styles.listItem}
+                  >
+                    <List.Item.Meta
+                      title={`${item.code_name} (${item.name})`}
+                      description={item.description}
+                    />
+                  </List.Item>
+                )}
+              />
+            </div>
           </SplitPane>
         </Card>
       </div>

@@ -15,11 +15,10 @@ export const List: React.FC = () => {
   const [payrollTemplate, setPayrollTemplate] = useState<API.PayrollTemplate>();
 
   useEffect(() => {
-    readPayrollTemplate(id)
-      .then((fetchData) => {
-        setPayrollTemplate(fetchData);
-      })
-      // .catch(() => setPayrollTemplate(null));
+    readPayrollTemplate(id).then((fetchData) => {
+      setPayrollTemplate(fetchData);
+    });
+    // .catch(() => setPayrollTemplate(null));
   }, [id]);
 
   const renderContent = (key: string | undefined) => {
@@ -41,10 +40,10 @@ export const List: React.FC = () => {
           tab: 'Payroll Columns',
           key: 'columns',
         },
-        {
-          tab: 'Payslip Template',
-          key: 'payslip',
-        },
+        // {
+        //   tab: 'Payslip Template',
+        //   key: 'payslip',
+        // },
       ]}
       onTabChange={(key) => {
         history.push(`?tab=${key}`);
