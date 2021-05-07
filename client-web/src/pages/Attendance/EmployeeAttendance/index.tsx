@@ -1,7 +1,6 @@
+import { allAttendances } from '@/services/attendance';
 import {
-  allEmployees,
   approveEmployeeAttendance,
-  cancelEmployeeAttendance,
   confirmEmployeeAttendance,
   rejectEmployeeAttendance,
   revertEmployeeAttendance,
@@ -10,65 +9,67 @@ import {
   CheckCircleOutlined,
   CheckOutlined,
   CloseOutlined,
-  EditOutlined,
-  EnterOutlined,
-  EnvironmentOutlined,
-  ExclamationCircleOutlined,
-  HistoryOutlined,
-  ManOutlined,
-  MessageOutlined,
-  PlusOutlined,
+  LockOutlined,
   RollbackOutlined,
-  WomanOutlined,
 } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import {
-  Button,
-  DatePicker,
-  Form,
-  message,
-  Popconfirm,
-  Progress,
-  Space,
-  Tag,
-  TimePicker,
-  Tooltip,
-} from 'antd';
-import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, Link, useIntl, useModel } from 'umi';
-import { CrudModal } from './components/CrudModal';
-import { PageContainer } from '@ant-design/pro-layout';
+import { Badge, Button, message, Progress, Space, Tooltip } from 'antd';
+import { countBy, groupBy, mapValues, sumBy, uniq } from 'lodash';
 import moment from 'moment';
-import { ClockInOutModal } from './components/ClockInOutModal';
-import ProForm, {
-  ModalForm,
-  ProFormDatePicker,
-  ProFormText,
-  ProFormTextArea,
-} from '@ant-design/pro-form';
-import styles from './index.less';
-import { allAttendances } from '@/services/attendance';
-import { uniq, groupBy, countBy, sumBy, mapValues } from 'lodash';
+import React, { useCallback, useRef, useState } from 'react';
+import { Link, useIntl } from 'umi';
 
 type RecordType = API.AttendanceEmployee & {
   status?: {
     Pending: number;
     Approved: number;
-    Confirmed: number;
+    ApprovedConfirmed: number;
+    Rejected: number;
+    RejectedConfirmed: number;
   };
   actual?: number;
   work_schedule?: number;
   attendances?: Record<string, number>;
 };
 
+export const toolbarButtons = [
+  {
+    action: 'Approve',
+    icon: <CheckOutlined />,
+    filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Pending',
+    api: approveEmployeeAttendance,
+    buttonProps: undefined,
+  },
+  {
+    action: 'Reject',
+    icon: <CloseOutlined />,
+    filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Pending',
+    api: rejectEmployeeAttendance,
+    buttonProps: { danger: true },
+  },
+  {
+    action: 'Revert',
+    icon: <RollbackOutlined />,
+    filter: (it: API.AttendanceEmployee['attendance'][0]) =>
+      (it.status === 'Approved' || it.status === 'Rejected') && !it.is_confirmed,
+    api: revertEmployeeAttendance,
+    buttonProps: undefined,
+  },
+  {
+    action: 'Confirm',
+    icon: <CheckCircleOutlined />,
+    filter: (it: API.AttendanceEmployee['attendance'][0]) =>
+      (it.status === 'Approved' || it.status === 'Rejected') && !it.is_confirmed,
+    api: confirmEmployeeAttendance,
+    buttonProps: { type: 'primary' },
+  },
+];
+
 const EmployeeAttendance: React.FC = () => {
   const intl = useIntl();
   const actionRef = useRef<ActionType>();
-  const [clockModalVisible, setClockModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
-  const [editedTime, setEditedTime] = useState();
   const [selectedRows, setSelectedRows] = useState<RecordType[]>([]);
   const [attendanceKeys, setAttendanceKeys] = useState<string[]>([]);
   const backendData = useRef<any>();
@@ -104,7 +105,7 @@ const EmployeeAttendance: React.FC = () => {
       render: (avatar, record) => (
         <Space>
           <span>{avatar}</span>
-          <Link to={`/attendance/detail/${record.id}`}>
+          <Link to={`/attendance/list/${record.id}`}>
             {record.first_name} {record.last_name}
           </Link>
         </Space>
@@ -143,57 +144,36 @@ const EmployeeAttendance: React.FC = () => {
       title: 'Status',
       fixed: 'left',
       dataIndex: 'status',
-      width: 100,
+      key: 'status',
+      width: 'max-content',
       renderText: (status) => {
-        const title = Object.entries(status)
-          .map((it) => (it[1] ? `${it[1]} ${it[0]}` : ''))
-          .filter((it) => it !== '')
-          .join(', ');
-        const commonDotStyle = {
-          width: 10,
-          height: 10,
-          display: 'inline-block',
-          borderRadius: '50%',
-          marginRight: 5,
+        const symbols = {
+          Pending: <Badge status="warning" />,
+          Approved: <Badge status="success" />,
+          Rejected: <Badge status="error" />,
+          ApprovedConfirmed: <LockOutlined style={{ color: '#52c41a' }} />,
+          RejectedConfirmed: <LockOutlined style={{ color: '#ff4d4f' }} />,
+        };
+        const labels = {
+          Pending: 'Pending',
+          Approved: 'Approved',
+          Rejected: 'Rejected',
+          ApprovedConfirmed: 'Confirmed Approval',
+          RejectedConfirmed: 'Confirmed Rejection',
         };
         return (
-          <Tooltip title={title}>
-            {status.Pending ? (
-              <>
-                {status.Pending}{' '}
-                <span
-                  style={{
-                    ...commonDotStyle,
-                    background: 'rgb(242, 145, 50)',
-                  }}
-                />
-              </>
-            ) : null}
-            {status.Approved ? (
-              <>
-                {status.Approved}{' '}
-                <span
-                  style={{
-                    ...commonDotStyle,
-                    background: '#2ad25f',
-                  }}
-                />
-              </>
-            ) : null}
-            {status.Confirmed ? (
-              <>
-                {status.Confirmed}{' '}
-                <span
-                  style={{
-                    ...commonDotStyle,
-                    background: '#2ad25f',
-                    border: '1px solid white',
-                    boxShadow: '0 0 0 1px #2ad25f',
-                  }}
-                />
-              </>
-            ) : null}
-          </Tooltip>
+          <Space size="small">
+            {Object.entries(status)
+              .filter((it) => it[1])
+              .map(([key, val]) => (
+                <Tooltip title={`${val} ${labels[key]}`}>
+                  <span style={{ display: 'inline-flex' }}>
+                    {val}
+                    <span style={{ marginLeft: 2 }}>{symbols[key]}</span>
+                  </span>
+                </Tooltip>
+              ))}
+          </Space>
         );
       },
     },
@@ -203,80 +183,6 @@ const EmployeeAttendance: React.FC = () => {
       dataIndex: ['attendances', it],
       renderText: (seconds: number) => formatDuration(seconds),
     })),
-    // {
-    //   title: 'Actions',
-    //   key: 'action',
-    //   fixed: 'right',
-    //   align: 'center',
-    //   search: false,
-    //   render: (dom, record) => (
-    //     <Space size="small">
-    //       <Popconfirm
-    //         placement="right"
-    //         title={'Approve this request?'}
-    //         onConfirm={async () => {
-    //           // await onCrudOperation(
-    //           //   () => approveEmployeeAttendance(record.owner.id, record.id),
-    //           //   'Approved successfully!',
-    //           //   'Cannot approve this request!',
-    //           // );
-    //         }}
-    //         // disabled={record.status !== 'Pending'}
-    //       >
-    //         <Button
-    //           title="Approve this request"
-    //           size="small"
-    //           type="default"
-    //           // disabled={record.status !== 'Pending'}
-    //         >
-    //           <CheckOutlined />
-    //         </Button>
-    //       </Popconfirm>
-    //       <Popconfirm
-    //         placement="right"
-    //         title={'Reject this request?'}
-    //         onConfirm={async () => {
-    //           // await onCrudOperation(
-    //           //   () => rejectEmployeeAttendance(record.owner.id, record.id),
-    //           //   'Rejected successfully!',
-    //           //   'Cannot reject this request!',
-    //           // );
-    //         }}
-    //         // disabled={record.status !== 'Pending'}
-    //       >
-    //         <Button
-    //           title="Reject this request"
-    //           size="small"
-    //           danger
-    //           // disabled={record.status !== 'Pending'}
-    //         >
-    //           <CloseOutlined />
-    //         </Button>
-    //       </Popconfirm>
-    //       <Popconfirm
-    //         placement="right"
-    //         title={'Cancel this request?'}
-    //         onConfirm={async () => {
-    //           // await onCrudOperation(
-    //           //   () => cancelEmployeeAttendance(record.owner.id, record.id),
-    //           //   'Canceled successfully!',
-    //           //   'Cannot cancel this request!',
-    //           // );
-    //         }}
-    //         // disabled={record.status !== 'Approved'}
-    //       >
-    //         <Button
-    //           title="Cancel this request"
-    //           size="small"
-    //           danger
-    //           // disabled={record.status !== 'Approved'}
-    //         >
-    //           <EnterOutlined />
-    //         </Button>
-    //       </Popconfirm>
-    //     </Space>
-    //   ),
-    // },
   ];
 
   return (
@@ -287,103 +193,41 @@ const EmployeeAttendance: React.FC = () => {
         rowKey="id"
         search={false}
         scroll={{ x: 'max-content' }}
+        tableAlertRender={false}
         rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
+          onChange: (_, _selectedRows) => {
+            setSelectedRows(_selectedRows);
           },
         }}
         toolBarRender={() => [
-          <Button
-            onClick={async () => {
-              const bulkApprove = Promise.all(
-                selectedRows
-                  .flatMap((it) => it.attendance)
-                  .filter((it) => it.status === 'Pending')
-                  .map((it) => approveEmployeeAttendance(it.owner, it.id)),
-              );
-              try {
-                await bulkApprove;
-                message.success('Approve successfully!');
-                actionRef.current?.reload();
-              } catch (err) {
-                message.error('Some error occurred!');
-                console.log(err);
+          ...toolbarButtons.map((toolbar) => (
+            <Button
+              onClick={async () => {
+                const bulkAction = Promise.all(
+                  selectedRows
+                    .flatMap((it) => it.attendance)
+                    .filter(toolbar.filter)
+                    .map((it) => toolbar.api(it.owner, it.id)),
+                );
+                try {
+                  await bulkAction;
+                  message.success(`${toolbar.action} successfully!`);
+                  actionRef.current?.reloadAndRest?.();
+                } catch (err) {
+                  message.error('Some error occurred!');
+                }
+              }}
+              disabled={
+                selectedRows.flatMap((it) => it.attendance).filter(toolbar.filter).length === 0
               }
-            }}
-            disabled={
-              selectedRows.flatMap((it) => it.attendance).filter((it) => it.status === 'Pending')
-                .length === 0
-            }
-          >
-            <Space>
-              <CheckOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Approve"
-              />
-            </Space>
-          </Button>,
-          <Button
-            onClick={async () => {
-              const bulkRevert = Promise.all(
-                selectedRows
-                  .flatMap((it) => it.attendance)
-                  .filter((it) => it.status === 'Approved')
-                  .map((it) => revertEmployeeAttendance(it.owner, it.id)),
-              );
-              try {
-                await bulkRevert;
-                message.success('Revert successfully!');
-                actionRef.current?.reload();
-              } catch (err) {
-                message.error('Some error occurred!');
-                console.log(err);
-              }
-            }}
-            disabled={
-              selectedRows.flatMap((it) => it.attendance).filter((it) => it.status === 'Approved')
-                .length === 0
-            }
-          >
-            <Space>
-              <RollbackOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Revert"
-              />
-            </Space>
-          </Button>,
-          <Button
-            onClick={async () => {
-              const bulkConfirm = Promise.all(
-                selectedRows
-                  .flatMap((it) => it.attendance)
-                  .filter((it) => it.status !== 'Confirmed')
-                  .map((it) => confirmEmployeeAttendance(it.owner, it.id)),
-              );
-              try {
-                await bulkConfirm;
-                message.success('Confirm successfully!');
-                actionRef.current?.reload();
-              } catch (err) {
-                message.error('Some error occurred!');
-                console.log(err);
-              }
-            }}
-            disabled={
-              selectedRows.flatMap((it) => it.attendance).filter((it) => it.status !== 'Confirmed')
-                .length === 0
-            }
-            type="primary"
-          >
-            <Space>
-              <CheckCircleOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Confirm"
-              />
-            </Space>
-          </Button>,
+              {...(toolbar.buttonProps as any)}
+            >
+              <Space>
+                {toolbar.icon}
+                {toolbar.action}
+              </Space>
+            </Button>
+          )),
         ]}
         request={async () => {
           let data: RecordType[] = await allAttendances();
@@ -398,8 +242,18 @@ const EmployeeAttendance: React.FC = () => {
               ...it,
               status: {
                 Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
-                Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
-                Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
+                Approved: countBy(it.attendance, (x) => x.status === 'Approved' && !x.is_confirmed)
+                  .true,
+                Rejected: countBy(it.attendance, (x) => x.status === 'Rejected' && !x.is_confirmed)
+                  .true,
+                ApprovedConfirmed: countBy(
+                  it.attendance,
+                  (x) => x.status === 'Approved' && x.is_confirmed,
+                ).true,
+                RejectedConfirmed: countBy(
+                  it.attendance,
+                  (x) => x.status === 'Rejected' && x.is_confirmed,
+                ).true,
               },
               actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
               work_schedule: 288000,
@@ -425,37 +279,6 @@ const EmployeeAttendance: React.FC = () => {
         }}
         columns={columns}
       />
-      {/* <CrudModal />
-      <ModalForm
-        visible={clockModalVisible}
-        title={`Clock in at ${moment().format('HH:mm:ss')}`}
-        width="400px"
-        onFinish={() => setClockModalVisible(false)}
-        onVisibleChange={(visible) => setClockModalVisible(visible)}
-      >
-        <Space style={{ marginBottom: 20 }}>
-          <EnvironmentOutlined />
-          Outside the designated area
-        </Space>
-        <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
-      </ModalForm>
-      <ModalForm
-        visible={editModalVisible}
-        title={`Edit actual attendance`}
-        width="400px"
-        onFinish={() => setEditModalVisible(false)}
-        onVisibleChange={(visible) => setEditModalVisible(visible)}
-      >
-        <ProForm.Group>
-          <Form.Item>
-            <DatePicker value={seletectedRecord?.date} disabled />
-          </Form.Item>
-          <Form.Item>
-            <TimePicker format="HH:mm" minuteStep={5} />
-          </Form.Item>
-        </ProForm.Group>
-        <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
-      </ModalForm> */}
     </PageContainer>
   );
 };

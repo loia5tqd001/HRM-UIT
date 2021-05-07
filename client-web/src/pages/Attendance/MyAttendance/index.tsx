@@ -6,13 +6,14 @@ import {
   EditOutlined,
   EnvironmentOutlined,
   HistoryOutlined,
+  LockOutlined,
   MessageOutlined,
 } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
+import { Badge, Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -248,19 +249,31 @@ const MyAttendance: React.FC = () => {
       title: 'Status',
       dataIndex: 'status',
       hideInForm: true,
-      valueEnum: {
-        Approved: {
-          text: 'Approved',
-          status: 'Success',
-        },
-        Pending: {
-          text: 'Pending',
-          status: 'Warning',
-        },
-        Confirmed: {
-          text: 'Confirmed',
-          status: 'Success',
-        },
+      renderText: (it, record) => {
+        const map = {
+          Pending: {
+            color: '#faad14',
+            status: 'warning',
+          },
+          Approved: {
+            color: '#52c41a',
+            status: 'success',
+          },
+          Rejected: {
+            color: '#ff4d4f',
+            status: 'error',
+          },
+        };
+        if (record.is_confirmed)
+          return (
+            <Tooltip title="Confirmed">
+              <Space>
+                <LockOutlined style={{ color: map[it]?.color }} />
+                {it}
+              </Space>
+            </Tooltip>
+          );
+        return <Badge status={map[it]?.status} text={it} />;
       },
     },
     // {
@@ -295,18 +308,6 @@ const MyAttendance: React.FC = () => {
             >
               <EditOutlined />
             </Button>
-            {/* Delete button: might need in the future */}
-            {/* <Popconfirm
-            placement="right"
-            title={'Delete this employee?'}
-            onConfirm={async () => {
-              await onCrudOperation(() => deleteEmployee(record.id), 'Cannot delete employee!');
-            }}
-          >
-            <Button title="Delete this employee" size="small" danger>
-              <DeleteOutlined />
-            </Button>
-          </Popconfirm> */}
           </Space>
         ) : null,
     },
@@ -320,6 +321,7 @@ const MyAttendance: React.FC = () => {
         rowKey="id"
         search={false}
         scroll={{ x: 'max-content' }}
+        tableAlertRender={false}
         toolBarRender={() => [
           <>
             {lastAction ? (

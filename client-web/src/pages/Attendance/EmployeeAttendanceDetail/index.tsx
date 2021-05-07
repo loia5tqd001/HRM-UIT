@@ -5,20 +5,11 @@ import {
   editActual,
   getSchedule,
   readAttendances,
-  allEmployees,
   readEmployee,
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { formatDurationHm } from '@/utils/utils';
-import {
-  CheckCircleOutlined,
-  CheckOutlined,
-  EditOutlined,
-  EnvironmentOutlined,
-  HistoryOutlined,
-  MessageOutlined,
-  RollbackOutlined,
-} from '@ant-design/icons';
+import { EditOutlined, EnvironmentOutlined, MessageOutlined } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
@@ -26,8 +17,9 @@ import ProTable from '@ant-design/pro-table';
 import { Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FormattedMessage, useIntl, useModel, useParams } from 'umi';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useIntl, useParams } from 'umi';
+import { toolbarButtons } from '../EmployeeAttendance';
 
 type RecordType = API.AttendanceRecord;
 
@@ -52,7 +44,7 @@ const MyAttendance: React.FC = () => {
   const [editModalForm] = useForm();
   const [holidays, setHolidays] = useState<API.Holiday[]>();
   const [schedule, setSchedule] = useState<API.Schedule>();
-  const [selectedRowsState, setSelectedRows] = useState<RecordType[]>([]);
+  const [selectedRows, setSelectedRows] = useState<RecordType[]>([]);
 
   const [employee, setEmployee] = useState<API.Employee>();
   const { id } = useParams<any>();
@@ -260,6 +252,9 @@ const MyAttendance: React.FC = () => {
       title: 'Status',
       dataIndex: 'status',
       hideInForm: true,
+      fixed: 'right',
+      align: 'center',
+      width: 'minmax(300px, max-content)',
       valueEnum: {
         Approved: {
           text: 'Approved',
@@ -268,6 +263,10 @@ const MyAttendance: React.FC = () => {
         Pending: {
           text: 'Pending',
           status: 'Warning',
+        },
+        Confirmed: {
+          text: 'Confirmed',
+          status: 'Success',
         },
       },
     },
@@ -328,52 +327,41 @@ const MyAttendance: React.FC = () => {
         rowKey="id"
         search={false}
         scroll={{ x: 'max-content' }}
+        tableAlertRender={false}
         rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
+          checkStrictly: false,
+          renderCell: (checked, record, index, originNode) => {
+            if (record.type === 'AttendanceDay') return originNode;
+            return null;
+          },
+          onChange: (_, _selectedRows) => {
+            setSelectedRows(_selectedRows.filter((it) => it.type === 'AttendanceDay'));
           },
         }}
         toolBarRender={() => [
-          <Button
-            onClick={() => {
-              setClockModalVisible(true);
-            }}
-          >
-            <Space>
-              <CheckOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Approve"
-              />
-            </Space>
-          </Button>,
-          <Button
-            onClick={() => {
-              setClockModalVisible(true);
-            }}
-            danger
-          >
-            <Space>
-              <RollbackOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Revert"
-              />
-            </Space>
-          </Button>,
-          <Button
-            onClick={() => {
-              setClockModalVisible(true);
-            }}
-          >
-            <Space>
-              <CheckCircleOutlined />
-              <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Confirm"
-              />
-            </Space>
-          </Button>,
+          ...toolbarButtons.map((toolbar) => (
+            <Button
+              onClick={async () => {
+                const bulkAction = Promise.all(
+                  selectedRows.map((it) => toolbar.api(it.owner, it.id)),
+                );
+                try {
+                  await bulkAction;
+                  message.success(`${toolbar.action} successfully!`);
+                  actionRef.current?.reloadAndRest?.();
+                } catch (err) {
+                  message.error('Some error occurred!');
+                }
+              }}
+              disabled={selectedRows.filter(toolbar.filter as any).length === 0}
+              {...(toolbar.buttonProps as any)}
+            >
+              <Space>
+                {toolbar.icon}
+                {toolbar.action}
+              </Space>
+            </Button>
+          )),
         ]}
         request={async () => {
           const fetchData = await readAttendances(id);

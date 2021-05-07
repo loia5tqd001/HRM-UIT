@@ -414,6 +414,7 @@ declare namespace API {
   interface AttendanceRecord<Type extends 'AttendanceDay' | 'Tracking' = 'AttendanceDay'> {
     id: number;
     type: Type;
+    owner: number;
     date: Type extends 'AttendanceDay' ? moment.Moment : undefined; // undefined when Tracking
     check_in: moment.Moment | undefined;
     check_in_note: string | undefined;
@@ -428,11 +429,12 @@ declare namespace API {
     actual_hours_modification_note: string | null;
     deficit: number;
     overtime: string | number | undefined;
-    status: 'pending' | 'approved' | 'confirmed' | undefined;
+    status: 'Pending' | 'Approved' | 'Rejected' | undefined;
     // edited_by: Employee['id'] | undefined;
     // edited_when: moment.Moment | undefined;
     // edited_to: number | undefined; // edit "actual hour" to xx hours
     children: AttendanceRecord<'Tracking'>[];
+    is_confirmed: boolean;
   }
 
   interface AttendanceEmployee {
@@ -452,7 +454,8 @@ declare namespace API {
       ot_hours_modification_note: string | null;
       reviewed_by: number | null;
       confirmed_by: number | null;
-      status: 'Pending' | 'Approved' | 'Confirmed' | undefined;
+      is_confirmed: boolean;
+      status: 'Pending' | 'Approved' | 'Rejected' | undefined;
     }[];
   }
 

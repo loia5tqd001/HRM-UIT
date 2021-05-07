@@ -324,6 +324,20 @@ export async function approveEmployeeAttendance(
   });
 }
 
+export async function rejectEmployeeAttendance(
+  employeeId: number,
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request(`${endpoint}${employeeId}/attendance/${id}/reject/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}
+
 export async function revertEmployeeAttendance(
   employeeId: number,
   id: number,

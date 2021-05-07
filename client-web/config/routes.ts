@@ -242,7 +242,7 @@
         component: './Attendance/EmployeeAttendance',
       },
       {
-        path: '/attendance/detail/:id',
+        path: '/attendance/list/:id',
         component: './Attendance/EmployeeAttendanceDetail',
         name: 'detail',
         hideInMenu: true,
