@@ -2,6 +2,7 @@ import { allAttendances } from '@/services/attendance';
 import {
   approveEmployeeAttendance,
   confirmEmployeeAttendance,
+  getSchedule,
   rejectEmployeeAttendance,
   revertEmployeeAttendance,
 } from '@/services/employee';
@@ -25,9 +26,8 @@ type RecordType = API.AttendanceEmployee & {
   status?: {
     Pending: number;
     Approved: number;
-    ApprovedConfirmed: number;
     Rejected: number;
-    RejectedConfirmed: number;
+    Confirmed: number;
   };
   actual?: number;
   work_schedule?: number;
@@ -53,15 +53,14 @@ export const toolbarButtons = [
     action: 'Revert',
     icon: <RollbackOutlined />,
     filter: (it: API.AttendanceEmployee['attendance'][0]) =>
-      (it.status === 'Approved' || it.status === 'Rejected') && !it.is_confirmed,
+      it.status === 'Approved' || it.status === 'Rejected',
     api: revertEmployeeAttendance,
     buttonProps: undefined,
   },
   {
     action: 'Confirm',
     icon: <CheckCircleOutlined />,
-    filter: (it: API.AttendanceEmployee['attendance'][0]) =>
-      (it.status === 'Approved' || it.status === 'Rejected') && !it.is_confirmed,
+    filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Approved',
     api: confirmEmployeeAttendance,
     buttonProps: { type: 'primary' },
   },
@@ -87,6 +86,20 @@ const EmployeeAttendance: React.FC = () => {
     },
     [actionRef],
   );
+
+  const calcHours = ({
+    morning_from,
+    morning_to,
+    afternoon_from,
+    afternoon_to,
+  }: API.Schedule['workdays'][0]) => {
+    let hours = 0;
+    if (morning_from && morning_to)
+      hours += moment.duration(moment(morning_to).diff(moment(morning_from))).asHours() % 24;
+    if (afternoon_from && afternoon_to)
+      hours += moment.duration(moment(afternoon_to).diff(moment(afternoon_from))).asHours() % 24;
+    return Number(hours.toFixed(1));
+  };
 
   const formatDuration = (seconds: number) => {
     const duration = moment.duration(seconds, 'seconds');
@@ -151,22 +164,14 @@ const EmployeeAttendance: React.FC = () => {
           Pending: <Badge status="warning" />,
           Approved: <Badge status="success" />,
           Rejected: <Badge status="error" />,
-          ApprovedConfirmed: <LockOutlined style={{ color: '#52c41a' }} />,
-          RejectedConfirmed: <LockOutlined style={{ color: '#ff4d4f' }} />,
-        };
-        const labels = {
-          Pending: 'Pending',
-          Approved: 'Approved',
-          Rejected: 'Rejected',
-          ApprovedConfirmed: 'Confirmed Approval',
-          RejectedConfirmed: 'Confirmed Rejection',
+          Confirmed: <LockOutlined style={{ color: '#52c41a' }} />,
         };
         return (
           <Space size="small">
             {Object.entries(status)
               .filter((it) => it[1])
               .map(([key, val]) => (
-                <Tooltip title={`${val} ${labels[key]}`}>
+                <Tooltip title={`${val} ${key}`}>
                   <span style={{ display: 'inline-flex' }}>
                     {val}
                     <span style={{ marginLeft: 2 }}>{symbols[key]}</span>
@@ -237,26 +242,34 @@ const EmployeeAttendance: React.FC = () => {
               data.flatMap((it) => it.attendance.flatMap((x) => moment(x.date).format('DD MMM'))),
             ),
           );
+          const schedules = await Promise.all(
+            data
+              .filter((it) => it.attendance[0])
+              .map(async (it) => {
+                const employeeId = it.attendance[0].owner;
+                return getSchedule(employeeId);
+              }),
+          );
           data = data.map((it) => {
+            let work_schedule = 0;
+            if (it.attendance[0]?.owner) {
+              work_schedule =
+                (schedules.find((x) => x.owner === it.attendance[0].owner)
+                  ?.schedule as API.Schedule).workdays.reduce(
+                  (acc, cur) => acc + calcHours(cur),
+                  0,
+                ) * 3600;
+            }
             return {
               ...it,
               status: {
                 Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
-                Approved: countBy(it.attendance, (x) => x.status === 'Approved' && !x.is_confirmed)
-                  .true,
-                Rejected: countBy(it.attendance, (x) => x.status === 'Rejected' && !x.is_confirmed)
-                  .true,
-                ApprovedConfirmed: countBy(
-                  it.attendance,
-                  (x) => x.status === 'Approved' && x.is_confirmed,
-                ).true,
-                RejectedConfirmed: countBy(
-                  it.attendance,
-                  (x) => x.status === 'Rejected' && x.is_confirmed,
-                ).true,
+                Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
+                Rejected: countBy(it.attendance, (x) => x.status === 'Rejected').true,
+                Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
               },
               actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
-              work_schedule: 288000,
+              work_schedule,
               attendances: mapValues(
                 groupBy(
                   it.attendance.map((x) => ({

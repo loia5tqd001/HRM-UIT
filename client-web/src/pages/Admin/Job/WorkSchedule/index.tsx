@@ -91,6 +91,15 @@ const initDays: DayItem[] = [
   },
 ];
 
+const calcHours = ({ morning, morning_enabled, afternoon, afternoon_enabled }: DayItem) => {
+  let hours = 0;
+  if (morning_enabled && morning)
+    hours += moment.duration(morning[1].diff(morning[0])).asHours() % 24;
+  if (afternoon_enabled && afternoon)
+    hours += moment.duration(afternoon[1].diff(afternoon[0])).asHours() % 24;
+  return Number(hours.toFixed(1));
+};
+
 export const WorkSchedule: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
@@ -183,20 +192,6 @@ export const WorkSchedule: React.FC = () => {
         }
       }),
     );
-  };
-
-  const calcHours = ({
-    morning,
-    morning_enabled,
-    afternoon,
-    afternoon_enabled,
-  }: typeof days[0]) => {
-    let hours = 0;
-    if (morning_enabled && morning)
-      hours += moment.duration(morning[1].diff(morning[0])).asHours() % 24;
-    if (afternoon_enabled && afternoon)
-      hours += moment.duration(afternoon[1].diff(afternoon[0])).asHours() % 24;
-    return Number(hours.toFixed(1));
   };
 
   const convertToBackend = (_days: DayItem[]): API.Schedule['workdays'] => {
