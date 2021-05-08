@@ -236,12 +236,12 @@ const EmployeeAttendance: React.FC = () => {
         ]}
         request={async () => {
           let data: RecordType[] = await allAttendances();
-          backendData.current = data;
           setAttendanceKeys(
             uniq(
               data.flatMap((it) => it.attendance.flatMap((x) => moment(x.date).format('DD MMM'))),
             ),
           );
+
           const schedules = await Promise.all(
             data
               .filter((it) => it.attendance[0])
@@ -250,39 +250,42 @@ const EmployeeAttendance: React.FC = () => {
                 return getSchedule(employeeId);
               }),
           );
-          data = data.map((it) => {
-            let work_schedule = 0;
-            if (it.attendance[0]?.owner) {
-              work_schedule =
-                (schedules.find((x) => x.owner === it.attendance[0].owner)
-                  ?.schedule as API.Schedule).workdays.reduce(
-                  (acc, cur) => acc + calcHours(cur),
-                  0,
-                ) * 3600;
-            }
-            return {
-              ...it,
-              status: {
-                Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
-                Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
-                Rejected: countBy(it.attendance, (x) => x.status === 'Rejected').true,
-                Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
-              },
-              actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
-              work_schedule,
-              attendances: mapValues(
-                groupBy(
-                  it.attendance.map((x) => ({
-                    ...x,
-                    date: moment(x.date).format('DD MMM'),
-                    work_load: x.actual_work_hours * 3600,
-                  })),
-                  'date',
+
+          data = data
+            .filter((it) => it.attendance.length)
+            .map((it) => {
+              let work_schedule = 0;
+              if (it.attendance[0]?.owner) {
+                work_schedule =
+                  (schedules.find((x) => x.owner === it.attendance[0].owner)
+                    ?.schedule as API.Schedule).workdays.reduce(
+                    (acc, cur) => acc + calcHours(cur),
+                    0,
+                  ) * 3600;
+              }
+              return {
+                ...it,
+                status: {
+                  Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
+                  Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
+                  Rejected: countBy(it.attendance, (x) => x.status === 'Rejected').true,
+                  Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
+                },
+                actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
+                work_schedule,
+                attendances: mapValues(
+                  groupBy(
+                    it.attendance.map((x) => ({
+                      ...x,
+                      date: moment(x.date).format('DD MMM'),
+                      work_load: x.actual_work_hours * 3600,
+                    })),
+                    'date',
+                  ),
+                  (x) => x.reduce((acc, cur) => acc + cur.actual_work_hours * 3600, 0),
                 ),
-                (x) => x.reduce((acc, cur) => acc + cur.actual_work_hours * 3600, 0),
-              ),
-            };
-          });
+              };
+            });
 
           return {
             success: true,

@@ -1,20 +1,34 @@
-import { readLocation } from '@/services/admin.organization.location';
 import {
-  checkIn,
-  checkOut,
   editActual,
+  editOvertime,
   getSchedule,
   readAttendances,
   readEmployee,
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { formatDurationHm } from '@/utils/utils';
-import { EditOutlined, EnvironmentOutlined, MessageOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  EnvironmentOutlined,
+  LockOutlined,
+  MessageOutlined,
+} from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
+import {
+  Badge,
+  Button,
+  Dropdown,
+  Form,
+  Menu,
+  message,
+  Space,
+  Tag,
+  TimePicker,
+  Tooltip,
+} from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -23,27 +37,15 @@ import { toolbarButtons } from '../EmployeeAttendance';
 
 type RecordType = API.AttendanceRecord;
 
-type CurrentLocation = {
-  lat: number;
-  lng: number;
-  office: 'Outside' | string;
-  allow_outside: boolean;
-};
-
-const MyAttendance: React.FC = () => {
+const EmployeeAttendanceDetail: React.FC = () => {
   const intl = useIntl();
   const actionRef = useRef<ActionType>();
-  const [clockModalVisible, setClockModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState<'hidden' | 'actual' | 'overtime'>(
+    'hidden',
+  );
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
-  const currentLocationRef = useRef<CurrentLocation>();
-  const [nextStep, setNextStep] = useState<'Clock in' | 'Clock out'>('Clock in');
-  const [firstClockIn, setFirstClockIn] = useState<string>('--:--');
-  const [lastClockOut, setLastClockOut] = useState<string>('--:--');
-  const [lastAction, setLastAction] = useState<string>();
   const [editModalForm] = useForm();
   const [holidays, setHolidays] = useState<API.Holiday[]>();
-  const [schedule, setSchedule] = useState<API.Schedule>();
   const [selectedRows, setSelectedRows] = useState<RecordType[]>([]);
 
   const [employee, setEmployee] = useState<API.Employee>();
@@ -51,7 +53,6 @@ const MyAttendance: React.FC = () => {
 
   useEffect(() => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
-    getSchedule(id).then((fetchData) => setSchedule(fetchData.schedule as API.Schedule));
     readEmployee(id).then((fetchData) => setEmployee(fetchData));
   }, [id]);
 
@@ -66,8 +67,8 @@ const MyAttendance: React.FC = () => {
   );
 
   const getHourWorkDay = useCallback(
-    (date: moment.Moment) => {
-      if (!schedule) return 0;
+    (date: moment.Moment, schedule: API.Schedule) => {
+      if (!schedule) throw Error('Schedule needs to be defined first');
       if (isHoliday(date)) return 0;
       const mapWeekdayToValue = {
         Sun: 0,
@@ -87,41 +88,21 @@ const MyAttendance: React.FC = () => {
       }: typeof schedule.workdays[0]) => {
         let hours = 0;
         if (morning_from && morning_to)
-          hours += moment.duration(morning_to.diff(morning_from)).asHours() % 24;
+          hours += moment.duration(moment(morning_to).diff(moment(morning_from))).asHours() % 24;
         if (afternoon_from && afternoon_to)
-          hours += moment.duration(afternoon_to.diff(afternoon_from)).asHours() % 24;
+          hours +=
+            moment.duration(moment(afternoon_to).diff(moment(afternoon_from))).asHours() % 24;
         return Number(hours.toFixed(1));
       };
 
       const workDay = schedule.workdays.find((it) => mapWeekdayToValue[it.day] === date.day());
+      // In schedule, find one has weekday (Mon, Tue,..) equals to "date"
       if (!workDay) return 0;
+      // Then calculate work hours based on schdule item has been found
       return calcHours(workDay);
     },
-    [schedule, isHoliday],
+    [isHoliday],
   );
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const { latitude, longitude } = position.coords;
-
-      readLocation(id).then(({ lat, lng, radius, name, allow_outside }) => {
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(
-          new google.maps.LatLng(lat, lng),
-          new google.maps.LatLng(latitude, longitude),
-        );
-        currentLocationRef.current = {
-          lat: latitude,
-          lng: longitude,
-          office: distance > radius ? 'Outside' : name,
-          allow_outside,
-        };
-      });
-    });
-  }
-
-  // useEffect(() => {
-  //   readAttendances(initialState!.currentUser!.id).then((fetchData) => setAttendances(fetchData));
-  // }, [initialState]);
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -202,24 +183,6 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Actual',
-      key: 'actual',
-      dataIndex: 'actual',
-      renderText: (_, record) => {
-        if (record.actual_hours_modified) {
-          return (
-            <Tooltip title={record.actual_hours_modification_note}>
-              <Tag icon={<EditOutlined />}>{record.actual}</Tag>
-            </Tooltip>
-          );
-        }
-        if (record.actual) {
-          return record.actual;
-        }
-        return '-';
-      },
-    },
-    {
       title: 'Work schedule',
       key: 'hours_work_by_schedule',
       dataIndex: 'hours_work_by_schedule',
@@ -229,45 +192,71 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
+      title: 'Actual',
+      key: 'actual',
+      dataIndex: 'actual_work_hours',
+      renderText: (_, record) => {
+        if (record.actual_hours_modified) {
+          return (
+            <Tooltip title={record.actual_hours_modification_note}>
+              <Tag icon={<EditOutlined />}>{formatDurationHm(record.actual_work_hours * 3600)}</Tag>
+            </Tooltip>
+          );
+        }
+        if (record.actual_work_hours) {
+          return formatDurationHm(record.actual_work_hours * 3600);
+        }
+        return '-';
+      },
+    },
+    {
       title: 'Overtime',
       key: 'overtime',
-      dataIndex: 'overtime',
-      renderText: (overtime) => {
-        if (typeof overtime === 'string') return overtime;
-        if (typeof overtime !== 'number') return overtime;
-        return formatDurationHm(overtime * 3600);
+      dataIndex: 'ot_work_hours',
+      renderText: (_, record) => {
+        if (record.ot_hours_modified) {
+          return (
+            <Tooltip title={record.ot_hours_modification_note}>
+              <Tag icon={<EditOutlined />}>{formatDurationHm(record.ot_work_hours * 3600)}</Tag>
+            </Tooltip>
+          );
+        }
+        if (record.ot_work_hours) {
+          return formatDurationHm(record.ot_work_hours * 3600);
+        }
+        return '-';
       },
     },
     {
       title: 'Decifit',
-      key: 'actual',
+      key: 'deficit',
       dataIndex: 'decifit',
       renderText: (decifit, record) => {
         if (record.hours_work_by_schedule === undefined || record.hours_work_by_schedule === null)
           return ' ';
-        return formatDurationHm((record.actual_work_hours - record.hours_work_by_schedule) * 3600);
+
+        return formatDurationHm(
+          (record.actual_work_hours + record.ot_work_hours - record.hours_work_by_schedule) * 3600,
+        );
       },
     },
     {
       title: 'Status',
       dataIndex: 'status',
       hideInForm: true,
-      fixed: 'right',
-      align: 'center',
-      width: 'minmax(300px, max-content)',
-      valueEnum: {
-        Approved: {
-          text: 'Approved',
-          status: 'Success',
-        },
-        Pending: {
-          text: 'Pending',
-          status: 'Warning',
-        },
-        Confirmed: {
-          text: 'Confirmed',
-          status: 'Success',
-        },
+      renderText: (it) => {
+        const symbols = {
+          Pending: <Badge status="warning" />,
+          Approved: <Badge status="success" />,
+          Rejected: <Badge status="error" />,
+          Confirmed: <LockOutlined style={{ color: '#52c41a', marginRight: 3 }} />,
+        };
+        return (
+          <>
+            {symbols[it]}
+            {it}
+          </>
+        );
       },
     },
     // {
@@ -285,57 +274,61 @@ const MyAttendance: React.FC = () => {
       render: (dom, record) =>
         record.type === 'AttendanceDay' ? (
           <Space size="small">
-            <Button
-              title="Edit actual"
-              size="small"
-              onClick={() => {
-                setEditModalVisible(true);
-                setSelectedRecord(record);
-                editModalForm.setFieldsValue({
-                  date: record.date,
-                  actual_work_hours: moment(
-                    formatDurationHm(record.actual_work_hours * 3600),
-                    'HH:mm',
-                  ),
-                });
-              }}
+            <Dropdown
+              disabled={record.status === 'Confirmed'}
+              overlay={
+                <Menu>
+                  <Menu.Item
+                    onClick={() => {
+                      setEditModalVisible('actual');
+                      setSelectedRecord(record);
+                      editModalForm.setFieldsValue({
+                        date: record.date,
+                        edited_time: moment(
+                          formatDurationHm(record.actual_work_hours * 3600),
+                          'HH:mm',
+                        ),
+                      });
+                    }}
+                  >
+                    Edit actual
+                  </Menu.Item>
+                  <Menu.Item
+                    onClick={() => {
+                      setEditModalVisible('overtime');
+                      setSelectedRecord(record);
+                      editModalForm.setFieldsValue({
+                        date: record.date,
+                        edited_time: moment(formatDurationHm(record.ot_work_hours * 3600), 'HH:mm'),
+                      });
+                    }}
+                  >
+                    Edit overtime
+                  </Menu.Item>
+                </Menu>
+              }
             >
-              <EditOutlined />
-            </Button>
-            {/* Delete button: might need in the future */}
-            {/* <Popconfirm
-            placement="right"
-            title={'Delete this employee?'}
-            onConfirm={async () => {
-              await onCrudOperation(() => deleteEmployee(record.id), 'Cannot delete employee!');
-            }}
-          >
-            <Button title="Delete this employee" size="small" danger>
-              <DeleteOutlined />
-            </Button>
-          </Popconfirm> */}
+              <Button size="small" disabled={record.status === 'Confirmed'}>
+                <EditOutlined />
+              </Button>
+            </Dropdown>
           </Space>
         ) : null,
     },
   ];
 
   return (
-    <PageContainer title={employee && `${employee.first_name} ${employee.last_name}`}>
+    <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
-        headerTitle="Attendance"
+        headerTitle={employee && `${employee.first_name} ${employee.last_name}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
         scroll={{ x: 'max-content' }}
         tableAlertRender={false}
         rowSelection={{
-          checkStrictly: false,
-          renderCell: (checked, record, index, originNode) => {
-            if (record.type === 'AttendanceDay') return originNode;
-            return null;
-          },
           onChange: (_, _selectedRows) => {
-            setSelectedRows(_selectedRows.filter((it) => it.type === 'AttendanceDay'));
+            setSelectedRows(_selectedRows);
           },
         }}
         toolBarRender={() => [
@@ -365,41 +358,17 @@ const MyAttendance: React.FC = () => {
         ]}
         request={async () => {
           const fetchData = await readAttendances(id);
-          // Handle for today data
-          const todayData = fetchData.find((it) => it.date === moment().format('YYYY-MM-DD'));
-          if (todayData) {
-            if (todayData.tracking_data.length) {
-              // Handle for: firstClock, lastClockOut, lastAction, nextStep
-              setFirstClockIn(moment(todayData.tracking_data[0].check_in_time).format('HH:mm'));
-              const continueStep = todayData.tracking_data[todayData.tracking_data.length - 1]
-                .check_out_time
-                ? 'Clock in'
-                : 'Clock out';
-              setNextStep(continueStep);
-              const lastClockOutRecord =
-                todayData.tracking_data[
-                  todayData.tracking_data.length - (continueStep === 'Clock in' ? 1 : 2)
-                ];
-              if (lastClockOutRecord) {
-                setLastClockOut(moment(lastClockOutRecord.check_out_time).format('HH:mm'));
-              }
 
-              const lastRecord = todayData.tracking_data[todayData.tracking_data.length - 1];
-              setLastAction(
-                lastRecord.check_out_time
-                  ? `Clocked out at ${moment(lastRecord.check_out_time).format('HH:mm')}`
-                  : `Clocked in at ${moment(lastRecord.check_in_time).format('HH:mm')}`,
-              );
-            }
-          }
+          const schedule = await getSchedule(id).then((it) => it.schedule as API.Schedule);
           // manipulate backend data
           const data = fetchData.map((it) => {
             const first_check_in = it.tracking_data[0];
             const last_check_out = it.tracking_data[it.tracking_data.length - 1];
+
             return {
               ...it,
               type: 'AttendanceDay',
-              date: moment(it.date, 'YYYY-MM-DD'),
+              date: moment(it.date),
               check_in: first_check_in?.check_in_time,
               check_in_note: first_check_in?.check_in_time && first_check_in?.check_in_note,
               check_in_location:
@@ -410,11 +379,8 @@ const MyAttendance: React.FC = () => {
               check_out_location:
                 last_check_out?.check_out_time &&
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
-              hours_work_by_schedule: getHourWorkDay(moment(it.date)),
-              actual: formatDurationHm(it.actual_work_hours * 3600),
-              // decifit: 0,
-              overtime: it.ot_work_hours, // formatDurationHm(it.ot_work_hours * 3600),
-              children: it.tracking_data.map((x) => {
+              hours_work_by_schedule: getHourWorkDay(moment(it.date), schedule),
+              children: it.tracking_data?.map((x) => {
                 return {
                   ...x,
                   id: x.check_in_time,
@@ -425,13 +391,7 @@ const MyAttendance: React.FC = () => {
                   check_out: x.check_out_time,
                   check_out_location:
                     x.check_out_time && (x.check_out_outside ? 'Outside' : x.location),
-                  overtime: x.overtime_type,
                   status: ' ',
-                  actual:
-                    x.check_out_time &&
-                    formatDurationHm(
-                      moment(x.check_out_time).diff(moment(x.check_in_time), 'seconds'),
-                    ),
                 };
               }),
             };
@@ -439,76 +399,50 @@ const MyAttendance: React.FC = () => {
 
           return {
             success: true,
-            data,
-            total: fetchData.length,
+            data: data as any,
+            total: data.length,
           };
         }}
         columns={columns}
       />
       <ModalForm
-        visible={clockModalVisible}
-        title={`${nextStep} at ${moment().format('HH:mm')}`}
+        visible={editModalVisible !== 'hidden'}
+        title={`Edit ${editModalVisible} attendance`}
         width="400px"
         onFinish={async (values) => {
           try {
-            const { lat, lng } = currentLocationRef.current!;
-            if (nextStep === 'Clock in') {
-              await checkIn(id, {
-                check_in_lat: lat,
-                check_in_lng: lng,
-                check_in_note: values.note,
-              });
-              message.success('Clocked in successfully');
-            } else {
-              await checkOut(id, {
-                check_out_lat: lat,
-                check_out_lng: lng,
-                check_out_note: values.note,
-              });
-              message.success('Clocked out successfully');
-            }
-            actionRef.current?.reload();
-          } catch {
-            message.error(`${nextStep} unsuccessfully`);
-          }
-
-          setClockModalVisible(false);
-        }}
-        onVisibleChange={(visible) => setClockModalVisible(visible)}
-      >
-        <Space style={{ marginBottom: 20 }}>
-          <EnvironmentOutlined />
-          {currentLocationRef.current?.office === 'Outside'
-            ? 'Outside the designated area'
-            : currentLocationRef.current?.office}
-        </Space>
-        <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
-      </ModalForm>
-      <ModalForm
-        visible={editModalVisible}
-        title={`Edit actual attendance`}
-        width="400px"
-        onFinish={async (values) => {
-          try {
-            const edited_to = moment(values.actual_work_hours);
+            const edited_to = moment(values.edited_time);
             const work_hours = edited_to.hour() + edited_to.minute() / 60;
-            await editActual(id, seletectedRecord!.id, {
-              actual_work_hours: work_hours,
-              actual_hours_modification_note: values.note,
-            });
+            if (editModalVisible === 'actual') {
+              await editActual(id, seletectedRecord!.id, {
+                actual_work_hours: work_hours,
+                actual_hours_modification_note: values.note,
+              });
+            }
+            if (editModalVisible === 'overtime') {
+              await editOvertime(id, seletectedRecord!.id, {
+                ot_work_hours: work_hours,
+                ot_hours_modification_note: values.note,
+              });
+            }
             message.success('Edit succesfully');
-            setEditModalVisible(false);
+            setEditModalVisible('hidden');
+            editModalForm.setFieldsValue({ note: '' });
             actionRef.current?.reload();
           } catch {
             message.error('Edit unsuccesfully');
           }
         }}
-        onVisibleChange={(visible) => setEditModalVisible(visible)}
+        onVisibleChange={(visible) => {
+          if (!visible) {
+            setEditModalVisible('hidden');
+          }
+        }}
         form={editModalForm}
       >
         <ProForm.Group>
           <ProFormDatePicker name="date" label="Date" disabled rules={[{ required: true }]} />
-          <Form.Item name="actual_work_hours" label="Actual hours" rules={[{ required: true }]}>
+          <Form.Item name="edited_time" label="Edited time" rules={[{ required: true }]}>
             <TimePicker format="HH:mm" minuteStep={5} />
           </Form.Item>
         </ProForm.Group>
@@ -518,4 +452,4 @@ const MyAttendance: React.FC = () => {
   );
 };
 
-export default MyAttendance;
+export default EmployeeAttendanceDetail;

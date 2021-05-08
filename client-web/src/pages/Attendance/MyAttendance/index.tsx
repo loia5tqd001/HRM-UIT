@@ -284,7 +284,7 @@ const MyAttendance: React.FC = () => {
           Pending: <Badge status="warning" />,
           Approved: <Badge status="success" />,
           Rejected: <Badge status="error" />,
-          Confirmed: <LockOutlined style={{ color: '#52c41a' }} />,
+          Confirmed: <LockOutlined style={{ color: '#52c41a', marginRight: 3 }} />,
         };
         return (
           <>
@@ -310,6 +310,7 @@ const MyAttendance: React.FC = () => {
         record.type === 'AttendanceDay' ? (
           <Space size="small">
             <Dropdown
+              disabled={record.status === 'Confirmed'}
               overlay={
                 <Menu>
                   <Menu.Item
@@ -342,41 +343,10 @@ const MyAttendance: React.FC = () => {
                 </Menu>
               }
             >
-              <Button size="small">
+              <Button size="small" disabled={record.status === 'Confirmed'}>
                 <EditOutlined />
               </Button>
             </Dropdown>
-            {/* <Button
-              title="Edit actual"
-              size="small"
-              onClick={() => {
-                setEditModalVisible(true);
-                setSelectedRecord(record);
-                editModalForm.setFieldsValue({
-                  date: record.date,
-                  actual_work_hours: moment(
-                    formatDurationHm(record.actual_work_hours * 3600),
-                    'HH:mm',
-                  ),
-                });
-              }}
-            >
-              <EditOutlined /> Actual
-            </Button>
-            <Button
-              title="Edit overtime"
-              size="small"
-              onClick={() => {
-                setEditModalVisible(true);
-                setSelectedRecord(record);
-                editModalForm.setFieldsValue({
-                  date: record.date,
-                  ot_work_hours: moment(formatDurationHm(record.ot_work_hours * 3600), 'HH:mm'),
-                });
-              }}
-            >
-              <EditOutlined /> Overtime
-            </Button> */}
           </Space>
         ) : null,
     },
@@ -432,7 +402,7 @@ const MyAttendance: React.FC = () => {
           </Button>,
         ]}
         request={async () => {
-          const fetchData = await readAttendances(initialState!.currentUser!.id);
+          const fetchData = await readAttendances(id);
           // Handle for today data
           const todayData = fetchData.find((it) => moment(it.date).isSame(moment(), 'day'));
           if (todayData) {
