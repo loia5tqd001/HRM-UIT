@@ -47,6 +47,8 @@ export default {
   'menu.attendance.report': 'Report',
   'menu.payroll': 'Payroll',
   'menu.payroll.template': 'Template',
+  'menu.configuration': 'Configuration',
+  'menu.configuration.cycle': 'Cycle',
   'menu.payroll.report': 'Report',
 
   'menu.welcome': 'Welcome',

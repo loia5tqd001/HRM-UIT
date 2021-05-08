@@ -464,6 +464,11 @@ declare namespace API {
     }[];
   }
 
+  interface AppConfig {
+    id: number;
+    monthly_start_date: number;
+  }
+
   interface CustomField {
     id: number;
     name: string;

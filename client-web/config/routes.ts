@@ -298,17 +298,29 @@
         hideInMenu: true,
       },
       {
-        path: '/payroll/template/:id/columns',
-        component: './Payroll/Template/Columns',
-        hideInMenu: true,
-      },
-      {
         path: '/payroll/report',
         name: '__report',
         icon: 'barChart',
         component: './Welcome',
       },
       { path: '/payroll', redirect: '/payroll/template' },
+    ],
+  },
+  {
+    path: '/configuration',
+    name: 'configuration',
+    icon: 'setting',
+    routes: [
+      {
+        path: '/configuration/cycle',
+        name: 'cycle',
+        icon: 'history',
+        component: './Configuration/Cycle',
+      },
+      {
+        path: '/configuration',
+        redirect: '/configuration/cycle',
+      },
     ],
   },
   {
