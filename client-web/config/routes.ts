@@ -263,11 +263,11 @@
             component: './Attendance/Configuration/OfficeEdit',
             hideInMenu: true,
           },
-          {
-            path: '/attendance/configuration/overtimeType',
-            name: 'overtimeType',
-            component: './Attendance/Configuration/OvertimeType',
-          },
+          // {
+          //   path: '/attendance/configuration/overtimeType',
+          //   name: 'overtimeType',
+          //   component: './Attendance/Configuration/OvertimeType',
+          // },
           {
             path: '/attendance/configuration',
             redirect: '/attendance/configuration/office',

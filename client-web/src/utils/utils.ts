@@ -22,8 +22,10 @@ export const isAntDesignProOrDev = (): boolean => {
 };
 
 export const formatDurationHm = (seconds: number) => {
-  const duration = moment.duration(seconds, 'seconds');
-  return `${Math.floor(duration.asHours())}h${duration.minutes() ? `${duration.minutes()}m` : ''}`;
+  const duration = moment.duration(Math.abs(seconds), 'seconds');
+  return `${Math.sign(seconds) < 0 ? '-' : ''}${Math.floor(duration.asHours())}h${
+    duration.minutes() ? `${duration.minutes()}m` : ''
+  }`;
 };
 
 // Dropdown filter for Table antd: https://stackoverflow.com/a/53894312/9787887

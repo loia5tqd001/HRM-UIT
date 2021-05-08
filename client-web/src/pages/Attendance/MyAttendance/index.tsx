@@ -1,5 +1,12 @@
 import { readLocation } from '@/services/admin.organization.location';
-import { checkIn, checkOut, editActual, getSchedule, readAttendances } from '@/services/employee';
+import {
+  checkIn,
+  checkOut,
+  editActual,
+  editOvertime,
+  getSchedule,
+  readAttendances,
+} from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { formatDurationHm } from '@/utils/utils';
 import {
@@ -13,10 +20,21 @@ import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-des
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Badge, Button, Form, message, Space, Tag, TimePicker, Tooltip } from 'antd';
+import {
+  Badge,
+  Button,
+  Dropdown,
+  Form,
+  Menu,
+  message,
+  Space,
+  Tag,
+  TimePicker,
+  Tooltip,
+} from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useIntl, useModel } from 'umi';
 
 type RecordType = API.AttendanceRecord;
@@ -32,7 +50,9 @@ const MyAttendance: React.FC = () => {
   const intl = useIntl();
   const actionRef = useRef<ActionType>();
   const [clockModalVisible, setClockModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState<'hidden' | 'actual' | 'overtime'>(
+    'hidden',
+  );
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
   const currentLocationRef = useRef<CurrentLocation>();
   const [nextStep, setNextStep] = useState<'Clock in' | 'Clock out'>('Clock in');
@@ -41,14 +61,11 @@ const MyAttendance: React.FC = () => {
   const [lastAction, setLastAction] = useState<string>();
   const [editModalForm] = useForm();
   const [holidays, setHolidays] = useState<API.Holiday[]>();
-  const [schedule, setSchedule] = useState<API.Schedule>();
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
-
   useEffect(() => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
-    getSchedule(id).then((fetchData) => setSchedule(fetchData.schedule as API.Schedule));
   }, [id]);
 
   const isHoliday = useCallback(
@@ -62,8 +79,8 @@ const MyAttendance: React.FC = () => {
   );
 
   const getHourWorkDay = useCallback(
-    (date: moment.Moment) => {
-      if (!schedule) return 0;
+    (date: moment.Moment, schedule: API.Schedule) => {
+      if (!schedule) throw Error('Schedule needs to be defined first');
       if (isHoliday(date)) return 0;
       const mapWeekdayToValue = {
         Sun: 0,
@@ -91,10 +108,12 @@ const MyAttendance: React.FC = () => {
       };
 
       const workDay = schedule.workdays.find((it) => mapWeekdayToValue[it.day] === date.day());
+      // In schedule, find one has weekday (Mon, Tue,..) equals to "date"
       if (!workDay) return 0;
+      // Then calculate work hours based on schdule item has been found
       return calcHours(workDay);
     },
-    [schedule, isHoliday],
+    [isHoliday],
   );
 
   if (navigator.geolocation) {
@@ -199,24 +218,6 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Actual',
-      key: 'actual',
-      dataIndex: 'actual',
-      renderText: (_, record) => {
-        if (record.actual_hours_modified) {
-          return (
-            <Tooltip title={record.actual_hours_modification_note}>
-              <Tag icon={<EditOutlined />}>{record.actual}</Tag>
-            </Tooltip>
-          );
-        }
-        if (record.actual) {
-          return record.actual;
-        }
-        return '-';
-      },
-    },
-    {
       title: 'Work schedule',
       key: 'hours_work_by_schedule',
       dataIndex: 'hours_work_by_schedule',
@@ -226,54 +227,71 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
+      title: 'Actual',
+      key: 'actual',
+      dataIndex: 'actual_work_hours',
+      renderText: (_, record) => {
+        if (record.actual_hours_modified) {
+          return (
+            <Tooltip title={record.actual_hours_modification_note}>
+              <Tag icon={<EditOutlined />}>{formatDurationHm(record.actual_work_hours * 3600)}</Tag>
+            </Tooltip>
+          );
+        }
+        if (record.actual_work_hours) {
+          return formatDurationHm(record.actual_work_hours * 3600);
+        }
+        return '-';
+      },
+    },
+    {
       title: 'Overtime',
       key: 'overtime',
-      dataIndex: 'overtime',
-      renderText: (overtime) => {
-        if (typeof overtime === 'string') return overtime;
-        if (typeof overtime !== 'number') return overtime;
-        return formatDurationHm(overtime * 3600);
+      dataIndex: 'ot_work_hours',
+      renderText: (_, record) => {
+        if (record.ot_hours_modified) {
+          return (
+            <Tooltip title={record.ot_hours_modification_note}>
+              <Tag icon={<EditOutlined />}>{formatDurationHm(record.ot_work_hours * 3600)}</Tag>
+            </Tooltip>
+          );
+        }
+        if (record.ot_work_hours) {
+          return formatDurationHm(record.ot_work_hours * 3600);
+        }
+        return '-';
       },
     },
     {
       title: 'Decifit',
-      key: 'actual',
+      key: 'deficit',
       dataIndex: 'decifit',
       renderText: (decifit, record) => {
         if (record.hours_work_by_schedule === undefined || record.hours_work_by_schedule === null)
           return ' ';
-        return formatDurationHm((record.actual_work_hours - record.hours_work_by_schedule) * 3600);
+
+        return formatDurationHm(
+          (record.actual_work_hours + record.ot_work_hours - record.hours_work_by_schedule) * 3600,
+        );
       },
     },
     {
       title: 'Status',
       dataIndex: 'status',
       hideInForm: true,
-      renderText: (it, record) => {
-        const map = {
-          Pending: {
-            color: '#faad14',
-            status: 'warning',
-          },
-          Approved: {
-            color: '#52c41a',
-            status: 'success',
-          },
-          Rejected: {
-            color: '#ff4d4f',
-            status: 'error',
-          },
+      renderText: (it) => {
+        const symbols = {
+          Pending: <Badge status="warning" />,
+          Approved: <Badge status="success" />,
+          Rejected: <Badge status="error" />,
+          Confirmed: <LockOutlined style={{ color: '#52c41a' }} />,
         };
-        if (record.is_confirmed)
-          return (
-            <Tooltip title="Confirmed">
-              <Space>
-                <LockOutlined style={{ color: map[it]?.color }} />
-                {it}
-              </Space>
-            </Tooltip>
-          );
-        return <Badge status={map[it]?.status} text={it} />;
+        return (
+          <>
+            {symbols[it]}
+            {it}
+          </>
+        );
       },
     },
     // {
@@ -291,7 +309,44 @@ const MyAttendance: React.FC = () => {
       render: (dom, record) =>
         record.type === 'AttendanceDay' ? (
           <Space size="small">
-            <Button
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item
+                    onClick={() => {
+                      setEditModalVisible('actual');
+                      setSelectedRecord(record);
+                      editModalForm.setFieldsValue({
+                        date: record.date,
+                        edited_time: moment(
+                          formatDurationHm(record.actual_work_hours * 3600),
+                          'HH:mm',
+                        ),
+                      });
+                    }}
+                  >
+                    Edit actual
+                  </Menu.Item>
+                  <Menu.Item
+                    onClick={() => {
+                      setEditModalVisible('overtime');
+                      setSelectedRecord(record);
+                      editModalForm.setFieldsValue({
+                        date: record.date,
+                        edited_time: moment(formatDurationHm(record.ot_work_hours * 3600), 'HH:mm'),
+                      });
+                    }}
+                  >
+                    Edit overtime
+                  </Menu.Item>
+                </Menu>
+              }
+            >
+              <Button size="small">
+                <EditOutlined />
+              </Button>
+            </Dropdown>
+            {/* <Button
               title="Edit actual"
               size="small"
               onClick={() => {
@@ -306,8 +361,22 @@ const MyAttendance: React.FC = () => {
                 });
               }}
             >
-              <EditOutlined />
+              <EditOutlined /> Actual
             </Button>
+            <Button
+              title="Edit overtime"
+              size="small"
+              onClick={() => {
+                setEditModalVisible(true);
+                setSelectedRecord(record);
+                editModalForm.setFieldsValue({
+                  date: record.date,
+                  ot_work_hours: moment(formatDurationHm(record.ot_work_hours * 3600), 'HH:mm'),
+                });
+              }}
+            >
+              <EditOutlined /> Overtime
+            </Button> */}
           </Space>
         ) : null,
     },
@@ -391,6 +460,8 @@ const MyAttendance: React.FC = () => {
               );
             }
           }
+
+          const schedule = await getSchedule(id).then((it) => it.schedule as API.Schedule);
           // manipulate backend data
           const data = fetchData.map((it) => {
             const first_check_in = it.tracking_data[0];
@@ -410,10 +481,7 @@ const MyAttendance: React.FC = () => {
               check_out_location:
                 last_check_out?.check_out_time &&
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
-              hours_work_by_schedule: getHourWorkDay(moment(it.date)),
-              actual: formatDurationHm(it.actual_work_hours * 3600),
-              // decifit: 0,
-              overtime: it.ot_work_hours, // formatDurationHm(it.ot_work_hours * 3600),
+              hours_work_by_schedule: getHourWorkDay(moment(it.date), schedule),
               children: it.tracking_data?.map((x) => {
                 return {
                   ...x,
@@ -425,13 +493,7 @@ const MyAttendance: React.FC = () => {
                   check_out: x.check_out_time,
                   check_out_location:
                     x.check_out_time && (x.check_out_outside ? 'Outside' : x.location),
-                  overtime: x.overtime_type,
                   status: ' ',
-                  actual:
-                    x.check_out_time &&
-                    formatDurationHm(
-                      moment(x.check_out_time).diff(moment(x.check_in_time), 'seconds'),
-                    ),
                 };
               }),
             };
@@ -439,8 +501,8 @@ const MyAttendance: React.FC = () => {
 
           return {
             success: true,
-            data,
-            total: fetchData.length,
+            data: data as any,
+            total: data.length,
           };
         }}
         columns={columns}
@@ -491,30 +553,43 @@ const MyAttendance: React.FC = () => {
         />
       </ModalForm>
       <ModalForm
-        visible={editModalVisible}
-        title={`Edit actual attendance`}
+        visible={editModalVisible !== 'hidden'}
+        title={`Edit ${editModalVisible} attendance`}
         width="400px"
         onFinish={async (values) => {
           try {
-            const edited_to = moment(values.actual_work_hours);
+            const edited_to = moment(values.edited_time);
             const work_hours = edited_to.hour() + edited_to.minute() / 60;
-            await editActual(id, seletectedRecord!.id, {
-              actual_work_hours: work_hours,
-              actual_hours_modification_note: values.note,
-            });
+            if (editModalVisible === 'actual') {
+              await editActual(id, seletectedRecord!.id, {
+                actual_work_hours: work_hours,
+                actual_hours_modification_note: values.note,
+              });
+            }
+            if (editModalVisible === 'overtime') {
+              await editOvertime(id, seletectedRecord!.id, {
+                ot_work_hours: work_hours,
+                ot_hours_modification_note: values.note,
+              });
+            }
             message.success('Edit succesfully');
-            setEditModalVisible(false);
+            setEditModalVisible('hidden');
+            editModalForm.setFieldsValue({ note: '' });
             actionRef.current?.reload();
           } catch {
             message.error('Edit unsuccesfully');
           }
         }}
-        onVisibleChange={(visible) => setEditModalVisible(visible)}
+        onVisibleChange={(visible) => {
+          if (!visible) {
+            setEditModalVisible('hidden');
+          }
+        }}
         form={editModalForm}
       >
         <ProForm.Group>
           <ProFormDatePicker name="date" label="Date" disabled rules={[{ required: true }]} />
-          <Form.Item name="actual_work_hours" label="Actual hours" rules={[{ required: true }]}>
+          <Form.Item name="edited_time" label="Edited time" rules={[{ required: true }]}>
             <TimePicker format="HH:mm" minuteStep={5} />
           </Form.Item>
         </ProForm.Group>

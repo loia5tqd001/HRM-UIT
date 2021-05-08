@@ -289,23 +289,23 @@ declare namespace API {
     confirmed_by: Employee['id'];
     status: 'Pending' | 'Approved' | 'Confirmed';
     tracking_data: {
-      overtime_type: string;
       check_in_time: moment.Moment | string;
+      check_in_outside: boolean;
+      check_in_note: string | null;
       check_in_lat: number;
       check_in_lng: number;
-      check_in_outside: boolean;
       check_out_time: moment.Moment | string | null;
+      check_out_outside: boolean | null;
+      check_out_note: string | null;
       check_out_lat: number | null;
       check_out_lng: number | null;
-      check_out_outside: boolean | null;
-      check_in_note: string | null;
-      check_out_note: string | null;
       location: string | null;
+      actual_work_hours: number;
+      ot_work_hours: number;
     }[];
   }
 
   interface CheckInBody {
-    overtime_type?: string;
     check_in_lat: number;
     check_in_lng: number;
     check_in_note?: string;
@@ -320,6 +320,11 @@ declare namespace API {
   interface EditActual {
     actual_work_hours: number;
     actual_hours_modification_note: string;
+  }
+
+  interface EditOvertime {
+    ot_work_hours: number;
+    ot_hours_modification_note: string;
   }
 
   interface Schedule {
@@ -388,29 +393,29 @@ declare namespace API {
     reviewed_by?: number;
   }
 
-  interface Tracking {
-    id: number;
-    type: 'checkin' | 'checkout';
-    time: moment.Moment;
-    note: string;
-    is_ot: boolean;
-    ot_type: OvertimeType['id'] | undefined; // undefined khi is_ot = false
-    location: Location['id']; // dựa vô employee.job.location
-    longitude: number; // location thực tế khi checkin/checkout
-    latitude: number; // location thực tế khi checkin/checkout
-    outside_office: boolean;
-  }
-  interface AttendanceDay {
-    id: number;
-    date: moment.Moment;
-    employee: Employee['id'];
-    hours_work_by_schedule: number; // depends on holidays + schedule of employee
-    tracking: Tracking[]; // => clock in, clock in location, clock out, clock out location, actual, overtime,
-    edited_by: Employee['id'];
-    edited_when: moment.Moment;
-    edited_to: number; // edit "actual hour" to xx hours
-    status: 'pending' | 'approved' | 'confirmed';
-  }
+  // interface Tracking {
+  //   id: number;
+  //   type: 'checkin' | 'checkout';
+  //   time: moment.Moment;
+  //   note: string;
+  //   is_ot: boolean;
+  //   ot_type: OvertimeType['id'] | undefined; // undefined khi is_ot = false
+  //   location: Location['id']; // dựa vô employee.job.location
+  //   longitude: number; // location thực tế khi checkin/checkout
+  //   latitude: number; // location thực tế khi checkin/checkout
+  //   outside_office: boolean;
+  // }
+  // interface AttendanceDay {
+  //   id: number;
+  //   date: moment.Moment;
+  //   employee: Employee['id'];
+  //   hours_work_by_schedule: number; // depends on holidays + schedule of employee
+  //   tracking: Tracking[]; // => clock in, clock in location, clock out, clock out location, actual, overtime,
+  //   edited_by: Employee['id'];
+  //   edited_when: moment.Moment;
+  //   edited_to: number; // edit "actual hour" to xx hours
+  //   status: 'pending' | 'approved' | 'confirmed';
+  // }
   interface AttendanceRecord<Type extends 'AttendanceDay' | 'Tracking' = 'AttendanceDay'> {
     id: number;
     type: Type;
@@ -423,18 +428,19 @@ declare namespace API {
     check_out_note: string | undefined;
     check_out_location: 'Outside' | Location['name'] | undefined;
     hours_work_by_schedule: number;
-    actual: moment.Duration;
     actual_work_hours: number;
     actual_hours_modified: boolean;
     actual_hours_modification_note: string | null;
-    deficit: number;
-    overtime: string | number | undefined;
-    status: 'Pending' | 'Approved' | 'Rejected' | undefined;
+    ot_work_hours: number;
+    ot_hours_modified: boolean;
+    ot_hours_modification_note: string | null;
+    // deficit: number;
+    // overtime: string | number | undefined;
+    status: 'Pending' | 'Approved' | 'Rejected' | 'Confirmed' | undefined;
     // edited_by: Employee['id'] | undefined;
     // edited_when: moment.Moment | undefined;
     // edited_to: number | undefined; // edit "actual hour" to xx hours
     children: AttendanceRecord<'Tracking'>[];
-    is_confirmed: boolean;
   }
 
   interface AttendanceEmployee {
@@ -454,8 +460,7 @@ declare namespace API {
       ot_hours_modification_note: string | null;
       reviewed_by: number | null;
       confirmed_by: number | null;
-      is_confirmed: boolean;
-      status: 'Pending' | 'Approved' | 'Rejected' | undefined;
+      status: 'Pending' | 'Approved' | 'Rejected' | 'Confirmed' | undefined;
     }[];
   }
 

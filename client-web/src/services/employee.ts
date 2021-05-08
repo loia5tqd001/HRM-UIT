@@ -208,6 +208,13 @@ export async function editActual(employeeId: number, recordId: number, data: API
   });
 }
 
+export async function editOvertime(employeeId: number, recordId: number, data: API.EditOvertime) {
+  return request(`${endpoint}${employeeId}/attendance/${recordId}/edit_overtime_hours/`, {
+    method: 'POST',
+    data,
+  });
+}
+
 export async function allEmployeeTimeoffs(employeeId: number, options?: { [key: string]: any }) {
   return request<API.TimeoffRequest[]>(`${endpoint}${employeeId}/time_off/`, {
     method: 'GET',
