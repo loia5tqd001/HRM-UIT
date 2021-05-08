@@ -4,14 +4,14 @@ import {
   confirmEmployeeAttendance,
   getSchedule,
   rejectEmployeeAttendance,
-  revertEmployeeAttendance
+  revertEmployeeAttendance,
 } from '@/services/employee';
 import {
   CheckCircleOutlined,
   CheckOutlined,
   CloseOutlined,
   LockOutlined,
-  RollbackOutlined
+  RollbackOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
@@ -74,21 +74,11 @@ const EmployeeAttendance: React.FC = () => {
   const [periods, setPeriods] = useState<API.Period[]>();
   const [selectedPeriod, setSelectedPeriod] = useState<any>();
 
-  const periodToSelectItem = (period: API.Period) => ({
-    value: String(period),
-    label: `${moment(period.start_date).format('DD MMM YYYY')} → ${moment(period.end_date).format(
-      'DD MMM YYYY',
-    )}`,
-  });
-
-  useEffect(() => {
-    actionRef.current?.reload();
-  }, [selectedPeriod])
-
   useEffect(() => {
     allPeriods().then((fetchData) => {
-      setSelectedPeriod(periodToSelectItem(fetchData[0]));
+      setSelectedPeriod(fetchData[0]?.id);
       setPeriods(fetchData);
+      actionRef.current?.reload();
     });
   }, []);
 
@@ -224,18 +214,22 @@ const EmployeeAttendance: React.FC = () => {
           },
         }}
         toolBarRender={() => [
-          <Select
+          <Select<number>
             loading={!periods}
-            options={periods?.map(periodToSelectItem)}
-            // defaultValue={selectedPeriod}
             style={{ minWidth: 100 }}
-            value={selectedPeriod?.value}
+            value={selectedPeriod}
             onChange={(value) => {
-              const foundItem = periods?.find((it) => String(it.id) === String(value));
-              if (!foundItem) return;
-              setSelectedPeriod(periodToSelectItem(foundItem));
+              setSelectedPeriod(value);
+              actionRef.current?.reload();
             }}
-          />,
+          >
+            {periods?.map((it) => (
+              <Select.Option value={it.id}>
+                {moment(it.start_date).format('DD MMM YYYY')} →{' '}
+                {moment(it.end_date).format('DD MMM YYYY')}
+              </Select.Option>
+            ))}
+          </Select>,
           ...toolbarButtons.map((toolbar) => (
             <Button
               onClick={async () => {
@@ -267,8 +261,9 @@ const EmployeeAttendance: React.FC = () => {
         ]}
         request={async () => {
           let data: RecordType[] = await allAttendances({
-            params: { period_id: selectedPeriod?.value },
+            params: { period_id: selectedPeriod },
           });
+
           setAttendanceKeys(
             uniq(
               data.flatMap((it) => it.attendance.flatMap((x) => moment(x.date).format('DD MMM'))),
