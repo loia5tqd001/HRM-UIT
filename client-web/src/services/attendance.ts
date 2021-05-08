@@ -9,3 +9,9 @@ export async function allAttendances(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+export async function allPeriods() {
+  return request<API.Period[]>(`${endpoint}/cycle/periods/`, {
+    method: 'GET',
+  });
+}

@@ -339,6 +339,12 @@ declare namespace API {
     }[];
   }
 
+  interface Period {
+    id: number;
+    start_date: string;
+    end_date: string;
+  }
+
   interface JobTitle {
     id: number;
     name: string;

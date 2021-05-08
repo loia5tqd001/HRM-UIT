@@ -1,25 +1,25 @@
-import { allAttendances } from '@/services/attendance';
+import { allAttendances, allPeriods } from '@/services/attendance';
 import {
   approveEmployeeAttendance,
   confirmEmployeeAttendance,
   getSchedule,
   rejectEmployeeAttendance,
-  revertEmployeeAttendance,
+  revertEmployeeAttendance
 } from '@/services/employee';
 import {
   CheckCircleOutlined,
   CheckOutlined,
   CloseOutlined,
   LockOutlined,
-  RollbackOutlined,
+  RollbackOutlined
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Badge, Button, message, Progress, Space, Tooltip } from 'antd';
+import { Badge, Button, message, Progress, Select, Space, Tooltip } from 'antd';
 import { countBy, groupBy, mapValues, sumBy, uniq } from 'lodash';
 import moment from 'moment';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useIntl } from 'umi';
 
 type RecordType = API.AttendanceEmployee & {
@@ -71,7 +71,26 @@ const EmployeeAttendance: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [selectedRows, setSelectedRows] = useState<RecordType[]>([]);
   const [attendanceKeys, setAttendanceKeys] = useState<string[]>([]);
-  const backendData = useRef<any>();
+  const [periods, setPeriods] = useState<API.Period[]>();
+  const [selectedPeriod, setSelectedPeriod] = useState<any>();
+
+  const periodToSelectItem = (period: API.Period) => ({
+    value: String(period),
+    label: `${moment(period.start_date).format('DD MMM YYYY')} → ${moment(period.end_date).format(
+      'DD MMM YYYY',
+    )}`,
+  });
+
+  useEffect(() => {
+    actionRef.current?.reload();
+  }, [selectedPeriod])
+
+  useEffect(() => {
+    allPeriods().then((fetchData) => {
+      setSelectedPeriod(periodToSelectItem(fetchData[0]));
+      setPeriods(fetchData);
+    });
+  }, []);
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -205,6 +224,18 @@ const EmployeeAttendance: React.FC = () => {
           },
         }}
         toolBarRender={() => [
+          <Select
+            loading={!periods}
+            options={periods?.map(periodToSelectItem)}
+            // defaultValue={selectedPeriod}
+            style={{ minWidth: 100 }}
+            value={selectedPeriod?.value}
+            onChange={(value) => {
+              const foundItem = periods?.find((it) => String(it.id) === String(value));
+              if (!foundItem) return;
+              setSelectedPeriod(periodToSelectItem(foundItem));
+            }}
+          />,
           ...toolbarButtons.map((toolbar) => (
             <Button
               onClick={async () => {
@@ -235,7 +266,9 @@ const EmployeeAttendance: React.FC = () => {
           )),
         ]}
         request={async () => {
-          let data: RecordType[] = await allAttendances();
+          let data: RecordType[] = await allAttendances({
+            params: { period_id: selectedPeriod?.value },
+          });
           setAttendanceKeys(
             uniq(
               data.flatMap((it) => it.attendance.flatMap((x) => moment(x.date).format('DD MMM'))),
