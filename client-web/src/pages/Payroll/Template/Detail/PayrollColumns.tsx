@@ -8,6 +8,7 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 import {
+  Affix,
   Button,
   Card,
   Form,
@@ -24,7 +25,6 @@ import arrayMove from 'array-move';
 import { sortBy } from 'lodash';
 // import 'antd/dist/antd.css';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { SplitPane } from 'react-collapse-pane';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import './index.css';
 import styles from './index.less';
@@ -42,27 +42,14 @@ const EditableCell = ({
   handleSave,
   ...restProps
 }: any) => {
-  const [editing, setEditing] = useState(false);
   const inputRef = useRef<any>(null);
   const form = useContext(EditableContext);
-  useEffect(() => {
-    if (editing) {
-      inputRef.current?.focus();
-    }
-  }, [editing]);
-
-  const toggleEdit = () => {
-    setEditing(!editing);
-    form.setFieldsValue({
-      [dataIndex]: record[dataIndex],
-    });
-  };
 
   const save = async () => {
     try {
       const values = await form.validateFields();
-      toggleEdit();
       form.setFieldsValue({
+        [dataIndex]: record[dataIndex],
         ...record,
         ...values,
       });
@@ -81,7 +68,7 @@ const EditableCell = ({
           <Select
             allowClear={false}
             options={[
-              { value: 'System Field', label: 'System Field' },
+              { value: 'System Field', label: 'System Field', disabled: true },
               { value: 'Input', label: 'Input' },
               { value: 'Formula', label: 'Formula' },
             ]}
@@ -274,6 +261,7 @@ type Props = {
 export const PayrollColumns: React.FC<Props> = (props) => {
   const { payrollTemplate, onUpdateColumns } = props;
   const [systemFields, setSystemFields] = useState<API.SystemField[]>();
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [tableData, setTableData] = useState<API.PayrollTemplate['fields']>([]);
 
   useEffect(() => {
@@ -286,82 +274,21 @@ export const PayrollColumns: React.FC<Props> = (props) => {
     allPayrollSystemFields().then((fetchData) => setSystemFields(fetchData));
   }, []);
 
-  const [collapsed, setCollapse] = useState(false);
-
-  const resizerCss = {
-    height: '1px',
-    background: 'rgba(0, 0, 0, 0.1)',
-  };
-  const resizerHoverCss = {
-    height: '10px',
-    marginTop: '-10px',
-    backgroundImage:
-      'radial-gradient(at center center,rgba(0,0,0,0.2) 0%,transparent 70%,transparent 100%)',
-    backgroundSize: '100% 50px',
-    backgroundPosition: '50% 0',
-    backgroundRepeat: 'no-repeat',
-    borderRight: '1px solid rgba(0, 0, 0, 0.1)',
-  };
-
   return (
     <TableContext.Provider
-      value={{ tableData, setTableData, tableDataReady: !!payrollTemplate?.fields }}
+      value={{
+        tableData,
+        setTableData,
+        tableDataReady: !!payrollTemplate?.fields,
+      }}
     >
       <div style={{ display: 'grid', gap: 24 }}>
         {/* <Button onClick={() => setVisible(!visible)}>Toggle</Button> */}
         <Card
           title="Columns configuration"
-          style={{ minHeight: '100vh', height: '100%' }}
+          style={{ minHeight: '50vh', height: '100%' }}
           extra={
-            <Button
-              children="Save"
-              type="primary"
-              onClick={async () => {
-                try {
-                  await onUpdateColumns(tableData);
-                  message.success('Updated successfully!');
-                } catch {
-                  message.error('Updated unsuccessfully!');
-                }
-              }}
-            />
-          }
-        >
-          {/* <SplitPane style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}> */}
-          <SplitPane
-            split="vertical"
-            initialSizes={[800, 300]}
-            minSizes={[50, 100]}
-            collapseOptions={{
-              beforeToggleButton: (
-                <Button>
-                  <ArrowRightOutlined />
-                </Button>
-              ),
-              afterToggleButton: (
-                <Button>
-                  <ArrowLeftOutlined />
-                </Button>
-              ),
-              collapseDirection: 'right',
-            }}
-            resizerOptions={{
-              css: resizerCss,
-              hoverCss: resizerHoverCss,
-              grabberSize: '1rem',
-            }}
-            hooks={{
-              onCollapse: (it) => setCollapse(!!it[1]),
-              // onDragStarted: action('onDragStarted'),
-              // onSaveSizes: action('onDragFinished'),
-            }}
-          >
-            <div style={{ margin: '0 12px' }}>
-              <SortableTable />
-            </div>
-            <div
-              style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.3s', marginRight: 12 }}
-            >
+            <Space>
               <Button
                 icon={<PlusOutlined />}
                 style={{ width: '100%' }}
@@ -379,46 +306,89 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                   ]);
                 }}
               />
-              <List
-                itemLayout="horizontal"
-                dataSource={systemFields}
-                loading={!systemFields}
-                bordered
-                renderItem={(item, index) => (
-                  <List.Item
-                    onClick={(e) => {
-                      if (!systemFields) {
-                        message.error('Cannot find system fields');
-                        return;
-                      }
-                      const codeName = systemFields?.[index].code_name;
-                      const codeNameExists = tableData.some((it) => it.code_name === codeName);
-                      if (codeNameExists) {
-                        message.error(`${codeName} already exists`);
-                        return;
-                      }
-                      setTableData([
-                        ...tableData,
-                        {
-                          type: 'System Field',
-                          code_name: systemFields[index].code_name,
-                          define: '',
-                          display_name: systemFields[index].name,
-                          index: tableData.length,
-                        },
-                      ]);
-                    }}
-                    className={styles.listItem}
-                  >
-                    <List.Item.Meta
-                      title={`${item.code_name} (${item.name})`}
-                      description={item.description}
-                    />
-                  </List.Item>
-                )}
+              <Button
+                children="Save"
+                type="primary"
+                onClick={async () => {
+                  try {
+                    await onUpdateColumns(tableData);
+                    message.success('Updated successfully!');
+                  } catch {
+                    message.error('Updated unsuccessfully!');
+                  }
+                }}
               />
+            </Space>
+          }
+        >
+          <Affix offsetTop={50}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr minmax(300px, auto)',
+                margin: '0 12px',
+                gap: 12,
+              }}
+            >
+              <div style={{ height: 'calc(100vh - 50px)', overflow: 'auto' }}>
+                <SortableTable />
+              </div>
+              <div>
+                <div>
+                  <Input.Search
+                    style={{ width: '100%' }}
+                    placeholder="Search for system fields"
+                    onSearch={setSearchKeyword}
+                  />
+                </div>
+                <div
+                  style={{ height: 'calc(100vh - 82px)', overflow: 'auto', background: 'white' }}
+                >
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={systemFields?.filter(
+                      (it) =>
+                        it.name.includes(searchKeyword) || it.code_name.includes(searchKeyword),
+                    )}
+                    loading={!systemFields}
+                    bordered
+                    renderItem={(item, index) => (
+                      <List.Item
+                        onClick={(e) => {
+                          if (!systemFields) {
+                            message.error('Cannot find system fields');
+                            return;
+                          }
+                          const codeName = systemFields?.[index].code_name;
+                          const codeNameExists = tableData.some((it) => it.code_name === codeName);
+                          if (codeNameExists) {
+                            message.error(` already exists`);
+                            return;
+                          }
+                          setTableData([
+                            ...tableData,
+                            {
+                              type: 'System Field',
+                              code_name: systemFields[index].code_name,
+                              define: '',
+                              display_name: systemFields[index].name,
+                              index: tableData.length,
+                            },
+                          ]);
+                        }}
+                        className={styles.listItem}
+                      >
+                        <List.Item.Meta
+                          title={`${item.code_name} (${item.name})`}
+                          description={item.description}
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </div>
+              </div>
             </div>
-          </SplitPane>
+          </Affix>
         </Card>
       </div>
     </TableContext.Provider>

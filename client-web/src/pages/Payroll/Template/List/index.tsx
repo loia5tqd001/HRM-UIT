@@ -3,16 +3,15 @@ import {
   allPayrollTemplates,
   createPayrollTemplate,
   deletePayrollTemplate,
-  updatePayrollTemplate,
+  updatePayrollTemplate
 } from '@/services/payroll.template';
 import { DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
-import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
-import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
 import { FormattedMessage, Link, useIntl } from 'umi';
 
@@ -95,16 +94,16 @@ export const PayrollTemplate: React.FC = () => {
   const dict = {
     title: {
       create: 'Create template',
-      update: 'Create template',
+      update: 'Update template',
     },
   };
 
   return (
-    <PageContainer>
+    <PageContainer title={false}>
       <ProTable<RecordType>
         headerTitle={intl.formatMessage({
           id: 'pages.admin.job.jobTitle.list.title',
-          defaultMessage: 'Tax Plans',
+          defaultMessage: 'Templates',
         })}
         actionRef={actionRef}
         rowKey="id"
