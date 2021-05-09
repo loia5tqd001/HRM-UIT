@@ -61,6 +61,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
   });
   // cuongnx 123456
 
+<<<<<<< HEAD
   const { setUser } = useContext(AuthContext);
 <<<<<<< HEAD
   const checkLogin = () => {
@@ -68,6 +69,9 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
 >>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
 =======
 >>>>>>> 57473b0... Update LoginScreen
+=======
+  const { setUser } = useContext(AuthContext)!;
+>>>>>>> 4fca9bc... Adjust Header, Detail Information
 
   const checkLogin = async () => {
     await axios
@@ -194,6 +198,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
       >
         Copyright © 2021 Dung Loi Team
       </Text>
+<<<<<<< HEAD
       {/* Modal */}
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -219,6 +224,8 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
       {/* Alert */}
 
       {/* Alert */}
+=======
+>>>>>>> 4fca9bc... Adjust Header, Detail Information
     </SafeAreaView>
   );
 };

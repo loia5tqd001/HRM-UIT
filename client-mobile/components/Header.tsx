@@ -1,34 +1,32 @@
-import { FontAwesome } from '@expo/vector-icons'
-import React from 'react'
-import { StyleSheet, View, Image, Text } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
-import { BACKGROUND_IMG, getWindowSize } from '../constants/Layout'
+import { FontAwesome } from '@expo/vector-icons';
+import React from 'react';
+import { Image, StyleSheet, View } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { BACKGROUND_IMG, getWindowSize, SPACING } from '../constants/Layout';
+import { primaryColor } from './../constants/Colors';
 
-const Header = ({navigation}:{navigation:any}) => {
+const Header = ({ navigation }: { navigation: any }) => {
   return (
     <View style={styles.header}>
       <Image source={BACKGROUND_IMG} style={{ width: 30, height: 25 }} />
-      <View style={styles.container}>
-        <FontAwesome name="language" size={24} color="black" />
-        <TouchableOpacity onPress={()=>navigation.navigate('Login')}>
-          <View style={styles.button}>
-            <Text>Logout</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <FontAwesome name="sign-out" size={24} color={primaryColor} />
+      </TouchableOpacity>
     </View>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
 
 const styles = StyleSheet.create({
   header: {
+    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: getWindowSize.window.width * 0.9,
     alignSelf: 'center',
+    marginBottom: SPACING,
   },
   container: { flexDirection: 'row', alignItems: 'center' },
   button: {
@@ -43,4 +41,4 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 30,
   },
-})
+});

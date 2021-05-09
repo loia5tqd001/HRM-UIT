@@ -1,33 +1,25 @@
-import * as React from 'react'
-import { StyleSheet, Image, View, Dimensions } from 'react-native'
+import * as React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import CameraComponents from '../components/CameraComponents';
+import ModalClock from '../components/ClockManual';
+import DetailInformation from '../components/DetailInformation';
+import Header from '../components/Header';
+import { Text } from '../components/Themed';
+import { ICON_IMG, SPACING } from '../constants/Layout';
+import { AuthContext } from '../Context/AuthContext';
 
-import EditScreenInfo from '../components/EditScreenInfo'
-import { Text } from '../components/Themed'
-import {
-  BACKGROUND_IMG,
-  getWindowSize,
-  ICON_IMG,
-  SPACING,
-} from '../constants/Layout'
-import { FontAwesome } from '@expo/vector-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import CameraComponents from '../components/CameraComponents'
-import { colorText } from '../constants/Colors'
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler'
-import ModalClock from '../components/ClockManual'
-import Header from '../components/Header'
-import DetailInformation from '../components/DetailInformation'
-import { AuthContext } from '../Context/AuthContext'
-
-export default function TabOneScreen({navigation}:{navigation:any}) {
+export default function TabOneScreen({ navigation }: { navigation: any }) {
   // const [capturedImage, setCapturedImage] = React.useState<any>(null)
-  const [previewVisible, setPreviewVisible] = React.useState(false)
+  const [previewVisible, setPreviewVisible] = React.useState(false);
 
-  const { user } = React.useContext(AuthContext)
+  const { user } = React.useContext(AuthContext)!;
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, marginTop: SPACING }}>
       <ScrollView>
-        <Header navigation={navigation}/>
+        <Header navigation={navigation} />
         <View style={styles.container}>
           <DetailInformation
             imgUri={user ? user.avatar : ICON_IMG}
@@ -36,7 +28,6 @@ export default function TabOneScreen({navigation}:{navigation:any}) {
 
           {/* Body */}
           <CameraComponents />
-          {/*  */}
           {/* Modal Clock */}
           <ModalClock
             modalVisible={previewVisible}
@@ -44,19 +35,17 @@ export default function TabOneScreen({navigation}:{navigation:any}) {
           />
           <TouchableOpacity
             onPress={() => {
-              setPreviewVisible(true)
+              setPreviewVisible(true);
             }}
           >
-            <Text
-              style={{ fontSize: 18, fontWeight: '100', marginTop: SPACING }}
-            >
+            <Text style={{ fontSize: 18, fontWeight: '100', marginTop: SPACING }}>
               Clock in manual
             </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -75,4 +64,4 @@ const styles = StyleSheet.create({
     height: 1,
     width: '80%',
   },
-})
+});
