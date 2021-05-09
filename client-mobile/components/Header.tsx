@@ -8,7 +8,9 @@ import { primaryColor } from './../constants/Colors';
 const Header = ({ navigation }: { navigation: any }) => {
   return (
     <View style={styles.header}>
-      <Image source={BACKGROUND_IMG} style={{ width: 30, height: 25 }} />
+      <TouchableOpacity onPress={() => navigation.navigate('Root', { screen: 'Attendance' })}>
+        <Image source={BACKGROUND_IMG} style={{ width: 30, height: 25 }}  />
+      </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
         <FontAwesome name="sign-out" size={24} color={primaryColor} />
       </TouchableOpacity>
@@ -26,7 +28,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: getWindowSize.window.width * 0.9,
     alignSelf: 'center',
-    marginBottom: SPACING,
+    marginVertical: SPACING,
   },
   container: { flexDirection: 'row', alignItems: 'center' },
   button: {

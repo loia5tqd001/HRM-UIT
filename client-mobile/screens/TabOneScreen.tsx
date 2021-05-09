@@ -17,7 +17,7 @@ export default function TabOneScreen({ navigation }: { navigation: any }) {
   const { user } = React.useContext(AuthContext)!;
 
   return (
-    <SafeAreaView style={{ flex: 1, marginTop: SPACING }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
         <Header navigation={navigation} />
         <View style={styles.container}>

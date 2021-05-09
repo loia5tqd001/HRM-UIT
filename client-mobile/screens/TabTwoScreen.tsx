@@ -10,12 +10,14 @@ import ModalTimeOff from '../components/ModalTimeOff';
 import { ListTimeOff, STATE } from '../constants/type';
 import { useContext } from 'react';
 import { AuthContext } from '../Context/AuthContext';
+import { primaryColor } from './../constants/Colors';
+import Header from '../components/Header';
 
 export type TypeTimeOff = {
   label: string;
   value: string;
 };
-export default function TabTwoScreen() {
+export default function TabTwoScreen({ navigation }: any) {
   const [show, setShow] = React.useState<boolean>(false);
 
   const [state, setState] = useState<STATE>(STATE.IDLE);
@@ -78,11 +80,12 @@ export default function TabTwoScreen() {
   return (
     <SafeAreaView style={StyleSheet.absoluteFillObject}>
       <View style={styles.container}>
-        <Text style={styles.title}>History</Text>
+        <Header navigation={navigation} />
+
         <View style={styles.separator} />
         <View
           style={{
-            backgroundColor: '#2196F3',
+            backgroundColor: primaryColor,
             alignSelf: 'flex-end',
             marginHorizontal: 30,
             marginVertical: 10,
@@ -91,7 +94,7 @@ export default function TabTwoScreen() {
           }}
         >
           <TouchableOpacity onPress={() => setShow(true)}>
-            <Text style={{ color: 'white' }}>+ Create</Text>
+            <Text style={{ color: 'white' }}>+ New</Text>
           </TouchableOpacity>
         </View>
         {state === STATE.LOADING ? (
