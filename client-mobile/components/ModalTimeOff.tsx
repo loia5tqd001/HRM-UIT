@@ -68,9 +68,8 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
       end_date: endDate,
       note: noteValue,
     }
-    const token = await getDataAsync('token');
-    console.log("token",token);
-    
+    const token = await getDataAsync('token')
+    console.log('token', token)
 
     console.log('ủl', `${BASE_URL}/employees/${user.id}/time_off/ `)
 
@@ -89,6 +88,10 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
     <Modal animationType="slide" transparent={true} visible={show}>
       <View style={styles.centeredView}>
         <View style={[styles.modalView, { minWidth: widthDefault }]}>
+          <Text style={{ alignSelf: 'flex-start', marginBottom: 10 }}>
+            Select Time off type
+          </Text>
+
           <DropDownPicker
             open={open}
             value={value}
@@ -99,6 +102,9 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
           />
 
           {/* Date Picker */}
+          <Text style={{ alignSelf: 'flex-start', marginTop: 20 }}>
+            Pick Date
+          </Text>
           <View style={styles.timeContain}>
             {/* Start Date */}
             <View style={styles.pickDate}>
@@ -109,7 +115,9 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
                 <Text style={{ color: 'white' }}>Start Date</Text>
               </TouchableOpacity>
 
-              <Text style={{ color: 'black', padding: 10 }}>{startDate}</Text>
+              {startDate ? (
+                <Text style={{ color: 'black', padding: 10 }}>{startDate}</Text>
+              ) : null}
             </View>
             {/* End date */}
             <View style={styles.pickDate}>
@@ -120,7 +128,9 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
                 <Text style={{ color: 'white' }}>End Date</Text>
               </TouchableOpacity>
 
-              <Text style={{ color: 'black', padding: 10 }}>{endDate}</Text>
+              {endDate ? (
+                <Text style={{ color: 'black', padding: 10 }}>{endDate}</Text>
+              ) : null}
             </View>
           </View>
 
@@ -134,6 +144,7 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
           {/* Date Pick */}
 
           {/* Note */}
+          <Text style={{ alignSelf: 'flex-start' }}>Note:</Text>
           <View style={styles.noteContain}>
             <TextInput
               style={{ height: 60 }}
@@ -207,7 +218,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: widthDefault,
     justifyContent: 'space-between',
-    marginTop: 20,
+    // marginTop: 20,
   },
   pickDate: {
     marginVertical: 10,
@@ -216,21 +227,21 @@ const styles = StyleSheet.create({
   buttonRed: {
     backgroundColor: '#C61D1D',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 2,
   },
   buttonCancel: {
     backgroundColor: '#C61D1D',
     alignSelf: 'flex-end',
     marginVertical: 10,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 2,
   },
   buttonSubmit: {
     backgroundColor: '#2196F3',
     alignSelf: 'flex-end',
     marginVertical: 10,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 2,
     marginRight: 10,
   },
   noteContain: {

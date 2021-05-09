@@ -87,7 +87,7 @@ export default function TabTwoScreen() {
             marginHorizontal: 30,
             marginVertical: 10,
             padding: 10,
-            borderRadius: 5,
+            borderRadius: 2,
           }}
         >
           <TouchableOpacity onPress={() => setShow(true)}>

@@ -10,19 +10,20 @@ import {
   Modal,
 } from 'react-native'
 import { Text } from '../components/Themed'
-import { FontAwesome } from '@expo/vector-icons'
+import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 import { BACKGROUND_IMG, SPACING } from '../constants/Layout'
 
 import { AntDesign } from '@expo/vector-icons'
 
 import '../constants/Layout'
-import { colorText, colorTextHolder } from '../constants/Colors'
+import { colorText, colorTextHolder, primaryColor } from '../constants/Colors'
 import axios from 'axios'
 import { BASE_URL } from '../constants/confgi'
 import { AuthContext } from '../Context/AuthContext'
 import { storeAccessToken, storeRefreshToken, storeInfoUser } from '../commons'
 import { STATE } from '../constants/type'
-import { FancyAlert } from 'react-native-expo-fancy-alerts'
+import AlertShow from '../components/AlertShow'
+import ModalShow from '../components/ModalShow'
 const { width } = Dimensions.get('window')
 
 const LoginScreen = ({ navigation }: { navigation: any }) => {
@@ -35,12 +36,13 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
     show: false,
     text: '',
   })
+  // cuongnx 123456
 
   const { setUser } = useContext(AuthContext)
-  const checkLogin = () => {
+  const checkLogin = async () => {
     setState(STATE.LOADING)
 
-    axios
+    await axios
       .post(`${BASE_URL}/auth/token/`, {
         username: user,
         password: password,
@@ -51,8 +53,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
         storeAccessToken(access)
         storeRefreshToken(refresh)
 
-        setVisible({ show: true, text: 'Success Login' })
-
+        // setVisible({ show: true, text: 'Success Login' })
         return access
       })
       .then((token) => {
@@ -63,36 +64,40 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
             },
           })
           .then((res) => {
-            console.log('res', res.data)
-            // storeInfoUser(res.data);
             setUser(res.data)
 
             setState(STATE.LOADED)
           })
-          // .then(() => setVisible({ show: true, text: 'Success Login' }))
-          .then(() => setTimeout(() => {
-            navigation.navigate('Root')
-          }, 1000))
+          .then(() => setVisible({ show: true, text: 'Success Login' }))
+          .then(() =>
+            setTimeout(() => {
+              navigation.navigate('Root')
+            }, 1000),
+          )
           .catch((er) => {
             setState(STATE.ERROR)
             console.log('err', er)
           })
       })
       .catch((er) => {
-        console.log('er', er)
-        // setVisible({ ...visible, show: true })
-        setVisible({ show: true, text: 'Something went wrong!!' })
+        // setState(STATE.LOADED)
+        setVisible({ show: true, text: 'Error Login' })
         setState(STATE.ERROR)
+        console.log('er', er)
+        // AlertShow({ text: 'Error Login' })
       })
       .finally(() => {
         setTimeout(() => {
-          setVisible({ ...visible, show: false })
-        }, 1000)
+          setVisible({ text: '', show: false })
+        }, 1500)
       })
+    console.log('state', state)
   }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      {/* Alert */}
+      {visible.show ? <AlertShow text={visible.text} /> : null}
       {/* Icon Language */}
       <View style={{ flexDirection: 'row-reverse', marginLeft: SPACING * 2 }}>
         <FontAwesome name="language" size={24} color={colorText} />
@@ -158,42 +163,10 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
         Copyright © 2021 Dung Loi Team
       </Text>
       {/* Modal */}
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={ false}
-        // visible={state === STATE.LOADING ? true : false}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Loading ... </Text>
-          </View>
-        </View>
-      </Modal>
+      <ModalShow visible={state === STATE.LOADING ? true : false} />
 
       {/* Alert */}
-      <FancyAlert
-        visible={visible.show}
-        onRequestClose={() => {}}
-        icon={
-          <View
-            style={{
-              flex: 1,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'red',
-              borderRadius: 50,
-              width: '100%',
-            }}
-          >
-            <Text>🤓</Text>
-          </View>
-        }
-        style={{ backgroundColor: 'white' }}
-      >
-        <Text style={{ marginTop: -16, marginBottom: 32 }}>{visible.text}</Text>
-      </FancyAlert>
+
       {/* Alert */}
     </SafeAreaView>
   )
@@ -212,7 +185,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: width * 0.9,
-    backgroundColor: 'blue',
+    backgroundColor: primaryColor,
     marginTop: SPACING * 3,
   },
   textInput: {

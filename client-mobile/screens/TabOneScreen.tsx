@@ -19,7 +19,7 @@ import Header from '../components/Header'
 import DetailInformation from '../components/DetailInformation'
 import { AuthContext } from '../Context/AuthContext'
 
-export default function TabOneScreen() {
+export default function TabOneScreen({navigation}:{navigation:any}) {
   // const [capturedImage, setCapturedImage] = React.useState<any>(null)
   const [previewVisible, setPreviewVisible] = React.useState(false)
 
@@ -27,7 +27,7 @@ export default function TabOneScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
-        <Header />
+        <Header navigation={navigation}/>
         <View style={styles.container}>
           <DetailInformation
             imgUri={user ? user.avatar : ICON_IMG}
