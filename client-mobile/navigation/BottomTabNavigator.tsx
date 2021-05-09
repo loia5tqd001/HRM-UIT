@@ -17,16 +17,16 @@ export default function BottomTabNavigator() {
 
   return (
     <BottomTab.Navigator
-      initialRouteName="ClockOut"
+      initialRouteName="Attendance"
       tabBarOptions={{ activeTintColor: activeColor }}
       // tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}
     >
       <BottomTab.Screen
-        name="ClockOut"
+        name="Attendance"
         component={TabOneNavigator}
         options={{
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="ios-finger-print" color={color} />
+            <TabBarIcon name="alarm-outline" color={color} />
           ),
         }}
       />
@@ -35,7 +35,7 @@ export default function BottomTabNavigator() {
         component={TabTwoNavigator}
         options={{
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="md-repeat" color={color} />
+            <TabBarIcon name="calendar-outline" color={color} />
           ),
         }}
       />

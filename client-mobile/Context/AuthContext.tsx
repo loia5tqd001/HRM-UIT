@@ -6,7 +6,7 @@ interface User {
   is_staff: boolean;
 }
 
-interface Employee {
+export interface Employee {
   id: number;
   user: User;
   first_name: string;
@@ -26,8 +26,8 @@ interface Employee {
 }
 
 type ContextType = {
-  user: Employee;
-  setUser: React.Dispatch<React.SetStateAction<Employee>>;
+  user: Employee | undefined;
+  setUser: React.Dispatch<React.SetStateAction<Employee | undefined>>;
 };
 
 export const AuthContext = createContext<ContextType | null>(null);

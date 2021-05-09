@@ -18,7 +18,7 @@ export default {
   },
 };
 
-export const activeColor='#2f95dc';
+export const activeColor = '#2F54EB';
 export const colorText="#000d";
 export const colorTextHolder="#b4b4b4";
 

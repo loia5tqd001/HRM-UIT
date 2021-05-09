@@ -6,7 +6,7 @@ import {
 import { createStackNavigator } from '@react-navigation/stack'
 import * as React from 'react'
 import { ColorSchemeName } from 'react-native'
-import { AuthContext } from '../Context/AuthContext'
+import { AuthContext, Employee } from '../Context/AuthContext'
 import LoginScreen from '../screens/LoginScreen'
 
 import NotFoundScreen from '../screens/NotFoundScreen'
@@ -21,7 +21,8 @@ export default function Navigation({
 }: {
   colorScheme: ColorSchemeName
 }) {
-  const [user, setUser] = React.useState<Object | null>(null)
+  const [user, setUser] = React.useState<Employee>()
+
   return (
     <NavigationContainer
       linking={LinkingConfiguration}

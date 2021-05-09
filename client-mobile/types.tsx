@@ -5,7 +5,7 @@ export type RootStackParamList = {
 };
 
 export type BottomTabParamList = {
-  ClockOut: undefined;
+  Attendance: undefined;
   TimeOff: undefined;
 };
 
