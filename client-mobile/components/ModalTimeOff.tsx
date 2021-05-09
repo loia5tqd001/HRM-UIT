@@ -1,58 +1,58 @@
-import React, { useState } from 'react'
-import { TouchableOpacity } from 'react-native'
-import { Modal } from 'react-native'
-import { StyleSheet, Text, View } from 'react-native'
-import DropDownPicker from 'react-native-dropdown-picker'
-import { TypeTimeOff } from '../screens/TabTwoScreen'
-import DateTimePicker from '@react-native-community/datetimepicker'
-import { Platform } from 'react-native'
-import { TextInput } from 'react-native'
-import { BASE_URL, GET_WIDTH } from '../constants/confgi'
-import DateTimePickerModal from 'react-native-modal-datetime-picker'
-import { preventAutoHide } from 'expo-splash-screen'
-import moment from 'moment'
-import axios from 'axios'
-import { useContext } from 'react'
-import { AuthContext } from '../Context/AuthContext'
-import { getDataAsync } from '../commons'
+import React, { useState } from 'react';
+import { TouchableOpacity } from 'react-native';
+import { Modal } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { TypeTimeOff } from '../screens/TabTwoScreen';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform } from 'react-native';
+import { TextInput } from 'react-native';
+import { BASE_URL, GET_WIDTH } from '../constants/confgi';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { preventAutoHide } from 'expo-splash-screen';
+import moment from 'moment';
+import axios from 'axios';
+import { useContext } from 'react';
+import { AuthContext } from '../Context/AuthContext';
+import { getDataAsync } from '../commons';
 
 type TypeModal = {
-  show: boolean
-  setShow: React.Dispatch<React.SetStateAction<boolean>>
-  items: TypeTimeOff[]
-  setItems: React.Dispatch<React.SetStateAction<TypeTimeOff[]>>
-}
+  show: boolean;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  items: TypeTimeOff[];
+  setItems: React.Dispatch<React.SetStateAction<TypeTimeOff[]>>;
+};
 
-const widthDefault = GET_WIDTH - 110
+const widthDefault = GET_WIDTH - 110;
 
 const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
-  const [open, setOpen] = useState<boolean>(false)
-  const [value, setValue] = useState<string>('')
-  const [showPickDate, setShowPickDate] = useState({ show: false, type: 1 })
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
+  const [open, setOpen] = useState<boolean>(false);
+  const [value, setValue] = useState<string>('');
+  const [showPickDate, setShowPickDate] = useState({ show: false, type: 1 });
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
   //   const [show, setShow] = useState(false);
 
-  const { user } = useContext(AuthContext)
+  const { user } = useContext(AuthContext);
 
-  const [noteValue, setNoteValue] = useState<string>('')
+  const [noteValue, setNoteValue] = useState<string>('');
 
   const setDate = (date: Date) => {
     if (showPickDate.type == 1) {
-      var m = moment(date).utcOffset(0)
-      m.set({ hour: 6, minute: 59, second: 0 })
-      m.toISOString()
+      var m = moment(date).utcOffset(0);
+      m.set({ hour: 6, minute: 59, second: 0 });
+      m.toISOString();
 
-      setStartDate(m.toISOString())
+      setStartDate(m.toISOString());
     } else {
-      var m = moment(date).utcOffset(0)
-      m.set({ hour: 7, minute: 0, second: 0 })
-      m.toISOString()
+      var m = moment(date).utcOffset(0);
+      m.set({ hour: 7, minute: 0, second: 0 });
+      m.toISOString();
 
-      setEndDate(m.toISOString())
+      setEndDate(m.toISOString());
     }
-    setShowPickDate({ ...showPickDate, show: false })
-  }
+    setShowPickDate({ ...showPickDate, show: false });
+  };
 
   const submitData = async () => {
     console.log('data', {
@@ -60,18 +60,18 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
       start_date: startDate,
       end_date: endDate,
       note: noteValue,
-    })
+    });
 
     const dataSubmit = {
       time_off_type: value,
       start_date: startDate,
       end_date: endDate,
       note: noteValue,
-    }
-    const token = await getDataAsync('token')
-    console.log('token', token)
+    };
+    const token = await getDataAsync('token');
+    console.log('token', token);
 
-    console.log('ủl', `${BASE_URL}/employees/${user.id}/time_off/ `)
+    console.log('ủl', `${BASE_URL}/employees/${user.id}/time_off/ `);
 
     await axios
       .post(`${BASE_URL}/employees/${user.id}/time_off/ `, dataSubmit, {
@@ -80,17 +80,15 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
         },
       })
       .then((res) => {
-        console.log('res', res)
+        console.log('res', res);
       })
-      .catch((er) => console.log('er', er))
-  }
+      .catch((er) => console.log('er', er));
+  };
   return (
     <Modal animationType="slide" transparent={true} visible={show}>
       <View style={styles.centeredView}>
         <View style={[styles.modalView, { minWidth: widthDefault }]}>
-          <Text style={{ alignSelf: 'flex-start', marginBottom: 10 }}>
-            Select Time off type
-          </Text>
+          <Text style={{ alignSelf: 'flex-start', marginBottom: 10 }}>Select Time off type</Text>
 
           <DropDownPicker
             open={open}
@@ -102,9 +100,7 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
           />
 
           {/* Date Picker */}
-          <Text style={{ alignSelf: 'flex-start', marginTop: 20 }}>
-            Pick Date
-          </Text>
+          <Text style={{ alignSelf: 'flex-start', marginTop: 20 }}>Pick Date</Text>
           <View style={styles.timeContain}>
             {/* Start Date */}
             <View style={styles.pickDate}>
@@ -115,9 +111,7 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
                 <Text style={{ color: 'white' }}>Start Date</Text>
               </TouchableOpacity>
 
-              {startDate ? (
-                <Text style={{ color: 'black', padding: 10 }}>{startDate}</Text>
-              ) : null}
+              {startDate ? <Text style={{ color: 'black', padding: 10 }}>{startDate}</Text> : null}
             </View>
             {/* End date */}
             <View style={styles.pickDate}>
@@ -128,9 +122,7 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
                 <Text style={{ color: 'white' }}>End Date</Text>
               </TouchableOpacity>
 
-              {endDate ? (
-                <Text style={{ color: 'black', padding: 10 }}>{endDate}</Text>
-              ) : null}
+              {endDate ? <Text style={{ color: 'black', padding: 10 }}>{endDate}</Text> : null}
             </View>
           </View>
 
@@ -179,10 +171,10 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
         </View>
       </View>
     </Modal>
-  )
-}
+  );
+};
 
-export default ModalTimeOff
+export default ModalTimeOff;
 
 const styles = StyleSheet.create({
   modalView: {
@@ -252,4 +244,4 @@ const styles = StyleSheet.create({
     borderWidth: 0.3,
     marginVertical: 10,
   },
-})
+});

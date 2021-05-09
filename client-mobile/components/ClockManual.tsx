@@ -1,23 +1,23 @@
-import React, { SetStateAction } from 'react'
-import {  StyleSheet, Text, View } from 'react-native'
-import { TextInput, TouchableHighlight } from 'react-native-gesture-handler'
-import { primaryColor, secondaryColor, thirdColor } from '../constants/Colors'
-import { getWindowSize, SPACING } from '../constants/Layout'
-import ModalCustom from './ModalCustom'
+import React, { SetStateAction } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { TextInput, TouchableHighlight } from 'react-native-gesture-handler';
+import { primaryColor, secondaryColor, thirdColor } from '../constants/Colors';
+import { getWindowSize, SPACING } from '../constants/Layout';
+import ModalCustom from './ModalCustom';
 
 const ModalClock = ({
   modalVisible,
   setModalVisible,
 }: {
-  modalVisible: boolean
-  setModalVisible: SetStateAction<boolean | any>
+  modalVisible: boolean;
+  setModalVisible: SetStateAction<boolean | any>;
 }) => {
-  const [value, setValue] = React.useState<string>('')
+  const [value, setValue] = React.useState<string>('');
 
   //   Function
   const onSubmitData = () => {
-    console.log('vl', value)
-  }
+    console.log('vl', value);
+  };
   //
   return (
     <ModalCustom modalVisible={modalVisible}>
@@ -46,7 +46,7 @@ const ModalClock = ({
           <TouchableHighlight
             style={{ ...styles.openButton, backgroundColor: secondaryColor }}
             onPress={() => {
-              setModalVisible(false)
+              setModalVisible(false);
             }}
           >
             <Text style={styles.textStyle}>Close</Text>
@@ -54,7 +54,7 @@ const ModalClock = ({
           <TouchableHighlight
             style={{ ...styles.openButton, backgroundColor: thirdColor }}
             onPress={() => {
-              setValue('')
+              setValue('');
             }}
           >
             <Text style={styles.textStyle}>Clear</Text>
@@ -62,10 +62,10 @@ const ModalClock = ({
         </View>
       </View>
     </ModalCustom>
-  )
-}
+  );
+};
 
-export default ModalClock
+export default ModalClock;
 
 const styles = StyleSheet.create({
   container: {
@@ -97,4 +97,4 @@ const styles = StyleSheet.create({
     width: getWindowSize.window.width * 0.9,
     maxWidth: getWindowSize.window.width * 0.9,
   },
-})
+});

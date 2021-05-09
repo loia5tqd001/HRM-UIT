@@ -1,21 +1,21 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import React, { useRef } from 'react'
-import { Modal, StyleSheet, Text, View } from 'react-native'
-import LottieView from 'lottie-react-native'
-import { useEffect } from 'react'
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useRef } from 'react';
+import { Modal, StyleSheet, Text, View } from 'react-native';
+import LottieView from 'lottie-react-native';
+import { useEffect } from 'react';
 
 const ModalShow = ({ visible }: { visible: boolean }) => {
-  const ref = useRef<LottieView>(null)
+  const ref = useRef<LottieView>(null);
   useEffect(() => {
-    ref?.current?.play()
-  }, [])
+    ref?.current?.play();
+  }, []);
 
   useEffect(
     () => () => {
-      ref?.current?.reset()
+      ref?.current?.reset();
     },
     [],
-  )
+  );
 
   return (
     <Modal
@@ -41,10 +41,10 @@ const ModalShow = ({ visible }: { visible: boolean }) => {
         </View>
       </View>
     </Modal>
-  )
-}
+  );
+};
 
-export default ModalShow
+export default ModalShow;
 
 const styles = StyleSheet.create({
   modalView: {
@@ -76,4 +76,4 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
   },
-})
+});

@@ -19,13 +19,13 @@ export default {
 };
 
 export const activeColor = '#2F54EB';
-export const colorText="#000d";
-export const colorTextHolder="#b4b4b4";
+export const colorText = '#000d';
+export const colorTextHolder = '#b4b4b4';
 
 export const primaryColor = '#2F54EB';
-export const secondaryColor= "#C61D1D";
-export const thirdColor= "#E9852A";
+export const secondaryColor = '#C61D1D';
+export const thirdColor = '#E9852A';
 
-export const pendingColor="#faad14";
-export const ApprovedColor="#52c41a";
-export const RejectedColor="#ff4d4f";
+export const pendingColor = '#faad14';
+export const ApprovedColor = '#52c41a';
+export const RejectedColor = '#ff4d4f';

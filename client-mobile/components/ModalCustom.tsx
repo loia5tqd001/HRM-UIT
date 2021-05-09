@@ -1,12 +1,12 @@
-import React, { PropsWithChildren } from 'react'
-import { Alert, Modal, StyleSheet, View } from 'react-native'
+import React, { PropsWithChildren } from 'react';
+import { Alert, Modal, StyleSheet, View } from 'react-native';
 
 const ModalCustom = ({
   modalVisible,
   children,
 }: {
-  modalVisible: boolean
-  children: JSX.Element | JSX.Element[]
+  modalVisible: boolean;
+  children: JSX.Element | JSX.Element[];
 }) => {
   return (
     <Modal
@@ -14,15 +14,15 @@ const ModalCustom = ({
       transparent={true}
       visible={modalVisible}
       onRequestClose={() => {
-        Alert.alert('Modal has been closed.')
+        Alert.alert('Modal has been closed.');
       }}
     >
       <View style={styles.container}>{children}</View>
     </Modal>
-  )
-}
+  );
+};
 
-export default ModalCustom
+export default ModalCustom;
 
 const styles = StyleSheet.create({
   container: {
@@ -31,4 +31,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,.7)',
   },
-})
+});

@@ -1,35 +1,32 @@
-import React, { SetStateAction } from 'react'
-import { Alert, Modal, StyleSheet, Text, View, Image } from 'react-native'
-import { TouchableHighlight } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { primaryColor, secondaryColor } from '../constants/Colors'
-import { getWindowSize, SPACING } from '../constants/Layout'
-import ModalCustom from './ModalCustom'
+import React, { SetStateAction } from 'react';
+import { Alert, Modal, StyleSheet, Text, View, Image } from 'react-native';
+import { TouchableHighlight } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { primaryColor, secondaryColor } from '../constants/Colors';
+import { getWindowSize, SPACING } from '../constants/Layout';
+import ModalCustom from './ModalCustom';
 
 const ModalImage = ({
   modalVisible,
   setModalVisible,
   captureImage,
 }: {
-  modalVisible: boolean
-  setModalVisible: SetStateAction<boolean | any>
-  captureImage: { uri: string; width: number; height: number }
+  modalVisible: boolean;
+  setModalVisible: SetStateAction<boolean | any>;
+  captureImage: { uri: string; width: number; height: number };
 }) => {
   if (!captureImage) {
-    return null
+    return null;
   } else {
     return (
       <ModalCustom modalVisible={modalVisible}>
-        <Image
-          source={{ uri: captureImage && captureImage.uri }}
-          style={styles.image}
-        />
+        <Image source={{ uri: captureImage && captureImage.uri }} style={styles.image} />
         {/*  */}
         <View style={styles.container}>
           <TouchableHighlight
             style={{ ...styles.openButton, backgroundColor: primaryColor }}
             onPress={() => {
-              console.log('photo', captureImage)
+              console.log('photo', captureImage);
             }}
           >
             <Text style={styles.textStyle}>Send</Text>
@@ -37,18 +34,18 @@ const ModalImage = ({
           <TouchableHighlight
             style={{ ...styles.openButton, backgroundColor: secondaryColor }}
             onPress={() => {
-              setModalVisible(false)
+              setModalVisible(false);
             }}
           >
             <Text style={styles.textStyle}>Close</Text>
           </TouchableHighlight>
         </View>
       </ModalCustom>
-    )
+    );
   }
-}
+};
 
-export default ModalImage
+export default ModalImage;
 
 const styles = StyleSheet.create({
   image: {
@@ -75,4 +72,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-})
+});

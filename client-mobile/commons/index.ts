@@ -1,8 +1,8 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const storeAccessToken = async (value: string) => {
   try {
-    await AsyncStorage.setItem("token", value);
+    await AsyncStorage.setItem('token', value);
   } catch (e) {
     // saving error
   }
@@ -10,7 +10,7 @@ export const storeAccessToken = async (value: string) => {
 
 export const storeRefreshToken = async (value: string) => {
   try {
-    await AsyncStorage.setItem("refresh", value);
+    await AsyncStorage.setItem('refresh', value);
   } catch (e) {
     // saving error
   }
@@ -18,8 +18,8 @@ export const storeRefreshToken = async (value: string) => {
 
 export const storeInfoUser = async (value: string) => {
   try {
-    const jsonValue = JSON.stringify(value)
-    await AsyncStorage.setItem('user', jsonValue)
+    const jsonValue = JSON.stringify(value);
+    await AsyncStorage.setItem('user', jsonValue);
   } catch (e) {
     // saving error
   }

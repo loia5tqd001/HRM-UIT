@@ -1,8 +1,8 @@
 export enum STATE {
-  IDLE = "IDLE",
-  LOADING = "LOADING",
-  LOADED = "LOADED",
-  ERROR = "ERROR",
+  IDLE = 'IDLE',
+  LOADING = 'LOADING',
+  LOADED = 'LOADED',
+  ERROR = 'ERROR',
 }
 
 type OwnerType = {

@@ -1,17 +1,17 @@
-import React from 'react'
-import { StyleSheet, View, Text } from 'react-native'
+import React from 'react';
+import { StyleSheet, View, Text } from 'react-native';
 
 const AlertShow = ({ text }: { text: string }) => {
   return (
-    <View style={[styles.centeredView,StyleSheet.absoluteFillObject]}>
+    <View style={[styles.centeredView, StyleSheet.absoluteFillObject]}>
       <View style={styles.modalView}>
         <Text>{text}</Text>
       </View>
     </View>
-  )
-}
+  );
+};
 
-export default AlertShow
+export default AlertShow;
 
 const styles = StyleSheet.create({
   modalView: {
@@ -44,4 +44,4 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
   },
-})
+});
