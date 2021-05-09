@@ -1,23 +1,22 @@
 import { __DEV__ } from '@/global';
-import {
-  allPayrollTemplates,
-  createPayrollTemplate,
-  deletePayrollTemplate,
-  updatePayrollTemplate
-} from '@/services/payroll.template';
-import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
-import { ModalForm, ProFormText } from '@ant-design/pro-form';
+import { allPeriods } from '@/services/attendance';
+import { allPayrolls, createPayroll, deletePayroll } from '@/services/payroll.payrolls';
+import { allPayrollTemplates } from '@/services/payroll.template';
+import { DeleteOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
+import { ModalForm, ProFormSelect, ProFormText } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
-import React, { useCallback, useRef, useState } from 'react';
+import faker from 'faker';
+import moment from 'moment';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FormattedMessage, Link, useIntl } from 'umi';
 
-type RecordType = API.PayrollTemplate;
+type RecordType = API.Payroll;
 
-export const PayrollTemplate: React.FC = () => {
+export const Payroll: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
     'hidden',
@@ -25,6 +24,13 @@ export const PayrollTemplate: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
   const intl = useIntl();
+  const [templates, setTemplates] = useState<API.PayrollTemplate[]>();
+  const [periods, setPeriods] = useState<API.Period[]>();
+
+  useEffect(() => {
+    allPayrollTemplates().then((fetchData) => setTemplates(fetchData));
+    allPeriods().then((fetchData) => setPeriods(fetchData));
+  }, []);
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -44,9 +50,24 @@ export const PayrollTemplate: React.FC = () => {
     {
       title: 'Name',
       dataIndex: 'name',
-      renderText: (it, record) => (
-        <Link to={`/payroll/template/${record.id}?tab=columns`}>{it}</Link>
-      ),
+      renderText: (it, record) => <Link to={`/payroll/payrolls/${record.id}`}>{it}</Link>,
+    },
+    {
+      title: 'Template',
+      dataIndex: 'template',
+    },
+    {
+      title: 'Cycle',
+      dataIndex: 'period',
+      renderText: (it) =>
+        `${moment(it.start_date).format('DD MMM YYYY')} → ${moment(it.end_date).format(
+          'DD MMM YYYY',
+        )}`,
+    },
+    {
+      title: 'Created At',
+      dataIndex: 'created_at',
+      renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
     },
     {
       title: 'Actions',
@@ -56,33 +77,23 @@ export const PayrollTemplate: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Button
-            title="Edit this template"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Link to={`/payroll/template/${record.id}?tab=columns`}>
-            <Button title="Config this template" size="small">
+          <Link to={`/payroll/payrolls/${record.id}`}>
+            <Button title="View detail this payroll" size="small">
               <EyeOutlined />
             </Button>
           </Link>
           <Popconfirm
             placement="right"
-            title={'Delete this template?'}
+            title={'Delete this payroll?'}
             onConfirm={async () => {
               await onCrudOperation(
-                () => deletePayrollTemplate(record.id),
+                () => deletePayroll(record.id),
                 'Detete successfully!',
-                'Cannot delete template!',
+                'Cannot delete payroll!',
               );
             }}
           >
-            <Button title="Delete this template" size="small" danger>
+            <Button title="Delete this payroll" size="small" danger>
               <DeleteOutlined />
             </Button>
           </Popconfirm>
@@ -93,8 +104,8 @@ export const PayrollTemplate: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create template',
-      update: 'Update template',
+      create: 'Create payroll',
+      update: 'Update payroll',
     },
   };
 
@@ -103,7 +114,7 @@ export const PayrollTemplate: React.FC = () => {
       <ProTable<RecordType>
         headerTitle={intl.formatMessage({
           id: 'pages.admin.job.jobTitle.list.title',
-          defaultMessage: 'Templates',
+          defaultMessage: 'Payrolls',
         })}
         actionRef={actionRef}
         rowKey="id"
@@ -120,7 +131,7 @@ export const PayrollTemplate: React.FC = () => {
           </Button>,
         ]}
         request={async () => {
-          const data = await allPayrollTemplates();
+          const data = await allPayrolls();
           return {
             data,
             success: true,
@@ -154,17 +165,10 @@ export const PayrollTemplate: React.FC = () => {
             ...value,
           };
           if (crudModalVisible === 'create') {
-            record.fields = [];
             await onCrudOperation(
-              () => createPayrollTemplate(record),
+              () => createPayroll(record),
               'Create successfully!',
               'Create unsuccessfully!',
-            );
-          } else if (crudModalVisible === 'update') {
-            await onCrudOperation(
-              () => updatePayrollTemplate(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
             );
           }
           setCrudModalVisible('hidden');
@@ -178,7 +182,9 @@ export const PayrollTemplate: React.FC = () => {
                   key="autoFill"
                   onClick={() => {
                     props.form?.setFieldsValue({
-                      name: 'Bảng lương chính',
+                      name: `Payroll ${Math.random().toFixed(5)}`,
+                      template: faker.helpers.randomize(templates?.map((it) => it.name) || []),
+                      period: faker.helpers.randomize(periods?.map((it) => it.id) || []),
                     });
                   }}
                 >
@@ -191,9 +197,28 @@ export const PayrollTemplate: React.FC = () => {
         }}
       >
         <ProFormText rules={[{ required: true }]} name="name" label="Name" />
+        <ProFormSelect
+          name="template"
+          label="Template"
+          rules={[{ required: true }]}
+          options={templates?.map((it) => ({ value: it.name, label: it.name }))}
+          hasFeedback={!templates}
+        />
+        <ProFormSelect
+          name="period"
+          label="Period"
+          rules={[{ required: true }]}
+          options={periods?.map((it) => ({
+            value: it.id,
+            label: `${moment(it.start_date).format('DD MMM YYYY')} → ${moment(it.end_date).format(
+              'DD MMM YYYY',
+            )}`,
+          }))}
+          hasFeedback={!periods}
+        />
       </ModalForm>
     </PageContainer>
   );
 };
 
-export default PayrollTemplate;
+export default Payroll;

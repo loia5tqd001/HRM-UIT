@@ -47,6 +47,7 @@ export default {
   'menu.attendance.report': 'Báo cáo',
   'menu.payroll': 'Tính lương',
   'menu.payroll.template': 'Mẫu lương',
+  'menu.payroll.payrolls': 'Bảng lương',
   'menu.configuration': 'Tuỳ chỉnh',
   'menu.configuration.cycle': 'Chu kỳ',
   'menu.payroll.report': 'Báo cáo',

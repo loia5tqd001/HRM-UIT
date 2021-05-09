@@ -539,6 +539,16 @@ declare namespace API {
     }[];
   }
 
+  interface Payroll {
+    id: number;
+    template: PayrollTemplate['name'];
+    name: string;
+    period_id: Period['id'];
+    cycle_start_date: string | moment.Moment;
+    cycle_end_date: string | moment.Moment;
+    created_at: string | moment.Moment;
+  }
+
   type User = any;
 
   type PermissionItem = {

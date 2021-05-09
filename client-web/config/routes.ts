@@ -298,6 +298,17 @@
         hideInMenu: true,
       },
       {
+        path: '/payroll/payrolls',
+        name: 'payrolls',
+        icon: 'transaction',
+        component: './Payroll/Payrolls/List',
+      },
+      {
+        path: '/payroll/payrolls/:id',
+        component: './Payroll/Payrolls/Detail',
+        hideInMenu: true,
+      },
+      {
         path: '/payroll/report',
         name: '__report',
         icon: 'barChart',
