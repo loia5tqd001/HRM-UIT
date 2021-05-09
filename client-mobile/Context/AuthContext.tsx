@@ -1,3 +1,8 @@
-import { createContext } from 'react'
+import { createContext } from 'react';
 
-export const AuthContext = createContext<Object | null>(null)
+type ContextType = {
+  user: Object;
+  setUser: React.Dispatch<React.SetStateAction<Object>>;
+};
+
+export const AuthContext = createContext<ContextType | null>(null);

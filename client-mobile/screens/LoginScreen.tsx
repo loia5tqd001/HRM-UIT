@@ -1,23 +1,21 @@
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import axios from 'axios';
 import React, { useContext, useState } from 'react';
 import {
-  Button,
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Image,
-  TextInput,
   Dimensions,
-  Modal,
-<<<<<<< HEAD
-} from 'react-native'
-import { Text } from '../components/Themed'
-import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
-import { BACKGROUND_IMG, SPACING } from '../constants/Layout'
-=======
+  Image,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
+  StyleSheet,
+  TextInput,
+  View,
 } from 'react-native';
+import { storeAccessToken, storeRefreshToken } from '../commons';
+import AlertShow from '../components/AlertShow';
+import AsyncButton from '../components/AsyncButton';
 import { Text } from '../components/Themed';
+<<<<<<< HEAD
 import { FontAwesome } from '@expo/vector-icons';
 import { BACKGROUND_IMG, SPACING } from '../constants/Layout';
 >>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
@@ -39,38 +37,39 @@ const { width } = Dimensions.get('window')
 import '../constants/Layout';
 import { colorText, colorTextHolder } from '../constants/Colors';
 import axios from 'axios';
+=======
+import { colorText, colorTextHolder, primaryColor } from '../constants/Colors';
+>>>>>>> 57473b0... Update LoginScreen
 import { BASE_URL } from '../constants/confgi';
+import '../constants/Layout';
+import { BACKGROUND_IMG, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
-import { storeAccessToken, storeRefreshToken, storeInfoUser } from '../commons';
-import { STATE } from '../constants/type';
-import { FancyAlert } from 'react-native-expo-fancy-alerts';
+
 const { width } = Dimensions.get('window');
+<<<<<<< HEAD
 >>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
+=======
+>>>>>>> 57473b0... Update LoginScreen
 
 const LoginScreen = ({ navigation }: { navigation: any }) => {
   const [user, onChangeUser] = React.useState<string | undefined>('');
   const [password, onChangePassword] = React.useState<string | undefined>('');
 
-  const [state, setState] = useState<STATE>(STATE.IDLE);
-
   const [visible, setVisible] = useState<{ show: boolean; text: string }>({
     show: false,
     text: '',
-<<<<<<< HEAD
-  })
+  });
   // cuongnx 123456
 
-  const { setUser } = useContext(AuthContext)
-  const checkLogin = async () => {
-    setState(STATE.LOADING)
-=======
-  });
-
   const { setUser } = useContext(AuthContext);
+<<<<<<< HEAD
   const checkLogin = () => {
     setState(STATE.LOADING);
 >>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
+=======
+>>>>>>> 57473b0... Update LoginScreen
 
+  const checkLogin = async () => {
     await axios
       .post(`${BASE_URL}/auth/token/`, {
         username: user,
@@ -78,18 +77,13 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
       })
       .then((res) => {
         const { access, refresh } = res.data;
-
         storeAccessToken(access);
         storeRefreshToken(refresh);
-
-<<<<<<< HEAD
-        // setVisible({ show: true, text: 'Success Login' })
-        return access
-=======
-        setVisible({ show: true, text: 'Success Login' });
-
         return access;
+<<<<<<< HEAD
 >>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
+=======
+>>>>>>> 57473b0... Update LoginScreen
       })
       .then((token) => {
         axios
@@ -99,12 +93,8 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
             },
           })
           .then((res) => {
-<<<<<<< HEAD
-            setUser(res.data)
-=======
-            console.log('res', res.data);
-            // storeInfoUser(res.data);
             setUser(res.data);
+<<<<<<< HEAD
 >>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
 
             setState(STATE.LOADED);
@@ -125,36 +115,18 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
           .catch((er) => {
             setState(STATE.ERROR);
             console.log('err', er);
-          });
-      })
-      .catch((er) => {
-<<<<<<< HEAD
-        // setState(STATE.LOADED)
-        setVisible({ show: true, text: 'Error Login' })
-        setState(STATE.ERROR)
-        console.log('er', er)
-        // AlertShow({ text: 'Error Login' })
-      })
-      .finally(() => {
-        setTimeout(() => {
-          setVisible({ text: '', show: false })
-        }, 1500)
-      })
-    console.log('state', state)
-  }
 =======
-        console.log('er', er);
-        // setVisible({ ...visible, show: true })
-        setVisible({ show: true, text: 'Something went wrong!!' });
-        setState(STATE.ERROR);
-      })
-      .finally(() => {
-        setTimeout(() => {
-          setVisible({ ...visible, show: false });
-        }, 1000);
+            onChangeUser('');
+            onChangePassword('');
+            navigation.navigate('Root');
+>>>>>>> 57473b0... Update LoginScreen
+          });
       });
   };
+<<<<<<< HEAD
 >>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
+=======
+>>>>>>> 57473b0... Update LoginScreen
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -162,7 +134,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
       {visible.show ? <AlertShow text={visible.text} /> : null}
       {/* Icon Language */}
       <View style={{ flexDirection: 'row-reverse', marginLeft: SPACING * 2 }}>
-        <FontAwesome name="language" size={24} color={colorText} />
+        <FontAwesome name="language" size={24} color={colorText} style={{ marginTop: SPACING }} />
       </View>
 
       <KeyboardAvoidingView
@@ -174,13 +146,13 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
           <Image source={BACKGROUND_IMG} style={styles.img} />
           <Text style={{ fontSize: 33, fontWeight: '700', color: '#000' }}>UIT</Text>
         </View>
-        <View style={{ margin: SPACING, opacity: 0.4 }}>
+        <View style={{ margin: SPACING, opacity: 0.45 }}>
           <Text style={{ color: colorText }}>Human Resource Management Application</Text>
         </View>
         {/* Input */}
         <View style={{ paddingTop: SPACING * 3 }}>
           <View style={styles.inputContainer}>
-            <AntDesign name="user" size={19} color="blue" style={styles.icon} />
+            <AntDesign name="user" size={19} color={primaryColor} style={styles.icon} />
             <TextInput
               style={styles.textInput}
               maxLength={30}
@@ -194,7 +166,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
         </View>
         <View style={{ paddingVertical: SPACING * 2 }}>
           <View style={styles.inputContainer}>
-            <AntDesign name="lock" size={19} color="blue" style={styles.icon} />
+            <AntDesign name="lock" size={19} color={primaryColor} style={styles.icon} />
             <TextInput
               style={styles.textInput}
               secureTextEntry={true}
@@ -206,21 +178,24 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
             />
           </View>
         </View>
-        <View style={styles.button}>
-          <Button
-            title="Login"
-            color="white"
-            // onPress={() => navigation.navigate('Root')}
-            onPress={() => checkLogin()}
-          />
-        </View>
+        {/* <View style={styles.button}> */}
+        <AsyncButton
+          style={styles.button}
+          title="Login"
+          onSubmit={checkLogin}
+          color="white"
+          errorMsg="Error Login"
+        />
       </KeyboardAvoidingView>
 
       {/* Bottom */}
-      <Text style={{ textAlign: 'center', color: colorText, opacity: 0.6 }}>
+      <Text
+        style={{ textAlign: 'center', color: colorText, opacity: 0.6, marginBottom: SPACING * 2 }}
+      >
         Copyright © 2021 Dung Loi Team
       </Text>
       {/* Modal */}
+<<<<<<< HEAD
 <<<<<<< HEAD
       <ModalShow visible={state === STATE.LOADING ? true : false} />
 =======
@@ -237,6 +212,9 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
         </View>
       </Modal>
 >>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
+=======
+      {/* <ModalShow visible={state === STATE.LOADING ? true : false} /> */}
+>>>>>>> 57473b0... Update LoginScreen
 
       {/* Alert */}
 
@@ -260,6 +238,7 @@ const styles = StyleSheet.create({
     width: width * 0.9,
     backgroundColor: primaryColor,
     marginTop: SPACING * 3,
+    color: 'white',
   },
   textInput: {
     height: 40,
