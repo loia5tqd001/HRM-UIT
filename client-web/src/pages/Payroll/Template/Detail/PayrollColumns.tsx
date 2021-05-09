@@ -1,12 +1,5 @@
 import { allPayrollSystemFields } from '@/services/payroll.template';
-import {
-  ArrowLeftOutlined,
-  ArrowRightOutlined,
-  CloseOutlined,
-  EyeOutlined,
-  MenuOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+import { CloseOutlined, EyeOutlined, MenuOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   Affix,
   Button,
@@ -348,7 +341,8 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                     itemLayout="horizontal"
                     dataSource={systemFields?.filter(
                       (it) =>
-                        it.name.includes(searchKeyword) || it.code_name.includes(searchKeyword),
+                        it.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                        it.code_name.toLowerCase().includes(searchKeyword.toLowerCase()),
                     )}
                     loading={!systemFields}
                     bordered
