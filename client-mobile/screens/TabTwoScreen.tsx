@@ -1,17 +1,12 @@
-import React, { useState } from 'react';
 import axios from 'axios';
-import { StyleSheet, SafeAreaView, View, Text, Modal } from 'react-native';
-
-import { BASE_URL } from '../constants/confgi';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import { ListHistory } from '../components/ListHistory';
-import ModalTimeOff from '../components/ModalTimeOff';
-import { ListTimeOff, STATE } from '../constants/type';
-import { useContext } from 'react';
-import { AuthContext } from '../Context/AuthContext';
-import { primaryColor } from './../constants/Colors';
+import React, { useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import Header from '../components/Header';
+import ModalTimeOff from '../components/ModalTimeOff';
+import { ListHistory } from '../components/TimeoffHistory';
+import { BASE_URL } from '../constants/confgi';
+import { primaryColor } from './../constants/Colors';
 
 export type TypeTimeOff = {
   label: string;
@@ -20,47 +15,16 @@ export type TypeTimeOff = {
 export default function TabTwoScreen({ navigation }: any) {
   const [show, setShow] = React.useState<boolean>(false);
 
-  const [state, setState] = useState<STATE>(STATE.IDLE);
-
-  const [items, setItems] = useState<TypeTimeOff[]>([
-    { label: 'Apple', value: 'apple' },
-    { label: 'Banana', value: 'banana' },
-  ]);
-  const [listData, setListData] = useState<ListTimeOff[]>([]);
-
-  // const [typeOff, setTypeOff] = React.useState([])
-
-  const { user } = useContext(AuthContext)!;
+  const [items, setItems] = useState<TypeTimeOff[]>([]);
 
   React.useEffect(() => {
-    console.log('user', user);
-
-    setState(STATE.LOADING);
-    getListTimeOff().then(() => {
-      setState(STATE.LOADED);
-    });
-
     getTypeTimeOff();
   }, []);
-
-  const getListTimeOff = async () => {
-    await axios
-      .get(`${BASE_URL}/time_off/`)
-      .then((res) => {
-        console.log('res', res.data);
-        setListData(res.data);
-      })
-      .catch((er) => {
-        console.log('er', er);
-        setState(STATE.ERROR);
-      });
-  };
 
   const getTypeTimeOff = async () => {
     await axios
       .get(`${BASE_URL}/time_off_types/`)
       .then((res) => {
-        // setTypeOff(res.data)
         return res.data;
       })
       .then((list) => {
@@ -73,7 +37,6 @@ export default function TabTwoScreen({ navigation }: any) {
       })
       .catch((er) => {
         console.log('er', er);
-        setState(STATE.ERROR);
       });
   };
 
@@ -87,8 +50,8 @@ export default function TabTwoScreen({ navigation }: any) {
           style={{
             backgroundColor: primaryColor,
             alignSelf: 'flex-end',
-            marginHorizontal: 30,
-            marginVertical: 10,
+            marginHorizontal: 25,
+            marginBottom: 10,
             padding: 10,
             borderRadius: 2,
           }}
@@ -97,17 +60,8 @@ export default function TabTwoScreen({ navigation }: any) {
             <Text style={{ color: 'white' }}>+ New</Text>
           </TouchableOpacity>
         </View>
-        {state === STATE.LOADING ? (
-          <View>
-            <Text>Loading..</Text>
-          </View>
-        ) : (
-          <ScrollView style={{ flexGrow: 1, width: '90%' }}>
-            <ListHistory list={listData} />
-          </ScrollView>
-        )}
+        <ListHistory />
       </View>
-
       <ModalTimeOff items={items} setItems={setItems} show={show} setShow={setShow} />
     </SafeAreaView>
   );

@@ -11,13 +11,14 @@ type OwnerType = {
   id: number;
   last_name: string;
 };
+
 export type ListTimeOff = {
-  end_date: string;
   id: number;
-  note: string | null;
+  end_date: string;
   owner?: OwnerType;
   reviewed_by: string | null;
   start_date: string;
-  status: string;
+  note: string | null;
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Confirmed';
   time_off_type: string;
 };

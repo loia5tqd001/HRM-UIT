@@ -40,7 +40,7 @@ export const AsyncButton: React.FC<Props> = (props) => {
       onPress={onPress}
     >
       <Text style={{ color: 'white', marginRight: 6 }}>{title}</Text>
-      {isLoading ? <ActivityIndicator animating={true} /> : null}
+      {isLoading ? <ActivityIndicator /> : null}
     </TouchableOpacity>
   );
 };

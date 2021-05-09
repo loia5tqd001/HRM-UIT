@@ -160,7 +160,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
             <TextInput
               style={styles.textInput}
               maxLength={30}
-              placeholder="User"
+              placeholder="Username"
               placeholderTextColor={colorTextHolder}
               onChangeText={(text) => onChangeUser(text)}
               autoCapitalize="none"
