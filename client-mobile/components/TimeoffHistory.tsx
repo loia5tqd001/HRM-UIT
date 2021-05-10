@@ -46,6 +46,7 @@ export const ListHistory = () => {
     <FlatList<ListTimeOff>
       style={{ flexGrow: 1, width: '90%' }}
       data={listData}
+      key="id"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       renderItem={({ item }) => {
         const start_date = moment(item.start_date).format('DD MMM YYYY');

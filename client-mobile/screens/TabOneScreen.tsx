@@ -7,6 +7,7 @@ import ModalClock from '../components/ClockManual';
 import DetailInformation from '../components/DetailInformation';
 import Header from '../components/Header';
 import { Text } from '../components/Themed';
+import { primaryColor } from '../constants/Colors';
 import { ICON_IMG, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 
@@ -38,8 +39,8 @@ export default function TabOneScreen({ navigation }: { navigation: any }) {
               setPreviewVisible(true);
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: '100', marginTop: SPACING }}>
-              Clock in manual
+            <Text style={{ fontSize: 18, fontWeight: '500', color: primaryColor, marginTop: SPACING }}>
+              Or, Clock in manually?
             </Text>
           </TouchableOpacity>
         </View>

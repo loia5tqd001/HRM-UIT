@@ -15,7 +15,7 @@ interface StateInterface {
 const CameraComponents = (props: any) => {
   const [state, setState] = useState<StateInterface>({
     hasPermission: null,
-    type: Camera.Constants.Type.back,
+    type: Camera.Constants.Type.front,
   });
 
   const [previewVisible, setPreviewVisible] = useState(false);

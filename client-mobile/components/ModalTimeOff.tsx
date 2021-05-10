@@ -108,8 +108,9 @@ const ModalTimeOff = ({ show, setShow }: TypeModal) => {
           <RNPickerSelect
             onValueChange={(value) => console.log(value)}
             placeholder="Type"
-            items={timeoffTypes.map((it) => ({ key: it.name, label: it.name, value: it.name }))}
-            itemKey="id"
+            items={timeoffTypes.map((it) => ({ label: it.name, value: it.name }))}
+            itemKey="name"
+            key="name"
             textInputProps={{
               placeholder: 'What type of timeoff?',
               // @ts-ignore
