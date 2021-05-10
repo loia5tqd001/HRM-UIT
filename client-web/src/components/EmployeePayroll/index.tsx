@@ -86,6 +86,11 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
                             min: 10,
                             max: 100,
                           }) * 100000,
+                        basic_salary:
+                          faker.random.number({
+                            min: 10,
+                            max: 100,
+                          }) * 100000,
                         // salary_type: faker.helpers.randomize(['Gross', 'Net']),
                         tax_policy: faker.helpers.randomize(taxPlans || [])?.name,
                         insurance_policy: faker.helpers.randomize(insurancePlans || [])?.name,
@@ -101,6 +106,15 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
         >
           <ProForm.Group>
             <Form.Item name="salary" label="Salary" rules={[{ required: true }]}>
+              <InputNumber
+                style={{ width: 440 }}
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) => Number(value?.replace(/\D+/g, ''))}
+                placeholder="1,000,000"
+                step={1000000}
+              />
+            </Form.Item>
+            <Form.Item name="basic_salary" label="Basic salary" rules={[{ required: true }]}>
               <InputNumber
                 style={{ width: 440 }}
                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}

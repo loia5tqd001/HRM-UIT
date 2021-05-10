@@ -280,7 +280,7 @@ const EmployeeAttendance: React.FC = () => {
           );
 
           data = data
-            .filter((it) => it.attendance.length)
+            // .filter((it) => it.attendance.length)
             .map((it) => {
               let work_schedule = 0;
               if (it.attendance[0]?.owner) {

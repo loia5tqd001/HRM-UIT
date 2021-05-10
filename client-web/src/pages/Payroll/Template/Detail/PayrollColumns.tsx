@@ -16,10 +16,8 @@ import {
 } from 'antd';
 import arrayMove from 'array-move';
 import { sortBy } from 'lodash';
-// import 'antd/dist/antd.css';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
-import './index.css';
 import styles from './index.less';
 
 const EditableContext = React.createContext<any>(null);

@@ -130,6 +130,7 @@ declare namespace API {
   interface EmployeePayroll {
     insurance_policy: string;
     tax_policy: string;
+    basic_salary: number;
     salary: number;
   }
 
@@ -547,6 +548,23 @@ declare namespace API {
     cycle_start_date: string | moment.Moment;
     cycle_end_date: string | moment.Moment;
     created_at: string | moment.Moment;
+  }
+
+  interface Payslip {
+    id: number;
+    owner: Employee['id'];
+    payroll: Payroll['id'];
+    values: {
+      num_value: null | number;
+      str_value: null | string;
+      field: {
+        code_name: string;
+        define: string | null;
+        display_name: string;
+        index: number;
+        type: 'System Field' | 'Input' | 'Define';
+      };
+    }[];
   }
 
   type User = any;
