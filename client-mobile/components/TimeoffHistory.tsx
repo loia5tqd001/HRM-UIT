@@ -53,7 +53,7 @@ export const ListHistory = () => {
 
         return (
           <View
-            key={item.start_date}
+            // key={String(item.id)}
             style={{
               padding: SPACING,
               margin: 5,

@@ -8,37 +8,8 @@ import { ListHistory } from '../components/TimeoffHistory';
 import { BASE_URL } from '../constants/confgi';
 import { primaryColor } from './../constants/Colors';
 
-export type TypeTimeOff = {
-  label: string;
-  value: string;
-};
 export default function TabTwoScreen({ navigation }: any) {
   const [show, setShow] = React.useState<boolean>(false);
-
-  const [items, setItems] = useState<TypeTimeOff[]>([]);
-
-  React.useEffect(() => {
-    getTypeTimeOff();
-  }, []);
-
-  const getTypeTimeOff = async () => {
-    await axios
-      .get(`${BASE_URL}/time_off_types/`)
-      .then((res) => {
-        return res.data;
-      })
-      .then((list) => {
-        var arr: TypeTimeOff[] = [];
-        list.forEach((element: any) => {
-          var obj = { label: element.name, value: element.name };
-          arr.push(obj);
-        });
-        setItems(arr);
-      })
-      .catch((er) => {
-        console.log('er', er);
-      });
-  };
 
   return (
     <SafeAreaView style={StyleSheet.absoluteFillObject}>
@@ -52,17 +23,16 @@ export default function TabTwoScreen({ navigation }: any) {
             alignSelf: 'flex-end',
             marginHorizontal: 25,
             marginBottom: 10,
-            padding: 10,
             borderRadius: 2,
           }}
         >
-          <TouchableOpacity onPress={() => setShow(true)}>
-            <Text style={{ color: 'white' }}>+ New</Text>
+          <TouchableOpacity style={{ width: '100%' }} onPress={() => setShow(true)}>
+            <Text style={{ color: 'white', margin: 10 }}>+ New</Text>
           </TouchableOpacity>
         </View>
         <ListHistory />
       </View>
-      <ModalTimeOff items={items} setItems={setItems} show={show} setShow={setShow} />
+      <ModalTimeOff show={show} setShow={setShow} />
     </SafeAreaView>
   );
 }

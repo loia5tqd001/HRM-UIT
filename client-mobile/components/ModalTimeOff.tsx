@@ -1,147 +1,202 @@
-import React, { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
-import { Modal } from 'react-native';
-import { StyleSheet, Text, View } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { TypeTimeOff } from '../screens/TabTwoScreen';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Platform } from 'react-native';
-import { TextInput } from 'react-native';
-import { BASE_URL, GET_WIDTH } from '../constants/confgi';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { preventAutoHide } from 'expo-splash-screen';
-import moment from 'moment';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
-import { useContext } from 'react';
-import { AuthContext } from '../Context/AuthContext';
+import moment from 'moment';
+import React, { useContext, useEffect, useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert,
+} from 'react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import RNPickerSelect from 'react-native-picker-select';
 import { getDataAsync } from '../commons';
+import { lightGray } from '../constants/Colors';
+import { BASE_URL, GET_WIDTH } from '../constants/confgi';
+import { SPACING } from '../constants/Layout';
+import { AuthContext } from '../Context/AuthContext';
+import { colorText, primaryColor } from './../constants/Colors';
+import { AsyncButton } from './AsyncButton';
 
 type TypeModal = {
   show: boolean;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
-  items: TypeTimeOff[];
-  setItems: React.Dispatch<React.SetStateAction<TypeTimeOff[]>>;
 };
 
 const widthDefault = GET_WIDTH - 110;
 
-const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
-  const [open, setOpen] = useState<boolean>(false);
-  const [value, setValue] = useState<string>('');
-  const [showPickDate, setShowPickDate] = useState({ show: false, type: 1 });
-  const [startDate, setStartDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
-  //   const [show, setShow] = useState(false);
+export interface TimeOffType {
+  id: number;
+  name: string;
+  description: string;
+  is_paid: boolean;
+}
 
-  const { user } = useContext(AuthContext);
+const ModalTimeOff = ({ show, setShow }: TypeModal) => {
+  const { user } = useContext(AuthContext)!;
 
+  const [showPickDate, setShowPickDate] = useState({ show: false, type: 'start_date' });
+
+  const [timeoffTypes, setTimeoffTypes] = useState<TimeOffType[]>([]);
+
+  const [timeoffType, setTimeoffType] = useState<TimeOffType>();
+  const [startDate, setStartDate] = useState<moment.Moment | null>(null);
+  const [endDate, setEndDate] = useState<moment.Moment | null>(null);
   const [noteValue, setNoteValue] = useState<string>('');
 
-  const setDate = (date: Date) => {
-    if (showPickDate.type == 1) {
-      var m = moment(date).utcOffset(0);
-      m.set({ hour: 6, minute: 59, second: 0 });
-      m.toISOString();
+  React.useEffect(() => {
+    axios
+      .get(`${BASE_URL}/time_off_types/`)
+      .then((res) => {
+        setTimeoffTypes(res.data);
+      })
+      .catch((er) => {
+        console.log('er', er);
+      });
+  }, []);
 
-      setStartDate(m.toISOString());
-    } else {
-      var m = moment(date).utcOffset(0);
-      m.set({ hour: 7, minute: 0, second: 0 });
-      m.toISOString();
-
-      setEndDate(m.toISOString());
+  useEffect(() => {
+    if (!show) {
+      setTimeoffType(undefined);
+      setStartDate(null);
+      setEndDate(null);
+      setNoteValue('');
     }
-    setShowPickDate({ ...showPickDate, show: false });
-  };
+  }, [show]);
 
   const submitData = async () => {
-    console.log('data', {
-      time_off_type: value,
-      start_date: startDate,
-      end_date: endDate,
-      note: noteValue,
-    });
-
+    const start_date = moment(startDate);
+    const end_date = moment(endDate);
+    start_date.set({ hours: 0, minutes: 0 });
+    end_date.set({ hours: 23, minutes: 59 });
     const dataSubmit = {
-      time_off_type: value,
-      start_date: startDate,
-      end_date: endDate,
+      time_off_type: timeoffType,
+      start_date,
+      end_date,
       note: noteValue,
     };
     const token = await getDataAsync('token');
-    console.log('token', token);
-
-    console.log('ủl', `${BASE_URL}/employees/${user.id}/time_off/ `);
 
     await axios
-      .post(`${BASE_URL}/employees/${user.id}/time_off/ `, dataSubmit, {
+      .post(`${BASE_URL}/employees/${user?.id}/time_off/ `, dataSubmit, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
         console.log('res', res);
+        setShow(false);
       })
-      .catch((er) => console.log('er', er));
+      .catch((er) => Alert.alert('Submit request unsuccessfully!'));
   };
   return (
     <Modal animationType="slide" transparent={true} visible={show}>
-      <View style={styles.centeredView}>
+      <KeyboardAvoidingView
+        style={styles.centeredView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <View style={[styles.modalView, { minWidth: widthDefault }]}>
-          <Text style={{ alignSelf: 'flex-start', marginBottom: 10 }}>Select Time off type</Text>
-
-          <DropDownPicker
-            open={open}
-            value={value}
-            items={items}
-            setValue={setValue}
-            setItems={setItems}
-            setOpen={setOpen}
+          {/* === Timeoff types */}
+          <Text style={{ alignSelf: 'flex-start', marginBottom: 10 }}>
+            <Text style={{ color: 'red' }}>* </Text>Timeoff type
+          </Text>
+          <RNPickerSelect
+            onValueChange={(value) => console.log(value)}
+            placeholder="Type"
+            items={timeoffTypes.map((it) => ({ key: it.name, label: it.name, value: it.name }))}
+            itemKey="id"
+            textInputProps={{
+              placeholder: 'What type of timeoff?',
+              // @ts-ignore
+              placeholderColor: 'red',
+              style: {
+                paddingVertical: 12,
+                paddingHorizontal: 10,
+                borderWidth: 0.3,
+                borderColor: 'black',
+                borderRadius: 1,
+                color: colorText,
+              },
+            }}
+            Icon={() => {
+              return (
+                <Ionicons
+                  size={30}
+                  name="chevron-down-outline"
+                  color={'#0003'}
+                  style={{
+                    flexGrow: 1,
+                    height: '100%',
+                    marginTop: SPACING / 2,
+                    marginRight: 3,
+                  }}
+                />
+              );
+            }}
           />
 
-          {/* Date Picker */}
-          <Text style={{ alignSelf: 'flex-start', marginTop: 20 }}>Pick Date</Text>
-          <View style={styles.timeContain}>
-            {/* Start Date */}
-            <View style={styles.pickDate}>
-              <TouchableOpacity
-                style={styles.buttonRed}
-                onPress={() => setShowPickDate({ show: true, type: 1 })}
-              >
-                <Text style={{ color: 'white' }}>Start Date</Text>
-              </TouchableOpacity>
+          {/* === Off from */}
+          <Text style={{ alignSelf: 'flex-start', marginTop: SPACING * 2 }}>
+            <Text style={{ color: 'red' }}>* </Text>Off from
+          </Text>
+          <TouchableOpacity
+            style={styles.noteContain}
+            onPress={() => setShowPickDate({ show: true, type: 'start_date' })}
+          >
+            <TextInput
+              style={{ padding: SPACING, borderColor: lightGray }}
+              placeholder="Pick a day"
+              value={startDate ? moment(startDate).format('DD MMM YYYY') : ''}
+              multiline={true}
+              pointerEvents="none"
+            />
+          </TouchableOpacity>
 
-              {startDate ? <Text style={{ color: 'black', padding: 10 }}>{startDate}</Text> : null}
-            </View>
-            {/* End date */}
-            <View style={styles.pickDate}>
-              <TouchableOpacity
-                style={styles.buttonRed}
-                onPress={() => setShowPickDate({ show: true, type: 2 })}
-              >
-                <Text style={{ color: 'white' }}>End Date</Text>
-              </TouchableOpacity>
+          {/* === Off to */}
+          <Text style={{ alignSelf: 'flex-start', marginTop: SPACING }}>
+            <Text style={{ color: 'red' }}>* </Text>Off to
+          </Text>
+          <TouchableOpacity
+            style={styles.noteContain}
+            onPress={() => setShowPickDate({ show: true, type: 'end_date' })}
+          >
+            <TextInput
+              style={{ padding: SPACING, borderColor: lightGray }}
+              placeholder="Pick a day"
+              value={endDate ? moment(endDate).format('DD MMM YYYY') : ''}
+              multiline={true}
+              pointerEvents="none"
+            />
+          </TouchableOpacity>
 
-              {endDate ? <Text style={{ color: 'black', padding: 10 }}>{endDate}</Text> : null}
-            </View>
-          </View>
-
+          {/* DatePickerModal for Off from and Off to */}
           <DateTimePickerModal
             isVisible={showPickDate.show}
             mode="date"
-            onConfirm={(date) => setDate(date)}
+            onConfirm={(date) => {
+              if (showPickDate.type === 'start_date') {
+                setStartDate(moment(date));
+              }
+              if (showPickDate.type === 'end_date') {
+                setEndDate(moment(date));
+              }
+              setShowPickDate({ ...showPickDate, show: false });
+            }}
             onCancel={() => setShowPickDate({ ...showPickDate, show: false })}
           />
 
-          {/* Date Pick */}
-
-          {/* Note */}
-          <Text style={{ alignSelf: 'flex-start' }}>Note:</Text>
+          {/* === Note */}
+          <Text style={{ alignSelf: 'flex-start', marginTop: SPACING, borderRadius: 1 }}>Note</Text>
           <View style={styles.noteContain}>
             <TextInput
-              style={{ height: 60 }}
+              style={{ height: 60, padding: SPACING, borderColor: lightGray }}
               numberOfLines={5}
-              placeholder="Type here!"
+              placeholder="More about your situation!"
               onChangeText={(text: string) => setNoteValue(text)}
               value={noteValue}
               multiline={true}
@@ -156,20 +211,15 @@ const ModalTimeOff = ({ show, setShow, items, setItems }: TypeModal) => {
               justifyContent: 'flex-end',
             }}
           >
-            {/* Cancel Button */}
-            <View style={styles.buttonSubmit}>
-              <TouchableOpacity onPress={() => submitData()}>
-                <Text style={{ color: 'white' }}>Submit</Text>
-              </TouchableOpacity>
-            </View>
+            <AsyncButton style={styles.buttonSubmit} title="Submit" onSubmit={submitData} />
             <View style={styles.buttonCancel}>
               <TouchableOpacity onPress={() => setShow(false)}>
-                <Text style={{ color: 'white' }}>Cancel</Text>
+                <Text style={{ margin: SPACING - 0.7, color: colorText }}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
@@ -178,9 +228,9 @@ export default ModalTimeOff;
 
 const styles = StyleSheet.create({
   modalView: {
-    margin: 20,
+    margin: SPACING,
     backgroundColor: 'white',
-    borderRadius: 1,
+    borderRadius: 2,
     padding: 35,
     alignItems: 'center',
     shadowColor: '#000',
@@ -222,26 +272,27 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   buttonCancel: {
-    backgroundColor: '#C61D1D',
+    // backgroundColor: '#C61D1D',
+    borderColor: 'black',
+    borderWidth: 0.7,
+    color: colorText,
     alignSelf: 'flex-end',
-    marginVertical: 10,
-    padding: 10,
-    borderRadius: 2,
+    marginTop: 10,
+    borderRadius: 1,
   },
   buttonSubmit: {
-    backgroundColor: '#2196F3',
+    backgroundColor: primaryColor,
     alignSelf: 'flex-end',
-    marginVertical: 10,
-    padding: 10,
+    marginTop: SPACING,
     borderRadius: 2,
     marginRight: 10,
   },
   noteContain: {
-    padding: 10,
     width: '100%',
     minWidth: widthDefault,
-    borderColor: '#000',
+    borderColor: 'black',
     borderWidth: 0.3,
     marginVertical: 10,
+    paddingTop: 5,
   },
 });
