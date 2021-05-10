@@ -64,7 +64,7 @@ const CameraComponents = (props: any) => {
     return <Text>No access to camera</Text>;
   } else {
     return (
-      <View style={{ marginVertical: SPACING }}>
+      <View style={{ marginVertical: SPACING,alignSelf:'center',backgroundColor:'#fff' }}>
         <View style={styles.container}>
           <Camera ref={ref} style={styles.camera} type={state.type}></Camera>
           <View style={styles.buttons}>

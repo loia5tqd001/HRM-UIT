@@ -122,8 +122,12 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
 =======
             onChangeUser('');
             onChangePassword('');
+<<<<<<< HEAD
             navigation.navigate('Root');
 >>>>>>> 57473b0... Update LoginScreen
+=======
+            navigation.navigate('Home');
+>>>>>>> 5b68ff1... fix ui
           });
       });
   };

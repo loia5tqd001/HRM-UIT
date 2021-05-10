@@ -20,7 +20,7 @@ const ModalClock = ({
   };
   //
   return (
-    <ModalCustom modalVisible={modalVisible}>
+    <View style={{flex:1}}>
       <View>
         <TextInput
           style={styles.input}
@@ -61,7 +61,7 @@ const ModalClock = ({
           </TouchableHighlight>
         </View>
       </View>
-    </ModalCustom>
+    </View>
   );
 };
 

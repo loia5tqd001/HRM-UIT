@@ -1,12 +1,14 @@
 export type RootStackParamList = {
   Login: undefined;
   Root: undefined;
+  Home: undefined;
   NotFound: undefined;
+  TimeOff:undefined;
 };
 
 export type BottomTabParamList = {
   Attendance: undefined;
-  TimeOff: undefined;
+  ClockIn: undefined;
 };
 
 export type TabOneParamList = {

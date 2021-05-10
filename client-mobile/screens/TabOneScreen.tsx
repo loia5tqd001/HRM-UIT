@@ -1,5 +1,7 @@
+import { usePermissions } from 'expo-permissions';
+import * as Permissions from 'expo-permissions';
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Button, StyleSheet, View } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CameraComponents from '../components/CameraComponents';
@@ -13,27 +15,35 @@ import { AuthContext } from '../Context/AuthContext';
 
 export default function TabOneScreen({ navigation }: { navigation: any }) {
   // const [capturedImage, setCapturedImage] = React.useState<any>(null)
-  const [previewVisible, setPreviewVisible] = React.useState(false);
 
+  const [permission, askForPermission] = usePermissions(Permissions.LOCATION, { ask: true });
   const { user } = React.useContext(AuthContext)!;
 
+  React.useEffect(() => {
+    if (!permission || permission.status !== 'granted') {
+      askForPermission();
+    }
+  }, []);
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView>
-        <Header navigation={navigation} />
-        <View style={styles.container}>
-          <DetailInformation
-            imgUri={user ? user.avatar : ICON_IMG}
-            name={user ? user.last_name : ''}
-          />
-
+      <Header navigation={navigation} />
+      <View style={{ alignSelf: 'center' }}>
+        <DetailInformation
+          imgUri={user ? user.avatar : ICON_IMG}
+          name={user ? user.last_name : ''}
+        />
+      </View>
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center'}}>
+          {/* <View>
+            <Text>Permission is not granted</Text>
+            <Button title="Grant permission" onPress={askForPermission} />
+          </View> */}
           {/* Body */}
-          <CameraComponents />
+        
+            <CameraComponents />
           {/* Modal Clock */}
-          <ModalClock
-            modalVisible={previewVisible}
-            setModalVisible={(c: boolean) => setPreviewVisible(c)}
-          />
+          {/*           
           <TouchableOpacity
             onPress={() => {
               setPreviewVisible(true);
@@ -42,19 +52,19 @@ export default function TabOneScreen({ navigation }: { navigation: any }) {
             <Text style={{ fontSize: 18, fontWeight: '500', color: primaryColor, marginTop: SPACING }}>
               Or, Clock in manually?
             </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+          </TouchableOpacity> */}
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor:'#432'
+    // backgroundColor: '#432',
   },
   title: {
     fontSize: 20,

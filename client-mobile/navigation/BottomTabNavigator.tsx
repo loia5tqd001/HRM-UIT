@@ -2,9 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
+import ModalTimeOff from '../components/ModalTimeOff';
 
 import Colors, { activeColor } from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+import ClockInScreen from '../screens/ClockInScreen';
 import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import { BottomTabParamList, TabOneParamList, TabTwoParamList } from '../types';
@@ -29,8 +31,8 @@ export default function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="TimeOff"
-        component={TabTwoNavigator}
+        name="ClockIn"
+        component={ClockInScreen}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="calendar-outline" color={color} />,
         }}
