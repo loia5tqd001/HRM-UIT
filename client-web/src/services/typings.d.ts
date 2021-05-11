@@ -591,6 +591,7 @@ declare namespace API {
         type: 'System Field' | 'Input' | 'Define';
       };
     }[];
+    payrollDetail?: Payroll;
   }
 
   type User = any;

@@ -24,7 +24,7 @@ import ProForm, {
 } from '@ant-design/pro-form';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Card, Checkbox, Form, message, Space, TimePicker, TreeSelect } from 'antd';
+import { Button, Card, Form, message, Space, TimePicker, TreeSelect } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
@@ -33,7 +33,7 @@ import React, { useEffect, useState } from 'react';
 type Props = {
   employeeId: number;
   isActive: boolean;
-  onChange?: () => any;
+  onChange?: (isActive?: boolean | undefined) => any;
 };
 
 export const EmployeeJob: React.FC<Props> = (props) => {
@@ -44,7 +44,6 @@ export const EmployeeJob: React.FC<Props> = (props) => {
   const [locations, setLocations] = useState<API.Location[]>();
   const [employmentStatuses, setEmploymentStatuses] = useState<API.EmploymentStatus[]>();
   const [jobEvents, setJobEvents] = useState<API.JobEvent[]>();
-  const [isTerminating, setIsTerminating] = useState(false);
   const [terminationForm] = useForm<API.TerminateContract>();
   const [scheduleForm] = useForm<API.EmployeeSchedule>();
   const jobs = useAsyncData<API.EmployeeJob[]>(() => allJobs(employeeId));
@@ -179,7 +178,9 @@ export const EmployeeJob: React.FC<Props> = (props) => {
                   );
                   value.contract_end_date = moment(value.contract_end_date).format('YYYY-MM-DD');
                   await updateJob(employeeId, value);
-                  await jobs.fetchData();
+                  if (jobs.data) {
+                    jobs.setData([value, ...jobs.data.slice(1)]);
+                  }
                   onChange?.();
                   message.success('Updated successfully!');
                 } catch {
@@ -219,9 +220,50 @@ export const EmployeeJob: React.FC<Props> = (props) => {
                         Auto fill
                       </Button>
                     ),
-                    <Button key="terminate" danger onClick={() => setIsTerminating(true)}>
-                      Terminate Contract
-                    </Button>,
+                    <ModalForm<API.TerminateContract>
+                      title="Termination Form"
+                      width="400px"
+                      trigger={
+                        <Button key="terminate" danger>
+                          Terminate Contract
+                        </Button>
+                      }
+                      onVisibleChange={(visible) => {
+                        if (!visible) terminationForm.resetFields();
+                      }}
+                      form={terminationForm}
+                      onFinish={async (value) => {
+                        try {
+                          await terminateEmployee(employeeId, {
+                            ...value,
+                            termination_date: moment(value.termination_date),
+                          });
+                          message.success('Terminate successfully!');
+                          jobs.fetchData();
+                          schedule.fetchData();
+                          onChange?.(false)
+                          return true;
+                        } catch {
+                          message.error('Terminate unsuccessfully!');
+                          return false;
+                        }
+                      }}
+                    >
+                      <ProFormText
+                        width="md"
+                        rules={[{ required: true }]}
+                        name="termination_reason"
+                        label="Reason"
+                      />
+                      <ProFormDatePicker
+                        rules={[{ required: true }]}
+                        width="md"
+                        name="termination_date"
+                        label="Date"
+                        initialValue={moment()}
+                      />
+                      <ProFormTextArea width="md" name="termination_note" label="Note" />
+                    </ModalForm>,
                   ];
                 },
               }}
@@ -286,43 +328,6 @@ export const EmployeeJob: React.FC<Props> = (props) => {
                 />
               </ProForm.Group>
             </ProForm>
-            <ModalForm<API.TerminateContract>
-              title="Termination Form"
-              width="400px"
-              visible={isTerminating}
-              onVisibleChange={(visible) => {
-                setIsTerminating(visible);
-                if (!visible) terminationForm.resetFields();
-              }}
-              form={terminationForm}
-              onFinish={async (value) => {
-                try {
-                  await terminateEmployee(employeeId, {
-                    ...value,
-                    termination_date: moment(value.termination_date),
-                  });
-                  message.success('Terminate successfully!');
-                  setIsTerminating(false);
-                } catch {
-                  message.error('Terminate unsuccessfully!');
-                }
-              }}
-            >
-              <ProFormText
-                width="md"
-                rules={[{ required: true }]}
-                name="termination_reason"
-                label="Reason"
-              />
-              <ProFormDatePicker
-                rules={[{ required: true }]}
-                width="md"
-                name="termination_date"
-                label="Date"
-                initialValue={moment()}
-              />
-              <ProFormTextArea width="md" name="termination_note" label="Note" />
-            </ModalForm>
           </>
         )}
       </Card>
@@ -377,7 +382,6 @@ export const EmployeeJob: React.FC<Props> = (props) => {
                 style={{ flexDirection: 'row' }}
               >
                 <Space>
-                  <Checkbox checked={it.morning_enabled}></Checkbox>
                   <TimePicker.RangePicker
                     format="HH:mm"
                     minuteStep={5}
@@ -386,7 +390,6 @@ export const EmployeeJob: React.FC<Props> = (props) => {
                     disabled={!it.morning_enabled}
                     open={false}
                   />
-                  <Checkbox checked={it.afternoon_enabled}></Checkbox>
                   <TimePicker.RangePicker
                     format="HH:mm"
                     minuteStep={5}

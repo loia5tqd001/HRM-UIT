@@ -33,7 +33,7 @@ type RecordType = API.EmployeeDependent;
 type Props = {
   employeeId: number;
   isActive: boolean;
-  onChange?: () => any;
+  onChange?: (isActive?: boolean | undefined) => any;
 };
 
 export const EmployeeDependent: React.FC<Props> = (props) => {

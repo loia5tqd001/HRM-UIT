@@ -8,6 +8,13 @@
 
 .right {
   display: grid;
+  grid-template-rows: 1fr minmax(50vh, auto);
+  align-items: start;
+  gap: 24px;
+}
+
+.tabContent {
+  display: grid;
   gap: 24px;
 }
 
@@ -24,6 +31,6 @@
 
 .radioGroup {
   display: grid;
-  gap: 6px;
   grid-template-columns: repeat(5, max-content);
+  gap: 6px;
 }

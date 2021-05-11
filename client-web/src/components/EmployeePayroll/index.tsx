@@ -1,108 +1,117 @@
-import { FormattedMessage } from '@/.umi/plugin-locale/localeExports';
 import { __DEV__ } from '@/global';
 import { allInsurancePlans } from '@/services/admin.payroll.insurancePlan';
 import { allTaxPlans } from '@/services/admin.payroll.taxPlan';
-import ProForm, { ProFormSelect } from '@ant-design/pro-form';
+import {
+  getEmployeePayroll,
+  getEmployeePayslips,
+  updateEmployeePayroll,
+} from '@/services/employee';
+import { allPayrolls } from '@/services/payroll.payrolls';
+import { useAsyncData } from '@/utils/hooks/useAsyncData';
+import ProForm, { ModalForm, ProFormSelect } from '@ant-design/pro-form';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Card, Form, InputNumber, message } from 'antd';
+import { Button, Card, Form, InputNumber, List, message } from 'antd';
 import faker from 'faker';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 type Props = {
-  payroll: API.EmployeePayroll | undefined;
-  payrollSubmit: (value: API.EmployeePayroll) => Promise<void>;
+  employeeId: number;
+  isActive: boolean;
+  onChange?: (isActive?: boolean | undefined) => any;
 };
 
 export const EmployeePayroll: React.FC<Props> = (props) => {
-  const { payroll, payrollSubmit } = props;
-  const [taxPlans, setTaxPlans] = useState<API.TaxPlan[]>();
-  const [insurancePlans, setInsurancePlans] = useState<API.InsurancePlan[]>();
+  const { employeeId, isActive, onChange } = props;
+  const payroll = useAsyncData<API.EmployeePayroll>(() => getEmployeePayroll(employeeId));
+  const taxPlans = useAsyncData<API.TaxPlan[]>(() => allTaxPlans());
+  const insurancePlans = useAsyncData<API.InsurancePlan[]>(() => allInsurancePlans());
+  const employeePayslips = useAsyncData<API.Payslip[]>(() => getEmployeePayslips(employeeId));
+  const payrolls = useAsyncData<API.Payroll[]>(() => allPayrolls());
+  const [selectedPayslip, setSelectedPayslip] = useState<API.Payslip | undefined>();
 
-  useEffect(() => {
-    allTaxPlans().then((fetchData) => setTaxPlans(fetchData));
-    allInsurancePlans().then((fetchData) => setInsurancePlans(fetchData));
-  }, []);
-
-  const columns: ProColumns<API.EmployeePayroll>[] = [
+  const columns: ProColumns<API.Payslip>[] = [
     {
-      title: (
-        <FormattedMessage id="pages.admin.payroll.column.timestamp" defaultMessage="Timestamp" />
+      title: 'Name',
+      dataIndex: ['payrollDetail', 'name'],
+      renderText: (it, record) => (
+        <Button type="link" onClick={() => setSelectedPayslip(record)}>
+          {it}
+        </Button>
       ),
-      dataIndex: 'timestamp',
-      renderText: (it) => moment(it).format('YYYY-MM-DD hh:mm:ss'),
     },
     {
-      title: <FormattedMessage id="pages.admin.payroll.column.salary" defaultMessage="Salary" />,
-      dataIndex: 'salary',
-      renderText: (value) => `${parseInt(value, 10)}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
-    },
-    // {
-    //   title: (
-    //     <FormattedMessage id="pages.admin.payroll.column.salaryType" defaultMessage="Salary type" />
-    //   ),
-    //   dataIndex: 'salary_type',
-    // },
-    {
-      title: <FormattedMessage id="pages.admin.payroll.column.taxPlan" defaultMessage="Tax plan" />,
-      dataIndex: 'tax_policy',
+      title: 'Template',
+      dataIndex: ['payrollDetail', 'template'],
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.payroll.column.insurancePlan"
-          defaultMessage="Insurance plan"
-        />
-      ),
-      dataIndex: 'insurance_policy',
+      title: 'Cycle',
+      dataIndex: ['payrollDetail', 'period'],
+      renderText: (it) =>
+        `${moment(it?.start_date).format('DD MMM YYYY')} → ${moment(it?.end_date).format(
+          'DD MMM YYYY',
+        )}`,
+    },
+    {
+      title: 'Created At',
+      dataIndex: ['payrollDetail', 'created_at'],
+      renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
     },
   ];
 
   return (
     <>
-      <Card loading={payroll === undefined} title="Payroll info">
+      <Card
+        loading={payroll.isLoading || taxPlans.isLoading || insurancePlans.isLoading}
+        title="Payroll info"
+      >
         <ProForm<API.EmployeePayroll>
           onFinish={async (value) => {
             try {
-              await payrollSubmit(value);
+              updateEmployeePayroll(employeeId, value);
+              payroll.setData(value);
+              onChange?.();
               message.success('Updated successfully!');
             } catch {
               message.error('Updated unsuccessfully!');
             }
           }}
-          initialValues={payroll}
-          submitter={{
-            render: ({ form }, defaultDoms) => {
-              return [
-                ...defaultDoms,
-                __DEV__ && (
-                  <Button
-                    key="autoFill"
-                    onClick={() => {
-                      form?.setFieldsValue({
-                        salary:
-                          faker.random.number({
-                            min: 10,
-                            max: 100,
-                          }) * 100000,
-                        basic_salary:
-                          faker.random.number({
-                            min: 10,
-                            max: 100,
-                          }) * 100000,
-                        // salary_type: faker.helpers.randomize(['Gross', 'Net']),
-                        tax_policy: faker.helpers.randomize(taxPlans || [])?.name,
-                        insurance_policy: faker.helpers.randomize(insurancePlans || [])?.name,
-                      });
-                    }}
-                  >
-                    Auto fill
-                  </Button>
-                ),
-              ];
-            },
-          }}
+          initialValues={payroll.data}
+          submitter={
+            isActive && {
+              render: ({ form }, defaultDoms) => {
+                return [
+                  ...defaultDoms,
+                  __DEV__ && (
+                    <Button
+                      key="autoFill"
+                      onClick={() => {
+                        form?.setFieldsValue({
+                          salary:
+                            faker.random.number({
+                              min: 10,
+                              max: 100,
+                            }) * 100000,
+                          basic_salary:
+                            faker.random.number({
+                              min: 10,
+                              max: 100,
+                            }) * 100000,
+                          // salary_type: faker.helpers.randomize(['Gross', 'Net']),
+                          tax_policy: faker.helpers.randomize(taxPlans.data || [])?.name,
+                          insurance_policy: faker.helpers.randomize(insurancePlans.data || [])
+                            ?.name,
+                        });
+                      }}
+                    >
+                      Auto fill
+                    </Button>
+                  ),
+                ];
+              },
+            }
+          }
         >
           <ProForm.Group>
             <Form.Item name="salary" label="Salary" rules={[{ required: true }]}>
@@ -112,6 +121,7 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
                 parser={(value) => Number(value?.replace(/\D+/g, ''))}
                 placeholder="1,000,000"
                 step={1000000}
+                disabled={!isActive}
               />
             </Form.Item>
             <Form.Item name="basic_salary" label="Basic salary" rules={[{ required: true }]}>
@@ -121,35 +131,63 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
                 parser={(value) => Number(value?.replace(/\D+/g, ''))}
                 placeholder="1,000,000"
                 step={1000000}
+                disabled={!isActive}
               />
             </Form.Item>
             <ProFormSelect
               name="tax_policy"
               width="lg"
               label="Tax plan"
-              options={taxPlans?.map((it) => ({ value: it.name, label: it.name }))}
-              hasFeedback={!taxPlans}
+              options={taxPlans.data?.map((it) => ({ value: it.name, label: it.name }))}
               rules={[{ required: true }]}
+              disabled={!isActive}
             />
             <ProFormSelect
               name="insurance_policy"
               width="lg"
               label="Insurance plan"
-              options={insurancePlans?.map((it) => ({ value: it.name, label: it.name }))}
-              hasFeedback={!insurancePlans}
+              options={insurancePlans.data?.map((it) => ({ value: it.name, label: it.name }))}
               rules={[{ required: true }]}
+              disabled={!isActive}
             />
           </ProForm.Group>
         </ProForm>
       </Card>
-      <ProTable<API.EmployeePayroll>
+      <ProTable<API.Payslip>
         headerTitle="Payroll history"
         rowKey="id"
         columns={columns}
-        dataSource={payroll ? [payroll] : []}
+        loading={employeePayslips.isLoading || payrolls.isLoading}
+        dataSource={employeePayslips.data?.map((it) => ({
+          ...it,
+          payrollDetail: payrolls.data?.find((x) => it.payroll === x.id),
+        }))}
         search={false}
         style={{ width: '100%' }}
       />
+      <ModalForm
+        width="400px"
+        visible={!!selectedPayslip}
+        onVisibleChange={(visible) => {
+          if (!visible) setSelectedPayslip(undefined);
+        }}
+        title={selectedPayslip?.payrollDetail?.name}
+      >
+        <div style={{ height: '50vh', overflow: 'auto' }}>
+          <List
+            itemLayout="horizontal"
+            dataSource={selectedPayslip?.values}
+            renderItem={(item) => (
+              <List.Item>
+                <List.Item.Meta
+                  title={item.field.display_name}
+                  description={item.num_value || item.str_value}
+                />
+              </List.Item>
+            )}
+          />
+        </div>
+      </ModalForm>
     </>
   );
 };

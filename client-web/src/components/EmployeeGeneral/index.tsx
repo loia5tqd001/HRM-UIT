@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react';
 type Props = {
   employeeId: number;
   isActive: boolean;
-  onChange?: () => any;
+  onChange?: (isActive?: boolean | undefined) => any;
 };
 
 export const EmployeeGeneral: React.FC<Props> = (props) => {

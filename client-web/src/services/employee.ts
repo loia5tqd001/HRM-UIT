@@ -233,7 +233,7 @@ export async function deleteDependent(
   });
 }
 
-export async function allEmployeePayrolls(employeeId: number, options?: { [key: string]: any }) {
+export async function getEmployeePayroll(employeeId: number, options?: { [key: string]: any }) {
   return request<API.EmployeePayroll>(`${endpoint}${employeeId}/salary_info/`, {
     method: 'GET',
     ...(options || {}),
@@ -248,6 +248,13 @@ export async function updateEmployeePayroll(
   return request<API.EmployeePayroll>(`${endpoint}${employeeId}/salary_info/`, {
     method: 'POST',
     data,
+    ...(options || {}),
+  });
+}
+
+export async function getEmployeePayslips(employeeId: number, options?: { [key: string]: any }) {
+  return request<API.Payslip[]>(`${endpoint}${employeeId}/payslips/`, {
+    method: 'GET',
     ...(options || {}),
   });
 }
