@@ -158,31 +158,7 @@ export const Edit: React.FC = () => {
                 <Radio.Button value="payroll">PAYROLL</Radio.Button>
               </Radio.Group>
             </Card>
-            <EmployeeGeneral
-              basicInfo={initialState?.currentUser}
-              basicInfoSubmit={async (value) => {
-                await updateProfile(value);
-                await refresh();
-              }}
-              homeAddress={homeAddress}
-              homeAddressSubmit={async (value) => {
-                value.owner = id;
-                await updateHomeAddress(id!, value);
-                setHomeAddress(value);
-              }}
-              emergencyContact={emergencyContact}
-              emergencyContactSubmit={async (value) => {
-                value.owner = id;
-                await updateEmergencyContact(id!, value);
-                setEmergencyContact(value);
-              }}
-              bankInfo={bankInfo}
-              bankInfoSubmit={async (value) => {
-                value.owner = id;
-                await updateBankInfo(id!, value);
-                setBankInfo(value);
-              }}
-            />
+            <EmployeeGeneral employeeId={id!} isActive={true} />
           </div>
         </div>
       </GridContent>

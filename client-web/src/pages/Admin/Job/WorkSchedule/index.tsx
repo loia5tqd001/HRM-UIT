@@ -91,13 +91,51 @@ const initDays: DayItem[] = [
   },
 ];
 
-const calcHours = ({ morning, morning_enabled, afternoon, afternoon_enabled }: DayItem) => {
+export const calcHours = ({ morning, morning_enabled, afternoon, afternoon_enabled }: DayItem) => {
   let hours = 0;
   if (morning_enabled && morning)
     hours += moment.duration(morning[1].diff(morning[0])).asHours() % 24;
   if (afternoon_enabled && afternoon)
     hours += moment.duration(afternoon[1].diff(afternoon[0])).asHours() % 24;
   return Number(hours.toFixed(1));
+};
+
+export const convertFromBackend = (workdays: API.Schedule['workdays']): DayItem[] => {
+  return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => {
+    const dayItem = {
+      day,
+      morning_enabled: false,
+      morning: null,
+      afternoon_enabled: false,
+      afternoon: null,
+    } as DayItem;
+
+    const workday = workdays.find((it) => it.day === day);
+    if (!workday) return dayItem;
+
+    if (workday.morning_from && workday.morning_to) {
+      dayItem.morning_enabled = true;
+      dayItem.morning = [moment(workday.morning_from), moment(workday.morning_to)];
+    }
+
+    if (workday.afternoon_from && workday.afternoon_to) {
+      dayItem.afternoon_enabled = true;
+      dayItem.afternoon = [moment(workday.afternoon_from), moment(workday.afternoon_to)];
+    }
+
+    return dayItem;
+  });
+};
+
+const getDisabledHours = (day: DayInWeek, when: 'morning' | 'afternoon', days: DayItem[]) => {
+  const foundDay = days.find((it) => it.day === day);
+  if (when === 'morning') {
+    if (!foundDay?.afternoon_enabled || !foundDay.afternoon) return [];
+    return range(foundDay.afternoon[0].hours() + 1, 24);
+  }
+  // when == 'afternoon'
+  if (!foundDay?.morning_enabled || !foundDay.morning) return [];
+  return range(0, foundDay.morning[1].hours());
 };
 
 export const WorkSchedule: React.FC = () => {
@@ -126,17 +164,6 @@ export const WorkSchedule: React.FC = () => {
     | 'Sun-afternoon'
     | 'closed'
   >('closed');
-
-  const getDisabledHours = (day: DayInWeek, when: 'morning' | 'afternoon') => {
-    const foundDay = days.find((it) => it.day === day);
-    if (when === 'morning') {
-      if (!foundDay?.afternoon_enabled || !foundDay.afternoon) return [];
-      return range(foundDay.afternoon[0].hours() + 1, 24);
-    }
-    // when == 'afternoon'
-    if (!foundDay?.morning_enabled || !foundDay.morning) return [];
-    return range(0, foundDay.morning[1].hours());
-  };
 
   const getDisabledMinutes = (
     day: DayInWeek,
@@ -206,33 +233,6 @@ export const WorkSchedule: React.FC = () => {
           afternoon_to: it.afternoon_enabled ? it.afternoon?.[1] : null,
         };
       });
-  };
-
-  const convertFromBackend = (workdays: API.Schedule['workdays']): DayItem[] => {
-    return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => {
-      const dayItem = {
-        day,
-        morning_enabled: false,
-        morning: null,
-        afternoon_enabled: false,
-        afternoon: null,
-      } as DayItem;
-
-      const workday = workdays.find((it) => it.day === day);
-      if (!workday) return dayItem;
-
-      if (workday.morning_from && workday.morning_to) {
-        dayItem.morning_enabled = true;
-        dayItem.morning = [moment(workday.morning_from), moment(workday.morning_to)];
-      }
-
-      if (workday.afternoon_from && workday.afternoon_to) {
-        dayItem.afternoon_enabled = true;
-        dayItem.afternoon = [moment(workday.afternoon_from), moment(workday.afternoon_to)];
-      }
-
-      return dayItem;
-    });
   };
 
   const onCrudOperation = useCallback(
@@ -451,7 +451,7 @@ export const WorkSchedule: React.FC = () => {
                 style={{ width: '100%' }}
                 value={it.morning}
                 disabled={!it.morning_enabled}
-                disabledHours={() => getDisabledHours(it.day, 'morning')}
+                disabledHours={() => getDisabledHours(it.day, 'morning', days)}
                 disabledMinutes={(selectedHour) =>
                   getDisabledMinutes(it.day, 'morning', selectedHour)
                 }
@@ -493,7 +493,7 @@ export const WorkSchedule: React.FC = () => {
                 style={{ width: '100%' }}
                 value={it.afternoon}
                 disabled={!it.afternoon_enabled}
-                disabledHours={() => getDisabledHours(it.day, 'afternoon')}
+                disabledHours={() => getDisabledHours(it.day, 'afternoon', days)}
                 disabledMinutes={(selectedHour) =>
                   getDisabledMinutes(it.day, 'afternoon', selectedHour)
                 }

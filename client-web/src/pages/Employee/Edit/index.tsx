@@ -1,43 +1,28 @@
+import { EmployeeDependent } from '@/components/EmployeeDependents';
 import { EmployeeGeneral } from '@/components/EmployeeGeneral';
 import { EmployeeJob } from '@/components/EmployeeJob';
 import { EmployeePayroll } from '@/components/EmployeePayroll';
 import {
+  allEmployeePayrolls,
   allJobs,
   changeEmployeeAvatar,
   changeEmployeePassword,
-  getBankInfo,
-  getEmergencyContact,
-  getHomeAddress,
   readEmployee,
-  updateBankInfo,
-  updateEmergencyContact,
-  updateEmployee,
-  updateHomeAddress,
-  updateJob,
-  getSchedule,
-  updateSchedule,
-  allEmployeePayrolls,
   updateEmployeePayroll,
 } from '@/services/employee';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
-import { Button, Card, message, Radio, Switch, Tooltip, Upload } from 'antd';
-import moment from 'moment';
+import { Button, Card, message, Radio, Tooltip, Upload } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import styles from './index.less';
 import { history, Link } from 'umi';
-import { EmployeeDependent } from '@/components/EmployeeDependents';
+import styles from './index.less';
 
 export const Edit: React.FC = () => {
   const { id } = useParams<any>();
   const [modalVisible, setModalVisible] = useState(false);
   const [record, setRecord] = useState<API.Employee>();
-  const [homeAddress, setHomeAddress] = useState<API.EmployeeHomeAddress>();
-  const [emergencyContact, setEmergencyContact] = useState<API.EmployeeEmergencyContact>();
-  const [bankInfo, setBankInfo] = useState<API.EmployeeBankInfo>();
   const [jobs, setJobs] = useState<API.EmployeeJob[]>();
-  const [schedule, setSchedule] = useState<API.EmployeeSchedule>();
   const [payroll, setPayroll] = useState<API.EmployeePayroll>();
   const { tab } = history.location.query as {
     tab: 'general' | 'job' | 'payroll' | 'dependent' | undefined;
@@ -46,12 +31,7 @@ export const Edit: React.FC = () => {
 
   useEffect(() => {
     readEmployee(id).then((fetchData) => setRecord(fetchData));
-    getHomeAddress(id).then((fetchData) => setHomeAddress(fetchData));
-    getEmergencyContact(id).then((fetchData) => setEmergencyContact(fetchData));
-    getBankInfo(id).then((fetchData) => setBankInfo(fetchData));
-
     allJobs(id).then((fetchData) => setJobs(fetchData));
-    getSchedule(id).then((fetchData) => setSchedule(fetchData));
     allEmployeePayrolls(id).then((fetchData) => setPayroll(fetchData));
   }, [id]);
 
@@ -109,14 +89,14 @@ export const Edit: React.FC = () => {
             >
               Change password
             </Button>
-            <Switch
+            {/* <Switch
               checkedChildren="Active"
               unCheckedChildren="Inactive"
-              checked={record?.user.is_active}
+              checked={!!jobs?.length && !jobs[0]?.is_terminated}
               onChange={(checked) => {
                 console.log(checked);
               }}
-            />
+            /> */}
           </Card>
           <ModalForm
             title="Change password"
@@ -193,56 +173,10 @@ export const Edit: React.FC = () => {
                 </Link>
               </Radio.Group>
             </Card>
-            {tab === 'general' ? (
-              <EmployeeGeneral
-                basicInfo={record}
-                basicInfoSubmit={async (value) => {
-                  await updateEmployee(value.id, value);
-                  setRecord(value);
-                }}
-                homeAddress={homeAddress}
-                homeAddressSubmit={async (value) => {
-                  value.owner = id;
-                  await updateHomeAddress(id, value);
-                  setHomeAddress(value);
-                }}
-                emergencyContact={emergencyContact}
-                emergencyContactSubmit={async (value) => {
-                  value.owner = id;
-                  await updateEmergencyContact(id, value);
-                  setEmergencyContact(value);
-                }}
-                bankInfo={bankInfo}
-                bankInfoSubmit={async (value) => {
-                  value.owner = id;
-                  await updateBankInfo(id, value);
-                  setBankInfo(value);
-                }}
-              />
-            ) : null}
-            {tab === 'job' ? (
-              <EmployeeJob
-                jobs={jobs}
-                jobSubmit={async (value) => {
-                  value.owner = id;
-                  value.probation_start_date = moment(value.probation_start_date).format(
-                    'YYYY-MM-DD',
-                  );
-                  value.probation_end_date = moment(value.probation_end_date).format('YYYY-MM-DD');
-                  value.contract_start_date = moment(value.contract_start_date).format(
-                    'YYYY-MM-DD',
-                  );
-                  value.contract_end_date = moment(value.contract_end_date).format('YYYY-MM-DD');
-                  await updateJob(id, value);
-                  await allJobs(id).then((fetchData) => setJobs(fetchData));
-                }}
-                schedule={schedule}
-                scheduleSubmit={async (value) => {
-                  value.owner = id;
-                  await updateSchedule(id, value);
-                }}
-              />
-            ) : null}
+            {tab === 'general' && (
+              <EmployeeGeneral employeeId={id} isActive={!jobs?.[0]?.is_terminated} />
+            )}
+            {tab === 'job' && <EmployeeJob employeeId={id} isActive={!jobs?.[0]?.is_terminated} />}
             {tab === 'payroll' ? (
               <EmployeePayroll
                 payroll={payroll}
@@ -252,7 +186,9 @@ export const Edit: React.FC = () => {
                 }}
               />
             ) : null}
-            {tab === 'dependent' && <EmployeeDependent employeeId={id} />}
+            {tab === 'dependent' && (
+              <EmployeeDependent employeeId={id} isActive={!jobs?.[0]?.is_terminated} />
+            )}
           </div>
         </div>
       </GridContent>

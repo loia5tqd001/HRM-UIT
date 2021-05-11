@@ -207,7 +207,7 @@ declare namespace API {
     user: User;
     first_name: string;
     last_name: string;
-    avatar: string; // Base 64
+    avatar?: string; // Base 64
     email: string;
     gender: 'Male' | 'Female' | 'Other';
     marital_status: 'Single' | 'Married' | 'Divorced' | 'Seperated' | 'Widowed' | 'Other';
@@ -219,6 +219,12 @@ declare namespace API {
     health_insurance: string;
     role: string;
     permissions: string[];
+  }
+
+  interface TerminateContract {
+    termination_reason: string;
+    termination_date: string | moment.Moment;
+    termination_note?: string;
   }
 
   interface EmployeeJob {
@@ -234,6 +240,10 @@ declare namespace API {
     event: string;
     timestamp: moment.Moment | string;
     owner: number;
+    termination_date: moment.Moment | string;
+    termination_note: string | null;
+    termination_reason: string | null;
+    is_terminated: boolean;
   }
 
   interface EmployeeHomeAddress {

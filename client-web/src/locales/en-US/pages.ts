@@ -5,7 +5,7 @@ export default {
     'Ant Design is the most influential web design specification in Xihu district',
   'pages.login.applicationName': 'Human Resource Management Application',
   'pages.login.accountLogin.tab': 'Account Login',
-  'pages.login.accountLogin.errorMessage': 'Incorrect username/password（admin/uit.hrm)',
+  'pages.login.accountLogin.errorMessage': 'Incorrect username/password',
   'pages.login.username.placeholder': 'Username: admin or user',
   'pages.login.username.required': 'Please input your username!',
   'pages.login.password.placeholder': 'Password: uit.hrm',

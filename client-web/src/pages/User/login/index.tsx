@@ -149,7 +149,7 @@ const Login: React.FC = () => {
               <LoginMessage
                 content={intl.formatMessage({
                   id: errorMessage,
-                  defaultMessage: 'Incorrect username/password（admin/uit.hrm)',
+                  defaultMessage: 'Incorrect username/password',
                 })}
               />
             )}

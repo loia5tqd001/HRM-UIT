@@ -172,7 +172,7 @@
       { path: '/employee/report', name: '__report', icon: 'barChart', component: './Welcome' },
       {
         path: '/employee/edit/:id',
-        name: '__edit',
+        name: 'edit',
         component: './Employee/Edit',
         hideInMenu: true,
       },

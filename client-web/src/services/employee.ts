@@ -40,6 +40,18 @@ export async function deleteEmployee(id: number, options?: { [key: string]: any 
   });
 }
 
+export async function terminateEmployee(
+  id: number,
+  data: API.TerminateContract,
+  options?: { [key: string]: any },
+) {
+  return request(`${endpoint}${id}/jobs/terminate_employment/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
 export async function changeEmployeePassword(
   id: number,
   new_password: string,

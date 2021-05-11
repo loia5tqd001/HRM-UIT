@@ -32,10 +32,12 @@ type RecordType = API.EmployeeDependent;
 
 type Props = {
   employeeId: number;
+  isActive: boolean;
+  onChange?: () => any;
 };
 
 export const EmployeeDependent: React.FC<Props> = (props) => {
-  const { employeeId } = props;
+  const { employeeId, isActive, onChange } = props;
   const actionRef = useRef<ActionType>();
   const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
     'hidden',
@@ -54,6 +56,7 @@ export const EmployeeDependent: React.FC<Props> = (props) => {
       try {
         await cb();
         actionRef.current?.reload();
+        onChange?.();
         message.success(successMessage);
       } catch (err) {
         message.error(errorMessage);
@@ -117,42 +120,44 @@ export const EmployeeDependent: React.FC<Props> = (props) => {
             : '...'
         }`,
     },
-    {
-      title: 'Actions',
-      key: 'action',
-      fixed: 'right',
-      align: 'center',
-      search: false,
-      render: (dom, record) => (
-        <Space size="small">
-          <Button
-            title="Edit this dependent"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this dependent?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteDependent(employeeId, record.id),
-                'Detete successfully!',
-                'Cannot delete dependent!',
-              );
-            }}
-          >
-            <Button title="Delete this dependent" size="small" danger>
-              <DeleteOutlined />
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
+    !isActive
+      ? {}
+      : {
+          title: 'Actions',
+          key: 'action',
+          fixed: 'right',
+          align: 'center',
+          search: false,
+          render: (dom, record) => (
+            <Space size="small">
+              <Button
+                title="Edit this dependent"
+                size="small"
+                onClick={() => {
+                  setCrudModalVisible('update');
+                  setSelectedRecord(record);
+                }}
+              >
+                <EditOutlined />
+              </Button>
+              <Popconfirm
+                placement="right"
+                title={'Delete this dependent?'}
+                onConfirm={async () => {
+                  await onCrudOperation(
+                    () => deleteDependent(employeeId, record.id),
+                    'Detete successfully!',
+                    'Cannot delete dependent!',
+                  );
+                }}
+              >
+                <Button title="Delete this dependent" size="small" danger>
+                  <DeleteOutlined />
+                </Button>
+              </Popconfirm>
+            </Space>
+          ),
+        },
   ];
 
   const dict = {
@@ -174,7 +179,7 @@ export const EmployeeDependent: React.FC<Props> = (props) => {
         rowKey="id"
         search={false}
         locale={{ emptyText: 'No dependents' }}
-        toolBarRender={() => [
+        toolBarRender={() => !isActive ? [] : [
           <Button
             type="primary"
             key="primary"
