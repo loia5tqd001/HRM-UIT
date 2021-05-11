@@ -545,8 +545,7 @@ declare namespace API {
     template: PayrollTemplate['name'];
     name: string;
     period_id: Period['id'];
-    cycle_start_date: string | moment.Moment;
-    cycle_end_date: string | moment.Moment;
+    period: Period;
     created_at: string | moment.Moment;
   }
 

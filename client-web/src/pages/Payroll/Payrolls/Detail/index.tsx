@@ -7,8 +7,9 @@ import {
 } from '@/services/payroll.payrolls';
 import { FileExcelOutlined, SendOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Affix, Button, Card, message, Space, Table } from 'antd';
+import { Affix, Button, Card, message, Space, Table, Tag } from 'antd';
 import type { ColumnType } from 'antd/lib/table';
+import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'umi';
 
@@ -65,6 +66,14 @@ export const PayrollDetail: React.FC = () => {
             style={{ minHeight: '50vh', height: '100%' }}
             extra={
               <Space>
+                <div style={{ alignSelf: 'flex-end' }}>
+                  <Tag>Template: {payroll?.template}</Tag>
+                  <Tag>
+                    Cycle: {moment(payroll?.period.start_date).format('DD MMM YYYY')}
+                    {' → '}
+                    {moment(payroll?.period.end_date).format('DD MMM YYYY')}
+                  </Tag>
+                </div>
                 <Button
                   children="Send playslips via email"
                   icon={<SendOutlined />}
