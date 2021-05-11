@@ -1,4 +1,5 @@
 import { request } from 'umi';
+import { saveAs } from 'file-saver';
 
 const endpoint = '/api/payrolls/';
 type Item = API.Payroll;
@@ -39,10 +40,18 @@ export async function calculatePayslips(id: number, options?: { [key: string]: a
   });
 }
 
-export async function exportExcel(id: number, options?: { [key: string]: any }) {
-  return request(`${endpoint}${id}/export_excel/`, {
-    method: 'POST',
-    ...(options || {}),
+export async function exportExcel(id: number) {
+  return fetch(`${endpoint}${id}/export_excel/`, {
+    method: 'GET',
+    headers: {
+      responseType: 'arrayBuffer',
+    },
+  }).then(async (response) => {
+    const contentDisposition = response.headers.get('content-disposition');
+    const contentType = response.headers.get('content-type') || undefined;
+    const data = await response.arrayBuffer();
+    const blob = new Blob([data], { type: contentType });
+    saveAs(blob, contentDisposition?.match(/filename="(.*?)"/)?.[1] || 'payslips.xls');
   });
 }
 

@@ -59,63 +59,63 @@ export const PayrollDetail: React.FC = () => {
   return (
     <PageContainer title={payroll?.name}>
       <div style={{ display: 'grid', gap: 24 }}>
-        <Card
-          title="Payslips"
-          style={{ minHeight: '50vh', height: '100%' }}
-          extra={
-            <Space>
-              <Button
-                children="Send playslips via email"
-                icon={<SendOutlined />}
-                loading={isSending}
-                onClick={async () => {
-                  try {
-                    setIsSending(true);
-                    await sendViaEmail(id);
-                    message.success('Sent successfully!');
-                  } catch {
-                    message.error('Cannot send!');
-                  } finally {
-                    setIsSending(false);
-                  }
-                }}
-              />
-              <Button
-                children="Export Excel"
-                icon={<FileExcelOutlined />}
-                loading={isExporting}
-                onClick={async () => {
-                  try {
-                    setIsExporting(true);
-                    await exportExcel(id);
-                  } catch {
-                    message.error('Export unsuccessfully!');
-                  } finally {
-                    setIsExporting(false);
-                  }
-                }}
-              />
-              <Button
-                children="Run Calculation"
-                type="primary"
-                loading={isCalculating}
-                onClick={async () => {
-                  try {
-                    setIsCalculating(true);
-                    await calculatePayslips(id);
-                    await requestTable();
-                    message.success('Calculate successfully!');
-                  } catch {
-                    message.error('Calculate unsuccessfully!');
-                  } finally {
-                    setIsCalculating(false);
-                  }
-                }}
-              />
-            </Space>
-          }
-        >
-          <Affix offsetTop={50}>
+        <Affix offsetTop={50}>
+          <Card
+            title="Payslips"
+            style={{ minHeight: '50vh', height: '100%' }}
+            extra={
+              <Space>
+                <Button
+                  children="Send playslips via email"
+                  icon={<SendOutlined />}
+                  loading={isSending}
+                  onClick={async () => {
+                    try {
+                      setIsSending(true);
+                      await sendViaEmail(id);
+                      message.success('Sent successfully!');
+                    } catch {
+                      message.error('Cannot send!');
+                    } finally {
+                      setIsSending(false);
+                    }
+                  }}
+                />
+                <Button
+                  children="Export Excel"
+                  icon={<FileExcelOutlined />}
+                  loading={isExporting}
+                  onClick={async () => {
+                    try {
+                      setIsExporting(true);
+                      await exportExcel(id);
+                    } catch {
+                      message.error('Export unsuccessfully!');
+                    } finally {
+                      setIsExporting(false);
+                    }
+                  }}
+                />
+                <Button
+                  children="Run Calculation"
+                  type="primary"
+                  loading={isCalculating}
+                  onClick={async () => {
+                    try {
+                      setIsCalculating(true);
+                      await calculatePayslips(id);
+                      await requestTable();
+                      message.success('Calculate successfully!');
+                    } catch {
+                      message.error('Calculate unsuccessfully!');
+                    } finally {
+                      setIsCalculating(false);
+                    }
+                  }}
+                />
+              </Space>
+            }
+          >
             <div style={{ height: 'calc(100vh - 50px)', overflow: 'auto', margin: '0 12px' }}>
               <Table<any>
                 pagination={false}
@@ -127,8 +127,8 @@ export const PayrollDetail: React.FC = () => {
                 bordered
               />
             </div>
-          </Affix>
-        </Card>
+          </Card>
+        </Affix>
       </div>
     </PageContainer>
   );
