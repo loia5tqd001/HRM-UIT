@@ -27,6 +27,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import styles from './index.less';
 import { history, Link } from 'umi';
+import { EmployeeDependent } from '@/components/EmployeeDependents';
 
 export const Edit: React.FC = () => {
   const { id } = useParams<any>();
@@ -38,7 +39,9 @@ export const Edit: React.FC = () => {
   const [jobs, setJobs] = useState<API.EmployeeJob[]>();
   const [schedule, setSchedule] = useState<API.EmployeeSchedule>();
   const [payroll, setPayroll] = useState<API.EmployeePayroll>();
-  const { tab } = history.location.query as { tab: 'general' | 'job' | 'payroll' | undefined };
+  const { tab } = history.location.query as {
+    tab: 'general' | 'job' | 'payroll' | 'dependent' | undefined;
+  };
   if (tab === undefined) history.push('?tab=general');
 
   useEffect(() => {
@@ -185,6 +188,9 @@ export const Edit: React.FC = () => {
                 <Link to="?tab=payroll">
                   <Radio.Button value="payroll">PAYROLL</Radio.Button>
                 </Link>
+                <Link to="?tab=dependent">
+                  <Radio.Button value="dependent">DEPENDENT</Radio.Button>
+                </Link>
               </Radio.Group>
             </Card>
             {tab === 'general' ? (
@@ -246,6 +252,7 @@ export const Edit: React.FC = () => {
                 }}
               />
             ) : null}
+            {tab === 'dependent' && <EmployeeDependent employeeId={id} />}
           </div>
         </div>
       </GridContent>

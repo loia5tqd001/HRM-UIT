@@ -161,6 +161,66 @@ export async function updateSchedule(
   });
 }
 
+export async function allDependents(employeeId: number, options?: { [key: string]: any }) {
+  return request<API.EmployeeDependent[]>(`${endpoint}${employeeId}/dependents/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function createDependent(
+  employeeId: number,
+  body: API.EmployeeDependent,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeeDependent>(`${endpoint}${employeeId}/dependents/`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function readDependent(
+  employeeId: number,
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeeDependent>(`${endpoint}${employeeId}/dependents/${id}/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateDependent(
+  employeeId: number,
+  id: number,
+  body: API.EmployeeDependent,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeeDependent>(`${endpoint}${employeeId}/dependents/${id}/`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function deleteDependent(
+  employeeId: number,
+  id: number,
+  options?: { [key: string]: any },
+) {
+  return request<API.EmployeeDependent[]>(`${endpoint}${employeeId}/dependents/${id}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}
+
 export async function allEmployeePayrolls(employeeId: number, options?: { [key: string]: any }) {
   return request<API.EmployeePayroll>(`${endpoint}${employeeId}/salary_info/`, {
     method: 'GET',

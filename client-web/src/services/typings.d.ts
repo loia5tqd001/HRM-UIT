@@ -262,6 +262,23 @@ declare namespace API {
     owner?: number;
   }
 
+  interface EmployeeDependent {
+    id: number;
+    owner: Employee['id'];
+    first_name: string;
+    last_name: string;
+    gender: 'Male' | 'Female' | 'Other';
+    date_of_birth: string | moment.Moment;
+    relationship: string;
+    nationality: Country['name'];
+    province: string;
+    city: string;
+    personal_tax_id: string;
+    personal_id: string;
+    effective_start_date: string | moment.Moment;
+    effective_end_date: string | moment.Moment;
+  }
+
   // interface EmployeeBankInfo {
   //   bank_name: string;
   //   account_name: string;
