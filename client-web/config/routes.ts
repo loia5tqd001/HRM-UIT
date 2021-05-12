@@ -79,7 +79,7 @@
         routes: [
           {
             path: '/admin/organization/information',
-            name: 'information',
+            name: '__information',
             component: './Admin/Organization/Information',
           },
           {
@@ -156,20 +156,20 @@
     // access: 'canAdmin',
     routes: [
       { path: '/employee/list', name: 'list', icon: 'unorderedList', component: './Employee/List' },
-      { path: '/employee/import', name: '__import', icon: 'import', component: './Welcome' },
-      {
-        path: '/employee/terminateContract',
-        name: '__terminateContract',
-        icon: 'pauseCircle',
-        component: './Welcome',
-      },
+      // { path: '/employee/import', name: '__import', icon: 'import', component: './Welcome' },
+      // {
+      //   path: '/employee/terminateContract',
+      //   name: '__terminateContract',
+      //   icon: 'pauseCircle',
+      //   component: './Welcome',
+      // },
       {
         path: '/employee/customFields',
         name: '__customFields',
         icon: 'setting',
         component: './Employee/CustomField',
       },
-      { path: '/employee/report', name: '__report', icon: 'barChart', component: './Welcome' },
+      // { path: '/employee/report', name: '__report', icon: 'barChart', component: './Welcome' },
       {
         path: '/employee/edit/:id',
         name: 'edit',
@@ -216,7 +216,7 @@
           },
         ],
       },
-      { path: '/timeOff/report', name: '__report', icon: 'barChart', component: './Welcome' },
+      // { path: '/timeOff/report', name: '__report', icon: 'barChart', component: './Welcome' },
       {
         path: '/timeOff',
         redirect: '/timeOff/me',
@@ -247,7 +247,7 @@
         name: 'detail',
         hideInMenu: true,
       },
-      { path: '/attendance/import', name: '__import', icon: 'import', component: './Welcome' },
+      // { path: '/attendance/import', name: '__import', icon: 'import', component: './Welcome' },
       {
         path: '/attendance/configuration',
         name: 'configuration',
@@ -274,7 +274,7 @@
           },
         ],
       },
-      { path: '/attendance/report', name: '__report', icon: 'barChart', component: './Welcome' },
+      // { path: '/attendance/report', name: '__report', icon: 'barChart', component: './Welcome' },
       {
         path: '/attendance',
         redirect: '/attendance/me',
@@ -308,12 +308,12 @@
         component: './Payroll/Payrolls/Detail',
         hideInMenu: true,
       },
-      {
-        path: '/payroll/report',
-        name: '__report',
-        icon: 'barChart',
-        component: './Welcome',
-      },
+      // {
+      //   path: '/payroll/report',
+      //   name: '__report',
+      //   icon: 'barChart',
+      //   component: './Welcome',
+      // },
       { path: '/payroll', redirect: '/payroll/template' },
     ],
   },

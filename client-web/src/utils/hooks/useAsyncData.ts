@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 
 type Settings = {
   callOnMount: boolean; // [true] // whether call fetching on Mounting
@@ -17,6 +17,7 @@ const defaultSettings: Settings = {
  * @description wrap up isLoading, isError states when fetching asynchronous data
  */
 export function useAsyncData<T>(apiCall: () => Promise<T>, settings = defaultSettings) {
+  const settingsRef = useRef({ ...defaultSettings, ...settings });
   const [data, setData] = useState<T>();
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -28,16 +29,16 @@ export function useAsyncData<T>(apiCall: () => Promise<T>, settings = defaultSet
       setData(fetchedData);
     } catch (err) {
       setIsError(true);
-      if (settings.rethrowError) throw err;
+      if (settingsRef.current.rethrowError) throw err;
     } finally {
       setIsLoading(false);
     }
-  }, [settings.rethrowError]);
+  }, []);
 
   useEffect(() => {
-    if (!settings.callOnMount) return;
+    if (!settingsRef.current.callOnMount) return;
     fetchData();
-  }, [settings.callOnMount, fetchData]);
+  }, [fetchData]);
 
   return {
     data,
