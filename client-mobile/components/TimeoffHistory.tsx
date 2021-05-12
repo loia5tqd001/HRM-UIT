@@ -54,7 +54,7 @@ export const ListHistory = () => {
       style={{ flexGrow: 1, width: '90%' }}
       data={listData}
       ListEmptyComponent={<Text style={{ marginTop: SPACING }}>You has no prior request ...</Text>}
-      key="id"
+      keyExtractor={(item) => String(item.id)}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       renderItem={({ item }) => {
         const start_date = moment(item.start_date).format('DD MMM YYYY');
@@ -62,7 +62,6 @@ export const ListHistory = () => {
 
         return (
           <View
-            // key={String(item.id)}
             style={{
               padding: SPACING,
               margin: 5,
