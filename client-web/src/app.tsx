@@ -120,7 +120,8 @@ const { cancel } = Reqs.CancelToken.source();
 
 let refreshTokenRequest: Promise<API.LoginResult> | null = null;
 const responseInterceptors = async (response: Response, options: RequestOptionsInit) => {
-  const accessTokenExpired = response.status === 401;
+  const accessTokenExpired =
+    response.status === 401 && !response.url.includes('/auth/token/refresh');
   if (accessTokenExpired) {
     try {
       if (!refreshTokenRequest) {
