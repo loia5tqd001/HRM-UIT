@@ -1,14 +1,12 @@
-import axios from 'axios';
-import React, { useState } from 'react';
+import React from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Header from '../components/Header';
 import ModalTimeOff from '../components/ModalTimeOff';
 import { ListHistory } from '../components/TimeoffHistory';
-import { BASE_URL } from '../constants/confgi';
-import { primaryColor } from './../constants/Colors';
+import { primaryColor } from '../constants/Colors';
 
-export default function TabTwoScreen({ navigation }: any) {
+export default function TimeOffScreen({ navigation }: any) {
   const [show, setShow] = React.useState<boolean>(false);
 
   return (

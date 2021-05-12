@@ -3,8 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
 import { activeColor } from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
+import AttendanceScreen from '../screens/AttendanceScreen';
+import TimeOffScreen from '../screens/TimeOffScreen';
 import { BottomTabParamList } from '../types';
 
 // import { Ionicons } from '@expo/vector-icons';
@@ -22,14 +22,14 @@ export default function BottomTabNavigator() {
     >
       <BottomTab.Screen
         name="Attendance"
-        component={TabOneScreen}
+        component={AttendanceScreen}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="alarm-outline" color={color} />,
         }}
       />
       <BottomTab.Screen
         name="TimeOff"
-        component={TabTwoScreen}
+        component={TimeOffScreen}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="calendar-outline" color={color} />,
         }}

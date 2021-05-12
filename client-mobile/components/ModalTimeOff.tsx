@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -11,13 +11,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Alert,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import RNPickerSelect from 'react-native-picker-select';
-import { getDataAsync } from '../commons';
-import { lightGray } from '../constants/Colors';
-import { BASE_URL, GET_WIDTH } from '../constants/confgi';
+import axios from '../commons/axios';
+import { colorTextHolder, lightGray } from '../constants/Colors';
+import { GET_WIDTH } from '../constants/config';
 import { SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 import { colorText, primaryColor } from './../constants/Colors';
@@ -51,7 +50,7 @@ const ModalTimeOff = ({ show, setShow }: TypeModal) => {
 
   React.useEffect(() => {
     axios
-      .get(`${BASE_URL}/time_off_types/`)
+      .get(`/time_off_types/`)
       .then((res) => {
         setTimeoffTypes(res.data);
       })
@@ -72,27 +71,27 @@ const ModalTimeOff = ({ show, setShow }: TypeModal) => {
   const submitData = async () => {
     const start_date = moment(startDate);
     const end_date = moment(endDate);
-    start_date.set({ hours: 0, minutes: 0 });
-    end_date.set({ hours: 23, minutes: 59 });
+    start_date.set({ hours: 0, minutes: 0, seconds: 0 });
+    end_date.set({ hours: 23, minutes: 59, seconds: 0 });
     const dataSubmit = {
       time_off_type: timeoffType,
-      start_date,
-      end_date,
+      start_date: new Date('2021-05-12T17:00:00.000Z'),
+      end_date: new Date('2021-05-13T16:59:00.000Z'),
       note: noteValue,
     };
-    const token = await getDataAsync('token');
+
+    console.log(`/employees/${user?.id}/time_off `, dataSubmit);
 
     await axios
-      .post(`${BASE_URL}/employees/${user?.id}/time_off/ `, dataSubmit, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      .post(`/employees/${user?.id}/time_off/ `, dataSubmit)
       .then((res) => {
         console.log('res', res);
         setShow(false);
       })
-      .catch((er) => Alert.alert('Submit request unsuccessfully!'));
+      .catch((er) => {
+        console.log(er);
+        Alert.alert('Submit request unsuccessfully!');
+      });
   };
   return (
     <Modal animationType="slide" transparent={true} visible={show}>
@@ -106,22 +105,18 @@ const ModalTimeOff = ({ show, setShow }: TypeModal) => {
             <Text style={{ color: 'red' }}>* </Text>Timeoff type
           </Text>
           <RNPickerSelect
-            onValueChange={(value) => console.log(value)}
-            placeholder="Type"
-            items={timeoffTypes.map((it) => ({ label: it.name, value: it.name }))}
-            itemKey="name"
-            key="name"
+            onValueChange={(value) => setTimeoffType(value)}
+            placeholder={{ key: -1, inputLabel: 'What type of timeoff?' }}
+            items={timeoffTypes.map((it) => ({ key: it.id, label: it.name, value: it.name }))}
             textInputProps={{
-              placeholder: 'What type of timeoff?',
               // @ts-ignore
-              placeholderColor: 'red',
               style: {
                 paddingVertical: 12,
                 paddingHorizontal: 10,
                 borderWidth: 0.3,
                 borderColor: 'black',
                 borderRadius: 1,
-                color: colorText,
+                color: timeoffType ? colorText : colorTextHolder,
               },
             }}
             Icon={() => {

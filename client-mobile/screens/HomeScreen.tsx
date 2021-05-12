@@ -2,7 +2,7 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import DetailInformation from '../components/DetailInformation';
 import Header from '../components/Header';
-import { GET_WIDTH } from '../constants/confgi';
+import { GET_WIDTH } from '../constants/config';
 import { ICON_IMG, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING * 2,
   },
   bigButton: {
-    padding: SPACING * 2,
+    padding: SPACING * 3.5,
     margin: 5,
     // width: '90%',
     backgroundColor: 'white',

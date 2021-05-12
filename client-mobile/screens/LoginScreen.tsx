@@ -1,6 +1,5 @@
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
-import axios from 'axios';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import {
   Dimensions,
   Image,
@@ -12,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { storeAccessToken, storeRefreshToken } from '../commons';
-import AlertShow from '../components/AlertShow';
+import axios from '../commons/axios';
 import AsyncButton from '../components/AsyncButton';
 import { Text } from '../components/Themed';
 <<<<<<< HEAD
@@ -39,8 +38,11 @@ import { colorText, colorTextHolder } from '../constants/Colors';
 import axios from 'axios';
 =======
 import { colorText, colorTextHolder, primaryColor } from '../constants/Colors';
+<<<<<<< HEAD
 >>>>>>> 57473b0... Update LoginScreen
 import { BASE_URL } from '../constants/confgi';
+=======
+>>>>>>> dd609ad... Fix ModalTimeOff warning & setup axios interceptor
 import '../constants/Layout';
 import { BACKGROUND_IMG, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
@@ -55,10 +57,6 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
   const [user, onChangeUser] = React.useState<string | undefined>('');
   const [password, onChangePassword] = React.useState<string | undefined>('');
 
-  const [visible, setVisible] = useState<{ show: boolean; text: string }>({
-    show: false,
-    text: '',
-  });
   // cuongnx 123456
 
 <<<<<<< HEAD
@@ -75,7 +73,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
 
   const checkLogin = async () => {
     await axios
-      .post(`${BASE_URL}/auth/token/`, {
+      .post(`/auth/token/`, {
         username: user,
         password: password,
       })
@@ -90,6 +88,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
 >>>>>>> 57473b0... Update LoginScreen
       })
       .then((token) => {
+<<<<<<< HEAD
         axios
           .get(`${BASE_URL}/auth/current_user/`, {
             headers: {
@@ -129,6 +128,14 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
             navigation.navigate('Home');
 >>>>>>> 5b68ff1... fix ui
           });
+=======
+        axios.get(`/auth/current_user/`).then((res) => {
+          setUser(res.data);
+          onChangeUser('');
+          onChangePassword('');
+          navigation.navigate('Home');
+        });
+>>>>>>> dd609ad... Fix ModalTimeOff warning & setup axios interceptor
       });
   };
 <<<<<<< HEAD
@@ -138,8 +145,6 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {/* Alert */}
-      {visible.show ? <AlertShow text={visible.text} /> : null}
       {/* Icon Language */}
       <View style={{ flexDirection: 'row-reverse', marginLeft: SPACING * 2 }}>
         <FontAwesome name="language" size={24} color={colorText} style={{ marginTop: SPACING }} />

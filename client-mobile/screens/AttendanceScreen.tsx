@@ -13,7 +13,7 @@ import { primaryColor } from '../constants/Colors';
 import { ICON_IMG, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 
-export default function TabOneScreen({ navigation }: { navigation: any }) {
+export default function AttendanceScreen({ navigation }: { navigation: any }) {
   // const [capturedImage, setCapturedImage] = React.useState<any>(null)
 
   const [permission, askForPermission] = usePermissions(Permissions.LOCATION, { ask: true });

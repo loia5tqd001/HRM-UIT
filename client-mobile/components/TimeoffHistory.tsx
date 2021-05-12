@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
 import moment from 'moment';
+import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, Text, View } from 'react-native';
-import { ListTimeOff, STATE } from '../constants/type';
-import { ApprovedColor, CanceledColor, colorText, PendingColor, RejectedColor } from '../constants/Colors';
+import axios from '../commons/axios';
+import {
+  ApprovedColor,
+  CanceledColor,
+  colorText,
+  PendingColor,
+  RejectedColor,
+} from '../constants/Colors';
 import { SPACING } from '../constants/Layout';
-import { BASE_URL } from '../constants/confgi';
-import axios from 'axios';
+import { ListTimeOff, STATE } from '../constants/type';
+import { AuthContext } from '../Context/AuthContext';
 
 const mapColor = {
   Pending: PendingColor,
@@ -18,6 +24,7 @@ export const ListHistory = () => {
   const [refreshing, setRefreshing] = React.useState(false);
   const [listData, setListData] = useState<ListTimeOff[]>([]);
   const [state, setState] = useState<STATE>(STATE.IDLE);
+  const { user } = React.useContext(AuthContext)!;
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -26,7 +33,7 @@ export const ListHistory = () => {
 
   const getListTimeOff = async () => {
     return axios
-      .get(`${BASE_URL}/time_off/`)
+      .get(`/employees/${user?.id}/time_off/`)
       .then((res) => {
         setListData(res.data);
       })
@@ -46,6 +53,7 @@ export const ListHistory = () => {
     <FlatList<ListTimeOff>
       style={{ flexGrow: 1, width: '90%' }}
       data={listData}
+      ListEmptyComponent={<Text style={{ marginTop: SPACING }}>You has no prior request ...</Text>}
       key="id"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       renderItem={({ item }) => {
