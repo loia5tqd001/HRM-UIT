@@ -30,7 +30,7 @@ const GlobalHeaderRight: React.FC = () => {
   }
   return (
     <Space className={className}>
-      <HeaderSearch
+      {/* <HeaderSearch
         className={`${styles.action} ${styles.search}`}
         placeholder="站内搜索"
         defaultValue="umi ui"
@@ -52,15 +52,7 @@ const GlobalHeaderRight: React.FC = () => {
         // onSearch={value => {
         //   console.log('input', value);
         // }}
-      />
-      <span
-        className={styles.action}
-        onClick={() => {
-          window.open('https://pro.ant.design/docs/getting-started');
-        }}
-      >
-        <QuestionCircleOutlined />
-      </span>
+      /> */}
       <NoticeIcon />
       <Avatar />
       {REACT_APP_ENV && (
