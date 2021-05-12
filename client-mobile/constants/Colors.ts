@@ -29,5 +29,6 @@ export const thirdColor = '#E9852A';
 export const PendingColor = '#faad14';
 export const ApprovedColor = '#52c41a';
 export const RejectedColor = '#ff4d4f';
+export const CanceledColor = '#d9d9d9';
 
 export const lightGray = '#d9d9d9';

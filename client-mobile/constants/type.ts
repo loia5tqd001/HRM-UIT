@@ -19,6 +19,6 @@ export type ListTimeOff = {
   reviewed_by: string | null;
   start_date: string;
   note: string | null;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Confirmed';
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Canceled';
   time_off_type: string;
 };

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import moment from 'moment';
 import { ActivityIndicator, FlatList, RefreshControl, Text, View } from 'react-native';
 import { ListTimeOff, STATE } from '../constants/type';
-import { ApprovedColor, colorText, PendingColor, RejectedColor } from '../constants/Colors';
+import { ApprovedColor, CanceledColor, colorText, PendingColor, RejectedColor } from '../constants/Colors';
 import { SPACING } from '../constants/Layout';
 import { BASE_URL } from '../constants/confgi';
 import axios from 'axios';
@@ -11,7 +11,7 @@ const mapColor = {
   Pending: PendingColor,
   Approved: ApprovedColor,
   Rejected: RejectedColor,
-  Confirmed: ApprovedColor,
+  Canceled: CanceledColor,
 };
 
 export const ListHistory = () => {
