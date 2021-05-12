@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-na
 import DetailInformation from '../components/DetailInformation';
 import Header from '../components/Header';
 import { GET_WIDTH } from '../constants/confgi';
-import { ICON_IMG } from '../constants/Layout';
+import { ICON_IMG, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
@@ -28,50 +28,20 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
           justifyContent: 'center',
           alignItems: 'center',
           alignContent: 'center',
-          //   backgroundColor: '#221',
         }}
       >
-        {/* Clock In */}
-        <View
-          style={{
-            backgroundColor: '#2322',
-            width: GET_WIDTH * 0.7,
-            alignSelf: 'center',
-            borderRadius: 2,
-            // paddingHorizontal:60,
-            // paddingVertical:50
-          }}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('BottomNav', { screen: 'Attendance' })}
+          style={styles.bigButton}
         >
-          <TouchableOpacity onPress={() => navigation.navigate('Root')}>
-            <View
-              style={{
-                padding: 30,
-              }}
-            >
-              <Text style={{ textAlign: 'center', fontSize: 22 }}>Clock In</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-        {/* Time off */}
-        <View
-          style={{
-            backgroundColor: '#2322',
-            width: GET_WIDTH * 0.7,
-            alignSelf: 'center',
-            borderRadius: 2,
-            marginTop: GET_WIDTH * 0.2,
-          }}
+          <Text style={{ textAlign: 'center', fontSize: 22 }}>Clock In</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('BottomNav', { screen: 'TimeOff' })}
+          style={styles.bigButton}
         >
-          <TouchableOpacity onPress={() => navigation.navigate('TimeOff')}>
-            <View
-              style={{
-                padding: 30,
-              }}
-            >
-              <Text style={{ textAlign: 'center', fontSize: 22 }}>Time Off</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+          <Text style={{ textAlign: 'center', fontSize: 22 }}>Time Off</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -84,15 +54,18 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor:'#432'
+    // backgroundColor: 'red',
+    marginTop: SPACING * 2,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  bigButton: {
+    padding: SPACING * 2,
+    margin: 5,
+    // width: '90%',
+    backgroundColor: 'white',
+    borderColor: '#e3ebf1',
+    borderWidth: 1,
+    borderRadius: 2,
+    width: GET_WIDTH * 0.75,
+    marginBottom: SPACING * 4,
   },
 });

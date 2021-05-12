@@ -8,8 +8,8 @@ import { primaryColor } from './../constants/Colors';
 const Header = ({ navigation }: { navigation: any }) => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity onPress={() => navigation.navigate('Root', { screen: 'Attendance' })}>
-        <Image source={BACKGROUND_IMG} style={{ width: 30, height: 25 }}  />
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <Image source={BACKGROUND_IMG} style={{ width: 30, height: 25 }} />
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
         <FontAwesome name="sign-out" size={24} color={primaryColor} />
