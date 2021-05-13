@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View, Alert } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -19,7 +19,7 @@ const Touchable = Platform.select({
   android: TouchableWithoutFeedback,
 })!;
 
-const CameraComponents = (props: any) => {
+const CameraComponents = ({ setShowPopup }: any) => {
   const [state, setState] = useState<StateInterface>({
     hasPermission: null,
     type: Camera.Constants.Type.front,
@@ -51,17 +51,7 @@ const CameraComponents = (props: any) => {
           : Camera.Constants.Type.back,
     });
   };
-  // Take photo
-  const takePicture = async () => {
-    if (ref.current) {
-      let photo = await ref.current?.takePictureAsync();
 
-      setPreviewVisible(true);
-      setCapturedImage(photo);
-      // setModalVisible(true);
-      // props.capturedImageProps(photo);
-    }
-  };
   // Function
 
   const { hasPermission } = state;
@@ -77,14 +67,18 @@ const CameraComponents = (props: any) => {
             style={{
               width: getWindowSize.window.width * 0.7,
               height: '100%',
+              zIndex: 1,
             }}
-            onPress={() => alert('hello')}
+            onPress={async () => {
+              // setShowPopup(true);
+              if (ref.current) {
+                  let photo = await ref.current?.takePictureAsync();
+                  setPreviewVisible(true);
+                  setCapturedImage(photo);
+                }
+              }}
           >
-            <Camera
-              ref={ref}
-              style={styles.camera}
-              type={state.type}
-            />
+              <Camera ref={ref} style={styles.camera} type={state.type} />
           </Touchable>
           {/* <View style={styles.buttons}>
             <TouchableOpacity
