@@ -27,32 +27,37 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Header navigation={navigation} />
-      <View style={{ alignSelf: 'center' }}>
-        <DetailInformation
-          imgUri={user ? user.avatar : ICON_IMG}
-          name={user ? user.last_name : ''}
-        />
-      </View>
       <View style={styles.container}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center'}}>
-          {/* <View>
-            <Text>Permission is not granted</Text>
-            <Button title="Grant permission" onPress={askForPermission} />
-          </View> */}
+        <Text style={{ fontSize: 13, fontWeight: '400', marginVertical: SPACING }}>
+          No activities today yet...
+        </Text>
+        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+          <Text style={{ fontSize: 18, fontWeight: '500', marginTop: SPACING * 2 }}>
+            Tap on camera <Text style={{ fontSize: 13, fontWeight: '400' }}>to clock in</Text>
+          </Text>
+          <Text></Text>
           {/* Body */}
-        
-            <CameraComponents />
+
+          <CameraComponents />
           {/* Modal Clock */}
-          {/*           
+
           <TouchableOpacity
             onPress={() => {
-              setPreviewVisible(true);
+              // setPreviewVisible(true);
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: '500', color: primaryColor, marginTop: SPACING }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: '500',
+                color: primaryColor,
+                marginTop: SPACING,
+                padding: SPACING,
+              }}
+            >
               Or, Clock in manually?
             </Text>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </SafeAreaView>

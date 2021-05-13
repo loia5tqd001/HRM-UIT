@@ -1,16 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { getWindowSize, SPACING } from '../constants/Layout';
 import ModalImage from './ModalImage';
+import { primaryColor } from './../constants/Colors';
+import { GET_WIDTH } from '../constants/config';
 
 interface StateInterface {
   hasPermission: null | boolean;
   type?: any;
 }
+
+const Touchable = Platform.select({
+  ios: TouchableOpacity,
+  android: TouchableWithoutFeedback,
+})!;
 
 const CameraComponents = (props: any) => {
   const [state, setState] = useState<StateInterface>({
@@ -64,10 +71,22 @@ const CameraComponents = (props: any) => {
     return <Text>No access to camera</Text>;
   } else {
     return (
-      <View style={{ marginVertical: SPACING,alignSelf:'center',backgroundColor:'#fff' }}>
+      <View style={{ alignSelf: 'center' }}>
         <View style={styles.container}>
-          <Camera ref={ref} style={styles.camera} type={state.type}></Camera>
-          <View style={styles.buttons}>
+          <Touchable
+            style={{
+              width: getWindowSize.window.width * 0.7,
+              height: '100%',
+            }}
+            onPress={() => alert('hello')}
+          >
+            <Camera
+              ref={ref}
+              style={styles.camera}
+              type={state.type}
+            />
+          </Touchable>
+          {/* <View style={styles.buttons}>
             <TouchableOpacity
               style={styles.button}
               // onPress={() => takePicture()}
@@ -83,7 +102,7 @@ const CameraComponents = (props: any) => {
                 style={{ color: '#fff', fontSize: 40 }}
               />
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
 
         {/* Modal */}
@@ -102,9 +121,15 @@ export default CameraComponents;
 const styles = StyleSheet.create({
   container: {
     height: getWindowSize.window.height * 0.5,
-    backgroundColor: '#4343',
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: primaryColor,
   },
-  camera: { flex: 1, width: getWindowSize.window.width * 0.7 },
+  camera: {
+    flex: 1,
+    width: getWindowSize.window.width * 0.7,
+  },
   buttons: {
     // flex: 1,
     position: 'relative',

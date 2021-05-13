@@ -11,6 +11,7 @@ type ResponseData = {
 const onRequest = async (config: AxiosRequestConfig): Promise<AxiosRequestConfig> => {
   config.headers = {
     Authorization: `Bearer ${await getDataAsync('token')}`,
+    'Content-Type': 'application/json',
   };
   return config;
 };
@@ -28,6 +29,7 @@ const onResponse = (response: AxiosResponse): AxiosResponse => {
 let refreshTokenRequest: Promise<AxiosResponse<ResponseData>> | null = null;
 const onResponseError = async (error: AxiosError): Promise<AxiosError> => {
   if (!error.response) return Promise.reject('Network Error');
+  console.log(error.config);
 
   const accessTokenExpired =
     error.response.status === 401 && !error.response.config.url?.includes('/auth/token/refresh');

@@ -75,12 +75,10 @@ const ModalTimeOff = ({ show, setShow }: TypeModal) => {
     end_date.set({ hours: 23, minutes: 59, seconds: 0 });
     const dataSubmit = {
       time_off_type: timeoffType,
-      start_date: new Date('2021-05-12T17:00:00.000Z'),
-      end_date: new Date('2021-05-13T16:59:00.000Z'),
+      start_date,
+      end_date,
       note: noteValue,
     };
-
-    console.log(`/employees/${user?.id}/time_off `, dataSubmit);
 
     await axios
       .post(`/employees/${user?.id}/time_off/ `, dataSubmit)

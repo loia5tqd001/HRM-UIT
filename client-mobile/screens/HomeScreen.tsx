@@ -34,7 +34,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
           onPress={() => navigation.navigate('BottomNav', { screen: 'Attendance' })}
           style={styles.bigButton}
         >
-          <Text style={{ textAlign: 'center', fontSize: 22 }}>Clock In</Text>
+          <Text style={{ textAlign: 'center', fontSize: 22 }}>Clock In/Out</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate('BottomNav', { screen: 'TimeOff' })}
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderColor: '#e3ebf1',
     borderWidth: 1,
-    borderRadius: 2,
+    borderRadius: 5,
     width: GET_WIDTH * 0.75,
     marginBottom: SPACING * 4,
   },
