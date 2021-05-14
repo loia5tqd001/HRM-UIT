@@ -1,13 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, Text, View, Alert } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
-import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
-import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import { getWindowSize, SPACING } from '../constants/Layout';
-import ModalImage from './ModalImage';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import { getWindowSize } from '../constants/Layout';
 import { primaryColor } from './../constants/Colors';
-import { GET_WIDTH } from '../constants/config';
+import ModalImage from './ModalImage';
 
 interface StateInterface {
   hasPermission: null | boolean;
@@ -19,7 +23,7 @@ const Touchable = Platform.select({
   android: TouchableWithoutFeedback,
 })!;
 
-const CameraComponents = ({ setShowPopup }: any) => {
+const CameraComponents = ({}: any) => {
   const [state, setState] = useState<StateInterface>({
     hasPermission: null,
     type: Camera.Constants.Type.front,
@@ -72,13 +76,13 @@ const CameraComponents = ({ setShowPopup }: any) => {
             onPress={async () => {
               // setShowPopup(true);
               if (ref.current) {
-                  let photo = await ref.current?.takePictureAsync();
-                  setPreviewVisible(true);
-                  setCapturedImage(photo);
-                }
-              }}
+                let photo = await ref.current?.takePictureAsync();
+                setPreviewVisible(true);
+                setCapturedImage(photo);
+              }
+            }}
           >
-              <Camera ref={ref} style={styles.camera} type={state.type} />
+            <Camera ref={ref} style={styles.camera} type={state.type} />
           </Touchable>
           {/* <View style={styles.buttons}>
             <TouchableOpacity

@@ -1,6 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import moment from 'moment';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -12,19 +11,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import RNPickerSelect from 'react-native-picker-select';
 import axios from '../commons/axios';
-import { colorTextHolder, lightGray } from '../constants/Colors';
+import { colorText, lightGray, primaryColor } from '../constants/Colors';
 import { GET_WIDTH } from '../constants/config';
 import { SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
-import { colorText, primaryColor } from '../constants/Colors';
 import { AsyncButton } from './AsyncButton';
 
 type TypeModal = {
-  show: boolean;
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  show?: boolean; // reactive API
+  ref?: React.Ref<any>; // imperative API
   outside: boolean;
   nextStep: 'clock in' | 'clock out';
   location: { lat: number | undefined; lng: number | undefined };
@@ -33,23 +29,39 @@ type TypeModal = {
 
 const widthDefault = GET_WIDTH - 110;
 
-const ModalClockIn = ({
-  show,
-  setShow,
-  outside,
-  nextStep,
-  location,
-  fetchAttendanceStatus,
-}: TypeModal) => {
-  const { user } = useContext(AuthContext)!;
+const ModalClockIn = React.forwardRef((props: TypeModal, ref) => {
+  const [visible, setVisible] = React.useState(false);
+  const { show, outside, nextStep, location, fetchAttendanceStatus } = props;
 
+  const { user } = useContext(AuthContext)!;
   const [noteValue, setNoteValue] = useState<string>('');
 
-  useEffect(() => {
-    if (!show) {
-      setNoteValue('');
-    }
+  React.useEffect(() => {
+    if (typeof show === 'boolean') setVisible(show);
   }, [show]);
+
+  const resetForm = React.useCallback(() => {
+    setNoteValue('');
+  }, []);
+
+  const closeModal = React.useCallback(() => {
+    setVisible(false);
+    resetForm();
+  }, []);
+
+  const openModal = React.useCallback(() => {
+    setVisible(true);
+  }, []);
+
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      resetForm,
+      closeModal,
+      openModal,
+    }),
+    [],
+  );
 
   const submitData = async () => {
     const key = nextStep === 'clock in' ? 'check_in' : 'check_out';
@@ -67,15 +79,18 @@ const ModalClockIn = ({
       .then((res) => {
         return fetchAttendanceStatus();
       })
+      .then(() => {
+        Alert.alert(`${nextStep === 'clock in' ? 'Clocked in' : 'Clocked out'} successfully`);
+      })
+      .then(closeModal)
       .catch((error) => {
         console.log(error.response.data);
         Alert.alert(error.response.data || 'Submit request unsuccessfully!');
-        return;
+        throw error;
       });
-    setShow(false);
   };
   return (
-    <Modal animationType="slide" transparent={true} visible={show}>
+    <Modal animationType="slide" transparent={true} visible={visible}>
       <KeyboardAvoidingView
         style={styles.centeredView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -112,11 +127,10 @@ const ModalClockIn = ({
               style={styles.buttonSubmit}
               title="Submit"
               onSubmit={submitData}
-              successMsg={`${nextStep === 'clock in' ? 'Clocked in' : 'Clocked out'} successfully`}
-              destroyOnSubmit
+              destroyOnSubmit={{ success: true, error: false }}
             />
             <View style={styles.buttonCancel}>
-              <TouchableOpacity onPress={() => setShow(false)}>
+              <TouchableOpacity onPress={closeModal}>
                 <Text style={{ margin: SPACING - 0.7, color: colorText }}>Cancel</Text>
               </TouchableOpacity>
             </View>
@@ -125,7 +139,7 @@ const ModalClockIn = ({
       </KeyboardAvoidingView>
     </Modal>
   );
-};
+});
 
 export default ModalClockIn;
 

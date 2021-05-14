@@ -63,7 +63,6 @@ interface Location {
 
 export default function AttendanceScreen({ navigation }: { navigation: any }) {
   const [permission, askForPermission] = usePermissions(Permissions.LOCATION, { ask: true });
-  const [show, setShow] = React.useState(false);
   const { user } = React.useContext(AuthContext)!;
   const [outside, setOutside] = React.useState(true);
   const [nextStep, setNextStep] = React.useState<'clock in' | 'clock out'>('clock in');
@@ -72,6 +71,7 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
   const [isReady, setIsReady] = React.useState(false);
 
   const [employeeLocation, setEmployeeLocation] = React.useState<Location>();
+  const modalClockInRef = React.useRef<any>();
 
   React.useEffect(() => {
     setIsReady(false);
@@ -195,7 +195,7 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
             <Text></Text>
             {/* Body */}
 
-            <CameraComponents setShowPopup={setShow} />
+            <CameraComponents />
             {/* Modal Clock */}
 
             <TouchableOpacity
@@ -204,7 +204,7 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
                   Alert.alert('Your office does not allow to work outside designated area!');
                   return;
                 }
-                setShow(true);
+                modalClockInRef.current?.openModal();
               }}
             >
               <Text
@@ -221,8 +221,7 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
             </TouchableOpacity>
           </ScrollView>
           <ModalClockIn
-            show={show}
-            setShow={setShow}
+            ref={modalClockInRef}
             outside={outside}
             nextStep={nextStep}
             location={{
