@@ -3,25 +3,20 @@ import { EmployeeTabs } from '@/components/EmployeeTabs';
 import { allJobs, readEmployee } from '@/services/employee';
 import styles from '@/styles/employee_detail.less';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 export const Edit: React.FC = () => {
   const { id } = useParams<any>();
   const [record, setRecord] = useState<API.Employee>();
-  const [jobs, setJobs] = useState<API.EmployeeJob[]>();
   const [isActive, setIsActive] = useState(false);
 
-  const getJobs = useCallback(() => {
-    allJobs(id)
-      .then((fetchData) => setJobs(fetchData))
-      .then(() => setIsActive(!jobs?.[0]?.is_terminated));
-  }, [id, jobs]);
-
   useEffect(() => {
-    readEmployee(id).then((fetchData) => setRecord(fetchData));
-    getJobs();
-  }, [id, getJobs]);
+    readEmployee(id!).then((fetchData) => setRecord(fetchData));
+    allJobs(id!).then((fetchData) => {
+      setIsActive(!fetchData?.[0]?.is_terminated);
+    });
+  }, [id]);
 
   return (
     <PageContainer title="Edit employee">

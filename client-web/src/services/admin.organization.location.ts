@@ -4,14 +4,14 @@ const endpoint = '/api/locations/';
 type Item = API.Location;
 
 export async function allLocations(options?: { [key: string]: any }) {
-  return request<Item[]>(`${endpoint}/`, {
+  return request<Item[]>(`${endpoint}`, {
     method: 'GET',
     ...(options || {}),
   });
 }
 
 export async function createLocation(body: Item, options?: { [key: string]: any }) {
-  return request<Item>(`${endpoint}/`, {
+  return request<Item>(`${endpoint}`, {
     method: 'POST',
     data: body,
     ...(options || {}),

@@ -1,11 +1,12 @@
-import { readLocation } from '@/services/admin.organization.location';
+import { allLocations } from '@/services/admin.organization.location';
 import {
+  allJobs,
   checkIn,
   checkOut,
   editActual,
   editOvertime,
   getSchedule,
-  readAttendances,
+  readAttendances
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { formatDurationHm } from '@/utils/utils';
@@ -14,7 +15,7 @@ import {
   EnvironmentOutlined,
   HistoryOutlined,
   LockOutlined,
-  MessageOutlined,
+  MessageOutlined
 } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -30,7 +31,7 @@ import {
   Space,
   Tag,
   TimePicker,
-  Tooltip,
+  Tooltip
 } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
@@ -54,7 +55,7 @@ const MyAttendance: React.FC = () => {
     'hidden',
   );
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
-  const currentLocationRef = useRef<CurrentLocation>();
+  const [currentLocation, setCurrentLocation] = useState<CurrentLocation>();
   const [nextStep, setNextStep] = useState<'Clock in' | 'Clock out'>('Clock in');
   const [firstClockIn, setFirstClockIn] = useState<string>('--:--');
   const [lastClockOut, setLastClockOut] = useState<string>('--:--');
@@ -64,9 +65,10 @@ const MyAttendance: React.FC = () => {
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
+
   useEffect(() => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
-  }, [id]);
+  }, []);
 
   const isHoliday = useCallback(
     (date: moment.Moment) =>
@@ -116,28 +118,34 @@ const MyAttendance: React.FC = () => {
     [isHoliday],
   );
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const { latitude, longitude } = position.coords;
-
-      readLocation(id).then(({ lat, lng, radius, name, allow_outside }) => {
+  React.useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+  
+        const [location, locations] = await Promise.all([
+          allJobs(id).then((it) => it?.[0].location),
+          allLocations(),
+        ]);
+        const matchedLocation = locations.find((it) => it.name === location);
+        if (!matchedLocation) {
+          message.error('Cannot find location');
+          return;
+        }
+        const { lat, lng, radius, name, allow_outside } = matchedLocation;
         const distance = google.maps.geometry.spherical.computeDistanceBetween(
           new google.maps.LatLng(lat, lng),
           new google.maps.LatLng(latitude, longitude),
         );
-        currentLocationRef.current = {
+        setCurrentLocation({
           lat: latitude,
           lng: longitude,
           office: distance > radius ? 'Outside' : name,
           allow_outside,
-        };
+        });
       });
-    });
-  }
-
-  // useEffect(() => {
-  //   readAttendances(initialState!.currentUser!.id).then((fetchData) => setAttendances(fetchData));
-  // }, [initialState]);
+    }
+  }, [id])
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -377,19 +385,16 @@ const MyAttendance: React.FC = () => {
             type="primary"
             key="primary"
             title={
-              (currentLocationRef.current?.office === 'Outside' &&
-                !currentLocationRef.current?.allow_outside &&
+              (currentLocation?.office === 'Outside' &&
+                !currentLocation?.allow_outside &&
                 'Your office does not allow clock in / clock out outside of the designated area.') ||
               ''
             }
-            disabled={
-              currentLocationRef.current?.office === 'Outside' &&
-              !currentLocationRef.current?.allow_outside
-            }
+            disabled={currentLocation?.office === 'Outside' && !currentLocation?.allow_outside}
             onClick={async () => {
               setClockModalVisible(true);
             }}
-            loading={!nextStep}
+            loading={!nextStep || !currentLocation}
           >
             <Space>
               <HistoryOutlined />
@@ -483,7 +488,7 @@ const MyAttendance: React.FC = () => {
         width="400px"
         onFinish={async (values) => {
           try {
-            const { lat, lng } = currentLocationRef.current!;
+            const { lat, lng } = currentLocation!;
             if (nextStep === 'Clock in') {
               await checkIn(id, {
                 check_in_lat: lat,
@@ -509,15 +514,13 @@ const MyAttendance: React.FC = () => {
       >
         <Space style={{ marginBottom: 20 }}>
           <EnvironmentOutlined />
-          {currentLocationRef.current?.office === 'Outside'
+          {currentLocation?.office === 'Outside'
             ? 'Outside the designated area'
-            : currentLocationRef.current?.office}
+            : currentLocation?.office}
         </Space>
         <ProFormTextArea
           width="md"
-          rules={
-            currentLocationRef.current?.office === 'Outside' ? [{ required: true }] : undefined
-          }
+          rules={currentLocation?.office === 'Outside' ? [{ required: true }] : undefined}
           name="note"
           label="Note"
         />

@@ -1,29 +1,24 @@
 import { EmployeeLeftPanel } from '@/components/EmployeeLeftPanel';
 import { EmployeeTabs } from '@/components/EmployeeTabs';
 import { allJobs, readEmployee } from '@/services/employee';
-import { GridContent, PageContainer } from '@ant-design/pro-layout';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useModel } from 'umi';
 import styles from '@/styles/employee_detail.less';
+import { GridContent, PageContainer } from '@ant-design/pro-layout';
+import React, { useEffect, useState } from 'react';
+import { useModel } from 'umi';
 
 export const Edit: React.FC = () => {
   const { initialState, refresh } = useModel('@@initialState');
   const id = initialState?.currentUser?.id;
 
   const [record, setRecord] = useState<API.Employee>();
-  const [jobs, setJobs] = useState<API.EmployeeJob[]>();
   const [isActive, setIsActive] = useState(false);
-
-  const getJobs = useCallback(() => {
-    allJobs(id!)
-      .then((fetchData) => setJobs(fetchData))
-      .then(() => setIsActive(!jobs?.[0]?.is_terminated));
-  }, [id, jobs]);
 
   useEffect(() => {
     readEmployee(id!).then((fetchData) => setRecord(fetchData));
-    getJobs();
-  }, [id, getJobs]);
+    allJobs(id!).then((fetchData) => {
+      setIsActive(!fetchData?.[0]?.is_terminated);
+    });
+  }, [id]);
 
   useEffect(() => {
     refresh();
