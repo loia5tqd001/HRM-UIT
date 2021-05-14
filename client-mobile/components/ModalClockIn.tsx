@@ -64,14 +64,15 @@ const ModalClockIn = ({
         `/employees/${user?.id}/attendance/${nextStep === 'clock in' ? 'check_in' : 'check_out'}/`,
         dataSubmit,
       )
-      .then(async (res) => {
-        await fetchAttendanceStatus();
-        setShow(false);
+      .then((res) => {
+        return fetchAttendanceStatus();
       })
       .catch((error) => {
         console.log(error.response.data);
         Alert.alert(error.response.data || 'Submit request unsuccessfully!');
+        return;
       });
+    setShow(false);
   };
   return (
     <Modal animationType="slide" transparent={true} visible={show}>
@@ -107,7 +108,13 @@ const ModalClockIn = ({
               justifyContent: 'flex-end',
             }}
           >
-            <AsyncButton style={styles.buttonSubmit} title="Submit" onSubmit={submitData} />
+            <AsyncButton
+              style={styles.buttonSubmit}
+              title="Submit"
+              onSubmit={submitData}
+              successMsg={`${nextStep === 'clock in' ? 'Clocked in' : 'Clocked out'} successfully`}
+              destroyOnSubmit
+            />
             <View style={styles.buttonCancel}>
               <TouchableOpacity onPress={() => setShow(false)}>
                 <Text style={{ margin: SPACING - 0.7, color: colorText }}>Cancel</Text>

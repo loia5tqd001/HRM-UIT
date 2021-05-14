@@ -7,11 +7,12 @@ type Props = {
   onSubmit: () => Promise<void>;
   successMsg?: string;
   errorMsg?: string;
+  destroyOnSubmit?: boolean;
   [key: string]: any;
 };
 
 export const AsyncButton: React.FC<Props> = (props) => {
-  const { title, onSubmit, successMsg, errorMsg, ...anotherProps } = props;
+  const { title, onSubmit, successMsg, errorMsg, destroyOnSubmit, ...anotherProps } = props;
   const [isLoading, setIsLoading] = useState(false);
 
   const onPress = async () => {
@@ -22,7 +23,7 @@ export const AsyncButton: React.FC<Props> = (props) => {
     } catch {
       errorMsg && Alert.alert(errorMsg);
     } finally {
-      setIsLoading(false);
+      if (!destroyOnSubmit) setIsLoading(false); // if it'll be destroyed on submit, not need to set state or it will lead to the "Perform update on an unmounted component" error
     }
   };
 
