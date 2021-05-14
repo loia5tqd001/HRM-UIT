@@ -61,7 +61,7 @@ export const EmployeeJob: React.FC<Props> = (props) => {
   const treeData = departments?.map((it) => ({
     id: it.id,
     pId: it.parent,
-    value: it.id,
+    value: it.name,
     title: it.name,
     isLeaf: departments.some((x) => x.parent === it.id),
   }));

@@ -409,7 +409,7 @@ const MyAttendance: React.FC = () => {
         request={async () => {
           const fetchData = await readAttendances(id);
           // Handle for today data
-          const todayData = fetchData.find((it) => moment(it.date).isSame(moment(), 'day'));
+          const todayData = fetchData.reverse().find((it) => moment(it.date).isSame(moment(), 'day'));
           if (todayData) {
             if (todayData.tracking_data.length) {
               // Handle for: firstClock, lastClockOut, lastAction, nextStep

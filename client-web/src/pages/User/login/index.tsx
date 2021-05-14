@@ -86,19 +86,19 @@ const Login: React.FC = () => {
 
       // Login
       const { access: access_token, refresh: refresh_token } = await login({ ...values });
+      jwtUtils.saveAccess(access_token);
+      jwtUtils.saveRefresh(refresh_token);
+      await fetchUserInfo();
       message.success(
         intl.formatMessage({
           id: 'pages.login.loginSuccesfully',
           defaultMessage: 'Login succesfully!',
         }),
       );
-      jwtUtils.saveAccess(access_token);
-      jwtUtils.saveRefresh(refresh_token);
-      await fetchUserInfo();
       goto();
       setLoginState('idle');
     } catch (err) {
-      setErrorMessage("Login failed");
+      setErrorMessage('Login failed');
       setLoginState('error');
     }
   };
