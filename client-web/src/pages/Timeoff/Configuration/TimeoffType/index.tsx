@@ -112,7 +112,7 @@ export const TimeOffType: React.FC = () => {
   const dict = {
     title: {
       create: 'Create timeoff type',
-      update: 'Create timeoff type',
+      update: 'Update timeoff type',
     },
   };
 

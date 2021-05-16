@@ -122,7 +122,7 @@ export const TaxPlan: React.FC = () => {
   const dict = {
     title: {
       create: 'Create tax plan',
-      update: 'Create tax plan',
+      update: 'Update tax plan',
     },
   };
 

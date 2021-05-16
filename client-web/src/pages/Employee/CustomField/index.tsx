@@ -127,7 +127,7 @@ export const CustomField: React.FC = () => {
   const dict = {
     title: {
       create: 'Create custom field',
-      update: 'Create custom field',
+      update: 'Update custom field',
     },
   };
 

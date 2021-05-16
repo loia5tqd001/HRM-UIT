@@ -175,7 +175,7 @@ export const Location: React.FC = () => {
   const dict = {
     title: {
       create: 'Create location',
-      update: 'Create location',
+      update: 'Update location',
     },
   };
 

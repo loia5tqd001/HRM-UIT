@@ -111,7 +111,7 @@ export const InsurancePlan: React.FC = () => {
   const dict = {
     title: {
       create: 'Create insurance plan',
-      update: 'Create insurance plan',
+      update: 'Update insurance plan',
     },
   };
 

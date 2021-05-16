@@ -119,7 +119,7 @@ export const Holiday: React.FC = () => {
   const dict = {
     title: {
       create: 'Create holiday',
-      update: 'Create holiday',
+      update: 'Update holiday',
     },
   };
 

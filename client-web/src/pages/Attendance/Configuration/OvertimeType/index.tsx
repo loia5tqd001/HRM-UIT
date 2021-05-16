@@ -92,7 +92,7 @@ export const OvertimeType: React.FC = () => {
   const dict = {
     title: {
       create: 'Create overtime type',
-      update: 'Create overtime type',
+      update: 'Update overtime type',
     },
   };
 

@@ -321,7 +321,7 @@ export const WorkSchedule: React.FC = () => {
   const dict = {
     title: {
       create: 'Create work schedule',
-      update: 'Create work schedule',
+      update: 'Update work schedule',
     },
   };
 

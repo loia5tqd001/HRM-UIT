@@ -5,6 +5,7 @@ export default {
   'menu.admin.job': 'Công việc',
   'menu.admin.job.jobTitle': 'Chức vụ',
   'menu.admin.job.jobEvent': 'Sự kiện',
+  'menu.admin.job.terminationReason': 'Lý do nghỉ việc',
   'menu.admin.job.employmentStatus': 'Trạng thái làm việc',
   'menu.admin.job.workSchedule': 'Lịch làm việc',
   'menu.admin.job.customFields': 'Trường tuỳ chỉnh',

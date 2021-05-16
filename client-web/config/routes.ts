@@ -70,6 +70,11 @@
             path: '/admin/job',
             redirect: '/admin/job/jobTitle',
           },
+          {
+            path: '/admin/job/terminationReason',
+            name: 'terminationReason',
+            component: './Admin/Job/TerminationReason',
+          },
         ],
       },
       {

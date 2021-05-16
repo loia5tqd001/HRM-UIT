@@ -1,9 +1,7 @@
 import Footer from '@/components/Footer';
 import RightContent from '@/components/RightContent';
-import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
 import { PageLoading } from '@ant-design/pro-layout';
-import { cloneDeep } from 'lodash';
 import merge from 'lodash/merge';
 import React from 'react';
 import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
@@ -12,9 +10,6 @@ import type { RequestInterceptor, RequestOptionsInit, ResponseError } from 'umi-
 import Reqs from 'umi-request';
 import { currentUser as queryCurrentUser, refreshAccessToken } from './services/auth';
 import jwt from './utils/jwt';
-
-// eslint-disable-next-line no-underscore-dangle
-const __DEV__ = process.env.NODE_ENV === 'development';
 
 /** When obtaining user information is slow, render a loading */
 export const initialStateConfig = {

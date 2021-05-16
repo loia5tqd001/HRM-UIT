@@ -380,6 +380,12 @@ declare namespace API {
     is_active: boolean;
   }
 
+  interface TerminationReason {
+    id: number;
+    name: string;
+    description: string;
+  }
+
   interface TaxPlan {
     id: number;
     name: string;

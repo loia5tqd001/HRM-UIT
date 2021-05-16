@@ -1,10 +1,10 @@
 import { __DEV__ } from '@/global';
 import {
-  allJobEvents,
-  createJobEvent,
-  deleteJobEvent,
-  updateJobEvent,
-} from '@/services/admin.job.jobEvent';
+  allTerminationReasons,
+  createTerminationReason,
+  deleteTerminationReason,
+  updateTerminationReason,
+} from '@/services/admin.job.terminationReason';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -16,9 +16,9 @@ import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'umi';
 
-type RecordType = API.JobEvent;
+type RecordType = API.TerminationReason;
 
-export const JobEvent: React.FC = () => {
+export const TerminationReason: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
     'hidden',
@@ -34,7 +34,11 @@ export const JobEvent: React.FC = () => {
         actionRef.current?.reload();
         message.success(successMessage);
       } catch (err) {
-        message.error(errorMessage);
+        if (err.data?.name?.[0]) {
+          message.error(err.data?.name?.[0]);
+        } else {
+          message.error(errorMessage);
+        }
         throw err;
       }
     },
@@ -44,9 +48,23 @@ export const JobEvent: React.FC = () => {
   const columns: ProColumns<RecordType>[] = [
     {
       title: (
-        <FormattedMessage id="pages.admin.job.jobEvent.column.name" defaultMessage="Job event" />
+        <FormattedMessage
+          id="pages.admin.job.terminationReason.column.name"
+          defaultMessage="Termination reason"
+        />
       ),
       dataIndex: 'name',
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.admin.job.terminationReason.column.description"
+          defaultMessage="Description"
+        />
+      ),
+      dataIndex: 'description',
+      valueType: 'textarea',
+      hideInForm: true,
     },
     {
       title: 'Actions',
@@ -57,7 +75,7 @@ export const JobEvent: React.FC = () => {
       render: (dom, record) => (
         <Space size="small">
           <Button
-            title="Edit this job event"
+            title="Edit this termination reason"
             size="small"
             onClick={() => {
               setCrudModalVisible('update');
@@ -68,16 +86,16 @@ export const JobEvent: React.FC = () => {
           </Button>
           <Popconfirm
             placement="right"
-            title={'Delete this job event?'}
+            title={'Delete this termination reason?'}
             onConfirm={async () => {
               await onCrudOperation(
-                () => deleteJobEvent(record.id),
+                () => deleteTerminationReason(record.id),
                 'Detete successfully!',
-                'Cannot delete job event!',
+                'Cannot delete termination reason!',
               );
             }}
           >
-            <Button title="Delete this job event" size="small" danger>
+            <Button title="Delete this termination reason" size="small" danger>
               <DeleteOutlined />
             </Button>
           </Popconfirm>
@@ -88,8 +106,8 @@ export const JobEvent: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create job event',
-      update: 'Update job event',
+      create: 'Create termination reason',
+      update: 'Update termination reason',
     },
   };
 
@@ -97,14 +115,12 @@ export const JobEvent: React.FC = () => {
     <PageContainer>
       <ProTable<RecordType>
         headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.jobEvent.list.title',
-          defaultMessage: 'Job Events',
+          id: 'pages.admin.job.terminationReason.list.title',
+          defaultMessage: 'Termination Reasons',
         })}
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
+        search={false}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -117,7 +133,7 @@ export const JobEvent: React.FC = () => {
           </Button>,
         ]}
         request={async () => {
-          const data = await allJobEvents();
+          const data = await allTerminationReasons();
           return {
             data,
             success: true,
@@ -152,13 +168,13 @@ export const JobEvent: React.FC = () => {
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(
-              () => createJobEvent(record),
+              () => createTerminationReason(record),
               'Create successfully!',
               'Create unsuccessfully!',
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
-              () => updateJobEvent(record.id, record),
+              () => updateTerminationReason(record.id, record),
               'Update successfully!',
               'Update unsuccessfully!',
             );
@@ -173,10 +189,21 @@ export const JobEvent: React.FC = () => {
                 <Button
                   key="autoFill"
                   onClick={() => {
+                    const reason = faker.helpers.randomize([
+                      'Contract Not Renewed',
+                      'Deceased',
+                      'Dismissed',
+                      'Laid-off',
+                      'Other',
+                      'Physically Disabled/Compensated',
+                      'Resigned',
+                      'Resigned - Company Requested',
+                      'Resigned - Self Proposed',
+                      'Retired',
+                    ]);
                     props.form?.setFieldsValue({
-                      name: faker.name.jobType(),
-                      // description: faker.name.jobDescriptor(),
-                      // is_active: true,
+                      name: reason,
+                      description: reason,
                     });
                   }}
                 >
@@ -192,21 +219,20 @@ export const JobEvent: React.FC = () => {
           rules={[{ required: true }]}
           name="name"
           label={intl.formatMessage({
-            id: 'pages.admin.job.jobEvent.column.name',
-            defaultMessage: 'Job event',
+            id: 'pages.admin.job.terminationReason.column.name',
+            defaultMessage: 'Termination reason',
           })}
         />
-        {/* <ProFormTextArea
-          rules={[{ required: true }]}
+        <ProFormTextArea
           name="description"
           label={intl.formatMessage({
-            id: 'pages.admin.job.jobEvent.column.description',
+            id: 'pages.admin.job.terminationReason.column.description',
             defaultMessage: 'Description',
           })}
-        /> */}
+        />
       </ModalForm>
     </PageContainer>
   );
 };
 
-export default JobEvent;
+export default TerminationReason;

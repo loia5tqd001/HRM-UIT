@@ -59,33 +59,6 @@ export const JobTitle: React.FC = () => {
       valueType: 'textarea',
       hideInForm: true,
     },
-    // {
-    //   title: (
-    //     <FormattedMessage id="pages.admin.job.jobTitle.column.is_active" defaultMessage="Status" />
-    //   ),
-    //   dataIndex: 'is_active',
-    //   hideInForm: true,
-    //   valueEnum: {
-    //     true: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.active"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Success',
-    //     },
-    //     false: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.employee.list.column.status.inactive"
-    //           defaultMessage="Status"
-    //         />
-    //       ),
-    //       status: 'Error',
-    //     },
-    //   },
-    // },
     {
       title: 'Actions',
       key: 'action',
@@ -127,7 +100,7 @@ export const JobTitle: React.FC = () => {
   const dict = {
     title: {
       create: 'Create job title',
-      update: 'Create job title',
+      update: 'Update job title',
     },
   };
 
@@ -140,9 +113,7 @@ export const JobTitle: React.FC = () => {
         })}
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
+        search={false}
         toolBarRender={() => [
           <Button
             type="primary"

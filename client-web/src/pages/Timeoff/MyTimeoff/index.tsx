@@ -191,7 +191,7 @@ export const Timeoff: React.FC = () => {
   const dict = {
     title: {
       create: 'Create timeoff request',
-      update: 'Create timeoff request',
+      update: 'Update timeoff request',
     },
   };
 

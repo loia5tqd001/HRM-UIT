@@ -89,7 +89,7 @@ export const EmploymentStatus: React.FC = () => {
   const dict = {
     title: {
       create: 'Create employment status',
-      update: 'Create employment status',
+      update: 'Update employment status',
     },
   };
 
