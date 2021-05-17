@@ -17,14 +17,9 @@ import faker from 'faker';
 import merge from 'lodash/merge';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import type { EmployeeTabProps } from '..';
 
-type Props = {
-  employeeId: number;
-  isActive: boolean;
-  onChange?: (isActive?: boolean | undefined) => any;
-};
-
-export const EmployeeGeneral: React.FC<Props> = (props) => {
+export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
   const [countries, setCountries] = useState<API.Country[]>([]);
   const basicInfo = useAsyncData<API.Employee>(() => readEmployee(employeeId));
@@ -42,6 +37,7 @@ export const EmployeeGeneral: React.FC<Props> = (props) => {
     <>
       <Card loading={basicInfo.isLoading} title="Basic info">
         <ProForm<API.Employee>
+          name="basic_info"
           onFinish={async (value) => {
             try {
               const final = merge(basicInfo.data, value);
@@ -50,7 +46,7 @@ export const EmployeeGeneral: React.FC<Props> = (props) => {
               delete final.avatar;
               await updateEmployee(employeeId, final);
               basicInfo.setData(final);
-              onChange?.();
+              onChange?.basicInfo?.(final);
               message.success('Updated successfully!');
             } catch {
               message.error('Updated unsuccessfully!');
@@ -186,7 +182,7 @@ export const EmployeeGeneral: React.FC<Props> = (props) => {
               final.owner = employeeId;
               await updateHomeAddress(employeeId, final);
               homeAddress.setData(final);
-              onChange?.();
+              // onChange?.();
               message.success('Updated successfully!');
             } catch {
               message.error('Updated unsuccessfully!');
@@ -240,7 +236,7 @@ export const EmployeeGeneral: React.FC<Props> = (props) => {
               value.owner = employeeId;
               await updateEmergencyContact(employeeId, final);
               emergencyContact.setData(final);
-              onChange?.();
+              // onChange?.();
               message.success('Updated successfully!');
             } catch {
               message.error('Updated unsuccessfully!');
@@ -309,7 +305,7 @@ export const EmployeeGeneral: React.FC<Props> = (props) => {
               await updateBankInfo(employeeId, final);
               message.success('Updated successfully!');
               bankInfo.setData(final);
-              onChange?.();
+              // onChange?.();
             } catch {
               message.error('Updated unsuccessfully!');
             }

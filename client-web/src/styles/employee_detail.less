@@ -9,8 +9,8 @@
 .right {
   display: grid;
   grid-template-rows: 1fr minmax(50vh, auto);
-  align-items: start;
   gap: 24px;
+  align-items: start;
 }
 
 .tabContent {
@@ -23,9 +23,9 @@
   height: 10vw;
   margin-bottom: 12px;
   overflow: hidden;
-  cursor: pointer;
   box-shadow: 0 0 5px #0002;
-  transition: box-shadow .05s;
+  cursor: pointer;
+  transition: box-shadow 0.05s;
   &:hover {
     box-shadow: 0 0 15px #0002;
   }
@@ -38,4 +38,19 @@
   display: grid;
   grid-template-columns: repeat(5, max-content);
   gap: 6px;
+}
+
+.textEllipse {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px;
+  align-items: center;
+
+  .content {
+    display: inline-block;
+    width: 100%;
+    max-width: 10vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }

@@ -15,14 +15,9 @@ import { Button, Card, Form, InputNumber, List, message } from 'antd';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useState } from 'react';
+import type { EmployeeTabProps } from '..';
 
-type Props = {
-  employeeId: number;
-  isActive: boolean;
-  onChange?: (isActive?: boolean | undefined) => any;
-};
-
-export const EmployeePayroll: React.FC<Props> = (props) => {
+export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
   const payroll = useAsyncData<API.EmployeePayroll>(() => getEmployeePayroll(employeeId));
   const taxPlans = useAsyncData<API.TaxPlan[]>(() => allTaxPlans());
@@ -71,7 +66,7 @@ export const EmployeePayroll: React.FC<Props> = (props) => {
             try {
               updateEmployeePayroll(employeeId, value);
               payroll.setData(value);
-              onChange?.();
+              // onChange?.();
               message.success('Updated successfully!');
             } catch {
               message.error('Updated unsuccessfully!');

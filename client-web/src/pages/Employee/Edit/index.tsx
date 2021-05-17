@@ -1,33 +1,39 @@
 import { EmployeeLeftPanel } from '@/components/EmployeeLeftPanel/index';
 import { EmployeeTabs } from '@/components/EmployeeTabs';
-import { allJobs, readEmployee } from '@/services/employee';
+import { readEmployee } from '@/services/employee';
 import styles from '@/styles/employee_detail.less';
+import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router';
 
 export const Edit: React.FC = () => {
   const { id } = useParams<any>();
-  const [record, setRecord] = useState<API.Employee>();
-  const [isActive, setIsActive] = useState(false);
+  const record = useAsyncData<API.Employee>(() => readEmployee(id!));
 
-  useEffect(() => {
-    readEmployee(id!).then((fetchData) => setRecord(fetchData));
-    allJobs(id!).then((fetchData) => {
-      setIsActive(!fetchData?.[0]?.is_terminated);
-    });
-  }, [id]);
+  const isActive = record.data?.status !== 'Terminated';
 
   return (
-    <PageContainer title="Edit employee">
+    <PageContainer title="Edit employee" loading={record.isLoading}>
       <GridContent>
         <div className={styles.layout}>
-          <EmployeeLeftPanel employee={record} setEmployee={setRecord} type="employee-edit" />
+          <EmployeeLeftPanel
+            employee={record.data}
+            setEmployee={record.setData}
+            type="employee-edit"
+          />
           <EmployeeTabs
             employeeId={id}
             isActive={isActive}
-            onChange={(active) => {
-              if (active !== undefined) setIsActive(active);
+            onChange={{
+              status: (newStatus) => {
+                if (!record.data) return;
+                record.setData({ ...record.data, status: newStatus });
+              },
+              basicInfo: (newInfo) => {
+                if (!record.data) return;
+                record.setData({ ...record.data, ...newInfo, user: record.data.user });
+              },
             }}
           />
         </div>

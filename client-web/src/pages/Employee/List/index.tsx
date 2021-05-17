@@ -138,25 +138,27 @@ const EmployeeList: React.FC = () => {
     // },
     {
       title: <FormattedMessage id="pages.employee.list.column.status" defaultMessage="Status" />,
-      dataIndex: ['user', 'is_active'],
+      dataIndex: 'status',
       hideInForm: true,
+      sorter: (a, b) => {
+        const mapStatusToImportance = {
+          Working: 0,
+          Terminated: 1,
+          NewHired: 2,
+        } as const;
+        return mapStatusToImportance[a.status] - mapStatusToImportance[b.status];
+      },
       valueEnum: {
-        true: {
-          text: (
-            <FormattedMessage
-              id="pages.employee.list.column.status.active"
-              defaultMessage="Status"
-            />
-          ),
+        NewHired: {
+          text: 'New Hire',
+          status: 'Warning',
+        },
+        Working: {
+          text: 'Working',
           status: 'Success',
         },
-        false: {
-          text: (
-            <FormattedMessage
-              id="pages.employee.list.column.status.inactive"
-              defaultMessage="Status"
-            />
-          ),
+        Terminated: {
+          text: 'Terminated',
           status: 'Error',
         },
       },

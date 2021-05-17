@@ -1,7 +1,7 @@
 import { changePassword } from '@/services/auth';
 import { changeEmployeeAvatar, changeEmployeePassword, readEmployee } from '@/services/employee';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
-import { Affix, Button, Card, message, Tooltip, Upload } from 'antd';
+import { Affix, Badge, Button, Card, message, Tooltip, Upload } from 'antd';
 import React from 'react';
 import styles from '@/styles/employee_detail.less';
 import { MailOutlined, UserOutlined } from '@ant-design/icons';
@@ -12,10 +12,25 @@ type Props = {
   type: 'employee-edit' | 'account-profile';
 };
 
+const mapStatus = {
+  NewHired: {
+    text: 'New Hire',
+    status: 'warning',
+  },
+  Working: {
+    text: 'Working',
+    status: 'success',
+  },
+  Terminated: {
+    text: 'Terminated',
+    status: 'error',
+  },
+} as const;
+
 export const EmployeeLeftPanel: React.FC<Props> = (props) => {
   const { employee: record, setEmployee: setRecord, type } = props;
   const id = record?.id;
-  const isActive = record?.user.is_active;
+  const isActive = record?.status !== 'Terminated';
 
   return (
     <Affix offsetTop={50}>
@@ -60,14 +75,41 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             </div>
           </Tooltip>
         </Upload>
-        <h2 style={{ marginTop: 12, marginBottom: 0 }}>
-          {record?.first_name} {record?.last_name}
+        <h2
+          style={{
+            marginTop: 12,
+          }}
+          className={styles.textEllipse}
+          title={`${record?.first_name} ${record?.last_name}`}
+        >
+          <span className={styles.content}>
+            {record?.first_name} {record?.last_name}
+          </span>
         </h2>
-        <h4 style={{ fontWeight: 400 }}>
-          <UserOutlined /> {record?.user.username}
+        {record?.status && (
+          <h4 style={{ fontWeight: 400 }}>
+            <Badge {...mapStatus[record.status]} />
+          </h4>
+        )}
+        <h4
+          style={{
+            fontWeight: 400,
+          }}
+          title={record?.user.username}
+          className={styles.textEllipse}
+        >
+          <UserOutlined /> <span className={styles.content}>{record?.user.username}</span>
         </h4>
-        <h4 style={{ fontWeight: 400, marginBottom: 12 }}>
-          <MailOutlined /> {record?.email}
+        <h4
+          style={{
+            fontWeight: 400,
+            marginBottom: 12,
+          }}
+          title={record?.email}
+          className={styles.textEllipse}
+        >
+          <MailOutlined />
+          <span className={styles.content}>{record?.email}</span>
         </h4>
         {type === 'employee-edit' ? (
           <ModalForm
@@ -186,15 +228,6 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             />
           </ModalForm>
         )}
-
-        {/* <Switch
-                checkedChildren="Active"
-                unCheckedChildren="Inactive"
-                checked={!!jobs?.length && !jobs[0]?.is_terminated}
-                onChange={(checked) => {
-                  console.log(checked);
-                }}
-              /> */}
       </Card>
     </Affix>
   );

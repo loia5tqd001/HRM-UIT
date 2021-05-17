@@ -62,11 +62,6 @@
             component: './Admin/Job/WorkSchedule',
           },
           {
-            path: '/admin/job/jobEvent',
-            name: 'jobEvent',
-            component: './Admin/Job/JobEvent',
-          },
-          {
             path: '/admin/job',
             redirect: '/admin/job/jobTitle',
           },

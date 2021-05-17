@@ -1,14 +1,12 @@
 import { __DEV__ } from '@/global';
-import {
-  allManagers,
-  createDepartment,
-  updateDepartment,
-} from '@/services/admin.organization.structure';
+import { createDepartment, updateDepartment } from '@/services/admin.organization.structure';
+import { allEmployees } from '@/services/employee';
+import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { Button, Form, TreeSelect } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import faker from 'faker';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FormattedMessage, useModel } from 'umi';
 
 const dict = {
@@ -28,11 +26,7 @@ export const CrudModal: React.FC = () => {
     departmentsPending,
     onCrudOperation,
   } = useModel('admin.organization');
-  const [managers, setManagers] = useState<API.Manager[]>([]);
-
-  useEffect(() => {
-    allManagers().then((data) => setManagers(data));
-  }, []);
+  const managers = useAsyncData<API.Employee[]>(() => allEmployees());
 
   const treeData = departments.map((it) => ({
     id: it.id,
@@ -98,7 +92,7 @@ export const CrudModal: React.FC = () => {
                 onClick={() => {
                   form.setFieldsValue({
                     name: faker.commerce.department(),
-                    manager: faker.helpers.randomize(managers.map((it) => it.id)),
+                    manager: faker.helpers.randomize(managers.data?.map((it) => it.id) || []),
                     description: faker.company.bs(),
                   });
                 }}
@@ -140,7 +134,7 @@ export const CrudModal: React.FC = () => {
         name="manager"
         label="Manager"
         showSearch
-        options={managers.map((it) => ({
+        options={managers.data?.map((it) => ({
           value: it.id,
           label: `${it.first_name} ${it.last_name}`,
         }))}

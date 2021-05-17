@@ -2,8 +2,8 @@ import { FormattedMessage } from '@/.umi/plugin-locale/localeExports';
 import { __DEV__ } from '@/global';
 import { calcHours, convertFromBackend } from '@/pages/Admin/Job/WorkSchedule';
 import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
-import { allJobEvents } from '@/services/admin.job.jobEvent';
 import { allJobTitles } from '@/services/admin.job.jobTitle';
+import { allTerminationReasons } from '@/services/admin.job.terminationReason';
 import { allSchedules } from '@/services/admin.job.workSchedule';
 import { allLocations } from '@/services/admin.organization.location';
 import { allDepartments } from '@/services/admin.organization.structure';
@@ -28,24 +28,29 @@ import { Button, Card, Form, message, Space, TimePicker, TreeSelect } from 'antd
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import type { EmployeeTabProps } from '..';
 
-type Props = {
-  employeeId: number;
-  isActive: boolean;
-  onChange?: (isActive?: boolean | undefined) => any;
-};
+const jobEvents: API.JobEvent[] = [
+  // 'Joined',
+  'Error Correction',
+  'Location Changed',
+  'Promoted',
+  // 'Terminated',
+  'Other',
+];
 
-export const EmployeeJob: React.FC<Props> = (props) => {
+export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
   const [departments, setDepartments] = useState<API.DepartmentUnit[]>();
   const [jobTitles, setJobTitles] = useState<API.JobTitle[]>();
   const [schedules, setSchedules] = useState<API.Schedule[]>();
   const [locations, setLocations] = useState<API.Location[]>();
   const [employmentStatuses, setEmploymentStatuses] = useState<API.EmploymentStatus[]>();
-  const [jobEvents, setJobEvents] = useState<API.JobEvent[]>();
+  const [terminationReasons, setTerminationReasons] = useState<API.TerminationReason[]>();
   const [terminationForm] = useForm<API.TerminateContract>();
   const [scheduleForm] = useForm<API.EmployeeSchedule>();
+  const [rejoinForm] = useForm<API.EmployeeJob>();
   const jobs = useAsyncData<API.EmployeeJob[]>(() => allJobs(employeeId));
   const schedule = useAsyncData<API.EmployeeSchedule>(() => getSchedule(employeeId));
 
@@ -54,7 +59,7 @@ export const EmployeeJob: React.FC<Props> = (props) => {
     allJobTitles().then((fetchData) => setJobTitles(fetchData));
     allLocations().then((fetchData) => setLocations(fetchData));
     allEmploymentStatuses().then((fetchData) => setEmploymentStatuses(fetchData));
-    allJobEvents().then((fetchData) => setJobEvents(fetchData));
+    allTerminationReasons().then((fetchData) => setTerminationReasons(fetchData));
     allSchedules().then((fetchData) => setSchedules(fetchData));
   }, []);
 
@@ -63,8 +68,37 @@ export const EmployeeJob: React.FC<Props> = (props) => {
     pId: it.parent,
     value: it.name,
     title: it.name,
-    isLeaf: departments.some((x) => x.parent === it.id),
+    isLeaf: !departments.some((x) => x.parent === it.id),
   }));
+
+  const onUpdateJob = useCallback(
+    async (value: API.EmployeeJob) => {
+      try {
+        value.owner = employeeId;
+        value.probation_start_date = moment(value.probation_start_date).format('YYYY-MM-DD');
+        value.probation_end_date = moment(value.probation_end_date).format('YYYY-MM-DD');
+        value.contract_start_date = moment(value.contract_start_date).format('YYYY-MM-DD');
+        value.contract_end_date = moment(value.contract_end_date).format('YYYY-MM-DD');
+        value.event = value.event || 'Joined'; // If it's a Join event, then it will not be shown on the Form, so we automatically assign to it
+        await updateJob(employeeId, value);
+        if (jobs.data) {
+          jobs.setData([value, ...jobs.data]);
+        }
+        const firstJobEver = !jobs.data?.length;
+        const rejoin = !isActive;
+        if (firstJobEver || rejoin) {
+          onChange?.status?.('Working');
+          if (rejoin) {
+            await jobs.fetchData();
+          }
+        }
+        message.success('Updated successfully!');
+      } catch {
+        message.error('Updated unsuccessfully!');
+      }
+    },
+    [employeeId, jobs, onChange, isActive],
+  );
 
   const columns: ProColumns<API.EmployeeJob>[] = [
     {
@@ -144,82 +178,39 @@ export const EmployeeJob: React.FC<Props> = (props) => {
   return (
     <>
       <Card loading={jobs.isLoading} title={isActive ? 'Job info' : 'Job Terminated'}>
-        {jobs.data?.[0]?.is_terminated ? (
-          <ProForm<API.TerminateContract>
-            title="Termination Form"
-            form={terminationForm}
-            initialValues={jobs.data?.[0]}
-            submitter={false}
-          >
-            <ProForm.Group>
-              <ProFormText width="md" name="termination_reason" label="Reason" disabled />
-              <ProFormDatePicker
-                width="md"
-                name="termination_date"
-                label="Date"
-                initialValue={moment()}
-                disabled
-              />
-            </ProForm.Group>
-            <ProFormTextArea width="md" name="termination_note" label="Note" disabled />
-          </ProForm>
-        ) : (
-          <>
-            <ProForm<API.EmployeeJob>
-              onFinish={async (value) => {
-                try {
-                  value.owner = employeeId;
-                  value.probation_start_date = moment(value.probation_start_date).format(
-                    'YYYY-MM-DD',
-                  );
-                  value.probation_end_date = moment(value.probation_end_date).format('YYYY-MM-DD');
-                  value.contract_start_date = moment(value.contract_start_date).format(
-                    'YYYY-MM-DD',
-                  );
-                  value.contract_end_date = moment(value.contract_end_date).format('YYYY-MM-DD');
-                  await updateJob(employeeId, value);
-                  if (jobs.data) {
-                    jobs.setData([value, ...jobs.data.slice(1)]);
-                  }
-                  onChange?.();
-                  message.success('Updated successfully!');
-                } catch {
-                  message.error('Updated unsuccessfully!');
-                }
-              }}
-              initialValues={jobs.data?.[0]}
-              submitter={{
-                render: ({ form }, defaultDoms) => {
-                  return [
-                    ...defaultDoms,
-                    __DEV__ && (
-                      <Button
-                        key="autoFill"
-                        onClick={() => {
-                          form?.setFieldsValue({
-                            department: faker.helpers.randomize(
-                              departments?.map((it) => it.name) || [],
-                            ),
-                            job_title: faker.helpers.randomize(
-                              jobTitles?.map((it) => it.name) || [],
-                            ),
-                            location: faker.helpers.randomize(
-                              locations?.map((it) => it.name) || [],
-                            ),
-                            employment_status: faker.helpers.randomize(
-                              employmentStatuses?.map((it) => it.name) || [],
-                            ),
-                            probation_start_date: faker.date.recent(),
-                            probation_end_date: faker.date.future(),
-                            contract_start_date: faker.date.future(),
-                            contract_end_date: faker.date.future(),
-                            event: faker.helpers.randomize(jobEvents?.map((it) => it.name) || []),
-                          });
-                        }}
-                      >
-                        Auto fill
-                      </Button>
-                    ),
+        {isActive ? (
+          <ProForm<API.EmployeeJob>
+            onFinish={onUpdateJob}
+            initialValues={{ ...jobs.data?.[0], event: undefined }}
+            submitter={{
+              render: ({ form }, defaultDoms) => {
+                return [
+                  ...defaultDoms,
+                  __DEV__ && (
+                    <Button
+                      key="autoFill"
+                      onClick={() => {
+                        form?.setFieldsValue({
+                          department: faker.helpers.randomize(
+                            departments?.map((it) => it.name) || [],
+                          ),
+                          job_title: faker.helpers.randomize(jobTitles?.map((it) => it.name) || []),
+                          location: faker.helpers.randomize(locations?.map((it) => it.name) || []),
+                          employment_status: faker.helpers.randomize(
+                            employmentStatuses?.map((it) => it.name) || [],
+                          ),
+                          probation_start_date: moment(faker.date.recent()),
+                          probation_end_date: moment(faker.date.future()),
+                          contract_start_date: moment(faker.date.future()),
+                          contract_end_date: moment(faker.date.future()),
+                          event: faker.helpers.randomize<API.JobEvent>(jobEvents),
+                        });
+                      }}
+                    >
+                      Auto fill
+                    </Button>
+                  ),
+                  jobs.data && jobs.data.length > 0 && (
                     <ModalForm<API.TerminateContract>
                       title="Termination Form"
                       width="400px"
@@ -228,20 +219,20 @@ export const EmployeeJob: React.FC<Props> = (props) => {
                           Terminate Contract
                         </Button>
                       }
-                      onVisibleChange={(visible) => {
-                        if (!visible) terminationForm.resetFields();
+                      onVisibleChange={() => {
+                        terminationForm.resetFields();
                       }}
                       form={terminationForm}
                       onFinish={async (value) => {
                         try {
                           await terminateEmployee(employeeId, {
                             ...value,
-                            termination_date: moment(value.termination_date),
+                            date: moment(value.date),
                           });
                           message.success('Terminate successfully!');
                           jobs.fetchData();
                           schedule.fetchData();
-                          onChange?.(false)
+                          onChange?.status?.('Terminated');
                           return true;
                         } catch {
                           message.error('Terminate unsuccessfully!');
@@ -249,86 +240,225 @@ export const EmployeeJob: React.FC<Props> = (props) => {
                         }
                       }}
                     >
-                      <ProFormText
+                      <ProFormSelect
+                        name="reason"
                         width="md"
+                        label="Termination reason"
+                        options={terminationReasons?.map((it) => ({
+                          value: it.name,
+                          label: it.name,
+                        }))}
+                        hasFeedback={!terminationReasons}
                         rules={[{ required: true }]}
-                        name="termination_reason"
-                        label="Reason"
                       />
                       <ProFormDatePicker
                         rules={[{ required: true }]}
                         width="md"
-                        name="termination_date"
+                        name="date"
                         label="Date"
                         initialValue={moment()}
                       />
-                      <ProFormTextArea width="md" name="termination_note" label="Note" />
-                    </ModalForm>,
-                  ];
-                },
-              }}
-            >
-              <ProForm.Group>
-                <ProFormSelect
-                  name="employment_status"
-                  width="md"
-                  label="Employment status"
-                  options={employmentStatuses?.map((it) => ({ value: it.name, label: it.name }))}
-                  hasFeedback={!employmentStatuses}
-                  rules={[{ required: true }]}
+                      <ProFormTextArea width="md" name="note" label="Note" />
+                    </ModalForm>
+                  ),
+                ];
+              },
+            }}
+          >
+            <ProForm.Group>
+              <ProFormSelect
+                name="employment_status"
+                width="md"
+                label="Employment status"
+                options={employmentStatuses?.map((it) => ({ value: it.name, label: it.name }))}
+                hasFeedback={!employmentStatuses}
+                rules={[{ required: true }]}
+              />
+              <ProFormSelect
+                name="job_title"
+                width="md"
+                label="Job title"
+                options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
+                hasFeedback={!jobTitles}
+                rules={[{ required: true }]}
+              />
+              <Form.Item name="department" label="Department" rules={[{ required: true }]}>
+                <TreeSelect
+                  treeDataSimpleMode
+                  style={{ width: '100%', minWidth: 328 }}
+                  dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                  treeDefaultExpandAll
+                  loading={!departments}
+                  treeData={treeData}
+                  placeholder="Please select"
                 />
-                <ProFormSelect
-                  name="job_title"
-                  width="md"
-                  label="Job title"
-                  options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
-                  hasFeedback={!jobTitles}
-                />
-                <Form.Item name="department" label="Department">
-                  <TreeSelect
-                    treeDataSimpleMode
-                    style={{ width: '100%', minWidth: 320 }}
-                    dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                    treeDefaultExpandAll
-                    loading={!departments}
-                    treeData={treeData}
-                    placeholder="Please select"
-                  />
-                </Form.Item>
-                <ProFormSelect
-                  name="location"
-                  width="md"
-                  label="Location"
-                  options={locations?.map((it) => ({ value: it.name, label: it.name }))}
-                  hasFeedback={!locations}
-                />
-                <ProFormDatePicker
-                  width="md"
-                  name="probation_start_date"
-                  label="Probation start date"
-                />
-                <ProFormDatePicker
-                  width="md"
-                  name="probation_end_date"
-                  label="Probation end date"
-                />
-                <ProFormDatePicker
-                  width="md"
-                  name="contract_start_date"
-                  label="Contract start date"
-                />
-                <ProFormDatePicker width="md" name="contract_end_date" label="Contract end date" />
+              </Form.Item>
+              <ProFormSelect
+                name="location"
+                width="md"
+                label="Location"
+                options={locations?.map((it) => ({ value: it.name, label: it.name }))}
+                hasFeedback={!locations}
+                rules={[{ required: true }]}
+              />
+              <ProFormDatePicker
+                width="md"
+                name="probation_start_date"
+                label="Probation start date"
+              />
+              <ProFormDatePicker width="md" name="probation_end_date" label="Probation end date" />
+              <ProFormDatePicker
+                width="md"
+                name="contract_start_date"
+                label="Contract start date"
+              />
+              <ProFormDatePicker width="md" name="contract_end_date" label="Contract end date" />
+              {jobs.data?.[0] !== undefined && (
                 <ProFormSelect
                   name="event"
                   width="md"
                   label="Job event"
-                  options={jobEvents?.map((it) => ({ value: it.name, label: it.name }))}
-                  hasFeedback={!jobEvents}
+                  options={jobEvents.map((it) => ({ value: it, label: it }))}
                   rules={[{ required: true }]}
                 />
-              </ProForm.Group>
-            </ProForm>
-          </>
+              )}
+            </ProForm.Group>
+          </ProForm>
+        ) : (
+          <ProForm<API.TerminateContract>
+            form={terminationForm}
+            initialValues={jobs.data?.[0]?.termination}
+            submitter={{
+              render: () => {
+                return [
+                  <ModalForm<API.EmployeeJob>
+                    title="Rejoin"
+                    width="780px"
+                    form={rejoinForm}
+                    trigger={
+                      <Button key="rejoin" type="primary">
+                        Rejoin
+                      </Button>
+                    }
+                    onVisibleChange={(visible) => {
+                      if (visible && jobs.data?.[0]) {
+                        rejoinForm?.setFieldsValue(jobs.data[0]);
+                      }
+                    }}
+                    submitter={{
+                      render: ({ form: innerForm }, innerDefaultDoms) => {
+                        return [
+                          ...innerDefaultDoms,
+                          __DEV__ && (
+                            <Button
+                              key="autoFill"
+                              onClick={() => {
+                                innerForm?.setFieldsValue({
+                                  department: faker.helpers.randomize(
+                                    departments?.map((it) => it.name) || [],
+                                  ),
+                                  job_title: faker.helpers.randomize(
+                                    jobTitles?.map((it) => it.name) || [],
+                                  ),
+                                  location: faker.helpers.randomize(
+                                    locations?.map((it) => it.name) || [],
+                                  ),
+                                  employment_status: faker.helpers.randomize(
+                                    employmentStatuses?.map((it) => it.name) || [],
+                                  ),
+                                  probation_start_date: moment(faker.date.recent()),
+                                  probation_end_date: moment(faker.date.future()),
+                                  contract_start_date: moment(faker.date.future()),
+                                  contract_end_date: moment(faker.date.future()),
+                                  event: faker.helpers.randomize<API.JobEvent>(jobEvents),
+                                });
+                              }}
+                            >
+                              Auto fill
+                            </Button>
+                          ),
+                        ];
+                      },
+                    }}
+                    onFinish={onUpdateJob}
+                  >
+                    <ProForm.Group>
+                      <ProFormSelect
+                        name="employment_status"
+                        width="md"
+                        label="Employment status"
+                        options={employmentStatuses?.map((it) => ({
+                          value: it.name,
+                          label: it.name,
+                        }))}
+                        hasFeedback={!employmentStatuses}
+                        rules={[{ required: true }]}
+                      />
+                      <ProFormSelect
+                        name="job_title"
+                        width="md"
+                        label="Job title"
+                        options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
+                        hasFeedback={!jobTitles}
+                        rules={[{ required: true }]}
+                      />
+                      <Form.Item name="department" label="Department" rules={[{ required: true }]}>
+                        <TreeSelect
+                          treeDataSimpleMode
+                          style={{ width: '100%', minWidth: 328 }}
+                          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                          treeDefaultExpandAll
+                          loading={!departments}
+                          treeData={treeData}
+                          placeholder="Please select"
+                        />
+                      </Form.Item>
+                      <ProFormSelect
+                        name="location"
+                        width="md"
+                        label="Location"
+                        options={locations?.map((it) => ({ value: it.name, label: it.name }))}
+                        hasFeedback={!locations}
+                        rules={[{ required: true }]}
+                      />
+                      <ProFormDatePicker
+                        width="md"
+                        name="probation_start_date"
+                        label="Probation start date"
+                      />
+                      <ProFormDatePicker
+                        width="md"
+                        name="probation_end_date"
+                        label="Probation end date"
+                      />
+                      <ProFormDatePicker
+                        width="md"
+                        name="contract_start_date"
+                        label="Contract start date"
+                      />
+                      <ProFormDatePicker
+                        width="md"
+                        name="contract_end_date"
+                        label="Contract end date"
+                      />
+                    </ProForm.Group>
+                  </ModalForm>,
+                ];
+              },
+            }}
+          >
+            <ProForm.Group>
+              <ProFormText width="md" name="reason" label="Reason" disabled />
+              <ProFormDatePicker
+                width="md"
+                name="date"
+                label="Date"
+                initialValue={moment()}
+                disabled
+              />
+            </ProForm.Group>
+            <ProFormTextArea width="md" name="note" label="Note" disabled />
+          </ProForm>
         )}
       </Card>
 
@@ -339,7 +469,7 @@ export const EmployeeJob: React.FC<Props> = (props) => {
               value.schedule = (value.schedule as API.Schedule).name;
               value.owner = employeeId;
               await updateSchedule(employeeId, value);
-              onChange?.();
+              // onChange?.();
               message.success('Updated successfully!');
             } catch {
               message.error('Updated unsuccessfully!');

@@ -1,6 +1,7 @@
 import { allDepartments } from '@/services/admin.organization.structure';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import ProTable, { ProColumns } from '@ant-design/pro-table';
+import type { ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
 import { Avatar, Button, message, Popconfirm, Space } from 'antd';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useModel } from 'umi';

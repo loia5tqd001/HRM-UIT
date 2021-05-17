@@ -219,12 +219,13 @@ declare namespace API {
     health_insurance: string;
     role: string;
     permissions: string[];
+    status: 'Working' | 'NewHired' | 'Terminated';
   }
 
   interface TerminateContract {
-    termination_reason: string;
-    termination_date: string | moment.Moment;
-    termination_note?: string;
+    reason: string;
+    date: string | moment.Moment;
+    note?: string;
   }
 
   interface EmployeeJob {
@@ -237,12 +238,10 @@ declare namespace API {
     probation_end_date: moment.Moment | string;
     contract_start_date: moment.Moment | string;
     contract_end_date: moment.Moment | string;
-    event: string;
+    event: JobEvent;
     timestamp: moment.Moment | string;
     owner: number;
-    termination_date: moment.Moment | string;
-    termination_note: string | null;
-    termination_reason: string | null;
+    termination?: TerminateContract;
     is_terminated: boolean;
   }
 
@@ -525,10 +524,13 @@ declare namespace API {
     name: string;
   }
 
-  interface JobEvent {
-    id: number;
-    name: string;
-  }
+  type JobEvent =
+    | 'Error Correction'
+    | 'Joined'
+    | 'Location Changed'
+    | 'Other'
+    | 'Promoted'
+    | 'Terminated';
 
   interface Location {
     id: number;

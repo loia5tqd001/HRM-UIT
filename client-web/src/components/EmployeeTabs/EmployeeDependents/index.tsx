@@ -27,16 +27,11 @@ import faker from 'faker';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'umi';
+import type { EmployeeTabProps } from '..';
 
 type RecordType = API.EmployeeDependent;
 
-type Props = {
-  employeeId: number;
-  isActive: boolean;
-  onChange?: (isActive?: boolean | undefined) => any;
-};
-
-export const EmployeeDependent: React.FC<Props> = (props) => {
+export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
   const actionRef = useRef<ActionType>();
   const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
@@ -56,7 +51,7 @@ export const EmployeeDependent: React.FC<Props> = (props) => {
       try {
         await cb();
         actionRef.current?.reload();
-        onChange?.();
+        // onChange?.();
         message.success(successMessage);
       } catch (err) {
         message.error(errorMessage);
@@ -179,17 +174,22 @@ export const EmployeeDependent: React.FC<Props> = (props) => {
         rowKey="id"
         search={false}
         locale={{ emptyText: 'No dependents' }}
-        toolBarRender={() => !isActive ? [] : [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
-        ]}
+        toolBarRender={() =>
+          !isActive
+            ? []
+            : [
+                <Button
+                  type="primary"
+                  key="primary"
+                  onClick={() => {
+                    setCrudModalVisible('create');
+                  }}
+                >
+                  <PlusOutlined />{' '}
+                  <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+                </Button>,
+              ]
+        }
         request={async () => {
           const data = await allDependents(employeeId);
           return {

@@ -7,13 +7,19 @@ import React from 'react';
 import { history, Link } from 'umi';
 import styles from '@/styles/employee_detail.less';
 
-type Props = {
-  employeeId: number;
-  isActive: boolean;
-  onChange?: (isActive?: boolean | undefined) => any;
+type OnChangeSubscription = {
+  status?: (newValue: API.Employee['status']) => any;
+  basicInfo?: (newValue: API.Employee) => any;
+  // other related subscription is not CURRENTLY needed
 };
 
-export const EmployeeTabs: React.FC<Props> = (props) => {
+export type EmployeeTabProps = {
+  employeeId: number;
+  isActive: boolean;
+  onChange?: OnChangeSubscription;
+};
+
+export const EmployeeTabs: React.FC<EmployeeTabProps> = (props) => {
   const { tab } = history.location.query as {
     tab: 'general' | 'job' | 'payroll' | 'dependent' | undefined;
   };
