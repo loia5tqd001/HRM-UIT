@@ -27,9 +27,15 @@ type TypeModal = {
   fetchAttendanceStatus: () => any;
 };
 
+type RefModal = React.Ref<{
+  resetForm: () => void;
+  closeModal: () => void;
+  openModal: () => void;
+}>;
+
 const widthDefault = GET_WIDTH - 110;
 
-const ModalClockIn = React.forwardRef((props: TypeModal, ref) => {
+const ModalClockIn = React.forwardRef((props: TypeModal, ref: RefModal) => {
   const [visible, setVisible] = React.useState(false);
   const { show, outside, nextStep, location, fetchAttendanceStatus } = props;
 

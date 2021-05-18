@@ -20,6 +20,7 @@ import * as TaskManager from 'expo-task-manager';
 import { getPreciseDistance } from 'geolib';
 import axios from '../commons/axios';
 import moment from 'moment';
+import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 interface EmployeeAttendance {
   id: number;
@@ -61,6 +62,9 @@ interface Location {
   lat: number;
 }
 
+// Declare typescript with useImperativeHandle: https://gist.github.com/Venryx/7cff24b17867da305fff12c6f8ef6f96
+type Handle<T> = T extends ForwardRefExoticComponent<RefAttributes<infer T2>> ? T2 : never;
+
 export default function AttendanceScreen({ navigation }: { navigation: any }) {
   const [permission, askForPermission] = usePermissions(Permissions.LOCATION, { ask: true });
   const { user } = React.useContext(AuthContext)!;
@@ -71,7 +75,7 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
   const [isReady, setIsReady] = React.useState(false);
 
   const [employeeLocation, setEmployeeLocation] = React.useState<Location>();
-  const modalClockInRef = React.useRef<any>();
+  const modalClockInRef = React.useRef<Handle<typeof ModalClockIn>>();
 
   React.useEffect(() => {
     setIsReady(false);
