@@ -124,7 +124,7 @@ const MyAttendance: React.FC = () => {
         const { latitude, longitude } = position.coords;
   
         const [location, locations] = await Promise.all([
-          allJobs(id).then((it) => it?.[0].location),
+          allJobs(id).then((it) => it?.[0]?.location),
           allLocations(),
         ]);
         const matchedLocation = locations.find((it) => it.name === location);
@@ -413,7 +413,7 @@ const MyAttendance: React.FC = () => {
           if (todayData) {
             if (todayData.tracking_data.length) {
               // Handle for: firstClock, lastClockOut, lastAction, nextStep
-              setFirstClockIn(moment(todayData.tracking_data[0].check_in_time).format('HH:mm'));
+              setFirstClockIn(moment(todayData.tracking_data[0]?.check_in_time).format('HH:mm'));
               const continueStep = todayData.tracking_data[todayData.tracking_data.length - 1]
                 .check_out_time
                 ? 'Clock in'
