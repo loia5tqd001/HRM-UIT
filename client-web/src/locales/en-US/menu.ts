@@ -1,4 +1,7 @@
 export default {
+  'menu.message': 'Message',
+  'menu.message.history': 'History',
+  'menu.message.people': 'People',
   'menu.admin': 'Admin',
   'menu.admin.permission': 'Permission',
   'menu.admin.user': 'User',

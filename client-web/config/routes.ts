@@ -16,6 +16,29 @@
     ],
   },
   {
+    path: '/message',
+    name: 'message',
+    icon: 'message',
+    routes: [
+      {
+        path: '/message/history',
+        name: 'history',
+        icon: 'comment',
+        component: './Message/History',
+      },
+      {
+        path: '/message/people',
+        name: 'people',
+        icon: 'contacts',
+        component: './Message/People',
+      },
+      {
+        path: '/message',
+        redirect: '/message/history',
+      },
+    ],
+  },
+  {
     path: '/account',
     name: 'account',
     icon: 'user',
@@ -226,7 +249,7 @@
   {
     path: '/attendance',
     name: 'attendance',
-    icon: 'table',
+    icon: 'schedule',
     // access: 'canAdmin',
     routes: [
       {

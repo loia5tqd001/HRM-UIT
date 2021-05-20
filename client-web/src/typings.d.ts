@@ -1,3 +1,4 @@
+
 declare module 'slash2';
 declare module '*.css';
 declare module '*.less';
@@ -21,14 +22,14 @@ type GAFieldsObject = {
   nonInteraction?: boolean;
 };
 
-type Window = {
+interface Window {
   ga: (
     command: 'send',
     hitType: 'event' | 'pageview',
     fieldsObject: GAFieldsObject | string,
   ) => void;
   reloadAuthorized: () => void;
-};
+}
 
 declare let ga: () => void;
 

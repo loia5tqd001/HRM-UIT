@@ -1,4 +1,7 @@
 export default {
+  'menu.message': 'Tin nhắn',
+  'menu.message.history': 'Lịch sử',
+  'menu.message.people': 'Mọi người',
   'menu.admin': 'Quản trị',
   'menu.admin.permission': 'Phân quyền',
   'menu.admin.user': 'Tài khoản',
