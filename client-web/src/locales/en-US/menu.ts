@@ -52,9 +52,9 @@ export default {
   'menu.payroll': 'Payroll',
   'menu.payroll.template': 'Template',
   'menu.payroll.payrolls': 'Payrolls',
-  'menu.configuration': 'Configuration',
-  'menu.configuration.cycle': 'Cycle',
   'menu.payroll.report': 'Report',
+  'menu.payroll.configuration': 'Configuration',
+  'menu.payroll.configuration.cycle': 'Cycle',
 
   'menu.welcome': 'Welcome',
   'menu.more-blocks': 'More Blocks',

@@ -16,6 +16,23 @@
     ],
   },
   {
+    path: '/account',
+    name: 'account',
+    icon: 'user',
+    routes: [
+      {
+        path: '/account/profile',
+        name: 'profile',
+        icon: 'user',
+        component: './Account/Profile',
+      },
+      {
+        path: '/account',
+        redirect: '/account/profile',
+      },
+    ],
+  },
+  {
     path: '/message',
     name: 'message',
     icon: 'message',
@@ -35,23 +52,6 @@
       {
         path: '/message',
         redirect: '/message/history',
-      },
-    ],
-  },
-  {
-    path: '/account',
-    name: 'account',
-    icon: 'user',
-    routes: [
-      {
-        path: '/account/profile',
-        name: 'profile',
-        icon: 'user',
-        component: './Account/Profile',
-      },
-      {
-        path: '/account',
-        redirect: '/account/profile',
       },
     ],
   },
@@ -331,6 +331,22 @@
         component: './Payroll/Payrolls/Detail',
         hideInMenu: true,
       },
+      {
+        path: '/payroll/configuration',
+        name: 'configuration',
+        icon: 'setting',
+        routes: [
+          {
+            path: '/payroll/configuration/cycle',
+            name: 'cycle',
+            component: './Payroll/Configuration/Cycle',
+          },
+          {
+            path: '/payroll/configuration',
+            redirect: '/payroll/configuration/cycle',
+          },
+        ],
+      },
       // {
       //   path: '/payroll/report',
       //   name: '__report',
@@ -338,23 +354,6 @@
       //   component: './Welcome',
       // },
       { path: '/payroll', redirect: '/payroll/template' },
-    ],
-  },
-  {
-    path: '/configuration',
-    name: 'configuration',
-    icon: 'setting',
-    routes: [
-      {
-        path: '/configuration/cycle',
-        name: 'cycle',
-        icon: 'history',
-        component: './Configuration/Cycle',
-      },
-      {
-        path: '/configuration',
-        redirect: '/configuration/cycle',
-      },
     ],
   },
   {

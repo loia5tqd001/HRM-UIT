@@ -52,9 +52,9 @@ export default {
   'menu.payroll': 'Tính lương',
   'menu.payroll.template': 'Mẫu lương',
   'menu.payroll.payrolls': 'Bảng lương',
-  'menu.configuration': 'Tuỳ chỉnh',
-  'menu.configuration.cycle': 'Chu kỳ',
   'menu.payroll.report': 'Báo cáo',
+  'menu.payroll.configuration': 'Tuỳ chỉnh',
+  'menu.payroll.configuration.cycle': 'Chu kỳ',
 
   'menu.welcome': 'Welcome',
   'menu.more-blocks': 'More Blocks',
