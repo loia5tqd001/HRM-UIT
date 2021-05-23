@@ -44,6 +44,11 @@
         component: './Message/Conversation',
       },
       {
+        path: '/message/conversation/:id',
+        icon: 'comment',
+        component: './Message/Conversation',
+      },
+      {
         path: '/message/people',
         name: 'people',
         icon: 'contacts',

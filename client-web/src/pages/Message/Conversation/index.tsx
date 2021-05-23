@@ -1,13 +1,8 @@
-import { EmployeeLeftPanel } from '@/components/EmployeeLeftPanel';
-import { EmployeeTabs } from '@/components/EmployeeTabs';
 import { readEmployee } from '@/services/employee';
-import styles from '@/styles/employee_detail.less';
-import { useAsyncData } from '@/utils/hooks/useAsyncData';
-import { GridContent, PageContainer } from '@ant-design/pro-layout';
-import React, { useEffect, useReducer, useRef } from 'react';
-import { useModel } from 'umi';
+import { PageContainer } from '@ant-design/pro-layout';
+import React, { useEffect, useRef } from 'react';
 import Talk from 'talkjs';
-import InboxPageContainer from './InboxPageContainer';
+import { useModel, useParams } from 'umi';
 
 declare global {
   interface Window {
@@ -15,63 +10,56 @@ declare global {
   }
 }
 
+const employeeToUser = (employee: API.Employee): Talk.User => {
+  return new Talk.User({
+    id: employee.id,
+    name: `${employee.first_name} ${employee.last_name}`,
+    email: employee.email,
+    photoUrl: employee.avatar,
+  });
+};
+
+const appId = 't6rbhbrZ';
+
+type ParamType = {
+  id: string | undefined;
+};
+
 export const Edit: React.FC = () => {
-  const { initialState, refresh } = useModel('@@initialState');
-  const id = initialState?.currentUser?.id;
-  const record = useAsyncData<API.Employee>(() => readEmployee(id!));
-  const talkjsContainerRef = useRef<any>();
-
-  const [, rerender] = useReducer((x) => ++x, 0);
-
-  const isActive = record.data?.status !== 'Terminated';
+  const { initialState } = useModel('@@initialState');
+  const { id } = useParams<ParamType>();
+  const talkjsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    refresh();
-  }, [record.data, refresh]);
-
-  useEffect(() => {
-    const currentUser = initialState?.currentUser;
-    console.log('>  ~ file: index.tsx ~ line 34 ~ currentUser', JSON.stringify(currentUser))
+    const { currentUser } = initialState!;
     let inbox: Talk.Inbox;
-    if (!currentUser || !talkjsContainerRef.current) return;
-    Talk.ready.then(() => {
-      const me = new Talk.User({
-        id: currentUser.id,
-        name: `${currentUser.first_name} ${currentUser.last_name}`,
-        email: currentUser.email,
-        photoUrl: currentUser.avatar,
-        welcomeMessage: 'Hey there! How are you? :-)',
-      });
-      window.talkSession = new Talk.Session({
-        appId: 't6rbhbrZ',
-        me,
-      });
-      const other = new Talk.User({
-        id: '123456',
-        name: 'Sebastian',
-        email: 'Sebastian@example.com',
-        photoUrl: 'https://demo.talkjs.com/img/sebastian.jpg',
-        welcomeMessage: 'Hey, how can I help?',
-      });
-      const conversation = window.talkSession.getOrCreateConversation(Talk.oneOnOneId(me, other));
-      conversation.setParticipant(me);
-      conversation.setParticipant(other);
-      inbox = window.talkSession.createInbox({ selected: conversation });
-      console.log('>  ~ file: index.tsx ~ line 57 ~ inbox', inbox, talkjsContainerRef.current);
-      inbox.mount(talkjsContainerRef.current).then(rerender);
+    if (!currentUser || !talkjsContainerRef.current) return undefined;
+
+    Talk.ready.then(async () => {
+      const me = employeeToUser(currentUser);
+      window.talkSession = new Talk.Session({ appId, me });
+      if (id === undefined) {
+        // me without other => most recent message first
+        inbox = window.talkSession.createInbox();
+      } else {
+        // me with an other => select other
+        const other = employeeToUser(await readEmployee(Number(id)));
+        const conversation = window.talkSession.getOrCreateConversation(Talk.oneOnOneId(me, other));
+        conversation.setParticipant(me);
+        conversation.setParticipant(other);
+        inbox = window.talkSession.createInbox({ selected: conversation });
+      }
+      inbox.mount(talkjsContainerRef.current);
     });
 
-    // return () => {
-    //   inbox?.destroy();
-    // };
-  }, [initialState?.currentUser]);
+    return () => {
+      inbox?.destroy();
+    };
+  }, [id, initialState]);
 
   return (
-    <PageContainer loading={!id}>
-      <div style={{ height: 500 }}>
-        <div style={{ height: 500 }} ref={talkjsContainerRef}></div>
-        {/* <InboxPageContainer /> */}
-      </div>
+    <PageContainer loading={false}>
+      <div style={{ width: '80vw', height: 500 }} ref={talkjsContainerRef}></div>
     </PageContainer>
   );
 };
