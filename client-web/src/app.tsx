@@ -1,9 +1,9 @@
 import Footer from '@/components/Footer';
 import RightContent from '@/components/RightContent';
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
+import { SettingDrawer } from '@ant-design/pro-layout';
 import { PageLoading } from '@ant-design/pro-layout';
 import merge from 'lodash/merge';
-import React from 'react';
 import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
 import { getIntl, history, request as requestUmi } from 'umi';
 import type { RequestInterceptor, RequestOptionsInit, ResponseError } from 'umi-request';
@@ -49,7 +49,7 @@ export async function getInitialState(): Promise<{
 }
 
 // https://umijs.org/zh-CN/plugins/plugin-layout
-export const layout: RunTimeLayoutConfig = ({ initialState }) => {
+export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
@@ -69,6 +69,22 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
+    childrenRender: (dom) => {
+      return (
+        <>
+          {dom}
+          <SettingDrawer
+            settings={initialState?.settings}
+            onSettingChange={(nextSettings) =>
+              setInitialState({
+                ...initialState,
+                settings: nextSettings,
+              })
+            }
+          />
+        </>
+      );
+    },
     ...initialState?.settings,
   };
 };
