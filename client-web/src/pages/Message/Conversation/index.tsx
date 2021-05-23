@@ -1,5 +1,6 @@
 import { readEmployee } from '@/services/employee';
 import { PageContainer } from '@ant-design/pro-layout';
+import { Card } from 'antd';
 import React, { useEffect, useRef } from 'react';
 import Talk from 'talkjs';
 import { useModel, useParams } from 'umi';
@@ -58,8 +59,12 @@ export const Edit: React.FC = () => {
   }, [id, initialState]);
 
   return (
-    <PageContainer loading={false}>
-      <div style={{ width: '80vw', height: 500 }} ref={talkjsContainerRef}></div>
+    <PageContainer title={false}>
+      <Card style={{ height: 'calc(100vh - 200px)' }}>
+        <div style={{ width: '80vw', height: 500 }} ref={talkjsContainerRef}>
+          Loading...
+        </div>
+      </Card>
     </PageContainer>
   );
 };
