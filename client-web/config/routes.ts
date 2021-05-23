@@ -38,10 +38,10 @@
     icon: 'message',
     routes: [
       {
-        path: '/message/history',
-        name: 'history',
+        path: '/message/conversation',
+        name: 'conversation',
         icon: 'comment',
-        component: './Message/History',
+        component: './Message/Conversation',
       },
       {
         path: '/message/people',
@@ -51,7 +51,7 @@
       },
       {
         path: '/message',
-        redirect: '/message/history',
+        redirect: '/message/conversation',
       },
     ],
   },

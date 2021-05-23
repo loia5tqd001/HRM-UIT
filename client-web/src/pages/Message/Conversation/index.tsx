@@ -4,9 +4,10 @@ import { readEmployee } from '@/services/employee';
 import styles from '@/styles/employee_detail.less';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import { useModel } from 'umi';
 import Talk from 'talkjs';
+import InboxPageContainer from './InboxPageContainer';
 
 declare global {
   interface Window {
@@ -20,6 +21,8 @@ export const Edit: React.FC = () => {
   const record = useAsyncData<API.Employee>(() => readEmployee(id!));
   const talkjsContainerRef = useRef<any>();
 
+  const [, rerender] = useReducer((x) => ++x, 0);
+
   const isActive = record.data?.status !== 'Terminated';
 
   useEffect(() => {
@@ -28,12 +31,13 @@ export const Edit: React.FC = () => {
 
   useEffect(() => {
     const currentUser = initialState?.currentUser;
+    console.log('>  ~ file: index.tsx ~ line 34 ~ currentUser', JSON.stringify(currentUser))
     let inbox: Talk.Inbox;
-    if (!currentUser) return;
+    if (!currentUser || !talkjsContainerRef.current) return;
     Talk.ready.then(() => {
       const me = new Talk.User({
         id: currentUser.id,
-        name: currentUser.first_name,
+        name: `${currentUser.first_name} ${currentUser.last_name}`,
         email: currentUser.email,
         photoUrl: currentUser.avatar,
         welcomeMessage: 'Hey there! How are you? :-)',
@@ -43,7 +47,7 @@ export const Edit: React.FC = () => {
         me,
       });
       const other = new Talk.User({
-        id: '654321',
+        id: '123456',
         name: 'Sebastian',
         email: 'Sebastian@example.com',
         photoUrl: 'https://demo.talkjs.com/img/sebastian.jpg',
@@ -53,40 +57,21 @@ export const Edit: React.FC = () => {
       conversation.setParticipant(me);
       conversation.setParticipant(other);
       inbox = window.talkSession.createInbox({ selected: conversation });
-      inbox.mount(talkjsContainerRef.current);
+      console.log('>  ~ file: index.tsx ~ line 57 ~ inbox', inbox, talkjsContainerRef.current);
+      inbox.mount(talkjsContainerRef.current).then(rerender);
     });
 
-    return () => {
-      inbox?.destroy();
-    };
+    // return () => {
+    //   inbox?.destroy();
+    // };
   }, [initialState?.currentUser]);
 
   return (
-    <PageContainer title="Profile" loading={!id}>
-      <div ref={talkjsContainerRef}></div>
-      <GridContent>
-        <div className={styles.layout}>
-          <EmployeeLeftPanel
-            employee={record.data}
-            setEmployee={record.setData}
-            type="account-profile"
-          />
-          <EmployeeTabs
-            employeeId={id!}
-            isActive={isActive}
-            onChange={{
-              status: (newStatus) => {
-                if (!record.data) return;
-                record.setData({ ...record.data, status: newStatus });
-              },
-              basicInfo: (newInfo) => {
-                if (!record.data) return;
-                record.setData({ ...record.data, ...newInfo, user: record.data.user });
-              },
-            }}
-          />
-        </div>
-      </GridContent>
+    <PageContainer loading={!id}>
+      <div style={{ height: 500 }}>
+        <div style={{ height: 500 }} ref={talkjsContainerRef}></div>
+        {/* <InboxPageContainer /> */}
+      </div>
     </PageContainer>
   );
 };

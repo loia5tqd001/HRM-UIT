@@ -1,6 +1,6 @@
 export default {
   'menu.message': 'Tin nhắn',
-  'menu.message.history': 'Lịch sử',
+  'menu.message.conversation': 'Hội thoại',
   'menu.message.people': 'Mọi người',
   'menu.admin': 'Quản trị',
   'menu.admin.permission': 'Phân quyền',
