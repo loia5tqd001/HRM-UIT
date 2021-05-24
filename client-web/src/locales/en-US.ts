@@ -8,7 +8,7 @@ import pages from './en-US/pages';
 import error from './en-US/error';
 
 export default {
-  'app.title': 'HRM',
+  'app.title': '—HRM→',
   'navBar.lang': 'Languages',
   'layout.user.link.help': 'Help',
   'layout.user.link.privacy': 'Privacy',

@@ -14,7 +14,7 @@ export const Edit: React.FC = () => {
   const isActive = record.data?.status !== 'Terminated';
 
   return (
-    <PageContainer title="Edit employee" loading={record.isLoading}>
+    <PageContainer title={false} loading={record.isLoading}>
       <GridContent>
         <div className={styles.layout}>
           <EmployeeLeftPanel

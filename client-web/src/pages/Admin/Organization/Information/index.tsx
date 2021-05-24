@@ -4,7 +4,7 @@ import React from 'react';
 
 export const Information: React.FC = () => {
   return (
-    <PageContainer>
+    <PageContainer title={false}>
       <Form>
         <Form.Item></Form.Item>
         <Form.Item></Form.Item>

@@ -12,7 +12,7 @@ export const GeneralInformation: React.FC<Props> = (props) => {
 
   return (
     <div style={{ display: 'grid', gap: 24 }}>
-      <Card title="Information" loading={!payrollTemplate}>
+      <Card title={payrollTemplate?.name} loading={!payrollTemplate}>
         <ProForm
           submitter={{
             searchConfig: {

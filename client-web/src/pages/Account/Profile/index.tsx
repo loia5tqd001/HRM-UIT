@@ -19,7 +19,7 @@ export const Edit: React.FC = () => {
   }, [record.data, refresh]);
 
   return (
-    <PageContainer title="Profile" loading={!id}>
+    <PageContainer title={false} loading={!id}>
       <GridContent>
         <div className={styles.layout}>
           <EmployeeLeftPanel

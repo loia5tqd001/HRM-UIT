@@ -4,14 +4,14 @@ const Settings: LayoutSettings & {
   pwa?: boolean;
   logo?: string;
 } = {
-  navTheme: 'light',
+  navTheme: 'dark',
   primaryColor: '#2F54EB',
-  layout: 'mix',
-  contentWidth: 'Fluid',
+  layout: 'top',
+  contentWidth: 'Fixed',
   fixedHeader: true,
   fixSiderbar: true,
   colorWeak: false,
-  title: false,
+  title: 'HRM',
   pwa: true,
   logo: '/logo-uit__white.svg',
   iconfontUrl: '',
@@ -19,7 +19,7 @@ const Settings: LayoutSettings & {
     locale: true,
   },
   headerHeight: 48,
-  splitMenus: true,
+  splitMenus: false,
   footerRender: false,
 };
 

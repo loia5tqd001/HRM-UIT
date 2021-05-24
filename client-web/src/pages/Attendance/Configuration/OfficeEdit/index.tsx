@@ -75,7 +75,7 @@ export const OfficeEdit: React.FC = () => {
   }, [accurateAddress, form]);
 
   useEffect(() => {
-    if (officeInit || !office || !mapRef) return;
+    if (officeInit || !office || !mapRef) return undefined;
     const { lat, lng } = office;
     setCenter({ lat, lng });
     setAccurateAddress({
@@ -118,8 +118,8 @@ export const OfficeEdit: React.FC = () => {
   // }
 
   return (
-    <PageContainer title={office?.name}>
-      <Card style={{ height: '100%' }} loading={!officeReady}>
+    <PageContainer title={false}>
+      <Card style={{ height: '100%' }} title={office?.name} loading={!officeReady}>
         <ProForm
           form={form}
           initialValues={office}
@@ -177,7 +177,7 @@ export const OfficeEdit: React.FC = () => {
                         minHeight: '32px',
                         height: '32px',
                         boxShadow: state.isFocused ? null : null,
-                        borderRadius: 2,
+                        borderRadius: 5,
                       }),
                       valueContainer: (provided: any) => ({
                         ...provided,

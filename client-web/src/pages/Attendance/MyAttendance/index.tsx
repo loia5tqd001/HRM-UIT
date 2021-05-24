@@ -6,7 +6,7 @@ import {
   editActual,
   editOvertime,
   getSchedule,
-  readAttendances
+  readAttendances,
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { formatDurationHm } from '@/utils/utils';
@@ -15,7 +15,7 @@ import {
   EnvironmentOutlined,
   HistoryOutlined,
   LockOutlined,
-  MessageOutlined
+  MessageOutlined,
 } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -31,7 +31,7 @@ import {
   Space,
   Tag,
   TimePicker,
-  Tooltip
+  Tooltip,
 } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
@@ -122,7 +122,7 @@ const MyAttendance: React.FC = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
-  
+
         const [location, locations] = await Promise.all([
           allJobs(id).then((it) => it?.[0]?.location),
           allLocations(),
@@ -145,7 +145,7 @@ const MyAttendance: React.FC = () => {
         });
       });
     }
-  }, [id])
+  }, [id]);
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -409,7 +409,9 @@ const MyAttendance: React.FC = () => {
         request={async () => {
           const fetchData = await readAttendances(id);
           // Handle for today data
-          const todayData = fetchData.reverse().find((it) => moment(it.date).isSame(moment(), 'day'));
+          const todayData = fetchData
+            .reverse()
+            .find((it) => moment(it.date).isSame(moment(), 'day'));
           if (todayData) {
             if (todayData.tracking_data.length) {
               // Handle for: firstClock, lastClockOut, lastAction, nextStep

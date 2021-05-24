@@ -112,7 +112,7 @@ export const TerminationReason: React.FC = () => {
   };
 
   return (
-    <PageContainer>
+    <PageContainer title={false}>
       <ProTable<RecordType>
         headerTitle={intl.formatMessage({
           id: 'pages.admin.job.terminationReason.list.title',

@@ -39,7 +39,7 @@ export const List: React.FC = () => {
 
   return (
     <PageContainer
-      title={payrollTemplate?.name}
+      title={false}
       tabList={[
         {
           tab: 'General Information',

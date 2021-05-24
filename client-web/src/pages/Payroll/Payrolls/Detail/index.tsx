@@ -58,11 +58,11 @@ export const PayrollDetail: React.FC = () => {
   ];
 
   return (
-    <PageContainer title={payroll?.name}>
+    <PageContainer title={false}>
       <div style={{ display: 'grid', gap: 24 }}>
         <Affix offsetTop={50}>
           <Card
-            title="Payslips"
+            title={`Payslips of ${payroll?.name}`}
             style={{ minHeight: '50vh', height: '100%' }}
             extra={
               <Space>
