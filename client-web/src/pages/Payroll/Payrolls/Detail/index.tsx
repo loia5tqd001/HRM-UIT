@@ -62,6 +62,7 @@ export const PayrollDetail: React.FC = () => {
       <div style={{ display: 'grid', gap: 24 }}>
         <Affix offsetTop={50}>
           <Card
+            className="card-shadow"
             title={`Payslips of ${payroll?.name}`}
             style={{ minHeight: '50vh', height: '100%' }}
             extra={

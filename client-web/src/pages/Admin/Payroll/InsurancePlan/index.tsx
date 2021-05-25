@@ -118,6 +118,7 @@ export const InsurancePlan: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle={'Insurance Plans'}
         actionRef={actionRef}
         rowKey="id"

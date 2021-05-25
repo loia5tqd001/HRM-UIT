@@ -202,6 +202,7 @@ const EmployeeList: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
+        className="card-shadow"
         headerTitle={intl.formatMessage({
           id: 'pages.employee.list.table.title',
           defaultMessage: 'Employees',

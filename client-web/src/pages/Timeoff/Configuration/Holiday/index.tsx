@@ -126,6 +126,7 @@ export const Holiday: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle="Holidays"
         actionRef={actionRef}
         rowKey="id"

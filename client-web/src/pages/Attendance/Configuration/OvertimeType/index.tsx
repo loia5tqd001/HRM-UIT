@@ -99,6 +99,7 @@ export const OvertimeType: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle="Overtime types"
         actionRef={actionRef}
         rowKey="id"

@@ -60,6 +60,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
       <Card
         loading={payroll.isLoading || taxPlans.isLoading || insurancePlans.isLoading}
         title="Payroll info"
+        className="card-shadow"
       >
         <ProForm<API.EmployeePayroll>
           onFinish={async (value) => {
@@ -159,6 +160,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
         }))}
         search={false}
         style={{ width: '100%' }}
+        className="card-shadow"
       />
       <ModalForm
         width="400px"

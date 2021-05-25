@@ -3,16 +3,19 @@ import React from 'react';
 import LeftPanel from './LeftPanel';
 import { RightPanel } from './RightPanel';
 import { CrudModal } from './components/CrudModal';
+import { PageContainer } from '@ant-design/pro-layout';
 
 const Permission: React.FC = () => {
   return (
-    <ProCard split="vertical" style={{ height: '100%' }}>
-      <ProCard colSpan="380px" ghost>
-        <LeftPanel />
+    <PageContainer title={false}>
+      <ProCard split="vertical" style={{ height: '100%' }} className="card-shadow">
+        <ProCard colSpan="380px" ghost>
+          <LeftPanel />
+        </ProCard>
+        <RightPanel />
+        <CrudModal />
       </ProCard>
-      <RightPanel />
-      <CrudModal />
-    </ProCard>
+    </PageContainer>
   );
 };
 

@@ -56,6 +56,7 @@ export const Office: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle={intl.formatMessage({
           id: 'pages.admin.organization.office.list.title',
           defaultMessage: 'Offices',

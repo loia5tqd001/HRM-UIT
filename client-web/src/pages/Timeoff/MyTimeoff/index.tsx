@@ -198,6 +198,7 @@ export const Timeoff: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle="My requests"
         actionRef={actionRef}
         rowKey="id"

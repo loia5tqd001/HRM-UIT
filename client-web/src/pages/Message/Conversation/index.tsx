@@ -60,7 +60,7 @@ export const Edit: React.FC = () => {
 
   return (
     <PageContainer title={false}>
-      <Card style={{ height: 'calc(100vh - 200px)' }}>
+      <Card style={{ height: 'calc(100vh - 200px)' }} className="card-shadow">
         <div style={{ width: '100%', height: 500 }} ref={talkjsContainerRef}>
           Loading...
         </div>

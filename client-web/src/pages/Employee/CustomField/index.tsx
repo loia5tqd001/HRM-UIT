@@ -134,15 +134,14 @@ export const CustomField: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle={intl.formatMessage({
           id: 'pages.admin.customField.list.title',
           defaultMessage: 'Job Titles',
         })}
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
+        search={false}
         toolBarRender={() => [
           <Button
             type="primary"

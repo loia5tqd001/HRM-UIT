@@ -119,7 +119,12 @@ export const OfficeEdit: React.FC = () => {
 
   return (
     <PageContainer title={false}>
-      <Card style={{ height: '100%' }} title={office?.name} loading={!officeReady}>
+      <Card
+        style={{ height: '100%' }}
+        title={office?.name}
+        loading={!officeReady}
+        className="card-shadow"
+      >
         <ProForm
           form={form}
           initialValues={office}

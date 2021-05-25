@@ -112,6 +112,7 @@ export const Payroll: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle={intl.formatMessage({
           id: 'pages.admin.job.jobTitle.list.title',
           defaultMessage: 'Payrolls',

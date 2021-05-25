@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { calculateAllExpandedRowKeys } from './utils';
+import { PageContainer } from '@ant-design/pro-layout';
 
 export const OrganziationStructure: React.FC = () => {
   const [expandedRowKeys, setExpandedRowKeys] = React.useState<number[]>([]);
@@ -181,8 +182,9 @@ export const OrganziationStructure: React.FC = () => {
   }, [dataSource]);
 
   return (
-    <>
+    <PageContainer title={false}>
       <ProTable<API.DepartmentUnit>
+        className="card-shadow"
         columns={columns}
         dataSource={dataSource}
         loading={departmentsPending}
@@ -195,7 +197,7 @@ export const OrganziationStructure: React.FC = () => {
         // defaultExpandAllRows={true} // doesn't work for async data
       />
       <CrudModal />
-    </>
+    </PageContainer>
   );
 };
 

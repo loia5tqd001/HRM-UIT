@@ -276,6 +276,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
       <div style={{ display: 'grid', gap: 24 }}>
         {/* <Button onClick={() => setVisible(!visible)}>Toggle</Button> */}
         <Card
+          className="card-shadow"
           title={payrollTemplate?.name}
           style={{ minHeight: '50vh', height: '100%' }}
           extra={

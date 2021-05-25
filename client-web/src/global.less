@@ -6,6 +6,30 @@ body,
   height: 100%;
 }
 
+@track-color: transparent;
+@thumb-color: rgba(0,0,0,0.2);
+@scrollbar-size: 7px;
+	/* Currently there is no cross-platform support for custom css scrollbar */
+* {
+  /* Firefox */
+  /* https://stackoverflow.com/a/54101063/9449426 */
+  scrollbar-width: @scrollbar-size;
+  scrollbar-color: @track-color @thumb-color;
+  /* Chromium */
+  /* https://stackoverflow.com/a/53739309/9449426 */
+  ::-webkit-scrollbar {
+    width: @scrollbar-size;
+    height: @scrollbar-size;
+  }
+  ::-webkit-scrollbar-track-piece  {
+    background-color: @track-color;
+  }
+  ::-webkit-scrollbar-thumb:vertical,
+  ::-webkit-scrollbar-thumb:horizontal {
+    background-color: @thumb-color;
+  }
+}
+
 .colorWeak {
   filter: invert(80%);
 }
@@ -14,8 +38,48 @@ body,
   min-height: 100vh;
 }
 
+// layout:top, theme:dark, the current style is too subtle, we need this to make it more apparent
 .ant-menu-dark .ant-menu-submenu-horizontal.ant-menu-submenu-selected {
-  background: #2F54EBEE;
+  color: @white;
+  background: fade(@primary-color, 95);
+}
+
+// layout:top, theme:dark, the current menu color stuff only applys for text BUT NOT THE ICONS, we apply it for the icon as well
+.ant-pro-top-nav-header .ant-menu .anticon {
+  color: inherit;
+}
+
+// Change color for the app.title
+// #logo h1 {
+//   color: @text-color-secondary-dark;
+//   transition: @animation-duration-base;
+//   &:hover {
+//     color: @white;
+//   }
+// }
+
+// Custom shadow for Cards
+@custom-subtle-shadow: rgba(149, 157, 165, 0.15) 0px 8px 24px;
+// the mixin
+.card-shadow() {
+  border-radius: @border-radius-base;
+  box-shadow: @custom-subtle-shadow;
+}
+// Every card with the shadow should have class .card-shadow
+.card-shadow {
+  &.ant-card,
+  &.ant-pro-card,
+  &.ant-pro-table > .ant-card,
+  &.ant-pro-table > .ant-pro-table-search-query-filter {
+    .card-shadow();
+  }
+}
+// breadcrumb should have the shadow as well
+.ant-pro-page-container-warp {
+  box-shadow: @custom-subtle-shadow;
+}
+.ant-pro-core-field-dropdown-overlay {
+  border-radius: @border-radius-base;
 }
 
 canvas {

@@ -114,6 +114,7 @@ export const TerminationReason: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle={intl.formatMessage({
           id: 'pages.admin.job.terminationReason.list.title',
           defaultMessage: 'Termination Reasons',

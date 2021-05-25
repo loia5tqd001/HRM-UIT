@@ -27,7 +27,7 @@ export const EmployeeTabs: React.FC<EmployeeTabProps> = (props) => {
 
   return (
     <div className={styles.right}>
-      <Card>
+      <Card className="card-shadow">
         <Radio.Group
           value={tab}
           onChange={(e) => {

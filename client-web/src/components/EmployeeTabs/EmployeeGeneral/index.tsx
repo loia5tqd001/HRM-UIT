@@ -35,7 +35,7 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
 
   return (
     <>
-      <Card loading={basicInfo.isLoading} title="Basic info">
+      <Card loading={basicInfo.isLoading} title="Basic info" className="card-shadow">
         <ProForm<API.Employee>
           name="basic_info"
           onFinish={async (value) => {
@@ -174,7 +174,7 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
           </ProForm.Group>
         </ProForm>
       </Card>
-      <Card loading={homeAddress.isLoading} title="Home address">
+      <Card loading={homeAddress.isLoading} title="Home address" className="card-shadow">
         <ProForm<API.EmployeeHomeAddress>
           onFinish={async (value) => {
             try {
@@ -228,7 +228,7 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
           </ProForm.Group>
         </ProForm>
       </Card>
-      <Card loading={emergencyContact.isLoading} title="Emergency contact">
+      <Card loading={emergencyContact.isLoading} title="Emergency contact" className="card-shadow">
         <ProForm<API.EmployeeEmergencyContact>
           onFinish={async (value) => {
             try {
@@ -296,7 +296,7 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
           </ProForm.Group>
         </ProForm>
       </Card>
-      <Card loading={bankInfo.isLoading} title="Bank info">
+      <Card loading={bankInfo.isLoading} title="Bank info" className="card-shadow">
         <ProForm<API.EmployeeBankInfo>
           onFinish={async (value) => {
             try {

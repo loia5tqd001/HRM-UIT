@@ -39,9 +39,14 @@ export default defineConfig({
   theme: {
     'primary-color': defaultSettings.primaryColor,
     'border-radius-base': '5px',
-    'box-shadow-base':
-      '0 3px 12px -8px rgba(0, 0, 0, 0.18), 0 6px 32px 0 rgba(0, 0, 0, 0.12), 0 9px 56px 16px rgba(0, 0, 0, 0.08)',
+    // 'box-shadow-base':
+    //   '0 3px 12px -8px rgba(0, 0, 0, 0.12), 0 6px 32px 0 rgba(0, 0, 0, 0.8), 0 9px 56px 16px rgba(0, 0, 0, 0.06)',
+    // 'card-shadow':
+    //   '0 2px 8px -2px rgba(0, 0, 0, 0.24), 0 6px 24px 0 rgba(0, 0, 0, 0.18), 0 10px 48px 4px rgba(0, 0, 0, 0.15)',
     'screen-xl': '1440px',
+    'layout-header-background': '#243049',
+    'menu-dark-inline-submenu-bg': '#1E2B45',
+    'text-color-secondary-dark': 'rgba(255, 255, 255, 0.75)',
   },
   // esbuild is father build tools
   // https://umijs.org/plugins/plugin-esbuild

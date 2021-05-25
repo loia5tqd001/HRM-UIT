@@ -182,15 +182,14 @@ export const Location: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle={intl.formatMessage({
           id: 'pages.admin.organization.location.list.title',
           defaultMessage: 'Locations',
         })}
         actionRef={actionRef}
         rowKey="id"
-        search={{
-          labelWidth: 120,
-        }}
+        search={false}
         toolBarRender={() => [
           <Button
             type="primary"

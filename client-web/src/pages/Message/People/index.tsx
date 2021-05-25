@@ -19,6 +19,7 @@ function UserListPage() {
         search={{
           filterType: 'light',
         }}
+        className="card-shadow"
         rowKey="id"
         headerTitle="People"
         request={async () => {
@@ -46,7 +47,7 @@ function UserListPage() {
           subTitle: {
             dataIndex: ['user', 'username'],
             render: (dom) => `@${dom}`,
-            title: 'Username'
+            title: 'Username',
           },
         }}
       />

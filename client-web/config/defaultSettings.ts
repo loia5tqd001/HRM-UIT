@@ -5,7 +5,7 @@ const Settings: LayoutSettings & {
   logo?: string;
 } = {
   navTheme: 'dark',
-  primaryColor: '#2F54EB',
+  primaryColor: '#1E60E1',
   layout: 'top',
   contentWidth: 'Fixed',
   fixedHeader: true,
@@ -13,7 +13,7 @@ const Settings: LayoutSettings & {
   colorWeak: false,
   title: 'HRM',
   pwa: true,
-  logo: '/logo-uit__white.svg',
+  logo: '/logo-uit.svg',
   iconfontUrl: '',
   menu: {
     locale: true,

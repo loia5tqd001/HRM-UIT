@@ -177,7 +177,11 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
 
   return (
     <>
-      <Card loading={jobs.isLoading} title={isActive ? 'Job info' : 'Job Terminated'}>
+      <Card
+        loading={jobs.isLoading}
+        title={isActive ? 'Job info' : 'Job Terminated'}
+        className="card-shadow"
+      >
         {isActive ? (
           <ProForm<API.EmployeeJob>
             onFinish={onUpdateJob}
@@ -462,7 +466,11 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
         )}
       </Card>
 
-      <Card loading={schedules === undefined || schedule.isLoading} title={`Work schedule`}>
+      <Card
+        loading={schedules === undefined || schedule.isLoading}
+        title={`Work schedule`}
+        className="card-shadow"
+      >
         <ProForm<API.EmployeeSchedule>
           onFinish={async (value) => {
             try {
@@ -543,6 +551,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
         loading={jobs.isLoading}
         search={false}
         style={{ width: '100%' }}
+        className="card-shadow"
       />
     </>
   );

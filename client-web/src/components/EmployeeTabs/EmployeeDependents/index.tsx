@@ -169,6 +169,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
           id: 'pages.admin.job.Dependent.list.title',
           defaultMessage: 'Dependents',
         })}
+        className="card-shadow"
         actionRef={actionRef}
         scroll={{ x: 'max-content' }}
         rowKey="id"

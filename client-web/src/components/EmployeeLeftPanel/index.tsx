@@ -34,7 +34,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
 
   return (
     <Affix offsetTop={50}>
-      <Card bordered={false} loading={!record}>
+      <Card bordered={false} loading={!record} className="card-shadow">
         <Upload
           disabled={!isActive}
           showUploadList={false}

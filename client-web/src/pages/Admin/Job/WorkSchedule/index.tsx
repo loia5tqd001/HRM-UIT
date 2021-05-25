@@ -328,6 +328,7 @@ export const WorkSchedule: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        className="card-shadow"
         headerTitle={intl.formatMessage({
           id: 'pages.admin.job.workShift.list.title',
           defaultMessage: 'Work schedules',

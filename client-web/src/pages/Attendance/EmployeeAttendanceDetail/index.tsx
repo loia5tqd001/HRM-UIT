@@ -320,6 +320,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
+        className="card-shadow"
         headerTitle={employee && `${employee.first_name} ${employee.last_name}`}
         actionRef={actionRef}
         rowKey="id"

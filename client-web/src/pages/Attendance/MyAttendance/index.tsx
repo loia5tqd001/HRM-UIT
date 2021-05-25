@@ -363,6 +363,7 @@ const MyAttendance: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
+        className="card-shadow"
         headerTitle="My attendance"
         actionRef={actionRef}
         rowKey="id"

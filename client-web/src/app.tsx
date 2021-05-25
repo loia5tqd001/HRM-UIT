@@ -61,7 +61,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         history.push('/user/login');
       }
     },
-    title: getIntl?.()?.formatMessage({
+    title: getIntl().formatMessage({
       id: 'app.title',
       defaultMessage: 'HRM',
     }),
