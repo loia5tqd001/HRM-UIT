@@ -5,15 +5,16 @@ import React from 'react';
 
 type Props = {
   payrollTemplate: API.PayrollTemplate | undefined;
+  setPayrollTemplate: React.Dispatch<React.SetStateAction<API.PayrollTemplate | undefined>>;
 };
 
 export const GeneralInformation: React.FC<Props> = (props) => {
-  const { payrollTemplate } = props;
+  const { payrollTemplate, setPayrollTemplate } = props;
 
   return (
     <div style={{ display: 'grid', gap: 24 }}>
       <Card title={payrollTemplate?.name} loading={!payrollTemplate} className="card-shadow">
-        <ProForm
+        <ProForm<API.PayrollTemplate>
           submitter={{
             searchConfig: {
               submitText: 'Update',
@@ -22,10 +23,12 @@ export const GeneralInformation: React.FC<Props> = (props) => {
           initialValues={payrollTemplate!}
           onFinish={async (value) => {
             try {
-              await updatePayrollTemplate(payrollTemplate!.id, {
+              const final = {
                 ...payrollTemplate,
                 ...value,
-              } as any);
+              };
+              await updatePayrollTemplate(payrollTemplate!.id, final);
+              setPayrollTemplate(final);
               message.success('Updated successfully!');
             } catch {
               message.error('Updated unsuccessfully!');

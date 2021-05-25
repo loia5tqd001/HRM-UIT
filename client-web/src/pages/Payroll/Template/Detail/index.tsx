@@ -22,7 +22,13 @@ export const List: React.FC = () => {
   }, [id]);
 
   const renderContent = (key: string | undefined) => {
-    if (key === 'general') return <GeneralInformation payrollTemplate={payrollTemplate} />;
+    if (key === 'general')
+      return (
+        <GeneralInformation
+          payrollTemplate={payrollTemplate}
+          setPayrollTemplate={setPayrollTemplate}
+        />
+      );
     if (key === 'columns')
       return (
         <PayrollColumns
