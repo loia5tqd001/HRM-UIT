@@ -210,7 +210,7 @@ const EmployeeList: React.FC = () => {
         actionRef={actionRef}
         rowKey="id"
         search={{
-          labelWidth: 120,
+          labelWidth: 150,
         }}
         scroll={{ x: 'max-content' }}
         toolBarRender={() => [

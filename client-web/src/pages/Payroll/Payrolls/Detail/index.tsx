@@ -64,7 +64,7 @@ export const PayrollDetail: React.FC = () => {
           <Card
             className="card-shadow"
             title={`Payslips of ${payroll?.name}`}
-            style={{ minHeight: '50vh', height: '100%' }}
+            style={{ height: '100%' }}
             extra={
               <Space>
                 <div style={{ alignSelf: 'flex-end' }}>
@@ -126,7 +126,7 @@ export const PayrollDetail: React.FC = () => {
               </Space>
             }
           >
-            <div style={{ height: 'calc(100vh - 50px)', overflow: 'auto', margin: '0 12px' }}>
+            <div style={{ overflow: 'auto', margin: '0 12px' }}>
               <Table<any>
                 pagination={false}
                 loading={!tableData}

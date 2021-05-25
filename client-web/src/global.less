@@ -4,6 +4,7 @@ html,
 body,
 #root {
   height: 100%;
+  font-family: Quicksand, @font-family;
 }
 
 @track-color: transparent;
@@ -59,7 +60,8 @@ body,
 // }
 
 // Custom shadow for Cards
-@custom-subtle-shadow: rgba(149, 157, 165, 0.15) 0px 8px 24px;
+// source: https://getcssscan.com/css-box-shadow-examples #7
+@custom-subtle-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 // the mixin
 .card-shadow() {
   border-radius: @border-radius-base;
