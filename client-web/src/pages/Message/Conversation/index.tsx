@@ -1,6 +1,6 @@
 import { readEmployee } from '@/services/employee';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Card } from 'antd';
+import { Card, Spin } from 'antd';
 import React, { useEffect, useRef } from 'react';
 import Talk from 'talkjs';
 import { useModel, useParams } from 'umi';
@@ -60,9 +60,11 @@ export const Edit: React.FC = () => {
 
   return (
     <PageContainer title={false}>
-      <Card style={{ height: 'calc(100vh - 200px)' }} className="card-shadow">
-        <div style={{ width: '100%', height: 500 }} ref={talkjsContainerRef}>
-          Loading...
+      <Card style={{  }} className="card-shadow">
+        <div style={{ width: '100%', height: 'calc(100vh - 300px)' }} ref={talkjsContainerRef}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Spin />
+          </div>
         </div>
       </Card>
     </PageContainer>

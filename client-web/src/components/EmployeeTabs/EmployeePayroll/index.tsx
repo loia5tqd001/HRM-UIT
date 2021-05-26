@@ -112,7 +112,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
           <ProForm.Group>
             <Form.Item name="salary" label="Salary" rules={[{ required: true }]}>
               <InputNumber
-                style={{ width: 440 }}
+                style={{ width: 328 }}
                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={(value) => Number(value?.replace(/\D+/g, ''))}
                 placeholder="1,000,000"
@@ -122,7 +122,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
             </Form.Item>
             <Form.Item name="basic_salary" label="Basic salary" rules={[{ required: true }]}>
               <InputNumber
-                style={{ width: 440 }}
+                style={{ width: 328 }}
                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={(value) => Number(value?.replace(/\D+/g, ''))}
                 placeholder="1,000,000"
@@ -132,7 +132,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
             </Form.Item>
             <ProFormSelect
               name="tax_policy"
-              width="lg"
+              width="md"
               label="Tax plan"
               options={taxPlans.data?.map((it) => ({ value: it.name, label: it.name }))}
               rules={[{ required: true }]}
@@ -140,7 +140,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
             />
             <ProFormSelect
               name="insurance_policy"
-              width="lg"
+              width="md"
               label="Insurance plan"
               options={insurancePlans.data?.map((it) => ({ value: it.name, label: it.name }))}
               rules={[{ required: true }]}
@@ -150,7 +150,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
         </ProForm>
       </Card>
       <ProTable<API.Payslip>
-        headerTitle="Payroll history"
+        headerTitle="Payslips"
         rowKey="id"
         columns={columns}
         loading={employeePayslips.isLoading || payrolls.isLoading}

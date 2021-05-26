@@ -22,8 +22,18 @@ function UserListPage() {
         className="card-shadow"
         rowKey="id"
         headerTitle="People"
-        request={async () => {
-          const data = await allEmployees();
+        request={async ({ title: fullname, subTitle: username }) => {
+          let data = await allEmployees();
+          if (fullname && typeof fullname === 'string') {
+            data = data.filter((it) =>
+              `${it.first_name} ${it.last_name}`.toLowerCase().includes(fullname.toLowerCase()),
+            );
+          }
+          if (username && typeof username === 'string') {
+            data = data.filter((it) =>
+              it.user.username.toLowerCase().includes(username.toLowerCase()),
+            );
+          }
           return {
             // data: data.filter((it) => it.status === 'Working'),
             data,

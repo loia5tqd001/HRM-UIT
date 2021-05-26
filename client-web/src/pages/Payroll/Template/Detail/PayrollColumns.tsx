@@ -355,7 +355,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                           const codeName = systemFields?.[index].code_name;
                           const codeNameExists = tableData.some((it) => it.code_name === codeName);
                           if (codeNameExists) {
-                            message.error(` already exists`);
+                            message.error(`${codeName} already exists`);
                             return;
                           }
                           setTableData([

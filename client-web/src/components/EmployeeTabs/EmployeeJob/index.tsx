@@ -551,6 +551,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
         loading={jobs.isLoading}
         search={false}
         style={{ width: '100%' }}
+        scroll={{ x: 'max-content' }}
         className="card-shadow"
       />
     </>
