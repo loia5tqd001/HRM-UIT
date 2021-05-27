@@ -4,19 +4,22 @@ import { readEmployee } from '@/services/employee';
 import styles from '@/styles/employee_detail.less';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
+import { isEqual } from 'lodash';
 import React, { useEffect } from 'react';
 import { useModel } from 'umi';
 
 export const Edit: React.FC = () => {
-  const { initialState, refresh } = useModel('@@initialState');
+  const { initialState, setInitialState } = useModel('@@initialState');
   const id = initialState?.currentUser?.id;
   const record = useAsyncData<API.Employee>(() => readEmployee(id!));
 
   const isActive = record.data?.status !== 'Terminated';
 
   useEffect(() => {
-    refresh();
-  }, [record.data, refresh]);
+    if (!isEqual(record.data, initialState?.currentUser)) {
+      setInitialState({ ...initialState, currentUser: record.data });
+    }
+  }, [record.data, initialState, setInitialState]);
 
   return (
     <PageContainer title={false} loading={!id}>
