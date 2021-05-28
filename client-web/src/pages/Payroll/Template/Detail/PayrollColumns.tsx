@@ -1,5 +1,12 @@
 import { allPayrollSystemFields } from '@/services/payroll.template';
-import { CloseOutlined, EyeOutlined, MenuOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
+  EyeOutlined,
+  MenuOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import {
   Affix,
   Button,
@@ -12,6 +19,7 @@ import {
   Select,
   Space,
   Table,
+  Tooltip,
   Typography,
 } from 'antd';
 import arrayMove from 'array-move';
@@ -254,6 +262,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
   const [systemFields, setSystemFields] = useState<API.SystemField[]>();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [tableData, setTableData] = useState<API.PayrollTemplate['fields']>([]);
+  const [isCollapsed, setIsCollapse] = useState(false);
 
   useEffect(() => {
     setTableData(
@@ -274,7 +283,6 @@ export const PayrollColumns: React.FC<Props> = (props) => {
       }}
     >
       <div style={{ display: 'grid', gap: 24 }}>
-        {/* <Button onClick={() => setVisible(!visible)}>Toggle</Button> */}
         <Card
           className="card-shadow"
           title={payrollTemplate?.name}
@@ -317,9 +325,10 @@ export const PayrollColumns: React.FC<Props> = (props) => {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr minmax(300px, auto)',
+                gridTemplateColumns: `1fr ${isCollapsed ? '0' : 'minmax(300px, auto)'}`,
                 margin: '0 12px',
                 gap: 12,
+                overflow: 'hidden',
               }}
             >
               <div style={{ height: 'calc(100vh - 50px)', overflow: 'auto' }}>
@@ -336,6 +345,22 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                 <div
                   style={{ height: 'calc(100vh - 82px)', overflow: 'auto', background: 'white' }}
                 >
+                  <Tooltip
+                    title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}
+                  >
+                    <Button
+                      style={{
+                        position: 'absolute',
+                        zIndex: 2000,
+                        top: 'calc(50% - 100px)',
+                        transform: 'translateX(-50%)',
+                      }}
+                      icon={isCollapsed ? <DoubleLeftOutlined /> : <DoubleRightOutlined />}
+                      onClick={() => {
+                        setIsCollapse(!isCollapsed);
+                      }}
+                    />
+                  </Tooltip>
                   <List
                     itemLayout="horizontal"
                     dataSource={systemFields?.filter(
