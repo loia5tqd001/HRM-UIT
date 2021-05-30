@@ -568,6 +568,7 @@ declare namespace API {
     name: string;
     fields: {
       index: number;
+      datatype: 'Text' | 'Number' | 'Currency';
       type: 'System Field' | 'Input' | 'Formula';
       display_name: string;
       code_name: string;

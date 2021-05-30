@@ -63,13 +63,28 @@ const EditableCell = ({
   if (editable) {
     if (dataIndex === 'type') {
       childNode = (
-        <Form.Item name={dataIndex} style={{ margin: 0 }}>
+        <Form.Item name={dataIndex} style={{ margin: 0, width: 125 }}>
           <Select
             allowClear={false}
             options={[
-              { value: 'System Field', label: 'System Field', disabled: true },
+              { value: 'System Field', label: 'System Field', disabled: true }, // this's disabled because System Field will be selected programmatically, not support manually
               { value: 'Input', label: 'Input' },
               { value: 'Formula', label: 'Formula' },
+            ]}
+            ref={inputRef}
+            onChange={save}
+          />
+        </Form.Item>
+      );
+    } else if (dataIndex === 'datatype') {
+      childNode = (
+        <Form.Item name={dataIndex} style={{ margin: 0, width: 105 }}>
+          <Select
+            allowClear={false}
+            options={[
+              { value: 'Text', label: 'Text' },
+              { value: 'Number', label: 'Number' },
+              { value: 'Currency', label: 'Currency' },
             ]}
             ref={inputRef}
             onChange={save}
@@ -147,7 +162,11 @@ function SortableTable() {
     {
       title: 'Type',
       dataIndex: 'type',
-      className: 'drag-visible',
+      editable: true,
+    },
+    {
+      title: 'Datatype',
+      dataIndex: 'datatype',
       editable: true,
     },
     {
@@ -262,7 +281,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
   const [systemFields, setSystemFields] = useState<API.SystemField[]>();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [tableData, setTableData] = useState<API.PayrollTemplate['fields']>([]);
-  const [isCollapsed, setIsCollapse] = useState(false);
+  const [isCollapsed, setIsCollapse] = useState(true);
 
   useEffect(() => {
     setTableData(
@@ -298,6 +317,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                     ...tableData,
                     {
                       type: 'Formula',
+                      datatype: 'Text',
                       code_name: `formula_${tableData.length + 1}`,
                       define: '',
                       display_name: `Column ${tableData.length + 1}`,
@@ -345,9 +365,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                 <div
                   style={{ height: 'calc(100vh - 82px)', overflow: 'auto', background: 'white' }}
                 >
-                  <Tooltip
-                    title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}
-                  >
+                  <Tooltip title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}>
                     <Button
                       style={{
                         position: 'absolute',
@@ -387,6 +405,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                             ...tableData,
                             {
                               type: 'System Field',
+                              datatype: 'Text',
                               code_name: systemFields[index].code_name,
                               define: '',
                               display_name: systemFields[index].name,
