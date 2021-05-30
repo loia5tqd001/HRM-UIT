@@ -351,7 +351,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                     <Button
                       style={{
                         position: 'absolute',
-                        zIndex: 2000,
+                        zIndex: 1,
                         top: 'calc(50% - 100px)',
                         transform: 'translateX(-50%)',
                       }}
