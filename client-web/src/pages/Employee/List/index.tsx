@@ -33,6 +33,14 @@ const EmployeeList: React.FC = () => {
       fixed: 'left',
     },
     {
+      title: (
+        <FormattedMessage id="pages.employee.list.column.role" defaultMessage="Role" />
+      ),
+
+      key: 'role',
+      dataIndex: 'role',
+    },
+    {
       title: <FormattedMessage id="pages.employee.list.column.gender" defaultMessage="Gender" />,
       key: 'gender',
       dataIndex: 'gender',

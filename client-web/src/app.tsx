@@ -54,7 +54,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     ...initialState?.settings,
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
-    footerRender: () => <Footer />,
+    footerRender: () => null,
     onPageChange: () => {
       const { location } = history;
       // If you are not logged in, redirect to login

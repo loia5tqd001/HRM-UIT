@@ -4,7 +4,7 @@ import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { Affix, Badge, Button, Card, message, Tooltip, Upload } from 'antd';
 import React from 'react';
 import styles from '@/styles/employee_detail.less';
-import { MailOutlined, UserOutlined } from '@ant-design/icons';
+import { KeyOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 
 type Props = {
   employee: API.Employee | undefined;
@@ -87,7 +87,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
           </span>
         </h2>
         {record?.status && (
-          <h4 style={{ fontWeight: 400 }}>
+          <h4 style={{ fontWeight: 400 }} title={`Status: ${record.status}`}>
             <Badge {...mapStatus[record.status]} />
           </h4>
         )}
@@ -95,7 +95,16 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
           style={{
             fontWeight: 400,
           }}
-          title={record?.user.username}
+          title={`Role: ${record?.role}`}
+          className={styles.textEllipse}
+        >
+          <KeyOutlined /> <span className={styles.content}>{record?.role}</span>
+        </h4>
+        <h4
+          style={{
+            fontWeight: 400,
+          }}
+          title={`Username: ${record?.user.username}`}
           className={styles.textEllipse}
         >
           <UserOutlined /> <span className={styles.content}>{record?.user.username}</span>
@@ -105,7 +114,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             fontWeight: 400,
             marginBottom: 12,
           }}
-          title={record?.email}
+          title={`Email: ${record?.email}`}
           className={styles.textEllipse}
         >
           <MailOutlined />

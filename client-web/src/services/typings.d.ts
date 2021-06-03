@@ -605,30 +605,17 @@ declare namespace API {
 
   type User = any;
 
-  type PermissionItem = {
-    id: string;
+  interface PermissionItem {
+    id: number;
     name: string;
-    // access:
-    //   | 'no_access'
-    //   | 'view_only_global'
-    //   | 'view_only_direct_reports'
-    //   | 'view_and_edit_global'
-    //   | 'view_and_direct_reports';
-    access: 'no_access' | 'view_and_edit' | 'view_only';
-  };
-
-  // Attendance
+    codename: string;
+    has_perm: boolean;
+  }
 
   interface RoleItem {
-    id: string;
-    roleName: string;
-    description: string;
+    id: number;
+    name: string;
     permissions: PermissionItem[];
-    permissions: {
-      access: 'all_employees' | 'direct_and_indirect' | 'direct_reports';
-      permission_items: PermissionItem[];
-    };
-    members: Employee[];
   }
 
   interface AllRoles {

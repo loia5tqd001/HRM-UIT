@@ -8,7 +8,7 @@ import pages from './vi-VN/pages';
 import error from './vi-VN/error';
 
 export default {
-  'app.title': '—QLNS→',
+  'app.title': '—QLNS—',
   'navBar.lang': 'Languages',
   'layout.user.link.help': 'Help',
   'layout.user.link.privacy': 'Privacy',

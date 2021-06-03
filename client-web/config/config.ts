@@ -16,7 +16,6 @@ export default defineConfig({
   layout: {
     // https://umijs.org/zh-CN/plugins/plugin-layout
     locale: true,
-    siderWidth: 208,
     ...defaultSettings,
   },
   // https://umijs.org/zh-CN/plugins/plugin-locale

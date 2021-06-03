@@ -377,6 +377,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                       onClick={() => {
                         setIsCollapse(!isCollapsed);
                       }}
+                      type={isCollapsed ? 'primary' : undefined}
                     />
                   </Tooltip>
                   <List

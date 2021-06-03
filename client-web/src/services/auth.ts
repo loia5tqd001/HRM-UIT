@@ -66,15 +66,33 @@ export async function changePassword(
   });
 }
 
+const roleEndpoint = '/api/auth/roles/';
+type RoleItem = API.RoleItem;
+
 export async function allRoles(options?: { [key: string]: any }) {
-  return request<API.RoleItem[]>('/api/auth/roles/', {
+  return request<RoleItem[]>(`${roleEndpoint}`, {
     method: 'GET',
     ...(options || {}),
   });
 }
 
-export async function updateRole(id: string, body: API.RoleItem, options?: { [key: string]: any }) {
-  return request<API.RoleItem>(`/api/auth/role/${id}/`, {
+export async function createRole(body: RoleItem, options?: { [key: string]: any }) {
+  return request<RoleItem>(`${roleEndpoint}`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function readRole(id: number, options?: { [key: string]: any }) {
+  return request<RoleItem>(`${roleEndpoint}${id}`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function updateRole(id: number, body: RoleItem, options?: { [key: string]: any }) {
+  return request<RoleItem>(`${roleEndpoint}${id}/`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -84,19 +102,8 @@ export async function updateRole(id: string, body: API.RoleItem, options?: { [ke
   });
 }
 
-export async function createRole(body: Partial<API.RoleItem>, options?: { [key: string]: any }) {
-  return request<API.RoleItem>(`/api/auth/role/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-export async function deleteRole(id: string, options?: { [key: string]: any }) {
-  return request<API.RoleItem>(`/api/auth/role/${id}/`, {
+export async function deleteRole(id: number, options?: { [key: string]: any }) {
+  return request<RoleItem[]>(`${roleEndpoint}${id}/`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

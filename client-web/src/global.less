@@ -7,6 +7,10 @@ body,
   font-family: Quicksand, @font-family;
 }
 
+#logo h1 {
+  font-weight: bold;
+}
+
 @track-color: transparent;
 @thumb-color: rgba(0,0,0,0.2);
 @scrollbar-size: 7px;
@@ -66,6 +70,7 @@ body,
 .card-shadow() {
   border-radius: @border-radius-base;
   box-shadow: @custom-subtle-shadow;
+  overflow: hidden;
 }
 // Every card with the shadow should have class .card-shadow
 .card-shadow {
