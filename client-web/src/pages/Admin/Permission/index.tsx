@@ -12,7 +12,6 @@ import {
 import ProCard from '@ant-design/pro-card';
 import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
-import ProList from '@ant-design/pro-list';
 import type { ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button, Input, message, Popconfirm, Space, Switch, Table } from 'antd';
@@ -21,9 +20,9 @@ import faker from 'faker';
 import produce from 'immer';
 import { sortBy } from 'lodash';
 import React, { useCallback, useRef, useState } from 'react';
+import Highlighter from 'react-highlight-words';
 import { useIntl } from 'umi';
 import styles from './index.less';
-import Highlighter from 'react-highlight-words';
 
 type RecordType = API.RoleItem & {
   based_on?: API.RoleItem['id'];
@@ -77,12 +76,12 @@ const Permission: React.FC = () => {
     setSearchText('');
   };
 
-  const getColumnSearchProps = (dataIndex) => ({
+  const getColumnSearchProps = (dataIndex: string, placeholder = `Search ${dataIndex}`) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
       <div style={{ padding: 8 }}>
         <Input
           ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
+          placeholder={placeholder}
           value={selectedKeys[0]}
           onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
@@ -104,7 +103,7 @@ const Permission: React.FC = () => {
       </div>
     ),
     filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+      <SearchOutlined style={{ fontSize: '1.2em', color: filtered ? '#1890ff' : undefined }} />
     ),
     onFilter: (value, record) =>
       record[dataIndex]
@@ -221,8 +220,9 @@ const Permission: React.FC = () => {
               let data = await allRoles();
               data = sortBy(data, 'id');
               if (data.length) {
-                setSelectedRecord(data[0]);
-                setViewingRecord(data[0]);
+                const index = data.findIndex((it) => it.id === viewingRecord?.id);
+                setSelectedRecord(data[index === -1 ? 0 : index]);
+                setViewingRecord(data[index === -1 ? 0 : index]);
                 dataRef.current = data;
               }
               return {
@@ -251,16 +251,14 @@ const Permission: React.FC = () => {
           extra={
             <Button
               onClick={async () => {
-                try {
-                  setSaving(true);
-                  if (!viewingRecord) return;
-                  await updateRole(viewingRecord.id, viewingRecord);
-                  message.success('Edit permissions successfully!');
-                } catch {
-                  message.error('Edit permissions unsuccessfully!');
-                } finally {
-                  setSaving(false);
-                }
+                if (!viewingRecord) return;
+                setSaving(true);
+                await onCrudOperation(
+                  () => updateRole(viewingRecord.id, viewingRecord),
+                  'Update successfully!',
+                  'Update unsuccessfully!',
+                );
+                setSaving(false);
               }}
               type="primary"
               key="primary"
@@ -273,10 +271,10 @@ const Permission: React.FC = () => {
           <Table<RecordType['permissions'][0]>
             columns={[
               {
-                title: 'Name',
+                title: 'Permission',
                 key: 'name',
                 dataIndex: 'name',
-                ...getColumnSearchProps('name'),
+                ...getColumnSearchProps('name', 'Search permissions'),
               },
               {
                 title: 'Enabled',

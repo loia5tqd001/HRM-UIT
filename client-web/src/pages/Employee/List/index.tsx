@@ -145,7 +145,7 @@ const EmployeeList: React.FC = () => {
     {
       title: <FormattedMessage id="pages.employee.list.column.status" defaultMessage="Status" />,
       fixed: 'right',
-      width: 130,
+      width: 120,
       dataIndex: 'status',
       hideInForm: true,
       sorter: (a, b) => {

@@ -162,11 +162,13 @@ function SortableTable() {
     {
       title: 'Type',
       dataIndex: 'type',
+      width: 'max-content',
       editable: true,
     },
     {
       title: 'Datatype',
       dataIndex: 'datatype',
+      width: 'max-content',
       editable: true,
     },
     {
