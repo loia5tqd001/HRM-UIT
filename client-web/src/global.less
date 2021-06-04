@@ -73,6 +73,23 @@ body,
   background: #f6f6f6 !important;
 }
 
+.outlined-button(@color) {
+  & {
+    color: @color;
+    border-color: @color;
+  }
+  &:hover, &:focus {
+    color: fade(@color, 70);
+    border-color: fade(@color, 70);
+  }
+}
+.success-outlined-button {
+  .outlined-button(@success-color);
+}
+.primary-outlined-button {
+  .outlined-button(@primary-color);
+}
+
 // Change color for the app.title
 // #logo h1 {
 //   color: @text-color-secondary-dark;

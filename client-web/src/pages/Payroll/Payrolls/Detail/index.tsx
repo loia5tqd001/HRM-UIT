@@ -76,6 +76,7 @@ export const PayrollDetail: React.FC = () => {
                   </Tag>
                 </div>
                 <Button
+                  className="primary-outlined-button"
                   children="Send playslips via email"
                   icon={<SendOutlined />}
                   loading={isSending}
@@ -92,6 +93,7 @@ export const PayrollDetail: React.FC = () => {
                   }}
                 />
                 <Button
+                  className="success-outlined-button"
                   children="Export Excel"
                   icon={<FileExcelOutlined />}
                   loading={isExporting}
