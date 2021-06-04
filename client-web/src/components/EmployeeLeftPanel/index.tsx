@@ -78,6 +78,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
         <h2
           style={{
             marginTop: 12,
+            fontWeight: 'bold',
           }}
           className={styles.textEllipse}
           title={`${record?.first_name} ${record?.last_name}`}
@@ -87,7 +88,11 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
           </span>
         </h2>
         {record?.status && (
-          <h4 style={{ fontWeight: 400 }} title={`Status: ${record.status}`}>
+          <h4
+            style={{ fontWeight: 400 }}
+            className={styles.badge}
+            title={`Status: ${record.status}`}
+          >
             <Badge {...mapStatus[record.status]} />
           </h4>
         )}

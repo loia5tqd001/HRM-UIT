@@ -247,7 +247,7 @@ const Permission: React.FC = () => {
           />
         </ProCard>
         <ProCard
-          title={`Permissions of role: ${viewingRecord?.name || ''}`}
+          title={`Permissions of: ${viewingRecord?.name || ''}`}
           extra={
             <Button
               onClick={async () => {

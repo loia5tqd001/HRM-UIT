@@ -53,7 +53,7 @@ const GlobalHeaderRight: React.FC = () => {
         //   console.log('input', value);
         // }}
       /> */}
-      <NoticeIcon />
+      {/* <NoticeIcon /> */}
       <Avatar />
       {REACT_APP_ENV && (
         <span>
