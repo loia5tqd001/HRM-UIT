@@ -35,46 +35,48 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
   return (
     <Affix offsetTop={50}>
       <Card bordered={false} loading={!record} className="card-shadow">
-        <Upload
-          disabled={!isActive}
-          showUploadList={false}
-          style={{ display: 'block', cursor: `${isActive ? 'pointer' : undefined}` }}
-          maxCount={1}
-          accept="image/*"
-          customRequest={async (options) => {
-            const { file } = options;
-            const config = {
-              // headers: {
-              //   'content-type': 'multipart/form-data',
-              // },
-              // If you set the 'content-type' header manually yourself, you fucked up: https://stackoverflow.com/a/38271059/9787887
-            };
-            const hide = message.loading('Uploading...');
-            try {
-              const data = new FormData();
-              data.append('avatar', file);
-              await changeEmployeeAvatar(id!, data, config);
-              await readEmployee(id!).then((fetchData) => {
-                if (!record) setRecord(fetchData);
-                else {
-                  const newRecord = { ...record, avatar: fetchData.avatar };
-                  setRecord(newRecord);
-                }
-              });
-              message.success('Update avatar successfully!');
-            } catch (err) {
-              message.error('Update avatar failed!');
-            } finally {
-              hide?.();
-            }
-          }}
-        >
-          <Tooltip title={isActive && 'Change avatar'} placement="top">
-            <div className={styles.avatar}>
-              <img src={record?.avatar} alt="avatar" />
-            </div>
-          </Tooltip>
-        </Upload>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Upload
+            disabled={!isActive}
+            showUploadList={false}
+            style={{ display: 'block', cursor: `${isActive ? 'pointer' : undefined}` }}
+            maxCount={1}
+            accept="image/*"
+            customRequest={async (options) => {
+              const { file } = options;
+              const config = {
+                // headers: {
+                //   'content-type': 'multipart/form-data',
+                // },
+                // If you set the 'content-type' header manually yourself, you fucked up: https://stackoverflow.com/a/38271059/9787887
+              };
+              const hide = message.loading('Uploading...');
+              try {
+                const data = new FormData();
+                data.append('avatar', file);
+                await changeEmployeeAvatar(id!, data, config);
+                await readEmployee(id!).then((fetchData) => {
+                  if (!record) setRecord(fetchData);
+                  else {
+                    const newRecord = { ...record, avatar: fetchData.avatar };
+                    setRecord(newRecord);
+                  }
+                });
+                message.success('Update avatar successfully!');
+              } catch (err) {
+                message.error('Update avatar failed!');
+              } finally {
+                hide?.();
+              }
+            }}
+          >
+            <Tooltip title={isActive && 'Change avatar'} placement="top">
+              <div className={styles.avatar}>
+                <img src={record?.avatar} alt="avatar" />
+              </div>
+            </Tooltip>
+          </Upload>
+        </div>
         <h2
           style={{
             marginTop: 12,
@@ -130,7 +132,9 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             title="Change password"
             width="400px"
             trigger={
-              <Button style={{ display: 'block', marginBottom: 12 }}>Change password</Button>
+              <Button className={styles.changePasswordButton} type="primary">
+                Change password
+              </Button>
             }
             onFinish={async (value) => {
               try {
@@ -185,7 +189,9 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             title="Change password"
             width="400px"
             trigger={
-              <Button style={{ display: 'block', marginBottom: 12 }}>Change password</Button>
+              <Button className={styles.changePasswordButton} type="primary">
+                Change password
+              </Button>
             }
             onFinish={async (value) => {
               try {

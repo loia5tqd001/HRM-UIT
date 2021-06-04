@@ -79,7 +79,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             onSettingChange={(nextSettings) =>
               setInitialState({
                 ...initialState,
-                settings: nextSettings,
+                settings: {
+                  ...initialState?.settings,
+                  ...nextSettings,
+                },
               })
             }
           />

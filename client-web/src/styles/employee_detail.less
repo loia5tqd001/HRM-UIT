@@ -19,9 +19,7 @@
 }
 
 .avatar {
-  width: 8vw;
-  height: 8vw;
-  margin-bottom: 12px;
+  max-width: 10vw;
   overflow: hidden;
   box-shadow: 0 0 5px #0002;
   cursor: pointer;
@@ -38,6 +36,7 @@
   display: grid;
   grid-template-columns: repeat(5, max-content);
   gap: 6px;
+  margin: -12px 0;
 }
 
 .textEllipse {
@@ -61,4 +60,10 @@
     height: 13px;
     margin-right: -1px;
   }
+}
+
+.changePasswordButton {
+  display: block;
+  width: 100%;
+  margin-bottom: 12;
 }

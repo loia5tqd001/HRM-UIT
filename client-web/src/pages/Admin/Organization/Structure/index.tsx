@@ -8,6 +8,7 @@ import { useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { calculateAllExpandedRowKeys } from './utils';
 import { PageContainer } from '@ant-design/pro-layout';
+import styles from './index.less';
 
 export const OrganziationStructure: React.FC = () => {
   const [expandedRowKeys, setExpandedRowKeys] = React.useState<number[]>([]);
@@ -183,20 +184,22 @@ export const OrganziationStructure: React.FC = () => {
 
   return (
     <PageContainer title={false}>
-      <ProTable<API.DepartmentUnit>
-        headerTitle="Organization structure"
-        className="card-shadow"
-        columns={columns}
-        dataSource={dataSource}
-        loading={departmentsPending}
-        onExpand={onTableTreeExpand}
-        rowKey="id"
-        expandedRowKeys={expandedRowKeys}
-        pagination={false}
-        locale={{ emptyText: 'There is no department to show' }}
-        search={false}
-        // defaultExpandAllRows={true} // doesn't work for async data
-      />
+      <div className={styles['padding-card']}>
+        <ProTable<API.DepartmentUnit>
+          headerTitle="Organization structure"
+          className="card-shadow"
+          columns={columns}
+          dataSource={dataSource}
+          loading={departmentsPending}
+          onExpand={onTableTreeExpand}
+          rowKey="id"
+          expandedRowKeys={expandedRowKeys}
+          pagination={false}
+          locale={{ emptyText: 'There is no department to show' }}
+          search={false}
+          // defaultExpandAllRows={true} // doesn't work for async data
+        />
+      </div>
       <CrudModal />
     </PageContainer>
   );

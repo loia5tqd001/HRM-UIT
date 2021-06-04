@@ -9,6 +9,7 @@ body,
 
 #logo h1 {
   font-weight: bold;
+  font-size: 1.5em;
 }
 
 @track-color: transparent;
@@ -59,12 +60,17 @@ body,
 .ant-card-head-title,
 .ant-pro-table-list-toolbar-title {
   font-weight: bold !important;
-  text-transform: capitalize;
+  text-transform: uppercase;
+  color: @primary-color !important;
+}
+.ant-modal-title {
+  text-transform: capitalize !important;
 }
 
+.ant-modal-header,
 .ant-table-thead .ant-table-cell {
-  font-weight: 600 !important;
-  background: #f6f6f6;
+  font-weight: bold !important;
+  background: #f6f6f6 !important;
 }
 
 // Change color for the app.title
@@ -79,6 +85,7 @@ body,
 // Custom shadow for Cards
 // source: https://getcssscan.com/css-box-shadow-examples #7
 @custom-subtle-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+
 // the mixin
 .card-shadow() {
   border-radius: @border-radius-base;
@@ -95,6 +102,7 @@ body,
   }
 }
 // breadcrumb should have the shadow as well
+.ant-pro-global-header,
 .ant-pro-page-container-warp {
   box-shadow: @custom-subtle-shadow;
 }

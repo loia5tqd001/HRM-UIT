@@ -142,7 +142,12 @@ const EmployeeAttendanceDetail: React.FC = () => {
               </Tag>
             </Tooltip>
           );
-        if (check_in_location) return <Tag icon={<EnvironmentOutlined />}>{check_in_location}</Tag>;
+        if (check_in_location)
+          return (
+            <Tag icon={<EnvironmentOutlined />} color="green">
+              {check_in_location}
+            </Tag>
+          );
         return '-';
       },
     },

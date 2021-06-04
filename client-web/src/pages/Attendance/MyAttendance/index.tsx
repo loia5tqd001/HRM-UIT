@@ -185,7 +185,12 @@ const MyAttendance: React.FC = () => {
               </Tag>
             </Tooltip>
           );
-        if (check_in_location) return <Tag icon={<EnvironmentOutlined />}>{check_in_location}</Tag>;
+        if (check_in_location)
+          return (
+            <Tag icon={<EnvironmentOutlined />} color="green">
+              {check_in_location}
+            </Tag>
+          );
         return '-';
       },
     },
@@ -395,6 +400,7 @@ const MyAttendance: React.FC = () => {
             onClick={async () => {
               setClockModalVisible(true);
             }}
+            style={{ textTransform: 'capitalize', fontWeight: 'bold' }}
             loading={!nextStep || !currentLocation}
           >
             <Space>

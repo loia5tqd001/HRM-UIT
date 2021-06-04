@@ -1,7 +1,8 @@
 import { readLocation, updateLocation } from '@/services/admin.organization.location';
+import { SaveOutlined } from '@ant-design/icons';
 import ProForm from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Card, Checkbox, Col, Form, message, Row, Select } from 'antd';
+import { Button, Card, Checkbox, Col, Form, message, Row, Select } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import GoogleMapReact from 'google-map-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -124,6 +125,11 @@ export const OfficeEdit: React.FC = () => {
         title={office?.name}
         loading={!officeReady}
         className="card-shadow"
+        extra={
+          <Button type="primary">
+            <SaveOutlined /> Save
+          </Button>
+        }
       >
         <ProForm
           form={form}
@@ -145,10 +151,11 @@ export const OfficeEdit: React.FC = () => {
               message.error('Update unsuccessfully');
             }
           }}
-          submitter={{
-            searchConfig: { submitText: 'Update' },
-            resetButtonProps: { style: { display: 'none' } },
-          }}
+          submitter={false}
+          // submitter={{
+          //   searchConfig: { submitText: 'Update' },
+          //   resetButtonProps: { style: { display: 'none' } },
+          // }}
         >
           <Form.Item name="allow_outside" valuePropName="checked">
             <Checkbox>Allow clock in/out outside the office</Checkbox>
