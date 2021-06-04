@@ -21,6 +21,12 @@
     icon: 'user',
     routes: [
       {
+        path: '/account/dashboard',
+        name: 'dashboard',
+        icon: 'barChart',
+        component: './Account/Dashboard',
+      },
+      {
         path: '/account/profile',
         name: 'profile',
         icon: 'user',
@@ -28,7 +34,7 @@
       },
       {
         path: '/account',
-        redirect: '/account/profile',
+        redirect: '/account/dashboard',
       },
     ],
   },
@@ -105,11 +111,11 @@
         name: 'organization',
         icon: 'apartment',
         routes: [
-          {
-            path: '/admin/organization/information',
-            name: '__information',
-            component: './Admin/Organization/Information',
-          },
+          // {
+          //   path: '/admin/organization/information',
+          //   name: '__information',
+          //   component: './Admin/Organization/Information',
+          // },
           {
             path: '/admin/organization/structure',
             name: 'structure',
@@ -122,7 +128,7 @@
           },
           {
             path: '/admin/organization',
-            redirect: '/admin/organization/information',
+            redirect: '/admin/organization/structure',
           },
         ],
       },
@@ -191,15 +197,15 @@
       //   icon: 'pauseCircle',
       //   component: './Welcome',
       // },
-      {
-        path: '/employee/customFields',
-        name: '__customFields',
-        icon: 'setting',
-        component: './Employee/CustomField',
-      },
+      // {
+      //   path: '/employee/customFields',
+      //   name: '__customFields',
+      //   icon: 'setting',
+      //   component: './Employee/CustomField',
+      // },
       // { path: '/employee/report', name: '__report', icon: 'barChart', component: './Welcome' },
       {
-        path: '/employee/edit/:id',
+        path: '/employee/list/:id',
         name: 'edit',
         component: './Employee/Edit',
         hideInMenu: true,

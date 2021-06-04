@@ -102,6 +102,7 @@ export default {
   'menu.account.trigger': 'Trigger Error',
   'menu.account.logout': 'Logout',
   'menu.account.profile': 'Profile',
+  'menu.account.dashboard': 'Dashboard',
   'menu.editor': 'Graphic Editor',
   'menu.editor.flow': 'Flow Editor',
   'menu.editor.mind': 'Mind Editor',

@@ -102,6 +102,7 @@ export default {
   'menu.account.trigger': 'Trigger Error',
   'menu.account.logout': 'Đăng xuất',
   'menu.account.profile': 'Thông tin',
+  'menu.account.dashboard': 'Bảng điều khiển',
   'menu.editor': 'Graphic Editor',
   'menu.editor.flow': 'Flow Editor',
   'menu.editor.mind': 'Mind Editor',

@@ -74,7 +74,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       return (
         <>
           {dom}
-          <SettingDrawer
+          {/* <SettingDrawer
             settings={initialState?.settings}
             onSettingChange={(nextSettings) =>
               setInitialState({
@@ -85,7 +85,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
                 },
               })
             }
-          />
+          /> */}
         </>
       );
     },

@@ -7,7 +7,7 @@ import React from 'react';
 import { history, Link } from 'umi';
 import styles from '@/styles/employee_detail.less';
 
-type OnChangeSubscription = {
+export type OnChangeSubscription = {
   status?: (newValue: API.Employee['status']) => any;
   basicInfo?: (newValue: API.Employee) => any;
   // other related subscription is not CURRENTLY needed

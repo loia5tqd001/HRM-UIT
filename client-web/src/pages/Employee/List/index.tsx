@@ -25,7 +25,7 @@ const EmployeeList: React.FC = () => {
       render: (avatar, record) => (
         <Space>
           <span>{avatar}</span>
-          <Link to={`/employee/edit/${record.id}`}>
+          <Link to={`/employee/list/${record.id}`}>
             {record.first_name} {record.last_name}
           </Link>
         </Space>

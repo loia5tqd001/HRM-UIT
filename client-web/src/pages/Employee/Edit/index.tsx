@@ -1,4 +1,5 @@
 import { EmployeeLeftPanel } from '@/components/EmployeeLeftPanel/index';
+import type { OnChangeSubscription } from '@/components/EmployeeTabs';
 import { EmployeeTabs } from '@/components/EmployeeTabs';
 import { readEmployee } from '@/services/employee';
 import styles from '@/styles/employee_detail.less';
@@ -13,6 +14,17 @@ export const Edit: React.FC = () => {
 
   const isActive = record.data?.status !== 'Terminated';
 
+  const onChange: OnChangeSubscription = {
+    status: (newStatus) => {
+      if (!record.data) return;
+      record.setData({ ...record.data, status: newStatus });
+    },
+    basicInfo: (newInfo) => {
+      if (!record.data) return;
+      record.setData({ ...record.data, ...newInfo, user: record.data.user });
+    },
+  };
+
   return (
     <PageContainer title={false} loading={record.isLoading}>
       <GridContent>
@@ -21,21 +33,9 @@ export const Edit: React.FC = () => {
             employee={record.data}
             setEmployee={record.setData}
             type="employee-edit"
+            onChange={onChange}
           />
-          <EmployeeTabs
-            employeeId={id}
-            isActive={isActive}
-            onChange={{
-              status: (newStatus) => {
-                if (!record.data) return;
-                record.setData({ ...record.data, status: newStatus });
-              },
-              basicInfo: (newInfo) => {
-                if (!record.data) return;
-                record.setData({ ...record.data, ...newInfo, user: record.data.user });
-              },
-            }}
-          />
+          <EmployeeTabs employeeId={id} isActive={isActive} onChange={onChange} />
         </div>
       </GridContent>
     </PageContainer>

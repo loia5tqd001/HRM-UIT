@@ -45,7 +45,7 @@ export async function terminateEmployee(
   data: API.TerminateContract,
   options?: { [key: string]: any },
 ) {
-  return request(`${endpoint}${id}/jobs/terminate_employment/`, {
+  return request(`${endpoint}${id}/jobs/terminate/`, {
     method: 'POST',
     data,
     ...(options || {}),

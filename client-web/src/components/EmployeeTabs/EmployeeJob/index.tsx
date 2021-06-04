@@ -24,7 +24,7 @@ import ProForm, {
 } from '@ant-design/pro-form';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Card, Form, message, Space, TimePicker, TreeSelect } from 'antd';
+import { Button, Card, Form, message, Space, TimePicker, TreeSelect, Typography } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
@@ -59,7 +59,6 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
     allJobTitles().then((fetchData) => setJobTitles(fetchData));
     allLocations().then((fetchData) => setLocations(fetchData));
     allEmploymentStatuses().then((fetchData) => setEmploymentStatuses(fetchData));
-    allTerminationReasons().then((fetchData) => setTerminationReasons(fetchData));
     allSchedules().then((fetchData) => setSchedules(fetchData));
   }, []);
 
@@ -168,6 +167,8 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
     {
       title: <FormattedMessage id="pages.admin.job.column.event" defaultMessage="Event" />,
       dataIndex: 'event',
+      fixed: 'right',
+      width: 'max-content',
     },
   ];
 
@@ -213,57 +214,6 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                     >
                       Auto fill
                     </Button>
-                  ),
-                  jobs.data && jobs.data.length > 0 && (
-                    <ModalForm<API.TerminateContract>
-                      title="Termination Form"
-                      width="400px"
-                      trigger={
-                        <Button key="terminate" danger>
-                          Terminate Contract
-                        </Button>
-                      }
-                      onVisibleChange={() => {
-                        terminationForm.resetFields();
-                      }}
-                      form={terminationForm}
-                      onFinish={async (value) => {
-                        try {
-                          await terminateEmployee(employeeId, {
-                            ...value,
-                            date: moment(value.date),
-                          });
-                          message.success('Terminate successfully!');
-                          jobs.fetchData();
-                          schedule.fetchData();
-                          onChange?.status?.('Terminated');
-                          return true;
-                        } catch {
-                          message.error('Terminate unsuccessfully!');
-                          return false;
-                        }
-                      }}
-                    >
-                      <ProFormSelect
-                        name="reason"
-                        width="md"
-                        label="Termination reason"
-                        options={terminationReasons?.map((it) => ({
-                          value: it.name,
-                          label: it.name,
-                        }))}
-                        hasFeedback={!terminationReasons}
-                        rules={[{ required: true }]}
-                      />
-                      <ProFormDatePicker
-                        rules={[{ required: true }]}
-                        width="md"
-                        name="date"
-                        label="Date"
-                        initialValue={moment()}
-                      />
-                      <ProFormTextArea width="md" name="note" label="Note" />
-                    </ModalForm>
                   ),
                 ];
               },
@@ -510,36 +460,50 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
             options={schedules?.map((it) => ({ value: it.name, label: it.name }))}
             disabled={!isActive}
           />
-          {isActive &&
-            scheduleDays.map((it) => (
-              <Form.Item
-                name={it.day}
-                label={`${it.day} (${calcHours(it)}hrs)`}
-                labelCol={{ span: 2 }}
-                wrapperCol={{ span: 20 }}
-                style={{ flexDirection: 'row' }}
-              >
-                <Space>
-                  <TimePicker.RangePicker
-                    format="HH:mm"
-                    minuteStep={5}
-                    style={{ width: '100%' }}
-                    value={it.morning}
-                    disabled={!it.morning_enabled}
-                    open={false}
-                  />
-                  <TimePicker.RangePicker
-                    format="HH:mm"
-                    minuteStep={5}
-                    style={{ width: '100%' }}
-                    value={it.afternoon}
-                    disabled={!it.afternoon_enabled}
-                    open={false}
-                  />
-                  <p style={{ marginRight: 5 }}></p>
-                </Space>
-              </Form.Item>
-            ))}
+          {isActive && (
+            <>
+              <Typography style={{ marginBottom: 24, fontSize: '1.1em' }}>
+                <b>Preview</b>{' '}
+                <small>
+                  <i>
+                    (below is readonly for previewing purpose,{' '}
+                    <b style={{ textTransform: 'uppercase' }}>please select above</b>):
+                  </i>
+                </small>
+              </Typography>
+              {scheduleDays.map((it) => (
+                <Form.Item
+                  name={it.day}
+                  label={`${it.day} (${calcHours(it)}hrs)`}
+                  labelCol={{ span: 2 }}
+                  wrapperCol={{ span: 20 }}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <Space>
+                    <TimePicker.RangePicker
+                      format="HH:mm"
+                      minuteStep={5}
+                      style={{ width: '100%' }}
+                      value={it.morning}
+                      disabled={!it.morning_enabled}
+                      open={false}
+                      clearIcon={false}
+                    />
+                    <TimePicker.RangePicker
+                      format="HH:mm"
+                      minuteStep={5}
+                      style={{ width: '100%' }}
+                      value={it.afternoon}
+                      disabled={!it.afternoon_enabled}
+                      open={false}
+                      clearIcon={false}
+                    />
+                    <p style={{ marginRight: 5 }}></p>
+                  </Space>
+                </Form.Item>
+              ))}
+            </>
+          )}
         </ProForm>
       </Card>
 

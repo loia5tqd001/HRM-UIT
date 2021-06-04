@@ -126,37 +126,31 @@ export const OfficeEdit: React.FC = () => {
         loading={!officeReady}
         className="card-shadow"
         extra={
-          <Button type="primary">
+          <Button
+            type="primary"
+            onClick={async () => {
+              if (!markerRef.current?.getPosition()) return;
+              try {
+                const record = {
+                  ...office,
+                  ...form.getFieldsValue(),
+                  lat: markerRef.current?.getPosition()?.toJSON().lat,
+                  lng: markerRef.current?.getPosition()?.toJSON().lng,
+                  note: accurateAddress?.value.place_id,
+                  enable_geofencing: true,
+                };
+                await updateLocation(record.id!, record);
+                message.success('Update successfully');
+              } catch {
+                message.error('Update unsuccessfully');
+              }
+            }}
+          >
             <SaveOutlined /> Save
           </Button>
         }
       >
-        <ProForm
-          form={form}
-          initialValues={office}
-          onFinish={async (value) => {
-            if (!markerRef.current?.getPosition()) return;
-            try {
-              const record = {
-                ...office,
-                ...value,
-                lat: markerRef.current?.getPosition()?.toJSON().lat,
-                lng: markerRef.current?.getPosition()?.toJSON().lng,
-                note: accurateAddress?.value.place_id,
-                enable_geofencing: true,
-              };
-              await updateLocation(record.id, record);
-              message.success('Update successfully');
-            } catch {
-              message.error('Update unsuccessfully');
-            }
-          }}
-          submitter={false}
-          // submitter={{
-          //   searchConfig: { submitText: 'Update' },
-          //   resetButtonProps: { style: { display: 'none' } },
-          // }}
-        >
+        <ProForm form={form} initialValues={office} submitter={false}>
           <Form.Item name="allow_outside" valuePropName="checked">
             <Checkbox>Allow clock in/out outside the office</Checkbox>
           </Form.Item>

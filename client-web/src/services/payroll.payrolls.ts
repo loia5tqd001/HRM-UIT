@@ -51,7 +51,7 @@ export async function exportExcel(id: number) {
     const contentType = response.headers.get('content-type') || undefined;
     const data = await response.arrayBuffer();
     const blob = new Blob([data], { type: contentType });
-    saveAs(blob, contentDisposition?.match(/filename="(.*?)"/)?.[1] || 'payslips.xls');
+    saveAs(blob, contentDisposition?.match(/filename="(.*?)"/)?.[1] || 'payslips.xlsx');
   });
 }
 
