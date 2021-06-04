@@ -17,7 +17,7 @@ export const Office: React.FC = () => {
 
   return (
     <PageContainer title={false}>
-      <Card loading={!appConfigReady} className="card-shadow">
+      <Card loading={!appConfigReady} className="card-shadow" title="Cycle Configuration">
         <ProForm<API.AppConfig>
           onFinish={async (values) => {
             try {

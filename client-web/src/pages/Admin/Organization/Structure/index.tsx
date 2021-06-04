@@ -184,6 +184,7 @@ export const OrganziationStructure: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<API.DepartmentUnit>
+        headerTitle="Organization structure"
         className="card-shadow"
         columns={columns}
         dataSource={dataSource}

@@ -33,9 +33,7 @@ const EmployeeList: React.FC = () => {
       fixed: 'left',
     },
     {
-      title: (
-        <FormattedMessage id="pages.employee.list.column.role" defaultMessage="Role" />
-      ),
+      title: <FormattedMessage id="pages.employee.list.column.role" defaultMessage="Role" />,
 
       key: 'role',
       dataIndex: 'role',
@@ -146,6 +144,8 @@ const EmployeeList: React.FC = () => {
     // },
     {
       title: <FormattedMessage id="pages.employee.list.column.status" defaultMessage="Status" />,
+      fixed: 'right',
+      width: 130,
       dataIndex: 'status',
       hideInForm: true,
       sorter: (a, b) => {
