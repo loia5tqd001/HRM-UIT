@@ -4,6 +4,7 @@ export default {
   'menu.message.people': 'Mọi người',
   'menu.admin': 'Quản trị',
   'menu.admin.permission': 'Phân quyền',
+  'menu.admin.configuration': 'Cài đặt',
   'menu.admin.user': 'Tài khoản',
   'menu.admin.job': 'Công việc',
   'menu.admin.job.jobTitle': 'Chức vụ',

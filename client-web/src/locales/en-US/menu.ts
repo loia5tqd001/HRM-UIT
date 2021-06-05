@@ -4,6 +4,7 @@ export default {
   'menu.message.people': 'People',
   'menu.admin': 'Admin',
   'menu.admin.permission': 'Permission',
+  'menu.admin.configuration': 'Configuration',
   'menu.admin.user': 'User',
   'menu.admin.job': 'Job',
   'menu.admin.job.jobTitle': 'Job Title',

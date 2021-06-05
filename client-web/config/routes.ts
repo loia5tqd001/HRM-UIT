@@ -178,6 +178,12 @@
         component: './Admin/Permission',
       },
       {
+        path: '/admin/configuration',
+        name: 'configuration',
+        icon: 'setting',
+        component: './Admin/Configuration',
+      },
+      {
         path: '/admin',
         redirect: '/admin/job',
       },
@@ -342,22 +348,22 @@
         component: './Payroll/Payrolls/Detail',
         hideInMenu: true,
       },
-      {
-        path: '/payroll/configuration',
-        name: 'configuration',
-        icon: 'setting',
-        routes: [
-          {
-            path: '/payroll/configuration/cycle',
-            name: 'cycle',
-            component: './Payroll/Configuration/Cycle',
-          },
-          {
-            path: '/payroll/configuration',
-            redirect: '/payroll/configuration/cycle',
-          },
-        ],
-      },
+      // {
+      //   path: '/payroll/configuration',
+      //   name: 'configuration',
+      //   icon: 'setting',
+      //   routes: [
+      //     {
+      //       path: '/payroll/configuration/cycle',
+      //       name: 'cycle',
+      //       component: './Payroll/Configuration/Cycle',
+      //     },
+      //     {
+      //       path: '/payroll/configuration',
+      //       redirect: '/payroll/configuration/cycle',
+      //     },
+      //   ],
+      // },
       // {
       //   path: '/payroll/report',
       //   name: '__report',

@@ -506,6 +506,9 @@ declare namespace API {
   interface AppConfig {
     id: number;
     monthly_start_date: number;
+    early_check_in_minutes: number;
+    ot_point_rate: number;
+    require_face_id: boolean;
   }
 
   interface CustomField {
