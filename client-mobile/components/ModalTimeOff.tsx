@@ -17,7 +17,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import axios from '../commons/axios';
 import { colorTextHolder, lightGray } from '../constants/Colors';
 import { GET_WIDTH } from '../constants/config';
-import { SPACING } from '../constants/Layout';
+import { BORDER_RADIUS, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 import { colorText, primaryColor } from './../constants/Colors';
 import { AsyncButton } from './AsyncButton';
@@ -113,7 +113,7 @@ const ModalTimeOff = ({ show, setShow }: TypeModal) => {
                 paddingHorizontal: 10,
                 borderWidth: 0.3,
                 borderColor: 'black',
-                borderRadius: 1,
+                borderRadius: BORDER_RADIUS,
                 color: timeoffType ? colorText : colorTextHolder,
               },
             }}
@@ -143,7 +143,7 @@ const ModalTimeOff = ({ show, setShow }: TypeModal) => {
             onPress={() => setShowPickDate({ show: true, type: 'start_date' })}
           >
             <TextInput
-              style={{ padding: SPACING, borderColor: lightGray }}
+              style={{ padding: SPACING, borderColor: lightGray, borderRadius: BORDER_RADIUS }}
               placeholder="Pick a day"
               value={startDate ? moment(startDate).format('DD MMM YYYY') : ''}
               multiline={true}
@@ -160,7 +160,7 @@ const ModalTimeOff = ({ show, setShow }: TypeModal) => {
             onPress={() => setShowPickDate({ show: true, type: 'end_date' })}
           >
             <TextInput
-              style={{ padding: SPACING, borderColor: lightGray }}
+              style={{ padding: SPACING, borderColor: lightGray, borderRadius: BORDER_RADIUS }}
               placeholder="Pick a day"
               value={endDate ? moment(endDate).format('DD MMM YYYY') : ''}
               multiline={true}
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   modalView: {
     margin: SPACING,
     backgroundColor: 'white',
-    borderRadius: 2,
+    borderRadius: BORDER_RADIUS,
     padding: 35,
     alignItems: 'center',
     shadowColor: '#000',
@@ -272,14 +272,14 @@ const styles = StyleSheet.create({
     color: colorText,
     alignSelf: 'flex-end',
     marginTop: 10,
-    borderRadius: 1,
+    borderRadius: BORDER_RADIUS,
   },
   buttonSubmit: {
     backgroundColor: primaryColor,
     alignSelf: 'flex-end',
     marginTop: SPACING,
-    borderRadius: 2,
     marginRight: 10,
+    borderRadius: BORDER_RADIUS,
   },
   noteContain: {
     width: '100%',
@@ -288,5 +288,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.3,
     marginVertical: 10,
     paddingTop: 5,
+    borderRadius: BORDER_RADIUS,
   },
 });

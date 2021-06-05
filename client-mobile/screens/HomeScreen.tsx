@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-na
 import DetailInformation from '../components/DetailInformation';
 import Header from '../components/Header';
 import { GET_WIDTH } from '../constants/config';
-import { ICON_IMG, SPACING } from '../constants/Layout';
+import { BORDER_RADIUS, ICON_IMG, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
@@ -62,9 +62,9 @@ const styles = StyleSheet.create({
     margin: 5,
     // width: '90%',
     backgroundColor: 'white',
-    borderColor: '#e3ebf1',
+    borderColor: 'rgba(0,0,0,0.12)',
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: BORDER_RADIUS,
     width: GET_WIDTH * 0.75,
     marginBottom: SPACING * 4,
   },

@@ -9,7 +9,7 @@ import {
   PendingColor,
   RejectedColor,
 } from '../constants/Colors';
-import { SPACING } from '../constants/Layout';
+import { BORDER_RADIUS, SPACING } from '../constants/Layout';
 import { ListTimeOff, STATE } from '../constants/type';
 import { AuthContext } from '../Context/AuthContext';
 
@@ -69,7 +69,7 @@ export const ListHistory = () => {
               backgroundColor: 'white',
               borderColor: '#e3ebf1',
               borderWidth: 1,
-              borderRadius: 2,
+              borderRadius: BORDER_RADIUS,
             }}
           >
             <View

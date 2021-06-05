@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import ModalTimeOff from '../components/ModalTimeOff';
 import { ListHistory } from '../components/TimeoffHistory';
 import { primaryColor } from '../constants/Colors';
+import { BORDER_RADIUS } from '../constants/Layout';
 
 export default function TimeOffScreen({ navigation }: any) {
   const [show, setShow] = React.useState<boolean>(false);
@@ -21,7 +22,7 @@ export default function TimeOffScreen({ navigation }: any) {
             alignSelf: 'flex-end',
             marginHorizontal: 25,
             marginBottom: 10,
-            borderRadius: 2,
+            borderRadius: BORDER_RADIUS,
           }}
         >
           <TouchableOpacity style={{ width: '100%' }} onPress={() => setShow(true)}>

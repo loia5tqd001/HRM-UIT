@@ -44,7 +44,7 @@ import { BASE_URL } from '../constants/confgi';
 =======
 >>>>>>> dd609ad... Fix ModalTimeOff warning & setup axios interceptor
 import '../constants/Layout';
-import { BACKGROUND_IMG, SPACING } from '../constants/Layout';
+import { BACKGROUND_IMG, BORDER_RADIUS, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 
 const { width } = Dimensions.get('window');
@@ -163,7 +163,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
           <Text style={{ color: colorText }}>Human Resource Management Application</Text>
         </View>
         {/* Input */}
-        <View style={{ paddingTop: SPACING * 3 }}>
+        <View style={{ paddingTop: SPACING * 3, borderRadius: BORDER_RADIUS }}>
           <View style={styles.inputContainer}>
             <AntDesign name="user" size={19} color={primaryColor} style={styles.icon} />
             <TextInput
@@ -255,6 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: primaryColor,
     marginTop: SPACING * 3,
     color: 'white',
+    borderRadius: BORDER_RADIUS,
   },
   textInput: {
     height: 40,
@@ -263,10 +264,12 @@ const styles = StyleSheet.create({
     width: width * 0.9,
     padding: 5,
     paddingLeft: SPACING * 4,
+    borderRadius: BORDER_RADIUS,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    borderRadius: BORDER_RADIUS,
   },
   icon: {
     position: 'absolute',

@@ -14,7 +14,7 @@ import {
 import axios from '../commons/axios';
 import { colorText, lightGray, primaryColor } from '../constants/Colors';
 import { GET_WIDTH } from '../constants/config';
-import { SPACING } from '../constants/Layout';
+import { BORDER_RADIUS, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 import { AsyncButton } from './AsyncButton';
 
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   modalView: {
     margin: SPACING,
     backgroundColor: 'white',
-    borderRadius: 2,
+    borderRadius: BORDER_RADIUS,
     padding: 35,
     alignItems: 'center',
     shadowColor: '#000',
@@ -201,13 +201,13 @@ const styles = StyleSheet.create({
     color: colorText,
     alignSelf: 'flex-end',
     marginTop: 10,
-    borderRadius: 1,
+    borderRadius: BORDER_RADIUS,
   },
   buttonSubmit: {
     backgroundColor: primaryColor,
     alignSelf: 'flex-end',
     marginTop: SPACING,
-    borderRadius: 2,
+    borderRadius: BORDER_RADIUS,
     marginRight: 10,
   },
   noteContain: {
@@ -217,5 +217,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.3,
     marginVertical: 10,
     paddingTop: 5,
+    borderRadius: BORDER_RADIUS,
   },
 });
