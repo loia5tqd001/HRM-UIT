@@ -4,47 +4,24 @@ import { readEmployee } from '@/services/employee';
 import styles from '@/styles/employee_detail.less';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
+import { Card } from 'antd';
 import { isEqual } from 'lodash';
 import React, { useEffect } from 'react';
 import { useModel } from 'umi';
 
 export const Edit: React.FC = () => {
-  const { initialState, setInitialState } = useModel('@@initialState');
-  const id = initialState?.currentUser?.id;
-  const record = useAsyncData<API.Employee>(() => readEmployee(id!));
-
-  const isActive = record.data?.status !== 'Terminated';
-
-  useEffect(() => {
-    if (!isEqual(record.data, initialState?.currentUser)) {
-      setInitialState({ ...initialState, currentUser: record.data });
-    }
-  }, [record.data, initialState, setInitialState]);
-
-  const onChange: OnChangeSubscription = {
-    status: (newStatus) => {
-      if (!record.data) return;
-      record.setData({ ...record.data, status: newStatus });
-    },
-    basicInfo: (newInfo) => {
-      if (!record.data) return;
-      record.setData({ ...record.data, ...newInfo, user: record.data.user });
-    },
-  };
-
   return (
-    <PageContainer title={false} loading={!id}>
-      <GridContent>
-        <div className={styles.layout}>
-          <EmployeeLeftPanel
-            employee={record.data}
-            setEmployee={record.setData}
-            type="account-profile"
-            onChange={onChange}
-          />
-          <EmployeeTabs employeeId={id!} isActive={isActive} onChange={onChange} />
+    <PageContainer title={false}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <Card title="Attendance" className="card-shadow"></Card>
+        <Card title="Time Off" className="card-shadow"></Card>
+        <div style={{ gridColumn: '1/-1' }}>
+          <Card title="Pending Approval" className="card-shadow"></Card>
         </div>
-      </GridContent>
+        <div style={{ gridColumn: '1/-1' }}>
+          <Card title="Analysis" className="card-shadow"></Card>
+        </div>
+      </div>
     </PageContainer>
   );
 };

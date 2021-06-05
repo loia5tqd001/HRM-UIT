@@ -78,14 +78,11 @@ export const PayrollDetail: React.FC = () => {
               <Space>
                 <div style={{ alignSelf: 'flex-end' }}>
                   <Tag>
-                    Template:{' '}
-                    <span style={{ fontSize: '1.2em', fontWeight: 600 }}>
-                      {payroll?.template}
-                    </span>
+                    Template: <span className="emphasize-tag">{payroll?.template}</span>
                   </Tag>
                   <Tag>
                     Cycle:{' '}
-                    <span style={{ fontSize: '1.2em', fontWeight: 600 }}>
+                    <span className="emphasize-tag">
                       {moment(payroll?.period.start_date).format('DD MMM YYYY')}
                       {' → '}
                       {moment(payroll?.period.end_date).format('DD MMM YYYY')}

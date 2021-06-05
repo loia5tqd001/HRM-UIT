@@ -379,12 +379,20 @@ const MyAttendance: React.FC = () => {
           <>
             {lastAction ? (
               <>
-                <Tag>First clock in: {firstClockIn}</Tag>
-                <Tag>Last clock out: {lastClockOut}</Tag>
-                <Tag>Last action: {lastAction}</Tag>
+                <Tag>
+                  First clock in: <span className="emphasize-tag">{firstClockIn}</span>
+                </Tag>
+                <Tag>
+                  Last clock out: <span className="emphasize-tag">{lastClockOut}</span>
+                </Tag>
+                <Tag>
+                  Last action: <span className="emphasize-tag">{lastAction}</span>
+                </Tag>
               </>
             ) : (
-              <Tag>No activities today yet</Tag>
+              <Tag>
+                <span className="emphasize-tag">No activities today yet</span>
+              </Tag>
             )}
           </>,
           <Button

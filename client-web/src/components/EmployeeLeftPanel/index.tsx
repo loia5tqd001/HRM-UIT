@@ -274,7 +274,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
               width="400px"
               trigger={
                 <Button key="terminate" danger style={{ width: '100%' }}>
-                  Terminate Contract
+                  Terminate Employment
                 </Button>
               }
               onVisibleChange={() => {
