@@ -563,17 +563,19 @@ declare namespace API {
     description: string;
   }
 
+  interface PayrollField {
+    index: number;
+    datatype: 'Text' | 'Number' | 'Currency';
+    type: 'System Field' | 'Input' | 'Formula';
+    display_name: string;
+    code_name: string;
+    define: string;
+  }
+
   interface PayrollTemplate {
     id: number;
     name: string;
-    fields: {
-      index: number;
-      datatype: 'Text' | 'Number' | 'Currency';
-      type: 'System Field' | 'Input' | 'Formula';
-      display_name: string;
-      code_name: string;
-      define: string;
-    }[];
+    fields: PayrollField[];
   }
 
   interface Payroll {
@@ -592,13 +594,7 @@ declare namespace API {
     values: {
       num_value: null | number;
       str_value: null | string;
-      field: {
-        code_name: string;
-        define: string | null;
-        display_name: string;
-        index: number;
-        type: 'System Field' | 'Input' | 'Define';
-      };
+      field: PayrollField;
     }[];
     payrollDetail?: Payroll;
   }

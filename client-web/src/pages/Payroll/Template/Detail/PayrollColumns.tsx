@@ -283,7 +283,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
   const [systemFields, setSystemFields] = useState<API.SystemField[]>();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [tableData, setTableData] = useState<API.PayrollTemplate['fields']>([]);
-  const [isCollapsed, setIsCollapse] = useState(true);
+  const [isCollapsed, setIsCollapse] = useState(false);
 
   useEffect(() => {
     setTableData(
@@ -311,24 +311,6 @@ export const PayrollColumns: React.FC<Props> = (props) => {
           extra={
             <Space>
               <Button
-                icon={<PlusOutlined />}
-                style={{ width: '100%' }}
-                children="Add Column"
-                onClick={() => {
-                  setTableData([
-                    ...tableData,
-                    {
-                      type: 'Formula',
-                      datatype: 'Text',
-                      code_name: `formula_${tableData.length + 1}`,
-                      define: '',
-                      display_name: `Column ${tableData.length + 1}`,
-                      index: tableData.length,
-                    },
-                  ]);
-                }}
-              />
-              <Button
                 children="Save"
                 type="primary"
                 onClick={async () => {
@@ -343,92 +325,113 @@ export const PayrollColumns: React.FC<Props> = (props) => {
             </Space>
           }
         >
-          <Affix offsetTop={50}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: `1fr ${isCollapsed ? '0' : 'minmax(300px, auto)'}`,
-                margin: '0 12px',
-                gap: 12,
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{ height: 'calc(100vh - 50px)', overflow: 'auto' }}>
-                <SortableTable />
-              </div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `1fr ${isCollapsed ? '0' : 'minmax(300px, auto)'}`,
+              margin: '0 12px',
+              gap: 12,
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ height: 'calc(100vh - 50px)', overflow: 'auto' }}>
+              <SortableTable />
+            </div>
+            <div>
               <div>
-                <div>
-                  <Input.Search
-                    style={{ width: '100%' }}
-                    placeholder="Search for system fields"
-                    onSearch={setSearchKeyword}
+                <Button
+                  className="primary-outlined-button"
+                  icon={<PlusOutlined />}
+                  style={{ width: '100%' }}
+                  children="Add Formula Column"
+                  onClick={() => {
+                    let nextNumber = String(tableData.length + 1);
+                    // eslint-disable-next-line @typescript-eslint/no-loop-func
+                    while (tableData.find((it) => it.code_name === `formula_${nextNumber}`)) {
+                      nextNumber += '.1';
+                    }
+                    setTableData([
+                      ...tableData,
+                      {
+                        type: 'Formula',
+                        datatype: 'Text',
+                        code_name: `formula_${nextNumber}`,
+                        define: '',
+                        display_name: `Column ${nextNumber}`,
+                        index: tableData.length,
+                      },
+                    ]);
+                  }}
+                />
+                <Input.Search
+                  style={{ width: '100%' }}
+                  placeholder="Or Add System Field Columns Below"
+                  onSearch={setSearchKeyword}
+                />
+              </div>
+              <div style={{ height: 'calc(100vh - 82px)', overflow: 'auto', background: 'white' }}>
+                <Tooltip title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}>
+                  <Button
+                    style={{
+                      position: 'absolute',
+                      zIndex: 1,
+                      top: 'calc(50% - 100px)',
+                      transform: 'translateX(-50%)',
+                    }}
+                    icon={isCollapsed ? <DoubleLeftOutlined /> : <DoubleRightOutlined />}
+                    onClick={() => {
+                      setIsCollapse(!isCollapsed);
+                    }}
+                    type={isCollapsed ? 'primary' : undefined}
+                    className={isCollapsed ? undefined : 'primary-outlined-button'}
                   />
-                </div>
-                <div
-                  style={{ height: 'calc(100vh - 82px)', overflow: 'auto', background: 'white' }}
-                >
-                  <Tooltip title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}>
-                    <Button
-                      style={{
-                        position: 'absolute',
-                        zIndex: 1,
-                        top: 'calc(50% - 100px)',
-                        transform: 'translateX(-50%)',
+                </Tooltip>
+                <List
+                  itemLayout="horizontal"
+                  dataSource={systemFields?.filter(
+                    (it) =>
+                      it.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                      it.code_name.toLowerCase().includes(searchKeyword.toLowerCase()),
+                  )}
+                  loading={!systemFields}
+                  bordered
+                  renderItem={(item, index) => (
+                    <List.Item
+                      onClick={(e) => {
+                        if (!systemFields) {
+                          message.error('Cannot find system fields');
+                          return;
+                        }
+                        const codeName = systemFields?.[index].code_name;
+                        const codeNameExists = tableData.some((it) => it.code_name === codeName);
+                        if (codeNameExists) {
+                          message.error(`${codeName} already exists`);
+                          return;
+                        }
+                        setTableData([
+                          ...tableData,
+                          {
+                            type: 'System Field',
+                            datatype: 'Text',
+                            code_name: systemFields[index].code_name,
+                            define: '',
+                            display_name: systemFields[index].name,
+                            index: tableData.length,
+                          },
+                        ]);
                       }}
-                      icon={isCollapsed ? <DoubleLeftOutlined /> : <DoubleRightOutlined />}
-                      onClick={() => {
-                        setIsCollapse(!isCollapsed);
-                      }}
-                      type={isCollapsed ? 'primary' : undefined}
-                    />
-                  </Tooltip>
-                  <List
-                    itemLayout="horizontal"
-                    dataSource={systemFields?.filter(
-                      (it) =>
-                        it.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                        it.code_name.toLowerCase().includes(searchKeyword.toLowerCase()),
-                    )}
-                    loading={!systemFields}
-                    bordered
-                    renderItem={(item, index) => (
-                      <List.Item
-                        onClick={(e) => {
-                          if (!systemFields) {
-                            message.error('Cannot find system fields');
-                            return;
-                          }
-                          const codeName = systemFields?.[index].code_name;
-                          const codeNameExists = tableData.some((it) => it.code_name === codeName);
-                          if (codeNameExists) {
-                            message.error(`${codeName} already exists`);
-                            return;
-                          }
-                          setTableData([
-                            ...tableData,
-                            {
-                              type: 'System Field',
-                              datatype: 'Text',
-                              code_name: systemFields[index].code_name,
-                              define: '',
-                              display_name: systemFields[index].name,
-                              index: tableData.length,
-                            },
-                          ]);
-                        }}
-                        className={styles.listItem}
-                      >
-                        <List.Item.Meta
-                          title={`${item.code_name} (${item.name})`}
-                          description={item.description}
-                        />
-                      </List.Item>
-                    )}
-                  />
-                </div>
+                      className={styles.listItem}
+                    >
+                      <List.Item.Meta
+                        title={`${item.code_name} (${item.name})`}
+                        description={item.description}
+                      />
+                    </List.Item>
+                  )}
+                />
               </div>
             </div>
-          </Affix>
+          </div>
         </Card>
       </div>
     </TableContext.Provider>

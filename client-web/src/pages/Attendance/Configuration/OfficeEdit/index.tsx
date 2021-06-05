@@ -223,8 +223,6 @@ export const OfficeEdit: React.FC = () => {
             style={{
               height: '500px',
               width: '100%',
-              maxWidth: '70vw',
-              maxHeight: '80vh',
               marginBottom: 10,
             }}
           >
