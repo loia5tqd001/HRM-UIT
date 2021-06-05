@@ -29,12 +29,21 @@ export const PayrollDetail: React.FC = () => {
         fetchData[0].values
           .map((it) => it.field)
           .sort((a, b) => a.index - b.index)
-          .map((it) => ({ dataIndex: it.code_name, title: it.display_name })),
+          .map((it) => ({
+            dataIndex: it.code_name,
+            title: it.display_name,
+          })),
       );
       setTableData(
         fetchData.map((it) => {
           return it.values.reduce((acc, cur) => {
             acc[cur.field.code_name] = cur.num_value ? Number(cur.num_value) : cur.str_value;
+            // TODO: Format currency
+            // if (cur.field.datatype === 'Currency') {
+            //   const formatCurrency = (value: string | number) =>
+            //     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            //   acc[cur.field.code_name] = formatCurrency(acc[cur.field.code_name]);
+            // }
             return acc;
           }, {});
         }),
@@ -68,11 +77,19 @@ export const PayrollDetail: React.FC = () => {
             extra={
               <Space>
                 <div style={{ alignSelf: 'flex-end' }}>
-                  <Tag>Template: {payroll?.template}</Tag>
                   <Tag>
-                    Cycle: {moment(payroll?.period.start_date).format('DD MMM YYYY')}
-                    {' → '}
-                    {moment(payroll?.period.end_date).format('DD MMM YYYY')}
+                    Template:{' '}
+                    <span style={{ fontSize: '1.2em', fontWeight: 600 }}>
+                      {payroll?.template}
+                    </span>
+                  </Tag>
+                  <Tag>
+                    Cycle:{' '}
+                    <span style={{ fontSize: '1.2em', fontWeight: 600 }}>
+                      {moment(payroll?.period.start_date).format('DD MMM YYYY')}
+                      {' → '}
+                      {moment(payroll?.period.end_date).format('DD MMM YYYY')}
+                    </span>
                   </Tag>
                 </div>
                 <Button

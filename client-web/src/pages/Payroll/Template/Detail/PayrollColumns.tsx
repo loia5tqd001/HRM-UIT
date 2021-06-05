@@ -68,7 +68,7 @@ const EditableCell = ({
             allowClear={false}
             options={[
               { value: 'System Field', label: 'System Field', disabled: true }, // this's disabled because System Field will be selected programmatically, not support manually
-              { value: 'Input', label: 'Input' },
+              // { value: 'Input', label: 'Input' },
               { value: 'Formula', label: 'Formula' },
             ]}
             ref={inputRef}
@@ -322,6 +322,16 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                   }
                 }}
               />
+              <Tooltip title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}>
+                <Button
+                  icon={isCollapsed ? <DoubleLeftOutlined /> : <DoubleRightOutlined />}
+                  onClick={() => {
+                    setIsCollapse(!isCollapsed);
+                  }}
+                  type={isCollapsed ? 'primary' : undefined}
+                  className={isCollapsed ? undefined : 'primary-outlined-button'}
+                />
+              </Tooltip>
             </Space>
           }
         >
@@ -334,7 +344,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
               overflow: 'hidden',
             }}
           >
-            <div style={{ height: 'calc(100vh - 50px)', overflow: 'auto' }}>
+            <div style={{ height: 'calc(100vh - 120px)', overflow: 'auto' }}>
               <SortableTable />
             </div>
             <div>
@@ -369,23 +379,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                   onSearch={setSearchKeyword}
                 />
               </div>
-              <div style={{ height: 'calc(100vh - 82px)', overflow: 'auto', background: 'white' }}>
-                <Tooltip title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}>
-                  <Button
-                    style={{
-                      position: 'absolute',
-                      zIndex: 1,
-                      top: 'calc(50% - 100px)',
-                      transform: 'translateX(-50%)',
-                    }}
-                    icon={isCollapsed ? <DoubleLeftOutlined /> : <DoubleRightOutlined />}
-                    onClick={() => {
-                      setIsCollapse(!isCollapsed);
-                    }}
-                    type={isCollapsed ? 'primary' : undefined}
-                    className={isCollapsed ? undefined : 'primary-outlined-button'}
-                  />
-                </Tooltip>
+              <div style={{ height: 'calc(100vh - 182px)', overflow: 'auto', background: 'white' }}>
                 <List
                   itemLayout="horizontal"
                   dataSource={systemFields?.filter(

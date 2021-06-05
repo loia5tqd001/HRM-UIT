@@ -1,5 +1,6 @@
 import { request } from 'umi';
 import { saveAs } from 'file-saver';
+import jwt from '@/utils/jwt';
 
 const endpoint = '/api/payrolls/';
 type Item = API.Payroll;
@@ -45,6 +46,7 @@ export async function exportExcel(id: number) {
     method: 'GET',
     headers: {
       responseType: 'arrayBuffer',
+      Authorization: `Bearer ${jwt.getAccess()}`,
     },
   }).then(async (response) => {
     const contentDisposition = response.headers.get('content-disposition');
