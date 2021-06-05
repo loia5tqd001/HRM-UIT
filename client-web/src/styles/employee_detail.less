@@ -19,8 +19,8 @@
 }
 
 .avatar {
-  max-width: 10vw;
   min-width: 200px;
+  max-width: 10vw;
   overflow: hidden;
   box-shadow: 0 0 5px #0002;
   cursor: pointer;
@@ -67,4 +67,18 @@
   display: block;
   width: 100%;
   margin-bottom: 12;
+}
+
+.roleButton {
+  display: inline-flex;
+
+  & > .button {
+    opacity: 0;
+    transform: translateX(20%);
+    transition: 0.2s;
+  }
+  &:hover > .button {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }

@@ -78,6 +78,20 @@ export async function changeEmployeeAvatar(
   });
 }
 
+export async function changeEmployeeRole(
+  employeeId: number,
+  roleName: string,
+  options?: { [key: string]: any },
+) {
+  return request(`${endpoint}${employeeId}/role/`, {
+    method: 'POST',
+    data: {
+      name: roleName,
+    },
+    ...(options || {}),
+  });
+}
+
 export async function getHomeAddress(employeeId: number, options?: { [key: string]: any }) {
   return request<API.EmployeeHomeAddress>(`${endpoint}${employeeId}/contact_info/`, {
     method: 'GET',

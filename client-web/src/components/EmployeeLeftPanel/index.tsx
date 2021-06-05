@@ -1,7 +1,8 @@
-import { changePassword } from '@/services/auth';
+import { allRoles, changePassword } from '@/services/auth';
 import {
   changeEmployeeAvatar,
   changeEmployeePassword,
+  changeEmployeeRole,
   readEmployee,
   terminateEmployee,
 } from '@/services/employee';
@@ -15,7 +16,7 @@ import {
 import { Affix, Badge, Button, Card, message, Space, Tooltip, Upload } from 'antd';
 import React from 'react';
 import styles from '@/styles/employee_detail.less';
-import { KeyOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
+import { EditOutlined, KeyOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
@@ -49,7 +50,9 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
   const id = record?.id;
   const isActive = record?.status !== 'Terminated';
   const [terminationForm] = useForm<API.TerminateContract>();
+  const [editRoleForm] = useForm<{ role: string }>();
   const terminationReasons = useAsyncData<API.TerminationReason[]>(allTerminationReasons);
+  const roles = useAsyncData<API.RoleItem[]>(allRoles);
 
   return (
     <Affix offsetTop={50}>
@@ -120,11 +123,57 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
         <h4
           style={{
             fontWeight: 400,
+            display: 'inline-flex',
           }}
           title={`Role: ${record?.role}`}
-          className={styles.textEllipse}
+          className={`${styles.textEllipse} ${styles.roleButton}`}
         >
           <KeyOutlined /> <span className={styles.content}>{record?.role}</span>
+          <ModalForm<{ role: string }>
+            title="Edit Role"
+            width="400px"
+            trigger={
+              <span className={styles.button}>
+                <Button
+                  size="small"
+                  className="primary-outlined-button"
+                  icon={<EditOutlined />}
+                  title="Edit role"
+                ></Button>
+              </span>
+            }
+            onVisibleChange={(visible) => {
+              if (visible) {
+                editRoleForm.setFieldsValue({ role: record?.role });
+              } else {
+                editRoleForm.resetFields();
+              }
+            }}
+            form={editRoleForm}
+            onFinish={async (value) => {
+              try {
+                await changeEmployeeRole(id!, value.role);
+                message.success('Update successfully!');
+                onChange?.basicInfo?.({ ...value } as any);
+                return true;
+              } catch {
+                message.error('Update unsuccessfully!');
+                return false;
+              }
+            }}
+          >
+            <ProFormSelect
+              name="role"
+              width="md"
+              label="Role"
+              options={roles.data?.map((it) => ({
+                value: it.name,
+                label: it.name,
+              }))}
+              hasFeedback={roles.isLoading}
+              rules={[{ required: true }]}
+            />
+          </ModalForm>
         </h4>
         <h4
           style={{
