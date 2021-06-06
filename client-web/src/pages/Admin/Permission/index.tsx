@@ -247,6 +247,7 @@ const Permission: React.FC = () => {
           />
         </ProCard>
         <ProCard
+          className="header-capitalize"
           title={`Permissions of: ${viewingRecord?.name || ''}`}
           extra={
             <Button
@@ -302,6 +303,7 @@ const Permission: React.FC = () => {
             style={{ height: 'calc(100vh - 350px)' }}
             scroll={{ x: 'max-content', y: 'calc(100vh - 400px)' }}
             pagination={false}
+            className="no-header-color"
           />
         </ProCard>
       </ProCard>

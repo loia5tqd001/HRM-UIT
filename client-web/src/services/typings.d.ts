@@ -372,6 +372,23 @@ declare namespace API {
     end_date: string;
   }
 
+  interface AttendanceHelper {
+    next_step: 'clock in' | 'clock out';
+    first_clock_in: moment.Moment | string | null;
+    last_clock_out: moment.Moment | string | null;
+    last_action: 'clock in' | 'clock out';
+    last_action_at: moment.Moment | string | null;
+    location: Location;
+    is_outside: boolean;
+  }
+
+  interface TimeOffHelper {
+    Pending: number;
+    Approved: number;
+    Rejected: number;
+    Canceled: number;
+  }
+
   interface JobTitle {
     id: number;
     name: string;

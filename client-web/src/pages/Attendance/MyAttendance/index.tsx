@@ -36,7 +36,7 @@ import {
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useIntl, useModel } from 'umi';
+import { history, useIntl, useModel } from 'umi';
 
 type RecordType = API.AttendanceRecord;
 
@@ -65,6 +65,11 @@ const MyAttendance: React.FC = () => {
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
+
+  useEffect(() => {
+    const { action } = history.location.query as any;
+    if (action === 'nextStep') setClockModalVisible(true);
+  }, []);
 
   useEffect(() => {
     allHolidays().then((fetchData) => setHolidays(fetchData));

@@ -18,7 +18,7 @@ import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FormattedMessage, useIntl, useModel } from 'umi';
+import { FormattedMessage, history, useIntl, useModel } from 'umi';
 
 type RecordType = API.TimeoffRequest & {
   off_days?: [moment.Moment, moment.Moment];
@@ -46,6 +46,11 @@ export const Timeoff: React.FC = () => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
     getSchedule(id).then((fetchData) => setSchedule(fetchData.schedule as API.Schedule));
   }, [id]);
+
+  useEffect(() => {
+    const { action } = history.location.query as any;
+    if (action === 'new') setCrudModalVisible('create');
+  }, []);
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {

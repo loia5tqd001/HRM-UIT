@@ -57,20 +57,45 @@ body,
 
 .ant-modal-title,
 .ant-pro-card-title,
-.ant-card-head-title,
+.ant-card-head,
 .ant-pro-table-list-toolbar-title {
   font-weight: bold !important;
   text-transform: uppercase;
   color: @primary-color !important;
 }
+.header-capitalize {
+  .ant-modal-title,
+  .ant-pro-card-title,
+  .ant-card-head,
+  .ant-pro-table-list-toolbar-title {
+    text-transform: capitalize !important;
+  }
+}
 .ant-modal-title {
   text-transform: capitalize !important;
 }
 
-.ant-modal-header,
-.ant-table-thead .ant-table-cell {
-  font-weight: bold !important;
+.ant-modal-header {
   background: #f6f6f6 !important;
+}
+.header-with-background {
+  .ant-pro-card-title,
+  .ant-card-head {
+    --header-color: #fff5eb;
+    background: var(--header-color) !important;
+  }
+}
+.ant-table-thead .ant-table-cell {
+  --header-color: #faf5f1;
+  font-weight: bold !important;
+  background: var(--header-color) !important;
+}
+.no-header-color .ant-table-thead .ant-table-cell {
+  --header-color: #00000006;
+}
+
+.ant-card-head {
+  border-bottom-width: 1.5px !important;
 }
 
 .outlined-button(@color) {
