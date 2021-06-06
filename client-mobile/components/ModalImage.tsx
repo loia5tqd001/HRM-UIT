@@ -36,7 +36,7 @@ const ModalImage = ({
 
   const submitData = async () => {
     const key = nextStep === 'clock in' ? 'check_in' : 'check_out';
-    const blob = await(await fetch(captureImage.uri)).blob(); 
+    const blob = await (await fetch(captureImage.uri)).blob();
     const dataSubmit = {
       [`${key}_lat`]: location?.lat,
       [`${key}_lng`]: location?.lng,
@@ -59,9 +59,7 @@ const ModalImage = ({
         setModalVisible(false);
       })
       .catch((error) => {
-        console.log(error.response.data);
-        Alert.alert(error.response.data || 'Submit request unsuccessfully!');
-        throw error;
+        if (error.response.data !== 'HANDLED') Alert.alert('Submit request unsuccessfully!');
       });
   };
 

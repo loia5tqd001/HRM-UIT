@@ -2,6 +2,7 @@ import axios from 'axios';
 import { clearDataAsync, getDataAsync, storeAccessToken, storeRefreshToken } from '.';
 import { BASE_URL } from '../constants/config';
 import { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { Alert } from 'react-native';
 
 type ResponseData = {
   access: string;
@@ -29,7 +30,7 @@ const onResponse = (response: AxiosResponse): AxiosResponse => {
 let refreshTokenRequest: Promise<AxiosResponse<ResponseData>> | null = null;
 const onResponseError = async (error: AxiosError): Promise<AxiosError> => {
   if (!error.response) return Promise.reject('Network Error');
-  console.log(error.config);
+  console.log(error.config, error.response);
 
   const accessTokenExpired =
     error.response.status === 401 && !error.response.config.url?.includes('/auth/token/refresh');
@@ -53,6 +54,10 @@ const onResponseError = async (error: AxiosError): Promise<AxiosError> => {
     } finally {
       refreshTokenRequest = null;
     }
+  }
+  if (error.response.data) {
+    Alert.alert(error.response.data);
+    error.response.data = 'HANDLED';
   }
   return Promise.reject(error);
 };

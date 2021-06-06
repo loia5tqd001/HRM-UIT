@@ -29,9 +29,8 @@ export default function TimeOffScreen({ navigation }: any) {
             <Text style={{ color: 'white', margin: 10 }}>+ New</Text>
           </TouchableOpacity>
         </View>
-        <ListHistory />
+        <ListHistory show={show} setShow={setShow} />
       </View>
-      <ModalTimeOff show={show} setShow={setShow} />
     </SafeAreaView>
   );
 }

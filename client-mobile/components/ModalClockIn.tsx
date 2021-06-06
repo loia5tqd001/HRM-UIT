@@ -90,9 +90,7 @@ const ModalClockIn = React.forwardRef((props: TypeModal, ref: RefModal) => {
       })
       .then(closeModal)
       .catch((error) => {
-        console.log(error.response.data);
-        Alert.alert(error.response.data || 'Submit request unsuccessfully!');
-        throw error;
+        if (error.response.data !== 'HANDLED') Alert.alert('Submit request unsuccessfully!');
       });
   };
   return (

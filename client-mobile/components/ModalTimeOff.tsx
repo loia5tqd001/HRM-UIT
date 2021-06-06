@@ -25,6 +25,7 @@ import { AsyncButton } from './AsyncButton';
 type TypeModal = {
   show: boolean;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  onSuccess: () => void;
 };
 
 const widthDefault = GET_WIDTH - 110;
@@ -36,7 +37,7 @@ export interface TimeOffType {
   is_paid: boolean;
 }
 
-const ModalTimeOff = ({ show, setShow }: TypeModal) => {
+const ModalTimeOff = ({ show, setShow, onSuccess }: TypeModal) => {
   const { user } = useContext(AuthContext)!;
 
   const [showPickDate, setShowPickDate] = useState({ show: false, type: 'start_date' });
@@ -81,14 +82,13 @@ const ModalTimeOff = ({ show, setShow }: TypeModal) => {
     };
 
     await axios
-      .post(`/employees/${user?.id}/time_off/ `, dataSubmit)
+      .post(`/employees/${user?.id}/time_off/`, dataSubmit)
       .then((res) => {
-        console.log('res', res);
+        onSuccess();
         setShow(false);
       })
       .catch((er) => {
-        console.log(er);
-        Alert.alert('Submit request unsuccessfully!');
+        if (er.response.data !== 'HANDLED') Alert.alert('Submit request unsuccessfully!');
       });
   };
   return (
