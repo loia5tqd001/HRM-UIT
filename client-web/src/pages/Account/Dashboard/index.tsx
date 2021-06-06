@@ -1,14 +1,17 @@
 import { allAttendances, attendanceHelper } from '@/services/attendance';
-import { getSchedule } from '@/services/employee';
+import { allEmployees, getSchedule } from '@/services/employee';
 import { allTimeoffs } from '@/services/timeOff';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import {
   CommentOutlined,
+  EyeOutlined,
   HistoryOutlined,
   LockOutlined,
+  ManOutlined,
   MehOutlined,
   ScheduleOutlined,
   TableOutlined,
+  WomanOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
@@ -16,7 +19,7 @@ import { Avatar, Badge, Button, Card, Progress, Space, Tooltip } from 'antd';
 import { countBy, groupBy, mapValues, sumBy } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { history, Link } from 'umi';
+import { FormattedMessage, history, Link } from 'umi';
 
 const CustomButton = ({ icon: Icon, text, ...props }) => {
   return (
@@ -134,6 +137,140 @@ const calcHours = ({
   return Number(hours.toFixed(1));
 };
 
+const empColumns: ProColumns<any>[] = [
+  {
+    title: (
+      <FormattedMessage id="pages.employee.list.column.full_name" defaultMessage="Full name" />
+    ),
+    key: 'full_name',
+    dataIndex: 'avatar',
+    valueType: 'avatar',
+    render: (avatar, record) => (
+      <Space>
+        <span>{avatar}</span>
+        <Link to={`/employee/list/${record.id}`}>
+          {record.first_name} {record.last_name}
+        </Link>
+      </Space>
+    ),
+    fixed: 'left',
+  },
+  {
+    title: <FormattedMessage id="pages.employee.list.column.role" defaultMessage="Role" />,
+
+    key: 'role',
+    dataIndex: 'role',
+  },
+  {
+    title: <FormattedMessage id="pages.employee.list.column.gender" defaultMessage="Gender" />,
+    key: 'gender',
+    dataIndex: 'gender',
+    valueEnum: {
+      Male: {
+        text: <ManOutlined style={{ color: '#3C79CF' }} />,
+      },
+      Female: {
+        text: <WomanOutlined style={{ color: '#F23A87' }} />,
+      },
+      Other: {
+        text: 'Other',
+      },
+    },
+  },
+  {
+    title: (
+      <FormattedMessage id="pages.employee.list.column.email" defaultMessage="Email address" />
+    ),
+
+    key: 'email',
+    dataIndex: 'email',
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="pages.employee.list.column.marital_status"
+        defaultMessage="Marital status"
+      />
+    ),
+    key: 'marital_status',
+    dataIndex: 'marital_status',
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="pages.employee.list.column.date_of_birth"
+        defaultMessage="DoB (YYYY-MM-DD)"
+      />
+    ),
+    key: 'date_of_birth',
+    dataIndex: 'date_of_birth',
+    valueType: 'date',
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="pages.employee.list.column.personal_tax_id"
+        defaultMessage="Personal tax id"
+      />
+    ),
+    key: 'personal_tax_id',
+    dataIndex: 'personal_tax_id',
+  },
+  {
+    title: (
+      <FormattedMessage id="pages.employee.list.column.nationality" defaultMessage="Nationality" />
+    ),
+    key: 'nationality',
+    dataIndex: 'nationality',
+  },
+  {
+    title: <FormattedMessage id="pages.employee.list.column.phone" defaultMessage="Phone" />,
+    key: 'phone',
+    dataIndex: 'phone',
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="pages.employee.list.column.social_insurance"
+        defaultMessage="Social insurance"
+      />
+    ),
+    key: 'social_insurance',
+    dataIndex: 'social_insurance',
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="pages.employee.list.column.health_insurance"
+        defaultMessage="Health insurance"
+      />
+    ),
+    key: 'health_insurance',
+    dataIndex: 'health_insurance',
+  },
+  {
+    title: 'Actions',
+    key: 'action',
+    fixed: 'right',
+    align: 'center',
+    search: false,
+    render: (dom, record) => (
+      <Space size="small">
+        <Button
+          title="Follow up"
+          size="small"
+          className="primary-outlined-button"
+          onClick={() => {
+            history.push(`/employee/list/${record.id}`);
+          }}
+        >
+          <EyeOutlined />
+        </Button>
+      </Space>
+    ),
+  },
+];
+
 export const Edit: React.FC = () => {
   const attendanceInfo = useAsyncData<API.AttendanceHelper>(attendanceHelper);
   return (
@@ -149,25 +286,21 @@ export const Edit: React.FC = () => {
             />
             <CustomButton
               icon={MehOutlined}
-              className="primary-outlined-button"
               text="Submit Timeoff Request"
               onClick={() => history.push('/timeOff/me?action=new')}
             />
             <CustomButton
               icon={ScheduleOutlined}
-              className="primary-outlined-button"
               text="View My Attendance"
               onClick={() => history.push('/attendance/me')}
             />
             <CustomButton
               icon={TableOutlined}
-              className="primary-outlined-button"
               text="View My Time Off Requests"
               onClick={() => history.push('/timeOff/me')}
             />
             <CustomButton
               icon={CommentOutlined}
-              className="primary-outlined-button"
               text="See Messages"
               onClick={() => history.push('/message/conversation')}
             />
@@ -229,7 +362,7 @@ export const Edit: React.FC = () => {
             rowKey="id"
             search={false}
             request={async () => {
-              let data: any[] = await allAttendances();
+              let data = await allAttendances();
 
               const schedules = await Promise.all(
                 data
@@ -278,8 +411,7 @@ export const Edit: React.FC = () => {
 
               return {
                 success: true,
-                data,
-                total: data.length,
+                data: data.filter(it => it.status.Pending),
               };
             }}
             toolBarRender={() => [
@@ -291,7 +423,27 @@ export const Edit: React.FC = () => {
             pagination={{ pageSize: 5, simple: true }}
           />
         </div>
-        <Card title="Analysis" className="card-shadow"></Card>
+        <ProTable<any, API.PageParams>
+          headerTitle="New Hires"
+          className="card-shadow"
+          rowKey="id"
+          scroll={{ x: 'max-content' }}
+          toolBarRender={() => [
+            <Button type="primary" onClick={() => history.push('/employee/list')}>
+              View All
+            </Button>,
+          ]}
+          request={async (query) => {
+            const fetchData = await allEmployees();
+            return {
+              success: true,
+              data: fetchData.filter((it) => it.status === 'NewHired'),
+            };
+          }}
+          search={false}
+          columns={empColumns}
+          pagination={{ pageSize: 5, simple: true }}
+        />
       </div>
     </PageContainer>
   );
