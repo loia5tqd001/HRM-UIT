@@ -36,8 +36,8 @@ const CustomButton = ({ icon: Icon, text, ...props }) => {
         ...props.style,
       }}
     >
-      <Icon style={{ fontSize: '1.5em', marginTop: '0.1em' }} />
-      <span style={{ marginRight: '0.3em', fontWeight: 200 }}>{text}</span>
+      <Icon style={{ fontSize: '1.5em', marginTop: '0.3em' }} />
+      <span style={{ marginRight: '0.3em', fontWeight: 100, marginBottom: '0.2em' }}>{text}</span>
     </Button>
   );
 };
@@ -276,7 +276,11 @@ export const Edit: React.FC = () => {
   return (
     <PageContainer title={false}>
       <div style={{ display: 'grid', gap: 24 }}>
-        <Card title="Quick Actions" className="card-shadow" loading={attendanceInfo.isLoading}>
+        <Card
+          title="Quick Actions"
+          className="card-shadow header-capitalize"
+          loading={attendanceInfo.isLoading}
+        >
           <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: -24 }}>
             <CustomButton
               icon={HistoryOutlined}
@@ -308,7 +312,7 @@ export const Edit: React.FC = () => {
         </Card>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
           <ProTable<any>
-            className="card-shadow"
+            className="card-shadow header-capitalize"
             headerTitle="Pending Timeoff Requests"
             rowKey="id"
             search={false}
@@ -357,7 +361,7 @@ export const Edit: React.FC = () => {
             pagination={{ pageSize: 5, simple: true }}
           />
           <ProTable<any>
-            className="card-shadow"
+            className="card-shadow header-capitalize"
             headerTitle="Pending Attendance Requests"
             rowKey="id"
             search={false}
@@ -411,7 +415,7 @@ export const Edit: React.FC = () => {
 
               return {
                 success: true,
-                data: data.filter(it => it.status.Pending),
+                data: data.filter((it) => it.status.Pending),
               };
             }}
             toolBarRender={() => [
@@ -425,7 +429,7 @@ export const Edit: React.FC = () => {
         </div>
         <ProTable<any, API.PageParams>
           headerTitle="New Hires"
-          className="card-shadow"
+          className="card-shadow header-capitalize"
           rowKey="id"
           scroll={{ x: 'max-content' }}
           toolBarRender={() => [
