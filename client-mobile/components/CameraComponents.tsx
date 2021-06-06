@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { getWindowSize } from '../constants/Layout';
+import { BORDER_RADIUS, getWindowSize } from '../constants/Layout';
 import { primaryColor } from './../constants/Colors';
 import ModalImage from './ModalImage';
 
@@ -23,7 +23,7 @@ const Touchable = Platform.select({
   android: TouchableWithoutFeedback,
 })!;
 
-const CameraComponents = ({}: any) => {
+const CameraComponents = ({ nextStep, location }: any) => {
   const [state, setState] = useState<StateInterface>({
     hasPermission: null,
     type: Camera.Constants.Type.front,
@@ -76,7 +76,9 @@ const CameraComponents = ({}: any) => {
             onPress={async () => {
               // setShowPopup(true);
               if (ref.current) {
-                let photo = await ref.current?.takePictureAsync();
+                let photo = await ref.current?.takePictureAsync({
+                  quality: 0,
+                });
                 setPreviewVisible(true);
                 setCapturedImage(photo);
               }
@@ -108,6 +110,8 @@ const CameraComponents = ({}: any) => {
           modalVisible={previewVisible}
           setModalVisible={(c: boolean) => setPreviewVisible(c)}
           captureImage={capturedImage}
+          nextStep={nextStep}
+          location={location}
         />
       </View>
     );
@@ -119,7 +123,7 @@ export default CameraComponents;
 const styles = StyleSheet.create({
   container: {
     height: getWindowSize.window.height * 0.5,
-    borderRadius: 20,
+    borderRadius: BORDER_RADIUS * 4,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: primaryColor,

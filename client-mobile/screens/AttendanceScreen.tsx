@@ -199,7 +199,13 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
             <Text></Text>
             {/* Body */}
 
-            <CameraComponents />
+            <CameraComponents
+              nextStep={nextStep}
+              location={{
+                lat: currentLocation?.latitude,
+                lng: currentLocation?.longitude,
+              }}
+            />
             {/* Modal Clock */}
 
             <TouchableOpacity

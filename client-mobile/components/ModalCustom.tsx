@@ -4,6 +4,7 @@ import { Alert, Modal, StyleSheet, View } from 'react-native';
 const ModalCustom = ({
   modalVisible,
   children,
+  ...anotherProps
 }: {
   modalVisible: boolean;
   children: JSX.Element | JSX.Element[];
@@ -16,6 +17,7 @@ const ModalCustom = ({
       onRequestClose={() => {
         Alert.alert('Modal has been closed.');
       }}
+      {...anotherProps}
     >
       <View style={styles.container}>{children}</View>
     </Modal>
