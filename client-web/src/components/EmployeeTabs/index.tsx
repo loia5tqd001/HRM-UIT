@@ -6,6 +6,7 @@ import { Card, Radio } from 'antd';
 import React from 'react';
 import { history, Link } from 'umi';
 import styles from '@/styles/employee_detail.less';
+import { useEffect } from 'react';
 
 export type OnChangeSubscription = {
   status?: (newValue: API.Employee['status']) => any;
@@ -23,7 +24,10 @@ export const EmployeeTabs: React.FC<EmployeeTabProps> = (props) => {
   const { tab } = history.location.query as {
     tab: 'general' | 'job' | 'payroll' | 'dependent' | undefined;
   };
-  if (tab === undefined) history.push('?tab=general');
+
+  useEffect(() => {
+    if (tab === undefined) history.replace('?tab=general');
+  }, [tab]);
 
   return (
     <div className={styles.right}>

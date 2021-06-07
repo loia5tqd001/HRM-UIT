@@ -9,7 +9,7 @@ export const List: React.FC = () => {
   const { tab } = history.location.query as {
     tab: 'general' | 'columns' | 'payslip' | undefined;
   };
-  if (tab === undefined) history.push('?tab=general');
+  if (tab === undefined) history.replace('?tab=general');
 
   const { id } = useParams<any>();
   const [payrollTemplate, setPayrollTemplate] = useState<API.PayrollTemplate>();
