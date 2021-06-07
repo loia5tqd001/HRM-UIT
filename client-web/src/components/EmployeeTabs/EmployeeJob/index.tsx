@@ -3,18 +3,12 @@ import { __DEV__ } from '@/global';
 import { calcHours, convertFromBackend } from '@/pages/Admin/Job/WorkSchedule';
 import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
 import { allJobTitles } from '@/services/admin.job.jobTitle';
-import { allTerminationReasons } from '@/services/admin.job.terminationReason';
 import { allSchedules } from '@/services/admin.job.workSchedule';
 import { allLocations } from '@/services/admin.organization.location';
 import { allDepartments } from '@/services/admin.organization.structure';
-import {
-  allJobs,
-  getSchedule,
-  terminateEmployee,
-  updateJob,
-  updateSchedule,
-} from '@/services/employee';
+import { allJobs, getSchedule, updateJob, updateSchedule } from '@/services/employee';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
+import { useEmployeeDetailAccess } from '@/utils/hooks/useEmployeeDetailType';
 import ProForm, {
   ModalForm,
   ProFormDatePicker,
@@ -29,6 +23,7 @@ import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
+import { Access } from 'umi';
 import type { EmployeeTabProps } from '..';
 
 const jobEvents: API.JobEvent[] = [
@@ -42,17 +37,28 @@ const jobEvents: API.JobEvent[] = [
 
 export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
+
+  // == RBAC.BEGIN
+  const { canViewJob, canChangeJob, canViewSchedule, canChangeSchedule } = useEmployeeDetailAccess({
+    employeeId,
+    isActive,
+  });
+  // == RBAC.END
+
   const [departments, setDepartments] = useState<API.DepartmentUnit[]>();
   const [jobTitles, setJobTitles] = useState<API.JobTitle[]>();
   const [schedules, setSchedules] = useState<API.Schedule[]>();
   const [locations, setLocations] = useState<API.Location[]>();
   const [employmentStatuses, setEmploymentStatuses] = useState<API.EmploymentStatus[]>();
-  const [terminationReasons, setTerminationReasons] = useState<API.TerminationReason[]>();
   const [terminationForm] = useForm<API.TerminateContract>();
   const [scheduleForm] = useForm<API.EmployeeSchedule>();
   const [rejoinForm] = useForm<API.EmployeeJob>();
-  const jobs = useAsyncData<API.EmployeeJob[]>(() => allJobs(employeeId));
-  const schedule = useAsyncData<API.EmployeeSchedule>(() => getSchedule(employeeId));
+  const jobs = useAsyncData<API.EmployeeJob[]>(() => allJobs(employeeId), {
+    callOnMount: canViewJob,
+  });
+  const schedule = useAsyncData<API.EmployeeSchedule>(() => getSchedule(employeeId), {
+    callOnMount: canViewSchedule,
+  });
 
   useEffect(() => {
     allDepartments().then((fetchData) => setDepartments(fetchData));
@@ -178,346 +184,366 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
 
   return (
     <>
-      <Card
-        loading={jobs.isLoading}
-        title={isActive ? 'Job info' : 'Job Terminated'}
-        className="card-shadow"
-      >
-        {isActive ? (
-          <ProForm<API.EmployeeJob>
-            onFinish={onUpdateJob}
-            initialValues={{ ...jobs.data?.[0], event: undefined }}
-            submitter={{
-              render: ({ form }, defaultDoms) => {
-                return [
-                  ...defaultDoms,
-                  __DEV__ && (
-                    <Button
-                      key="autoFill"
-                      onClick={() => {
-                        form?.setFieldsValue({
-                          department: faker.helpers.randomize(
-                            departments?.map((it) => it.name) || [],
-                          ),
-                          job_title: faker.helpers.randomize(jobTitles?.map((it) => it.name) || []),
-                          location: faker.helpers.randomize(locations?.map((it) => it.name) || []),
-                          employment_status: faker.helpers.randomize(
-                            employmentStatuses?.map((it) => it.name) || [],
-                          ),
-                          probation_start_date: moment(faker.date.recent()),
-                          probation_end_date: moment(faker.date.future()),
-                          contract_start_date: moment(faker.date.future()),
-                          contract_end_date: moment(faker.date.future()),
-                          event: faker.helpers.randomize<API.JobEvent>(jobEvents),
-                        });
-                      }}
-                    >
-                      Auto fill
-                    </Button>
-                  ),
-                ];
-              },
-            }}
-          >
-            <ProForm.Group>
-              <ProFormSelect
-                name="employment_status"
-                width="md"
-                label="Employment status"
-                options={employmentStatuses?.map((it) => ({ value: it.name, label: it.name }))}
-                hasFeedback={!employmentStatuses}
-                rules={[{ required: true }]}
-              />
-              <ProFormSelect
-                name="job_title"
-                width="md"
-                label="Job title"
-                options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
-                hasFeedback={!jobTitles}
-                rules={[{ required: true }]}
-              />
-              <Form.Item name="department" label="Department" rules={[{ required: true }]}>
-                <TreeSelect
-                  treeDataSimpleMode
-                  style={{ width: '100%', minWidth: 328 }}
-                  dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                  treeDefaultExpandAll
-                  loading={!departments}
-                  treeData={treeData}
-                  placeholder="Please select"
-                />
-              </Form.Item>
-              <ProFormSelect
-                name="location"
-                width="md"
-                label="Location"
-                options={locations?.map((it) => ({ value: it.name, label: it.name }))}
-                hasFeedback={!locations}
-                rules={[{ required: true }]}
-              />
-              <ProFormDatePicker
-                width="md"
-                name="probation_start_date"
-                label="Probation start date"
-              />
-              <ProFormDatePicker width="md" name="probation_end_date" label="Probation end date" />
-              <ProFormDatePicker
-                width="md"
-                name="contract_start_date"
-                label="Contract start date"
-              />
-              <ProFormDatePicker width="md" name="contract_end_date" label="Contract end date" />
-              {jobs.data?.[0] !== undefined && (
+      <Access accessible={canViewJob}>
+        <Card
+          loading={jobs.isLoading}
+          title={isActive ? 'Job info' : 'Job Terminated'}
+          className="card-shadow"
+        >
+          {isActive ? (
+            <ProForm<API.EmployeeJob>
+              onFinish={onUpdateJob}
+              initialValues={{ ...jobs.data?.[0], event: undefined }}
+              submitter={{
+                render: ({ form }, defaultDoms) => {
+                  return (
+                    canChangeJob && [
+                      ...defaultDoms,
+                      __DEV__ && (
+                        <Button
+                          key="autoFill"
+                          onClick={() => {
+                            form?.setFieldsValue({
+                              department: faker.helpers.randomize(
+                                departments?.map((it) => it.name) || [],
+                              ),
+                              job_title: faker.helpers.randomize(
+                                jobTitles?.map((it) => it.name) || [],
+                              ),
+                              location: faker.helpers.randomize(
+                                locations?.map((it) => it.name) || [],
+                              ),
+                              employment_status: faker.helpers.randomize(
+                                employmentStatuses?.map((it) => it.name) || [],
+                              ),
+                              probation_start_date: moment(faker.date.recent()),
+                              probation_end_date: moment(faker.date.future()),
+                              contract_start_date: moment(faker.date.future()),
+                              contract_end_date: moment(faker.date.future()),
+                              event: faker.helpers.randomize<API.JobEvent>(jobEvents),
+                            });
+                          }}
+                        >
+                          Auto fill
+                        </Button>
+                      ),
+                    ]
+                  );
+                },
+              }}
+            >
+              <ProForm.Group>
                 <ProFormSelect
-                  name="event"
+                  name="employment_status"
                   width="md"
-                  label="Job event"
-                  options={jobEvents.map((it) => ({ value: it, label: it }))}
+                  label="Employment status"
+                  options={employmentStatuses?.map((it) => ({ value: it.name, label: it.name }))}
+                  hasFeedback={!employmentStatuses}
                   rules={[{ required: true }]}
                 />
-              )}
-            </ProForm.Group>
-          </ProForm>
-        ) : (
-          <ProForm<API.TerminateContract>
-            form={terminationForm}
-            initialValues={jobs.data?.[0]?.termination}
-            submitter={{
-              render: () => {
-                return [
-                  <ModalForm<API.EmployeeJob>
-                    title="Rejoin"
-                    width="780px"
-                    form={rejoinForm}
-                    trigger={
-                      <Button key="rejoin" type="primary">
-                        Rejoin
-                      </Button>
-                    }
-                    onVisibleChange={(visible) => {
-                      if (visible && jobs.data?.[0]) {
-                        rejoinForm?.setFieldsValue(jobs.data[0]);
+                <ProFormSelect
+                  name="job_title"
+                  width="md"
+                  label="Job title"
+                  options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
+                  hasFeedback={!jobTitles}
+                  rules={[{ required: true }]}
+                />
+                <Form.Item name="department" label="Department" rules={[{ required: true }]}>
+                  <TreeSelect
+                    treeDataSimpleMode
+                    style={{ width: '100%', minWidth: 328 }}
+                    dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                    treeDefaultExpandAll
+                    loading={!departments}
+                    treeData={treeData}
+                    placeholder="Please select"
+                  />
+                </Form.Item>
+                <ProFormSelect
+                  name="location"
+                  width="md"
+                  label="Location"
+                  options={locations?.map((it) => ({ value: it.name, label: it.name }))}
+                  hasFeedback={!locations}
+                  rules={[{ required: true }]}
+                />
+                <ProFormDatePicker
+                  width="md"
+                  name="probation_start_date"
+                  label="Probation start date"
+                />
+                <ProFormDatePicker
+                  width="md"
+                  name="probation_end_date"
+                  label="Probation end date"
+                />
+                <ProFormDatePicker
+                  width="md"
+                  name="contract_start_date"
+                  label="Contract start date"
+                />
+                <ProFormDatePicker width="md" name="contract_end_date" label="Contract end date" />
+                {jobs.data?.[0] !== undefined && (
+                  <ProFormSelect
+                    name="event"
+                    width="md"
+                    label="Job event"
+                    options={jobEvents.map((it) => ({ value: it, label: it }))}
+                    rules={[{ required: true }]}
+                  />
+                )}
+              </ProForm.Group>
+            </ProForm>
+          ) : (
+            <ProForm<API.TerminateContract>
+              form={terminationForm}
+              initialValues={jobs.data?.[0]?.termination}
+              submitter={{
+                render: () => {
+                  return [
+                    <ModalForm<API.EmployeeJob>
+                      title="Rejoin"
+                      width="780px"
+                      form={rejoinForm}
+                      trigger={
+                        <Button key="rejoin" type="primary">
+                          Rejoin
+                        </Button>
                       }
-                    }}
-                    submitter={{
-                      render: ({ form: innerForm }, innerDefaultDoms) => {
-                        return [
-                          ...innerDefaultDoms,
-                          __DEV__ && (
-                            <Button
-                              key="autoFill"
-                              onClick={() => {
-                                innerForm?.setFieldsValue({
-                                  department: faker.helpers.randomize(
-                                    departments?.map((it) => it.name) || [],
-                                  ),
-                                  job_title: faker.helpers.randomize(
-                                    jobTitles?.map((it) => it.name) || [],
-                                  ),
-                                  location: faker.helpers.randomize(
-                                    locations?.map((it) => it.name) || [],
-                                  ),
-                                  employment_status: faker.helpers.randomize(
-                                    employmentStatuses?.map((it) => it.name) || [],
-                                  ),
-                                  probation_start_date: moment(faker.date.recent()),
-                                  probation_end_date: moment(faker.date.future()),
-                                  contract_start_date: moment(faker.date.future()),
-                                  contract_end_date: moment(faker.date.future()),
-                                  event: faker.helpers.randomize<API.JobEvent>(jobEvents),
-                                });
-                              }}
-                            >
-                              Auto fill
-                            </Button>
-                          ),
-                        ];
-                      },
-                    }}
-                    onFinish={onUpdateJob}
-                  >
-                    <ProForm.Group>
-                      <ProFormSelect
-                        name="employment_status"
-                        width="md"
-                        label="Employment status"
-                        options={employmentStatuses?.map((it) => ({
-                          value: it.name,
-                          label: it.name,
-                        }))}
-                        hasFeedback={!employmentStatuses}
-                        rules={[{ required: true }]}
-                      />
-                      <ProFormSelect
-                        name="job_title"
-                        width="md"
-                        label="Job title"
-                        options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
-                        hasFeedback={!jobTitles}
-                        rules={[{ required: true }]}
-                      />
-                      <Form.Item name="department" label="Department" rules={[{ required: true }]}>
-                        <TreeSelect
-                          treeDataSimpleMode
-                          style={{ width: '100%', minWidth: 328 }}
-                          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                          treeDefaultExpandAll
-                          loading={!departments}
-                          treeData={treeData}
-                          placeholder="Please select"
+                      onVisibleChange={(visible) => {
+                        if (visible && jobs.data?.[0]) {
+                          rejoinForm?.setFieldsValue(jobs.data[0]);
+                        }
+                      }}
+                      submitter={{
+                        render: ({ form: innerForm }, innerDefaultDoms) => {
+                          return [
+                            ...innerDefaultDoms,
+                            __DEV__ && (
+                              <Button
+                                key="autoFill"
+                                onClick={() => {
+                                  innerForm?.setFieldsValue({
+                                    department: faker.helpers.randomize(
+                                      departments?.map((it) => it.name) || [],
+                                    ),
+                                    job_title: faker.helpers.randomize(
+                                      jobTitles?.map((it) => it.name) || [],
+                                    ),
+                                    location: faker.helpers.randomize(
+                                      locations?.map((it) => it.name) || [],
+                                    ),
+                                    employment_status: faker.helpers.randomize(
+                                      employmentStatuses?.map((it) => it.name) || [],
+                                    ),
+                                    probation_start_date: moment(faker.date.recent()),
+                                    probation_end_date: moment(faker.date.future()),
+                                    contract_start_date: moment(faker.date.future()),
+                                    contract_end_date: moment(faker.date.future()),
+                                    event: faker.helpers.randomize<API.JobEvent>(jobEvents),
+                                  });
+                                }}
+                              >
+                                Auto fill
+                              </Button>
+                            ),
+                          ];
+                        },
+                      }}
+                      onFinish={onUpdateJob}
+                    >
+                      <ProForm.Group>
+                        <ProFormSelect
+                          name="employment_status"
+                          width="md"
+                          label="Employment status"
+                          options={employmentStatuses?.map((it) => ({
+                            value: it.name,
+                            label: it.name,
+                          }))}
+                          hasFeedback={!employmentStatuses}
+                          rules={[{ required: true }]}
                         />
-                      </Form.Item>
-                      <ProFormSelect
-                        name="location"
-                        width="md"
-                        label="Location"
-                        options={locations?.map((it) => ({ value: it.name, label: it.name }))}
-                        hasFeedback={!locations}
-                        rules={[{ required: true }]}
-                      />
-                      <ProFormDatePicker
-                        width="md"
-                        name="probation_start_date"
-                        label="Probation start date"
-                      />
-                      <ProFormDatePicker
-                        width="md"
-                        name="probation_end_date"
-                        label="Probation end date"
-                      />
-                      <ProFormDatePicker
-                        width="md"
-                        name="contract_start_date"
-                        label="Contract start date"
-                      />
-                      <ProFormDatePicker
-                        width="md"
-                        name="contract_end_date"
-                        label="Contract end date"
-                      />
-                    </ProForm.Group>
-                  </ModalForm>,
-                ];
-              },
+                        <ProFormSelect
+                          name="job_title"
+                          width="md"
+                          label="Job title"
+                          options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
+                          hasFeedback={!jobTitles}
+                          rules={[{ required: true }]}
+                        />
+                        <Form.Item
+                          name="department"
+                          label="Department"
+                          rules={[{ required: true }]}
+                        >
+                          <TreeSelect
+                            treeDataSimpleMode
+                            style={{ width: '100%', minWidth: 328 }}
+                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                            treeDefaultExpandAll
+                            loading={!departments}
+                            treeData={treeData}
+                            placeholder="Please select"
+                          />
+                        </Form.Item>
+                        <ProFormSelect
+                          name="location"
+                          width="md"
+                          label="Location"
+                          options={locations?.map((it) => ({ value: it.name, label: it.name }))}
+                          hasFeedback={!locations}
+                          rules={[{ required: true }]}
+                        />
+                        <ProFormDatePicker
+                          width="md"
+                          name="probation_start_date"
+                          label="Probation start date"
+                        />
+                        <ProFormDatePicker
+                          width="md"
+                          name="probation_end_date"
+                          label="Probation end date"
+                        />
+                        <ProFormDatePicker
+                          width="md"
+                          name="contract_start_date"
+                          label="Contract start date"
+                        />
+                        <ProFormDatePicker
+                          width="md"
+                          name="contract_end_date"
+                          label="Contract end date"
+                        />
+                      </ProForm.Group>
+                    </ModalForm>,
+                  ];
+                },
+              }}
+            >
+              <ProForm.Group>
+                <ProFormText width="md" name="reason" label="Reason" disabled />
+                <ProFormDatePicker
+                  width="md"
+                  name="date"
+                  label="Date"
+                  initialValue={moment()}
+                  disabled
+                />
+              </ProForm.Group>
+              <ProFormTextArea width="md" name="note" label="Note" disabled />
+            </ProForm>
+          )}
+        </Card>
+      </Access>
+
+      <Access accessible={canViewSchedule}>
+        <Card
+          loading={schedules === undefined || schedule.isLoading}
+          title={`Work schedule`}
+          className="card-shadow"
+        >
+          <ProForm<API.EmployeeSchedule>
+            onFinish={async (value) => {
+              try {
+                value.schedule = (value.schedule as API.Schedule).name;
+                value.owner = employeeId;
+                await updateSchedule(employeeId, value);
+                // onChange?.();
+                message.success('Updated successfully!');
+              } catch {
+                message.error('Updated unsuccessfully!');
+              }
+            }}
+            initialValues={schedule.data}
+            submitter={canChangeSchedule ? undefined : false}
+            form={scheduleForm}
+            onValuesChange={(changedValues) => {
+              if (changedValues.schedule?.name) {
+                const updatedSchedule = schedules?.find(
+                  (it) => it.name === changedValues.schedule?.name,
+                );
+                if (updatedSchedule)
+                  schedule.setData({
+                    ...schedule.data,
+                    schedule: updatedSchedule,
+                  });
+              }
             }}
           >
-            <ProForm.Group>
-              <ProFormText width="md" name="reason" label="Reason" disabled />
-              <ProFormDatePicker
-                width="md"
-                name="date"
-                label="Date"
-                initialValue={moment()}
-                disabled
-              />
-            </ProForm.Group>
-            <ProFormTextArea width="md" name="note" label="Note" disabled />
+            <ProFormSelect
+              rules={[{ required: true }]}
+              name={['schedule', 'name']}
+              width="lg"
+              label={`Work schedule  (${scheduleDays?.reduce(
+                (acc, cur) => acc + calcHours(cur),
+                0,
+              )} hrs)`}
+              options={schedules?.map((it) => ({ value: it.name, label: it.name }))}
+              disabled={!isActive}
+            />
+            {isActive && (
+              <>
+                <Typography style={{ marginBottom: 24, fontSize: '1.1em' }}>
+                  <b>Preview</b>{' '}
+                  <small>
+                    <i>
+                      (below is readonly for previewing purpose,{' '}
+                      <b style={{ textTransform: 'uppercase' }}>please select above</b>):
+                    </i>
+                  </small>
+                </Typography>
+                {scheduleDays.map((it) => (
+                  <Form.Item
+                    name={it.day}
+                    label={`${it.day} (${calcHours(it)}hrs)`}
+                    labelCol={{ span: 2 }}
+                    wrapperCol={{ span: 20 }}
+                    style={{ flexDirection: 'row' }}
+                  >
+                    <Space>
+                      <TimePicker.RangePicker
+                        format="HH:mm"
+                        minuteStep={5}
+                        style={{ width: '100%' }}
+                        value={it.morning}
+                        disabled={!it.morning_enabled}
+                        open={false}
+                        clearIcon={false}
+                      />
+                      <TimePicker.RangePicker
+                        format="HH:mm"
+                        minuteStep={5}
+                        style={{ width: '100%' }}
+                        value={it.afternoon}
+                        disabled={!it.afternoon_enabled}
+                        open={false}
+                        clearIcon={false}
+                      />
+                      <p style={{ marginRight: 5 }}></p>
+                    </Space>
+                  </Form.Item>
+                ))}
+              </>
+            )}
           </ProForm>
-        )}
-      </Card>
+        </Card>
+      </Access>
 
-      <Card
-        loading={schedules === undefined || schedule.isLoading}
-        title={`Work schedule`}
-        className="card-shadow"
-      >
-        <ProForm<API.EmployeeSchedule>
-          onFinish={async (value) => {
-            try {
-              value.schedule = (value.schedule as API.Schedule).name;
-              value.owner = employeeId;
-              await updateSchedule(employeeId, value);
-              // onChange?.();
-              message.success('Updated successfully!');
-            } catch {
-              message.error('Updated unsuccessfully!');
-            }
-          }}
-          initialValues={schedule.data}
-          submitter={isActive ? undefined : false}
-          form={scheduleForm}
-          onValuesChange={(changedValues) => {
-            if (changedValues.schedule?.name) {
-              const updatedSchedule = schedules?.find(
-                (it) => it.name === changedValues.schedule?.name,
-              );
-              if (updatedSchedule)
-                schedule.setData({
-                  ...schedule.data,
-                  schedule: updatedSchedule,
-                });
-            }
-          }}
-        >
-          <ProFormSelect
-            rules={[{ required: true }]}
-            name={['schedule', 'name']}
-            width="lg"
-            label={`Work schedule  (${scheduleDays?.reduce(
-              (acc, cur) => acc + calcHours(cur),
-              0,
-            )} hrs)`}
-            options={schedules?.map((it) => ({ value: it.name, label: it.name }))}
-            disabled={!isActive}
-          />
-          {isActive && (
-            <>
-              <Typography style={{ marginBottom: 24, fontSize: '1.1em' }}>
-                <b>Preview</b>{' '}
-                <small>
-                  <i>
-                    (below is readonly for previewing purpose,{' '}
-                    <b style={{ textTransform: 'uppercase' }}>please select above</b>):
-                  </i>
-                </small>
-              </Typography>
-              {scheduleDays.map((it) => (
-                <Form.Item
-                  name={it.day}
-                  label={`${it.day} (${calcHours(it)}hrs)`}
-                  labelCol={{ span: 2 }}
-                  wrapperCol={{ span: 20 }}
-                  style={{ flexDirection: 'row' }}
-                >
-                  <Space>
-                    <TimePicker.RangePicker
-                      format="HH:mm"
-                      minuteStep={5}
-                      style={{ width: '100%' }}
-                      value={it.morning}
-                      disabled={!it.morning_enabled}
-                      open={false}
-                      clearIcon={false}
-                    />
-                    <TimePicker.RangePicker
-                      format="HH:mm"
-                      minuteStep={5}
-                      style={{ width: '100%' }}
-                      value={it.afternoon}
-                      disabled={!it.afternoon_enabled}
-                      open={false}
-                      clearIcon={false}
-                    />
-                    <p style={{ marginRight: 5 }}></p>
-                  </Space>
-                </Form.Item>
-              ))}
-            </>
-          )}
-        </ProForm>
-      </Card>
-
-      <ProTable<API.EmployeeJob>
-        headerTitle="Job history"
-        rowKey="id"
-        columns={columns}
-        dataSource={jobs.data}
-        loading={jobs.isLoading}
-        search={false}
-        style={{ width: '100%' }}
-        scroll={{ x: 'max-content' }}
-        className="card-shadow"
-      />
+      <Access accessible={canViewJob}>
+        <ProTable<API.EmployeeJob>
+          headerTitle="Job history"
+          rowKey="id"
+          columns={columns}
+          dataSource={jobs.data}
+          loading={jobs.isLoading}
+          search={false}
+          style={{ width: '100%' }}
+          scroll={{ x: 'max-content' }}
+          className="card-shadow"
+        />
+      </Access>
     </>
   );
 };

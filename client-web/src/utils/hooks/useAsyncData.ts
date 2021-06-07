@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 
 type Settings = {
-  callOnMount: boolean; // [true] // whether call fetching on Mounting
-  rethrowError: boolean; // [false] // whether to rethrow on catch or isError is enough
+  callOnMount?: boolean; // [true] // whether call fetching on Mounting
+  rethrowError?: boolean; // [false] // whether to rethrow on catch or isError is enough
 };
 
 const defaultSettings: Settings = {

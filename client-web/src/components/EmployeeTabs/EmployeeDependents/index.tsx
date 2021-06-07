@@ -4,20 +4,21 @@ import {
   allDependents,
   createDependent,
   deleteDependent,
-  updateDependent,
+  updateDependent
 } from '@/services/employee';
+import { useEmployeeDetailAccess } from '@/utils/hooks/useEmployeeDetailType';
 import {
   DeleteOutlined,
   EditOutlined,
   ManOutlined,
   PlusOutlined,
-  WomanOutlined,
+  WomanOutlined
 } from '@ant-design/icons';
 import ProForm, {
   ModalForm,
   ProFormDatePicker,
   ProFormSelect,
-  ProFormText,
+  ProFormText
 } from '@ant-design/pro-form';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -26,13 +27,23 @@ import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'umi';
+import { Access, FormattedMessage, useIntl } from 'umi';
 import type { EmployeeTabProps } from '..';
 
 type RecordType = API.EmployeeDependent;
 
 export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
+
+  // == RBAC.BEGIN
+  const {
+    canViewDependent,
+    canAddDependent,
+    canChangeDependent,
+    canDeleteDependent,
+  } = useEmployeeDetailAccess({ employeeId, isActive });
+  // == RBAC.END
+
   const actionRef = useRef<ActionType>();
   const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
     'hidden',
@@ -115,44 +126,46 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
             : '...'
         }`,
     },
-    !isActive
-      ? {}
-      : {
-          title: 'Actions',
-          key: 'action',
-          fixed: 'right',
-          align: 'center',
-          search: false,
-          render: (dom, record) => (
-            <Space size="small">
-              <Button
-                title="Edit this dependent"
-                size="small"
-                onClick={() => {
-                  setCrudModalVisible('update');
-                  setSelectedRecord(record);
-                }}
-              >
-                <EditOutlined />
+    (canChangeDependent || canDeleteDependent) && {
+      title: 'Actions',
+      key: 'action',
+      fixed: 'right',
+      align: 'center',
+      search: false,
+      render: (dom, record) => (
+        <Space size="small">
+          <Access accessible={canChangeDependent}>
+            <Button
+              title="Edit this dependent"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                setSelectedRecord(record);
+              }}
+            >
+              <EditOutlined />
+            </Button>
+          </Access>
+          <Access accessible={canDeleteDependent}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this dependent?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deleteDependent(employeeId, record.id),
+                  'Detete successfully!',
+                  'Cannot delete dependent!',
+                );
+              }}
+            >
+              <Button title="Delete this dependent" size="small" danger>
+                <DeleteOutlined />
               </Button>
-              <Popconfirm
-                placement="right"
-                title={'Delete this dependent?'}
-                onConfirm={async () => {
-                  await onCrudOperation(
-                    () => deleteDependent(employeeId, record.id),
-                    'Detete successfully!',
-                    'Cannot delete dependent!',
-                  );
-                }}
-              >
-                <Button title="Delete this dependent" size="small" danger>
-                  <DeleteOutlined />
-                </Button>
-              </Popconfirm>
-            </Space>
-          ),
-        },
+            </Popconfirm>
+          </Access>
+        </Space>
+      ),
+    },
   ];
 
   const dict = {
@@ -163,7 +176,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
   };
 
   return (
-    <>
+    <Access accessible={canViewDependent}>
       <ProTable<RecordType>
         headerTitle={intl.formatMessage({
           id: 'pages.admin.job.Dependent.list.title',
@@ -175,22 +188,19 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
         rowKey="id"
         search={false}
         locale={{ emptyText: 'No dependents' }}
-        toolBarRender={() =>
-          !isActive
-            ? []
-            : [
-                <Button
-                  type="primary"
-                  key="primary"
-                  onClick={() => {
-                    setCrudModalVisible('create');
-                  }}
-                >
-                  <PlusOutlined />{' '}
-                  <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-                </Button>,
-              ]
-        }
+        toolBarRender={() => [
+          <Access accessible={canAddDependent}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
+        ]}
         request={async () => {
           const data = await allDependents(employeeId);
           return {
@@ -332,7 +342,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
           <ProFormDatePicker width="sm" name="effective_end_date" label="Effective end date" />
         </ProForm.Group>
       </ModalForm>
-    </>
+    </Access>
   );
 };
 

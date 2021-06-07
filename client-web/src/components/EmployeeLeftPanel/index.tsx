@@ -9,7 +9,10 @@ import {
 } from '@/services/employee';
 import styles from '@/styles/employee_detail.less';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
-import { useEmployeeDetailType, useIsCurrentUser } from '@/utils/hooks/useEmployeeDetailType';
+import {
+  useEmployeeDetailAccess,
+  useEmployeeDetailType,
+} from '@/utils/hooks/useEmployeeDetailType';
 import { EditOutlined, KeyOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import {
   ModalForm,
@@ -22,7 +25,7 @@ import { Affix, Badge, Button, Card, message, Space, Tooltip, Upload } from 'ant
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React from 'react';
-import { Access, useAccess } from 'umi';
+import { Access } from 'umi';
 import type { OnChangeSubscription } from '../EmployeeTabs';
 
 type Props = {
@@ -54,16 +57,14 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
   const [editRoleForm] = useForm<{ role: string }>();
   const terminationReasons = useAsyncData<API.TerminationReason[]>(allTerminationReasons);
   const roles = useAsyncData<API.RoleItem[]>(allRoles);
-  const access = useAccess();
-  const isCurrentUser = useIsCurrentUser();
   const pageType = useEmployeeDetailType();
 
-  const canChangeAvatar =
-    isActive && (isCurrentUser(id) || access['core.can_change_avatar_employee']);
-  const canSetRole = isActive && !isCurrentUser(id) && access['core.can_set_role_employee'];
-  const canSetPassword =
-    isActive && (isCurrentUser(id) || access['core.can_set_password_employee']);
-  const canTerminateEmployment = isActive && !isCurrentUser(id) && access['job.can_terminate_job'];
+  const {
+    canChangeAvatar,
+    canSetRole,
+    canSetPassword,
+    canTerminateEmployment,
+  } = useEmployeeDetailAccess({ isActive, employeeId: id });
 
   return (
     <Affix offsetTop={50}>
