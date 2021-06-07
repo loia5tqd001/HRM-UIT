@@ -1,3 +1,4 @@
+import { allPeriods } from '@/services/attendance';
 import {
   editActual,
   editOvertime,
@@ -24,6 +25,7 @@ import {
   Form,
   Menu,
   message,
+  Select,
   Space,
   Tag,
   TimePicker,
@@ -32,7 +34,7 @@ import {
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useIntl, useParams } from 'umi';
+import { history, useIntl, useParams } from 'umi';
 import { toolbarButtons } from '../EmployeeAttendance';
 
 type RecordType = API.AttendanceRecord;
@@ -50,6 +52,18 @@ const EmployeeAttendanceDetail: React.FC = () => {
 
   const [employee, setEmployee] = useState<API.Employee>();
   const { id } = useParams<any>();
+
+  const { period } = history.location.query as any;
+  const [periods, setPeriods] = useState<API.Period[]>();
+
+  useEffect(() => {
+    allPeriods()
+      .then((fetchData) => fetchData.reverse())
+      .then((fetchData) => {
+        setPeriods(fetchData);
+        actionRef.current?.reload();
+      });
+  }, []);
 
   useEffect(() => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
@@ -183,7 +197,11 @@ const EmployeeAttendanceDetail: React.FC = () => {
             </Tooltip>
           );
         if (check_out_location)
-          return <Tag icon={<EnvironmentOutlined />}>{check_out_location}</Tag>;
+          return (
+            <Tag icon={<EnvironmentOutlined />} color="green">
+              {check_out_location}
+            </Tag>
+          );
         return '-';
       },
     },
@@ -325,8 +343,8 @@ const EmployeeAttendanceDetail: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
-        className="card-shadow"
-        headerTitle={employee && `${employee.first_name} ${employee.last_name}`}
+        className="card-shadow header-capitalize"
+        headerTitle={employee && `Attendance of ${employee.first_name} ${employee.last_name}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -338,6 +356,22 @@ const EmployeeAttendanceDetail: React.FC = () => {
           },
         }}
         toolBarRender={() => [
+          <Select<number>
+            loading={!periods}
+            style={{ minWidth: 100 }}
+            value={Number(period)}
+            onChange={(value) => {
+              history.replace(`?period=${value}`);
+              actionRef.current?.reload();
+            }}
+          >
+            {periods?.map((it) => (
+              <Select.Option value={it.id}>
+                {moment(it.start_date).format('DD MMM YYYY')} →{' '}
+                {moment(it.end_date).format('DD MMM YYYY')}
+              </Select.Option>
+            ))}
+          </Select>,
           ...toolbarButtons.map((toolbar) => (
             <Button
               onClick={async () => {
@@ -362,8 +396,11 @@ const EmployeeAttendanceDetail: React.FC = () => {
             </Button>
           )),
         ]}
+        loading={periods === undefined ? true : undefined}
         request={async () => {
-          const fetchData = await readAttendances(id);
+          const fetchData = await readAttendances(id, {
+            params: { period_id: period },
+          });
 
           const schedule = await getSchedule(id).then((it) => it.schedule as API.Schedule);
           // manipulate backend data

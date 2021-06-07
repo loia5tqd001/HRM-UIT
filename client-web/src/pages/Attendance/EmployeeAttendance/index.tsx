@@ -19,7 +19,7 @@ import ProTable from '@ant-design/pro-table';
 import { Badge, Button, message, Progress, Select, Space, Tooltip } from 'antd';
 import { countBy, groupBy, mapValues, sumBy, uniq } from 'lodash';
 import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useIntl } from 'umi';
 
 type RecordType = API.AttendanceEmployee & {
@@ -75,26 +75,14 @@ const EmployeeAttendance: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<any>();
 
   useEffect(() => {
-    allPeriods().then((fetchData) => {
-      setSelectedPeriod(fetchData[0]?.id);
-      setPeriods(fetchData);
-      actionRef.current?.reload();
-    });
-  }, []);
-
-  const onCrudOperation = useCallback(
-    async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
-      try {
-        await cb();
+    allPeriods()
+      .then((fetchData) => fetchData.reverse())
+      .then((fetchData) => {
+        setSelectedPeriod(fetchData[0]?.id);
+        setPeriods(fetchData);
         actionRef.current?.reload();
-        message.success(successMessage);
-      } catch (err) {
-        message.error(errorMessage);
-        throw err;
-      }
-    },
-    [actionRef],
-  );
+      });
+  }, []);
 
   const calcHours = ({
     morning_from,
@@ -127,7 +115,7 @@ const EmployeeAttendance: React.FC = () => {
       render: (avatar, record) => (
         <Space>
           <span>{avatar}</span>
-          <Link to={`/attendance/list/${record.id}`}>
+          <Link to={`/attendance/list/${record.id}?period=${selectedPeriod}`}>
             {record.first_name} {record.last_name}
           </Link>
         </Space>
@@ -260,6 +248,7 @@ const EmployeeAttendance: React.FC = () => {
             </Button>
           )),
         ]}
+        loading={periods === undefined ? true : undefined}
         request={async () => {
           let data: RecordType[] = await allAttendances({
             params: { period_id: selectedPeriod },
