@@ -1,10 +1,11 @@
 import { EmployeeLeftPanel } from '@/components/EmployeeLeftPanel';
-import { EmployeeTabs, OnChangeSubscription } from '@/components/EmployeeTabs';
+import type { OnChangeSubscription } from '@/components/EmployeeTabs';
+import { EmployeeTabs } from '@/components/EmployeeTabs';
 import { readEmployee } from '@/services/employee';
 import styles from '@/styles/employee_detail.less';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { GridContent, PageContainer } from '@ant-design/pro-layout';
-import { isEqual } from 'lodash';
+import { isEqual, merge } from 'lodash';
 import React, { useEffect } from 'react';
 import { useModel } from 'umi';
 
@@ -17,7 +18,7 @@ export const Edit: React.FC = () => {
 
   useEffect(() => {
     if (!isEqual(record.data, initialState?.currentUser)) {
-      setInitialState({ ...initialState, currentUser: record.data });
+      setInitialState(merge(initialState, { currentUser: record.data }));
     }
   }, [record.data, initialState, setInitialState]);
 
@@ -39,7 +40,6 @@ export const Edit: React.FC = () => {
           <EmployeeLeftPanel
             employee={record.data}
             setEmployee={record.setData}
-            type="account-profile"
             onChange={onChange}
           />
           <EmployeeTabs employeeId={id!} isActive={isActive} onChange={onChange} />

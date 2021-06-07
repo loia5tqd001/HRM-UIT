@@ -32,7 +32,6 @@ export const Edit: React.FC = () => {
           <EmployeeLeftPanel
             employee={record.data}
             setEmployee={record.setData}
-            type="employee-edit"
             onChange={onChange}
           />
           <EmployeeTabs employeeId={id} isActive={isActive} onChange={onChange} />

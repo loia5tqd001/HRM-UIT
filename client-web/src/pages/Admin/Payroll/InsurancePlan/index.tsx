@@ -20,7 +20,7 @@ import { Button, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'umi';
+import { Access, FormattedMessage, useAccess, useIntl } from 'umi';
 
 type RecordType = API.InsurancePlan;
 
@@ -32,6 +32,7 @@ export const InsurancePlan: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
   const intl = useIntl();
+  const access = useAccess();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -70,7 +71,7 @@ export const InsurancePlan: React.FC = () => {
       dataIndex: 'percent_employee',
       valueType: 'percent',
     },
-    {
+    (access['payroll.change_insurancepolicy'] || access['payroll.delete_insurancepolicy']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -78,31 +79,35 @@ export const InsurancePlan: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Button
-            title="Edit this insurance plan"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this insurance plan?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteInsurancePlan(record.id),
-                'Detete successfully!',
-                'Cannot delete insurance plan!',
-              );
-            }}
-          >
-            <Button title="Delete this insurance plan" size="small" danger>
-              <DeleteOutlined />
+          <Access accessible={access['payroll.change_insurancepolicy']}>
+            <Button
+              title="Edit this insurance plan"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                setSelectedRecord(record);
+              }}
+            >
+              <EditOutlined />
             </Button>
-          </Popconfirm>
+          </Access>
+          <Access accessible={access['payroll.delete_insurancepolicy']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this insurance plan?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deleteInsurancePlan(record.id),
+                  'Detete successfully!',
+                  'Cannot delete insurance plan!',
+                );
+              }}
+            >
+              <Button title="Delete this insurance plan" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -124,15 +129,17 @@ export const InsurancePlan: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
+          <Access accessible={access['payroll.add_insurancepolicy']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
         request={async () => {
           const data = await allInsurancePlans();

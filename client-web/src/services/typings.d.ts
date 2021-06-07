@@ -220,6 +220,7 @@ declare namespace API {
     role: string;
     permissions: string[];
     status: 'Working' | 'NewHired' | 'Terminated';
+    permissions: string[];
   }
 
   interface TerminateContract {

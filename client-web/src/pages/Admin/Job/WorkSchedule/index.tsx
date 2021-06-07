@@ -23,7 +23,7 @@ import produce from 'immer';
 import { range } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'umi';
+import { Access, FormattedMessage, useAccess, useIntl } from 'umi';
 
 type DayInWeek = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 type DayItem = {
@@ -164,6 +164,7 @@ export const WorkSchedule: React.FC = () => {
     | 'Sun-afternoon'
     | 'closed'
   >('closed');
+  const access = useAccess();
 
   const getDisabledMinutes = (
     day: DayInWeek,
@@ -280,7 +281,7 @@ export const WorkSchedule: React.FC = () => {
       renderText: (workdays: DayItem[]) =>
         `${workdays.reduce((acc, cur) => acc + calcHours(cur), 0)} hrs`,
     },
-    {
+    (access['attendance.change_schedule'] || access['attendance.delete_schedule']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -288,31 +289,35 @@ export const WorkSchedule: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Button
-            title="Edit this schedule"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this schedule?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteSchedule(record.id),
-                'Detete successfully!',
-                'Cannot delete schedule!',
-              );
-            }}
-          >
-            <Button title="Delete this schedule" size="small" danger>
-              <DeleteOutlined />
+          <Access accessible={access['attendance.change_schedule']}>
+            <Button
+              title="Edit this schedule"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                setSelectedRecord(record);
+              }}
+            >
+              <EditOutlined />
             </Button>
-          </Popconfirm>
+          </Access>
+          <Access accessible={access['attendance.delete_schedule']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this schedule?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deleteSchedule(record.id),
+                  'Detete successfully!',
+                  'Cannot delete schedule!',
+                );
+              }}
+            >
+              <Button title="Delete this schedule" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -337,15 +342,17 @@ export const WorkSchedule: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
+          <Access accessible={access['attendance.view_schedule']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
         request={async () => {
           const data = await allSchedules();

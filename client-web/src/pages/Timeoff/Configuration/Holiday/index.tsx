@@ -132,7 +132,8 @@ export const Holiday: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Button
+
+<Button
             type="primary"
             key="primary"
             onClick={() => {
@@ -140,7 +141,8 @@ export const Holiday: React.FC = () => {
             }}
           >
             <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
+          </Button>
+,
         ]}
         request={async (query) => {
           let data: RecordType[] = await allHolidays();

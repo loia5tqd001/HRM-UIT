@@ -272,6 +272,11 @@ const Permission: React.FC = () => {
           <Table<RecordType['permissions'][0]>
             columns={[
               {
+                title: 'Id',
+                key: 'id',
+                dataIndex: 'id',
+              },
+              {
                 title: 'Permission',
                 key: 'name',
                 dataIndex: 'name',
@@ -287,8 +292,8 @@ const Permission: React.FC = () => {
                     checked={value}
                     onChange={(checked) => {
                       setViewingRecord(
-                        produce(viewingRecord!, (draft) => {
-                          const toChange = draft.permissions.find((it) => it.id === record.id);
+                        produce(viewingRecord, (draft) => {
+                          const toChange = draft?.permissions.find((it) => it.id === record.id);
                           if (!toChange) return;
                           toChange.has_perm = checked;
                         }),

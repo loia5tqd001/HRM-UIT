@@ -14,7 +14,7 @@ import { Button, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'umi';
+import { Access, FormattedMessage, useAccess, useIntl } from 'umi';
 
 type RecordType = API.TerminationReason;
 
@@ -26,6 +26,7 @@ export const TerminationReason: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
   const intl = useIntl();
+  const access = useAccess();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -66,7 +67,7 @@ export const TerminationReason: React.FC = () => {
       valueType: 'textarea',
       hideInForm: true,
     },
-    {
+    (access['job.change_terminationreason'] || access['job.delete_terminationreason']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -74,31 +75,35 @@ export const TerminationReason: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Button
-            title="Edit this termination reason"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this termination reason?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteTerminationReason(record.id),
-                'Detete successfully!',
-                'Cannot delete termination reason!',
-              );
-            }}
-          >
-            <Button title="Delete this termination reason" size="small" danger>
-              <DeleteOutlined />
+          <Access accessible={access['job.change_terminationreason']}>
+            <Button
+              title="Edit this termination reason"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                setSelectedRecord(record);
+              }}
+            >
+              <EditOutlined />
             </Button>
-          </Popconfirm>
+          </Access>
+          <Access accessible={access['job.delete_terminationreason']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this termination reason?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deleteTerminationReason(record.id),
+                  'Detete successfully!',
+                  'Cannot delete termination reason!',
+                );
+              }}
+            >
+              <Button title="Delete this termination reason" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -123,15 +128,17 @@ export const TerminationReason: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
+          <Access accessible={access['job.add_terminationreason']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
         request={async () => {
           const data = await allTerminationReasons();

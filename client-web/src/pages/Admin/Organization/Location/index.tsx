@@ -19,7 +19,7 @@ import { Button, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'umi';
+import { Access, FormattedMessage, useAccess, useIntl } from 'umi';
 import { useEffect } from 'react';
 import { allCountries } from '@/services';
 
@@ -34,6 +34,7 @@ export const Location: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const [countries, setCountries] = useState<API.Country[]>([]);
+  const access = useAccess();
 
   useEffect(() => {
     allCountries().then((data) => setCountries(data));
@@ -124,17 +125,16 @@ export const Location: React.FC = () => {
       ),
       dataIndex: 'fax',
     },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.note"
-          defaultMessage="Note"
-        />
-      ),
-      dataIndex: 'note',
-    },
-
-    {
+    // {
+    //   title: (
+    //     <FormattedMessage
+    //       id="pages.admin.organization.location.column.note"
+    //       defaultMessage="Note"
+    //     />
+    //   ),
+    //   dataIndex: 'note',
+    // },
+    (access['job.change_location'] || access['job.delete_location']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -142,31 +142,35 @@ export const Location: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Button
-            title="Edit this location"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this location?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteLocation(record.id),
-                'Delete successfully!',
-                'Cannot delete location!',
-              );
-            }}
-          >
-            <Button title="Delete this location" size="small" danger>
-              <DeleteOutlined />
+          <Access accessible={access['job.change_location']}>
+            <Button
+              title="Edit this location"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                setSelectedRecord(record);
+              }}
+            >
+              <EditOutlined />
             </Button>
-          </Popconfirm>
+          </Access>
+          <Access accessible={access['job.delete_location']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this location?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deleteLocation(record.id),
+                  'Detete successfully!',
+                  'Cannot delete location!',
+                );
+              }}
+            >
+              <Button title="Delete this location" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -191,15 +195,17 @@ export const Location: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
+          <Access accessible={access['job.add_location']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
         request={async () => {
           const data = await allLocations();
@@ -357,14 +363,14 @@ export const Location: React.FC = () => {
               defaultMessage: 'Fax',
             })}
           />
-          <ProFormTextArea
+          {/* <ProFormTextArea
             name="note"
             width="sm"
             label={intl.formatMessage({
               id: 'pages.admin.organization.location.column.note',
               defaultMessage: 'Note',
             })}
-          />
+          /> */}
         </ProForm.Group>
       </ModalForm>
     </PageContainer>

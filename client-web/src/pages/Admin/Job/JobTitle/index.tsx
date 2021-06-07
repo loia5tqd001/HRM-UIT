@@ -14,7 +14,7 @@ import { Button, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'umi';
+import { FormattedMessage, useIntl, useAccess, Access } from 'umi';
 
 type RecordType = API.JobTitle;
 
@@ -26,6 +26,7 @@ export const JobTitle: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
   const intl = useIntl();
+  const access = useAccess();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -59,7 +60,7 @@ export const JobTitle: React.FC = () => {
       valueType: 'textarea',
       hideInForm: true,
     },
-    {
+    (access['job.change_jobtitle'] || access['job.delete_jobtitle']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -67,31 +68,35 @@ export const JobTitle: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Button
-            title="Edit this job title"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this job title?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteJobTitle(record.id),
-                'Detete successfully!',
-                'Cannot delete job title!',
-              );
-            }}
-          >
-            <Button title="Delete this job title" size="small" danger>
-              <DeleteOutlined />
+          <Access accessible={access['job.change_jobtitle']}>
+            <Button
+              title="Edit this job title"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                setSelectedRecord(record);
+              }}
+            >
+              <EditOutlined />
             </Button>
-          </Popconfirm>
+          </Access>
+          <Access accessible={access['job.delete_jobtitle']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this job title?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deleteJobTitle(record.id),
+                  'Detete successfully!',
+                  'Cannot delete job title!',
+                );
+              }}
+            >
+              <Button title="Delete this job title" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -116,15 +121,17 @@ export const JobTitle: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
+          <Access accessible={access['job.add_jobtitle']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
         request={async () => {
           const data = await allJobTitles();
@@ -207,7 +214,6 @@ export const JobTitle: React.FC = () => {
           })}
         />
         <ProFormTextArea
-          rules={[{ required: true }]}
           name="description"
           label={intl.formatMessage({
             id: 'pages.admin.job.jobTitle.column.description',

@@ -209,7 +209,8 @@ export const Timeoff: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Button
+
+<Button
             type="primary"
             key="primary"
             onClick={() => {
@@ -217,7 +218,8 @@ export const Timeoff: React.FC = () => {
             }}
           >
             <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
+          </Button>
+,
         ]}
         request={async () => {
           const data = await allEmployeeTimeoffs(id);

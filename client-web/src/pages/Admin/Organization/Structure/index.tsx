@@ -4,7 +4,7 @@ import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Avatar, Button, message, Popconfirm, Space } from 'antd';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useModel } from 'umi';
+import { Access, useAccess, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { calculateAllExpandedRowKeys } from './utils';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -21,6 +21,7 @@ export const OrganziationStructure: React.FC = () => {
     setDepartmentsPending,
     onDeleteDepartment,
   } = useModel('admin.organization');
+  const access = useAccess();
 
   useEffect(() => {
     setDepartmentsPending(true);
@@ -45,6 +46,7 @@ export const OrganziationStructure: React.FC = () => {
             type="link"
             children={text}
             onClick={() => {
+              if (!access['core.change_department']) return;
               setCrudModalVisible('update');
               selectDepartment(record.id);
             }}
@@ -72,7 +74,9 @@ export const OrganziationStructure: React.FC = () => {
       align: 'center',
       width: '20%',
     },
-    {
+    (access['core.add_department'] ||
+      access['core.change_department'] ||
+      access['core.delete_department']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -80,54 +84,60 @@ export const OrganziationStructure: React.FC = () => {
       width: '20%',
       render: (text, record) => (
         <Space size="small">
-          <Button
-            title="Add a child department"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('create');
-              selectDepartment(record.id);
-            }}
-          >
-            <PlusOutlined />
-          </Button>
-          <Button
-            title="Edit this department"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              selectDepartment(record.id);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={
-              record.employee_no > 1
-                ? 'Must remove members from this department first!'
-                : 'Delete this?'
-            }
-            onConfirm={async () => {
-              if (record.employee_no > 1) return;
-              try {
-                await onDeleteDepartment(record.id);
-                message.success('Delete successfully!');
-              } catch (err) {
-                message.error('Cannot delete!');
-              }
-            }}
-            // okText="Đồng ý"
-            // cancelText="Không"
-          >
+          <Access accessible={access['core.add_department']}>
             <Button
-              title="Delete this department"
+              title="Add a child department"
               size="small"
-              danger
-              disabled={record.employee_no > 1}
+              onClick={() => {
+                setCrudModalVisible('create');
+                selectDepartment(record.id);
+              }}
             >
-              <DeleteOutlined />
+              <PlusOutlined />
             </Button>
-          </Popconfirm>
+          </Access>
+          <Access accessible={access['core.change_department']}>
+            <Button
+              title="Edit this department"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                selectDepartment(record.id);
+              }}
+            >
+              <EditOutlined />
+            </Button>
+          </Access>
+          <Access accessible={access['core.delete_department']}>
+            <Popconfirm
+              placement="right"
+              title={
+                record.employee_no > 1
+                  ? 'Must remove members from this department first!'
+                  : 'Delete this?'
+              }
+              onConfirm={async () => {
+                if (record.employee_no > 1) return;
+                try {
+                  await onDeleteDepartment(record.id);
+                  message.success('Delete successfully!');
+                } catch (err) {
+                  message.error('Cannot delete!');
+                }
+              }}
+              // okText="Đồng ý"
+              // cancelText="Không"
+            >
+              <Button
+                title="Delete this department"
+                size="small"
+                danger
+                disabled={record.employee_no > 1}
+              >
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },

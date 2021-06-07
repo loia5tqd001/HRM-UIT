@@ -4,10 +4,12 @@ import { PageContainer } from '@ant-design/pro-layout';
 import { Card, message } from 'antd';
 import { range } from 'lodash';
 import React, { useEffect, useState } from 'react';
+import { useAccess } from 'umi';
 
 export const Office: React.FC = () => {
   const [config, setConfig] = useState<API.AppConfig>();
   const [appConfigReady, setAppConfigReady] = useState(false);
+  const access = useAccess();
 
   useEffect(() => {
     getAppConfig()
@@ -27,6 +29,7 @@ export const Office: React.FC = () => {
               message.error('Update unsuccesffully');
             }
           }}
+          submitter={access['core.change_applicationconfig'] ? undefined : false}
           initialValues={config}
         >
           <ProForm.Group>

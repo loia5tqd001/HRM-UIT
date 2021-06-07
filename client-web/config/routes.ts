@@ -83,27 +83,31 @@
           {
             path: '/admin/job/jobTitle',
             name: 'jobTitle',
+            access: 'job.view_jobtitle',
             component: './Admin/Job/JobTitle',
           },
           {
             path: '/admin/job/employmentStatus',
             name: 'employmentStatus',
+            access: 'job.view_employmentstatus',
             component: './Admin/Job/EmploymentStatus',
           },
           {
             path: '/admin/job/workSchedule',
             name: 'workSchedule',
+            access: 'attendance.view_schedule',
             component: './Admin/Job/WorkSchedule',
-          },
-          {
-            path: '/admin/job',
-            redirect: '/admin/job/jobTitle',
           },
           {
             path: '/admin/job/terminationReason',
             name: 'terminationReason',
+            access: 'job.view_terminationreason',
             component: './Admin/Job/TerminationReason',
           },
+          // {
+          //   path: '/admin/job',
+          //   redirect: '/admin/job/jobTitle',
+          // },
         ],
       },
       {
@@ -119,17 +123,19 @@
           {
             path: '/admin/organization/structure',
             name: 'structure',
+            access: 'core.view_department',
             component: './Admin/Organization/Structure',
           },
           {
             path: '/admin/organization/location',
             name: 'location',
+            access: 'job.view_location',
             component: './Admin/Organization/Location',
           },
-          {
-            path: '/admin/organization',
-            redirect: '/admin/organization/structure',
-          },
+          // {
+          //   path: '/admin/organization',
+          //   redirect: '/admin/organization/structure',
+          // },
         ],
       },
       // {
@@ -162,11 +168,13 @@
           {
             path: '/admin/payroll/taxPlan',
             name: 'taxPlan',
+            access: 'payroll.view_taxpolicy',
             component: './Admin/Payroll/TaxPlan',
           },
           {
             path: '/admin/payroll/insurancePlan',
             name: 'insurancePlan',
+            access: 'payroll.view_insurancepolicy',
             component: './Admin/Payroll/InsurancePlan',
           },
         ],
@@ -175,12 +183,14 @@
         path: '/admin/permission',
         name: 'permission',
         icon: 'key',
+        access: 'auth.view_permission',
         component: './Admin/Permission',
       },
       {
         path: '/admin/configuration',
         name: 'configuration',
         icon: 'setting',
+        access: 'core.view_applicationconfig',
         component: './Admin/Configuration',
       },
       {
@@ -193,9 +203,8 @@
     path: '/employee',
     name: 'employee',
     icon: 'userSwitch',
-    // access: 'canAdmin',
+    access: 'core.view_employee',
     routes: [
-      { path: '/employee/list', name: 'list', icon: 'unorderedList', component: './Employee/List' },
       // { path: '/employee/import', name: '__import', icon: 'import', component: './Welcome' },
       // {
       //   path: '/employee/terminateContract',
@@ -211,9 +220,17 @@
       // },
       // { path: '/employee/report', name: '__report', icon: 'barChart', component: './Welcome' },
       {
+        path: '/employee/list',
+        name: 'list',
+        icon: 'unorderedList',
+        access: 'core.view_employee',
+        component: './Employee/List',
+      },
+      {
         path: '/employee/list/:id',
         name: 'edit',
         component: './Employee/Edit',
+        access: 'core.view_employee',
         hideInMenu: true,
       },
       {

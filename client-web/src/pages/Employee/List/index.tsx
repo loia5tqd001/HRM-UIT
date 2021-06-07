@@ -4,7 +4,7 @@ import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button, Space } from 'antd';
 import React from 'react';
-import { FormattedMessage, Link, useIntl, useModel } from 'umi';
+import { Access, FormattedMessage, Link, useAccess, useIntl, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { PageContainer } from '@ant-design/pro-layout';
 
@@ -13,6 +13,7 @@ type RecordType = API.Employee;
 const EmployeeList: React.FC = () => {
   const intl = useIntl();
   const { actionRef, setCrudModalVisible, setSelectedRecord } = useModel('employee');
+  const access = useAccess();
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -222,17 +223,19 @@ const EmployeeList: React.FC = () => {
         }}
         scroll={{ x: 'max-content' }}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-              setSelectedRecord(undefined);
-            }}
-          >
-            <PlusOutlined />{' '}
-            <FormattedMessage id="pages.employee.list.table.new" defaultMessage="New" />
-          </Button>,
+          <Access accessible={access['core.add_employee']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+                setSelectedRecord(undefined);
+              }}
+            >
+              <PlusOutlined />{' '}
+              <FormattedMessage id="pages.employee.list.table.new" defaultMessage="New" />
+            </Button>
+          </Access>,
         ]}
         request={async (query) => {
           let fetchData = await allEmployees();

@@ -14,7 +14,7 @@ import { Button, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'umi';
+import { Access, FormattedMessage, useAccess, useIntl } from 'umi';
 
 type RecordType = API.TaxPlan;
 
@@ -26,6 +26,7 @@ export const TaxPlan: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
   const intl = useIntl();
+  const access = useAccess();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -81,7 +82,7 @@ export const TaxPlan: React.FC = () => {
     //     },
     //   },
     // },
-    {
+    (access['payroll.change_taxpolicy'] || access['payroll.delete_taxpolicy']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -89,31 +90,35 @@ export const TaxPlan: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Button
-            title="Edit this tax plan"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this tax plan?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteTaxPlan(record.id),
-                'Detete successfully!',
-                'Cannot delete tax plan!',
-              );
-            }}
-          >
-            <Button title="Delete this tax plan" size="small" danger>
-              <DeleteOutlined />
+          <Access accessible={access['payroll.change_taxpolicy']}>
+            <Button
+              title="Edit this tax plan"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                setSelectedRecord(record);
+              }}
+            >
+              <EditOutlined />
             </Button>
-          </Popconfirm>
+          </Access>
+          <Access accessible={access['payroll.delete_taxpolicy']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this tax plan?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deleteTaxPlan(record.id),
+                  'Detete successfully!',
+                  'Cannot delete tax plan!',
+                );
+              }}
+            >
+              <Button title="Delete this tax plan" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -138,15 +143,17 @@ export const TaxPlan: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>,
+          <Access accessible={access['payroll.add_taxpolicy']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
         request={async () => {
           const data = await allTaxPlans();

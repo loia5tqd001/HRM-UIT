@@ -3,7 +3,9 @@ import RightContent from '@/components/RightContent';
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
 import { SettingDrawer } from '@ant-design/pro-layout';
 import { PageLoading } from '@ant-design/pro-layout';
+import { Button, Result } from 'antd';
 import merge from 'lodash/merge';
+import React from 'react';
 import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
 import { getIntl, history, request as requestUmi } from 'umi';
 import type { RequestInterceptor, RequestOptionsInit, ResponseError } from 'umi-request';
@@ -68,8 +70,18 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     }),
     links: [],
     menuHeaderRender: undefined,
-    // 自定义 403 页面
-    // unAccessible: <div>unAccessible</div>,
+    unAccessible: (
+      <Result
+        status="403"
+        title="403"
+        subTitle="Sorry, you are not authorized to access this page."
+        extra={
+          <Button type="primary" onClick={() => history.push('/')}>
+            Back Home
+          </Button>
+        }
+      />
+    ),
     childrenRender: (dom) => {
       return (
         <>

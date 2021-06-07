@@ -1,3 +1,4 @@
+import { allTerminationReasons } from '@/services/admin.job.terminationReason';
 import { allRoles, changePassword } from '@/services/auth';
 import {
   changeEmployeeAvatar,
@@ -6,6 +7,10 @@ import {
   readEmployee,
   terminateEmployee,
 } from '@/services/employee';
+import styles from '@/styles/employee_detail.less';
+import { useAsyncData } from '@/utils/hooks/useAsyncData';
+import { useEmployeeDetailType, useIsCurrentUser } from '@/utils/hooks/useEmployeeDetailType';
+import { EditOutlined, KeyOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import {
   ModalForm,
   ProFormDatePicker,
@@ -14,19 +19,15 @@ import {
   ProFormTextArea,
 } from '@ant-design/pro-form';
 import { Affix, Badge, Button, Card, message, Space, Tooltip, Upload } from 'antd';
-import React from 'react';
-import styles from '@/styles/employee_detail.less';
-import { EditOutlined, KeyOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
-import { useAsyncData } from '@/utils/hooks/useAsyncData';
-import { allTerminationReasons } from '@/services/admin.job.terminationReason';
+import React from 'react';
+import { Access, useAccess } from 'umi';
 import type { OnChangeSubscription } from '../EmployeeTabs';
 
 type Props = {
   employee: API.Employee | undefined;
   setEmployee: (x: API.Employee) => void;
-  type: 'employee-edit' | 'account-profile';
   onChange?: OnChangeSubscription;
 };
 
@@ -46,22 +47,32 @@ const mapStatus = {
 } as const;
 
 export const EmployeeLeftPanel: React.FC<Props> = (props) => {
-  const { employee: record, setEmployee: setRecord, type, onChange } = props;
+  const { employee: record, setEmployee: setRecord, onChange } = props;
   const id = record?.id;
   const isActive = record?.status !== 'Terminated';
   const [terminationForm] = useForm<API.TerminateContract>();
   const [editRoleForm] = useForm<{ role: string }>();
   const terminationReasons = useAsyncData<API.TerminationReason[]>(allTerminationReasons);
   const roles = useAsyncData<API.RoleItem[]>(allRoles);
+  const access = useAccess();
+  const isCurrentUser = useIsCurrentUser();
+  const pageType = useEmployeeDetailType();
+
+  const canChangeAvatar =
+    isActive && (isCurrentUser(id) || access['core.can_change_avatar_employee']);
+  const canSetRole = isActive && !isCurrentUser(id) && access['core.can_set_role_employee'];
+  const canSetPassword =
+    isActive && (isCurrentUser(id) || access['core.can_set_password_employee']);
+  const canTerminateEmployment = isActive && !isCurrentUser(id) && access['job.can_terminate_job'];
 
   return (
     <Affix offsetTop={50}>
       <Card bordered={false} loading={!record} className="card-shadow">
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Upload
-            disabled={!isActive}
+            disabled={!canChangeAvatar}
             showUploadList={false}
-            style={{ display: 'block', cursor: `${isActive ? 'pointer' : undefined}` }}
+            style={{ display: 'block', cursor: `${canChangeAvatar ? 'pointer' : undefined}` }}
             maxCount={1}
             accept="image/*"
             customRequest={async (options) => {
@@ -92,7 +103,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
               }
             }}
           >
-            <Tooltip title={isActive && 'Change avatar'} placement="top">
+            <Tooltip title={canChangeAvatar && 'Change avatar'} placement="top">
               <div className={styles.avatar}>
                 <img src={record?.avatar} alt="avatar" />
               </div>
@@ -129,51 +140,53 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
           className={`${styles.textEllipse} ${styles.roleButton}`}
         >
           <KeyOutlined /> <span className={styles.content}>{record?.role}</span>
-          <ModalForm<{ role: string }>
-            title="Edit Role"
-            width="400px"
-            trigger={
-              <span className={styles.button}>
-                <Button
-                  size="small"
-                  className="primary-outlined-button"
-                  icon={<EditOutlined />}
-                  title="Edit role"
-                ></Button>
-              </span>
-            }
-            onVisibleChange={(visible) => {
-              if (visible) {
-                editRoleForm.setFieldsValue({ role: record?.role });
-              } else {
-                editRoleForm.resetFields();
+          <Access accessible={canSetRole}>
+            <ModalForm<{ role: string }>
+              title="Edit Role"
+              width="400px"
+              trigger={
+                <span className={styles.button}>
+                  <Button
+                    size="small"
+                    className="primary-outlined-button"
+                    icon={<EditOutlined />}
+                    title="Edit role"
+                  ></Button>
+                </span>
               }
-            }}
-            form={editRoleForm}
-            onFinish={async (value) => {
-              try {
-                await changeEmployeeRole(id!, value.role);
-                message.success('Update successfully!');
-                onChange?.basicInfo?.({ ...value } as any);
-                return true;
-              } catch {
-                message.error('Update unsuccessfully!');
-                return false;
-              }
-            }}
-          >
-            <ProFormSelect
-              name="role"
-              width="md"
-              label="Role"
-              options={roles.data?.map((it) => ({
-                value: it.name,
-                label: it.name,
-              }))}
-              hasFeedback={roles.isLoading}
-              rules={[{ required: true }]}
-            />
-          </ModalForm>
+              onVisibleChange={(visible) => {
+                if (visible) {
+                  editRoleForm.setFieldsValue({ role: record?.role });
+                } else {
+                  editRoleForm.resetFields();
+                }
+              }}
+              form={editRoleForm}
+              onFinish={async (value) => {
+                try {
+                  await changeEmployeeRole(id!, value.role);
+                  message.success('Update successfully!');
+                  onChange?.basicInfo?.({ ...value } as any);
+                  return true;
+                } catch {
+                  message.error('Update unsuccessfully!');
+                  return false;
+                }
+              }}
+            >
+              <ProFormSelect
+                name="role"
+                width="md"
+                label="Role"
+                options={roles.data?.map((it) => ({
+                  value: it.name,
+                  label: it.name,
+                }))}
+                hasFeedback={roles.isLoading}
+                rules={[{ required: true }]}
+              />
+            </ModalForm>
+          </Access>
         </h4>
         <h4
           style={{
@@ -195,178 +208,182 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
           <MailOutlined />
           <span className={styles.content}>{record?.email}</span>
         </h4>
-        {isActive && (
+        {(canSetPassword || canTerminateEmployment) && (
           <Space direction="vertical" style={{ width: '100%' }}>
-            {type === 'employee-edit' ? (
-              <ModalForm
-                title="Change password"
-                width="400px"
-                trigger={
-                  <Button className={styles.changePasswordButton} type="primary">
-                    Change password
-                  </Button>
-                }
-                onFinish={async (value) => {
-                  try {
-                    await changeEmployeePassword(id!, value.new_password);
-                    message.success('Password changed successfully!');
-                    return true;
-                  } catch {
-                    message.error('Cannot change password!');
-                    return false;
+            <Access accessible={canSetPassword}>
+              {pageType === 'employee-edit' ? (
+                <ModalForm
+                  title="Change password"
+                  width="400px"
+                  trigger={
+                    <Button className={styles.changePasswordButton} type="primary">
+                      Change password
+                    </Button>
                   }
-                }}
-              >
-                <ProFormText.Password
-                  width="md"
-                  name="new_password"
-                  label="New password"
-                  rules={[
-                    { required: true },
-                    { min: 6, message: 'Password must contain at least 6 characters!' },
-                    ({ getFieldValue }) => ({
-                      validator(rule, value) {
-                        if (value && getFieldValue('password') === value) {
-                          return Promise.reject(
-                            Error('New password must be different than current password'),
-                          );
-                        }
-                        return Promise.resolve();
-                      },
-                    }),
-                  ]}
-                />
-                <ProFormText.Password
-                  width="md"
-                  name="confirm_password"
-                  label="Confirm password"
-                  dependencies={['new_password']}
-                  rules={[
-                    { required: true },
-                    ({ getFieldValue }) => ({
-                      validator(rule, value) {
-                        if (!value || getFieldValue('new_password') === value) {
+                  onFinish={async (value) => {
+                    try {
+                      await changeEmployeePassword(id!, value.new_password);
+                      message.success('Password changed successfully!');
+                      return true;
+                    } catch {
+                      message.error('Cannot change password!');
+                      return false;
+                    }
+                  }}
+                >
+                  <ProFormText.Password
+                    width="md"
+                    name="new_password"
+                    label="New password"
+                    rules={[
+                      { required: true },
+                      { min: 6, message: 'Password must contain at least 6 characters!' },
+                      ({ getFieldValue }) => ({
+                        validator(rule, value) {
+                          if (value && getFieldValue('password') === value) {
+                            return Promise.reject(
+                              Error('New password must be different than current password'),
+                            );
+                          }
                           return Promise.resolve();
-                        }
-                        return Promise.reject(Error('Confirm password does not match!'));
-                      },
-                    }),
-                  ]}
-                />
-              </ModalForm>
-            ) : (
-              <ModalForm
-                title="Change password"
+                        },
+                      }),
+                    ]}
+                  />
+                  <ProFormText.Password
+                    width="md"
+                    name="confirm_password"
+                    label="Confirm password"
+                    dependencies={['new_password']}
+                    rules={[
+                      { required: true },
+                      ({ getFieldValue }) => ({
+                        validator(rule, value) {
+                          if (!value || getFieldValue('new_password') === value) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(Error('Confirm password does not match!'));
+                        },
+                      }),
+                    ]}
+                  />
+                </ModalForm>
+              ) : (
+                <ModalForm
+                  title="Change password"
+                  width="400px"
+                  trigger={
+                    <Button className={styles.changePasswordButton} type="primary">
+                      Change password
+                    </Button>
+                  }
+                  onFinish={async (value) => {
+                    try {
+                      await changePassword(value.password, value.new_password);
+                      message.success('Password changed successfully!');
+                      return true;
+                    } catch {
+                      message.error('Cannot change password!');
+                      return false;
+                    }
+                  }}
+                >
+                  <ProFormText.Password
+                    width="md"
+                    name="password"
+                    label="Current password"
+                    rules={[{ required: true }]}
+                  />
+                  <ProFormText.Password
+                    width="md"
+                    name="new_password"
+                    label="New password"
+                    rules={[
+                      { required: true },
+                      { min: 6, message: 'Password must contain at least 6 characters!' },
+                      ({ getFieldValue }) => ({
+                        validator(rule, value) {
+                          if (value && getFieldValue('password') === value) {
+                            return Promise.reject(
+                              Error('New password must be different than current password'),
+                            );
+                          }
+                          return Promise.resolve();
+                        },
+                      }),
+                    ]}
+                  />
+                  <ProFormText.Password
+                    width="md"
+                    name="confirm_password"
+                    label="Confirm password"
+                    dependencies={['new_password']}
+                    rules={[
+                      { required: true },
+                      ({ getFieldValue }) => ({
+                        validator(rule, value) {
+                          if (!value || getFieldValue('new_password') === value) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(Error('Confirm password does not match!'));
+                        },
+                      }),
+                    ]}
+                  />
+                </ModalForm>
+              )}
+            </Access>
+            <Access accessible={canTerminateEmployment}>
+              <ModalForm<API.TerminateContract>
+                title="Termination Form"
                 width="400px"
                 trigger={
-                  <Button className={styles.changePasswordButton} type="primary">
-                    Change password
+                  <Button key="terminate" danger style={{ width: '100%' }}>
+                    Terminate Employment
                   </Button>
                 }
+                onVisibleChange={() => {
+                  terminationForm.resetFields();
+                }}
+                form={terminationForm}
                 onFinish={async (value) => {
                   try {
-                    await changePassword(value.password, value.new_password);
-                    message.success('Password changed successfully!');
+                    await terminateEmployee(id!, {
+                      ...value,
+                      date: moment(value.date),
+                    });
+                    message.success('Terminate successfully!');
+                    // jobs.fetchData();
+                    // schedule.fetchData();
+                    onChange?.status?.('Terminated');
                     return true;
                   } catch {
-                    message.error('Cannot change password!');
+                    message.error('Terminate unsuccessfully!');
                     return false;
                   }
                 }}
               >
-                <ProFormText.Password
+                <ProFormSelect
+                  name="reason"
                   width="md"
-                  name="password"
-                  label="Current password"
+                  label="Termination reason"
+                  options={terminationReasons.data?.map((it) => ({
+                    value: it.name,
+                    label: it.name,
+                  }))}
+                  hasFeedback={terminationReasons.isLoading}
                   rules={[{ required: true }]}
                 />
-                <ProFormText.Password
+                <ProFormDatePicker
+                  rules={[{ required: true }]}
                   width="md"
-                  name="new_password"
-                  label="New password"
-                  rules={[
-                    { required: true },
-                    { min: 6, message: 'Password must contain at least 6 characters!' },
-                    ({ getFieldValue }) => ({
-                      validator(rule, value) {
-                        if (value && getFieldValue('password') === value) {
-                          return Promise.reject(
-                            Error('New password must be different than current password'),
-                          );
-                        }
-                        return Promise.resolve();
-                      },
-                    }),
-                  ]}
+                  name="date"
+                  label="Date"
+                  initialValue={moment()}
                 />
-                <ProFormText.Password
-                  width="md"
-                  name="confirm_password"
-                  label="Confirm password"
-                  dependencies={['new_password']}
-                  rules={[
-                    { required: true },
-                    ({ getFieldValue }) => ({
-                      validator(rule, value) {
-                        if (!value || getFieldValue('new_password') === value) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(Error('Confirm password does not match!'));
-                      },
-                    }),
-                  ]}
-                />
+                <ProFormTextArea width="md" name="note" label="Note" />
               </ModalForm>
-            )}
-            <ModalForm<API.TerminateContract>
-              title="Termination Form"
-              width="400px"
-              trigger={
-                <Button key="terminate" danger style={{ width: '100%' }}>
-                  Terminate Employment
-                </Button>
-              }
-              onVisibleChange={() => {
-                terminationForm.resetFields();
-              }}
-              form={terminationForm}
-              onFinish={async (value) => {
-                try {
-                  await terminateEmployee(id!, {
-                    ...value,
-                    date: moment(value.date),
-                  });
-                  message.success('Terminate successfully!');
-                  // jobs.fetchData();
-                  // schedule.fetchData();
-                  onChange?.status?.('Terminated');
-                  return true;
-                } catch {
-                  message.error('Terminate unsuccessfully!');
-                  return false;
-                }
-              }}
-            >
-              <ProFormSelect
-                name="reason"
-                width="md"
-                label="Termination reason"
-                options={terminationReasons.data?.map((it) => ({
-                  value: it.name,
-                  label: it.name,
-                }))}
-                hasFeedback={terminationReasons.isLoading}
-                rules={[{ required: true }]}
-              />
-              <ProFormDatePicker
-                rules={[{ required: true }]}
-                width="md"
-                name="date"
-                label="Date"
-                initialValue={moment()}
-              />
-              <ProFormTextArea width="md" name="note" label="Note" />
-            </ModalForm>
+            </Access>
           </Space>
         )}
       </Card>
