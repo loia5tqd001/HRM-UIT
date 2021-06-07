@@ -34,7 +34,7 @@ import {
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { history, useIntl, useParams } from 'umi';
+import { Access, history, useAccess, useIntl, useParams } from 'umi';
 import { toolbarButtons } from '../EmployeeAttendance';
 
 type RecordType = API.AttendanceRecord;
@@ -52,6 +52,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
 
   const [employee, setEmployee] = useState<API.Employee>();
   const { id } = useParams<any>();
+  const access = useAccess();
 
   const { period } = history.location.query as any;
   const [periods, setPeriods] = useState<API.Period[]>();
@@ -288,7 +289,8 @@ const EmployeeAttendanceDetail: React.FC = () => {
     //   dataIndex: 'edited_by',
     //   renderText: (_, record) => (record.edited_by ? 'hello' : null),
     // },
-    {
+    (access['attendance.can_edit_actual_hours_attendance'] ||
+      access['attendance.can_edit_overtime_hours_attendance']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -301,33 +303,40 @@ const EmployeeAttendanceDetail: React.FC = () => {
               disabled={record.status === 'Confirmed'}
               overlay={
                 <Menu>
-                  <Menu.Item
-                    onClick={() => {
-                      setEditModalVisible('actual');
-                      setSelectedRecord(record);
-                      editModalForm.setFieldsValue({
-                        date: record.date,
-                        edited_time: moment(
-                          formatDurationHm(record.actual_work_hours * 3600),
-                          'HH:mm',
-                        ),
-                      });
-                    }}
-                  >
-                    Edit actual
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => {
-                      setEditModalVisible('overtime');
-                      setSelectedRecord(record);
-                      editModalForm.setFieldsValue({
-                        date: record.date,
-                        edited_time: moment(formatDurationHm(record.ot_work_hours * 3600), 'HH:mm'),
-                      });
-                    }}
-                  >
-                    Edit overtime
-                  </Menu.Item>
+                  {access['attendance.can_edit_actual_hours_attendance'] && (
+                    <Menu.Item
+                      onClick={() => {
+                        setEditModalVisible('actual');
+                        setSelectedRecord(record);
+                        editModalForm.setFieldsValue({
+                          date: record.date,
+                          edited_time: moment(
+                            formatDurationHm(record.actual_work_hours * 3600),
+                            'HH:mm',
+                          ),
+                        });
+                      }}
+                    >
+                      Edit actual
+                    </Menu.Item>
+                  )}
+                  {access['attendance.can_edit_overtime_hours_attendance'] && (
+                    <Menu.Item
+                      onClick={() => {
+                        setEditModalVisible('overtime');
+                        setSelectedRecord(record);
+                        editModalForm.setFieldsValue({
+                          date: record.date,
+                          edited_time: moment(
+                            formatDurationHm(record.ot_work_hours * 3600),
+                            'HH:mm',
+                          ),
+                        });
+                      }}
+                    >
+                      Edit overtime
+                    </Menu.Item>
+                  )}
                 </Menu>
               }
             >
@@ -350,11 +359,13 @@ const EmployeeAttendanceDetail: React.FC = () => {
         search={false}
         scroll={{ x: 'max-content' }}
         tableAlertRender={false}
-        rowSelection={{
-          onChange: (_, _selectedRows) => {
-            setSelectedRows(_selectedRows);
-          },
-        }}
+        rowSelection={
+          toolbarButtons.reduce((acc, cur) => acc || access[cur.access], false) && {
+            onChange: (_, _selectedRows) => {
+              setSelectedRows(_selectedRows);
+            },
+          }
+        }
         toolBarRender={() => [
           <Select<number>
             loading={!periods}
@@ -373,27 +384,29 @@ const EmployeeAttendanceDetail: React.FC = () => {
             ))}
           </Select>,
           ...toolbarButtons.map((toolbar) => (
-            <Button
-              onClick={async () => {
-                const bulkAction = Promise.all(
-                  selectedRows.map((it) => toolbar.api(it.owner, it.id)),
-                );
-                try {
-                  await bulkAction;
-                  message.success(`${toolbar.action} successfully!`);
-                  actionRef.current?.reloadAndRest?.();
-                } catch (err) {
-                  message.error('Some error occurred!');
-                }
-              }}
-              disabled={selectedRows.filter(toolbar.filter as any).length === 0}
-              {...(toolbar.buttonProps as any)}
-            >
-              <Space>
-                {toolbar.icon}
-                {toolbar.action}
-              </Space>
-            </Button>
+            <Access accessible={access[toolbar.access]}>
+              <Button
+                onClick={async () => {
+                  const bulkAction = Promise.all(
+                    selectedRows.map((it) => toolbar.api(it.owner, it.id)),
+                  );
+                  try {
+                    await bulkAction;
+                    message.success(`${toolbar.action} successfully!`);
+                    actionRef.current?.reloadAndRest?.();
+                  } catch (err) {
+                    message.error('Some error occurred!');
+                  }
+                }}
+                disabled={selectedRows.filter(toolbar.filter as any).length === 0}
+                {...(toolbar.buttonProps as any)}
+              >
+                <Space>
+                  {toolbar.icon}
+                  {toolbar.action}
+                </Space>
+              </Button>
+            </Access>
           )),
         ]}
         loading={periods === undefined ? true : undefined}

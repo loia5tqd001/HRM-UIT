@@ -20,7 +20,7 @@ import { Badge, Button, message, Progress, Select, Space, Tooltip } from 'antd';
 import { countBy, groupBy, mapValues, sumBy, uniq } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useIntl } from 'umi';
+import { Link, useIntl, useAccess, Access } from 'umi';
 
 type RecordType = API.AttendanceEmployee & {
   status?: {
@@ -41,6 +41,7 @@ export const toolbarButtons = [
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Pending',
     api: approveEmployeeAttendance,
     buttonProps: undefined,
+    access: 'attendance.can_approve_attendance',
   },
   {
     action: 'Reject',
@@ -48,6 +49,7 @@ export const toolbarButtons = [
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Pending',
     api: rejectEmployeeAttendance,
     buttonProps: { danger: true },
+    access: 'attendance.can_reject_attendance',
   },
   {
     action: 'Revert',
@@ -56,6 +58,7 @@ export const toolbarButtons = [
       it.status === 'Approved' || it.status === 'Rejected',
     api: revertEmployeeAttendance,
     buttonProps: undefined,
+    access: 'attendance.can_revert_attendance',
   },
   {
     action: 'Confirm',
@@ -63,6 +66,7 @@ export const toolbarButtons = [
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Approved',
     api: confirmEmployeeAttendance,
     buttonProps: { type: 'primary' },
+    access: 'attendance.can_confirm_attendance',
   },
 ];
 
@@ -73,6 +77,7 @@ const EmployeeAttendance: React.FC = () => {
   const [attendanceKeys, setAttendanceKeys] = useState<string[]>([]);
   const [periods, setPeriods] = useState<API.Period[]>();
   const [selectedPeriod, setSelectedPeriod] = useState<any>();
+  const access = useAccess();
 
   useEffect(() => {
     allPeriods()
@@ -197,11 +202,13 @@ const EmployeeAttendance: React.FC = () => {
         search={false}
         scroll={{ x: 'max-content' }}
         tableAlertRender={false}
-        rowSelection={{
-          onChange: (_, _selectedRows) => {
-            setSelectedRows(_selectedRows);
-          },
-        }}
+        rowSelection={
+          toolbarButtons.reduce((acc, cur) => acc || access[cur.access], false) && {
+            onChange: (_, _selectedRows) => {
+              setSelectedRows(_selectedRows);
+            },
+          }
+        }
         toolBarRender={() => [
           <Select<number>
             loading={!periods}
@@ -220,32 +227,34 @@ const EmployeeAttendance: React.FC = () => {
             ))}
           </Select>,
           ...toolbarButtons.map((toolbar) => (
-            <Button
-              onClick={async () => {
-                const bulkAction = Promise.all(
-                  selectedRows
-                    .flatMap((it) => it.attendance)
-                    .filter(toolbar.filter)
-                    .map((it) => toolbar.api(it.owner, it.id)),
-                );
-                try {
-                  await bulkAction;
-                  message.success(`${toolbar.action} successfully!`);
-                  actionRef.current?.reloadAndRest?.();
-                } catch (err) {
-                  message.error('Some error occurred!');
+            <Access accessible={access[toolbar.access]}>
+              <Button
+                onClick={async () => {
+                  const bulkAction = Promise.all(
+                    selectedRows
+                      .flatMap((it) => it.attendance)
+                      .filter(toolbar.filter)
+                      .map((it) => toolbar.api(it.owner, it.id)),
+                  );
+                  try {
+                    await bulkAction;
+                    message.success(`${toolbar.action} successfully!`);
+                    actionRef.current?.reloadAndRest?.();
+                  } catch (err) {
+                    message.error('Some error occurred!');
+                  }
+                }}
+                disabled={
+                  selectedRows.flatMap((it) => it.attendance).filter(toolbar.filter).length === 0
                 }
-              }}
-              disabled={
-                selectedRows.flatMap((it) => it.attendance).filter(toolbar.filter).length === 0
-              }
-              {...(toolbar.buttonProps as any)}
-            >
-              <Space>
-                {toolbar.icon}
-                {toolbar.action}
-              </Space>
-            </Button>
+                {...(toolbar.buttonProps as any)}
+              >
+                <Space>
+                  {toolbar.icon}
+                  {toolbar.action}
+                </Space>
+              </Button>
+            </Access>
           )),
         ]}
         loading={periods === undefined ? true : undefined}

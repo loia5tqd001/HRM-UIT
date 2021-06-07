@@ -11,7 +11,7 @@ import GooglePlacesAutocomplete, {
   geocodeByPlaceId,
   getLatLng,
 } from 'react-google-places-autocomplete';
-import { useParams } from 'umi';
+import { Access, useParams, useAccess } from 'umi';
 
 const googleApiKey = 'AIzaSyA7EpBEIp80TiSD15D85_Kra8TLtbdsr1c';
 
@@ -27,6 +27,7 @@ export const OfficeEdit: React.FC = () => {
   // const mapRef = useRef<google.maps.Map>();
   const markerRef = useRef<google.maps.Marker>();
   const circleRef = useRef<google.maps.Circle>();
+  const access = useAccess();
 
   useEffect(() => {
     setOfficeReady(false);
@@ -126,28 +127,30 @@ export const OfficeEdit: React.FC = () => {
         loading={!officeReady}
         className="card-shadow"
         extra={
-          <Button
-            type="primary"
-            onClick={async () => {
-              if (!markerRef.current?.getPosition()) return;
-              try {
-                const record = {
-                  ...office,
-                  ...form.getFieldsValue(),
-                  lat: markerRef.current?.getPosition()?.toJSON().lat,
-                  lng: markerRef.current?.getPosition()?.toJSON().lng,
-                  note: accurateAddress?.value.place_id,
-                  enable_geofencing: true,
-                };
-                await updateLocation(record.id!, record);
-                message.success('Update successfully');
-              } catch {
-                message.error('Update unsuccessfully');
-              }
-            }}
-          >
-            <SaveOutlined /> Save
-          </Button>
+          <Access accessible={access['job.change_location']}>
+            <Button
+              type="primary"
+              onClick={async () => {
+                if (!markerRef.current?.getPosition()) return;
+                try {
+                  const record = {
+                    ...office,
+                    ...form.getFieldsValue(),
+                    lat: markerRef.current?.getPosition()?.toJSON().lat,
+                    lng: markerRef.current?.getPosition()?.toJSON().lng,
+                    note: accurateAddress?.value.place_id,
+                    enable_geofencing: true,
+                  };
+                  await updateLocation(record.id!, record);
+                  message.success('Update successfully');
+                } catch {
+                  message.error('Update unsuccessfully');
+                }
+              }}
+            >
+              <SaveOutlined /> Save
+            </Button>
+          </Access>
         }
       >
         <ProForm form={form} initialValues={office} submitter={false}>

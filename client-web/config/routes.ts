@@ -297,11 +297,13 @@
         name: 'list',
         icon: 'unorderedList',
         component: './Attendance/EmployeeAttendance',
+        access: 'attendance.view_attendance',
       },
       {
         path: '/attendance/list/:id',
         component: './Attendance/EmployeeAttendanceDetail',
         name: 'detail',
+        access: 'attendance.view_attendance',
         hideInMenu: true,
       },
       // { path: '/attendance/import', name: '__import', icon: 'import', component: './Welcome' },
@@ -309,15 +311,18 @@
         path: '/attendance/configuration',
         name: 'configuration',
         icon: 'setting',
+        access: 'job.view_location',
         routes: [
           {
             path: '/attendance/configuration/office',
             name: 'office',
             component: './Attendance/Configuration/Office',
+            access: 'job.view_location',
           },
           {
             path: '/attendance/configuration/office/:id',
             component: './Attendance/Configuration/OfficeEdit',
+            access: 'job.view_location',
             hideInMenu: true,
           },
           // {
