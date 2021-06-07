@@ -231,7 +231,11 @@ const MyAttendance: React.FC = () => {
             </Tooltip>
           );
         if (check_out_location)
-          return <Tag icon={<EnvironmentOutlined />}>{check_out_location}</Tag>;
+          return (
+            <Tag icon={<EnvironmentOutlined />} color="green">
+              {check_out_location}
+            </Tag>
+          );
         return '-';
       },
     },
@@ -318,56 +322,56 @@ const MyAttendance: React.FC = () => {
     //   dataIndex: 'edited_by',
     //   renderText: (_, record) => (record.edited_by ? 'hello' : null),
     // },
-    {
-      title: 'Actions',
-      key: 'action',
-      fixed: 'right',
-      align: 'center',
-      search: false,
-      render: (dom, record) =>
-        record.type === 'AttendanceDay' ? (
-          <Space size="small">
-            <Dropdown
-              disabled={record.status === 'Confirmed'}
-              overlay={
-                <Menu>
-                  <Menu.Item
-                    onClick={() => {
-                      setEditModalVisible('actual');
-                      setSelectedRecord(record);
-                      editModalForm.setFieldsValue({
-                        date: record.date,
-                        edited_time: moment(
-                          formatDurationHm(record.actual_work_hours * 3600),
-                          'HH:mm',
-                        ),
-                      });
-                    }}
-                  >
-                    Edit actual
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => {
-                      setEditModalVisible('overtime');
-                      setSelectedRecord(record);
-                      editModalForm.setFieldsValue({
-                        date: record.date,
-                        edited_time: moment(formatDurationHm(record.ot_work_hours * 3600), 'HH:mm'),
-                      });
-                    }}
-                  >
-                    Edit overtime
-                  </Menu.Item>
-                </Menu>
-              }
-            >
-              <Button size="small" disabled={record.status === 'Confirmed'}>
-                <EditOutlined />
-              </Button>
-            </Dropdown>
-          </Space>
-        ) : null,
-    },
+    // {
+    //   title: 'Actions',
+    //   key: 'action',
+    //   fixed: 'right',
+    //   align: 'center',
+    //   search: false,
+    //   render: (dom, record) =>
+    //     record.type === 'AttendanceDay' ? (
+    //       <Space size="small">
+    //         <Dropdown
+    //           disabled={record.status === 'Confirmed'}
+    //           overlay={
+    //             <Menu>
+    //               <Menu.Item
+    //                 onClick={() => {
+    //                   setEditModalVisible('actual');
+    //                   setSelectedRecord(record);
+    //                   editModalForm.setFieldsValue({
+    //                     date: record.date,
+    //                     edited_time: moment(
+    //                       formatDurationHm(record.actual_work_hours * 3600),
+    //                       'HH:mm',
+    //                     ),
+    //                   });
+    //                 }}
+    //               >
+    //                 Edit actual
+    //               </Menu.Item>
+    //               <Menu.Item
+    //                 onClick={() => {
+    //                   setEditModalVisible('overtime');
+    //                   setSelectedRecord(record);
+    //                   editModalForm.setFieldsValue({
+    //                     date: record.date,
+    //                     edited_time: moment(formatDurationHm(record.ot_work_hours * 3600), 'HH:mm'),
+    //                   });
+    //                 }}
+    //               >
+    //                 Edit overtime
+    //               </Menu.Item>
+    //             </Menu>
+    //           }
+    //         >
+    //           <Button size="small" disabled={record.status === 'Confirmed'}>
+    //             <EditOutlined />
+    //           </Button>
+    //         </Dropdown>
+    //       </Space>
+    //     ) : null,
+    // },
   ];
 
   return (

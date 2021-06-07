@@ -31,8 +31,6 @@ const CustomButton = ({ icon: Icon, text, ...props }) => {
         alignItems: 'center',
         height: '200%',
         fontSize: '1.5em',
-        marginRight: 24,
-        marginBottom: 24,
         ...props.style,
       }}
     >
@@ -283,7 +281,7 @@ export const Edit: React.FC = () => {
           className="card-shadow header-capitalize"
           loading={attendanceInfo.isLoading}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: -24 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
             <CustomButton
               icon={HistoryOutlined}
               type="primary"
@@ -312,122 +310,126 @@ export const Edit: React.FC = () => {
             />
           </div>
         </Card>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <div style={{ display: 'flex', gap: 24 }}>
           <Access accessible={access?.['timeoff.view_timeoff']}>
-            <ProTable<any>
-              className="card-shadow header-capitalize"
-              headerTitle="Pending Timeoff Requests"
-              rowKey="id"
-              search={false}
-              request={async () => {
-                const data = await allTimeoffs();
-                return {
-                  data: data.filter((it) => it.status === 'Pending'),
-                  success: true,
-                };
-              }}
-              toolBarRender={() => [
-                <Button type="primary" onClick={() => history.push('/timeOff/list')}>
-                  View all
-                </Button>,
-              ]}
-              columns={[
-                {
-                  title: 'Employee',
-                  dataIndex: ['owner', 'id'],
-                  render: (avatar, record) => (
-                    <Space>
-                      <span>
-                        <Avatar src={record.owner.avatar} />
-                      </span>
-                      <span>
-                        {record.owner.first_name} {record.owner.last_name}
-                      </span>
-                    </Space>
-                  ),
-                },
-                {
-                  title: 'Timeoff type',
-                  dataIndex: 'time_off_type',
-                },
-                {
-                  title: 'Start date',
-                  dataIndex: 'start_date',
-                  valueType: 'date',
-                },
-                {
-                  title: 'End date',
-                  dataIndex: 'end_date',
-                  valueType: 'date',
-                },
-              ]}
-              pagination={{ pageSize: 5, simple: true }}
-            />
+            <div style={{ flex: 1 }}>
+              <ProTable<any>
+                className="card-shadow header-capitalize"
+                headerTitle="Pending Timeoff Requests"
+                rowKey="id"
+                search={false}
+                request={async () => {
+                  const data = await allTimeoffs();
+                  return {
+                    data: data.filter((it) => it.status === 'Pending'),
+                    success: true,
+                  };
+                }}
+                toolBarRender={() => [
+                  <Button type="primary" onClick={() => history.push('/timeOff/list')}>
+                    View all
+                  </Button>,
+                ]}
+                columns={[
+                  {
+                    title: 'Employee',
+                    dataIndex: ['owner', 'id'],
+                    render: (avatar, record) => (
+                      <Space>
+                        <span>
+                          <Avatar src={record.owner.avatar} />
+                        </span>
+                        <span>
+                          {record.owner.first_name} {record.owner.last_name}
+                        </span>
+                      </Space>
+                    ),
+                  },
+                  {
+                    title: 'Timeoff type',
+                    dataIndex: 'time_off_type',
+                  },
+                  {
+                    title: 'Start date',
+                    dataIndex: 'start_date',
+                    valueType: 'date',
+                  },
+                  {
+                    title: 'End date',
+                    dataIndex: 'end_date',
+                    valueType: 'date',
+                  },
+                ]}
+                pagination={{ pageSize: 5, simple: true }}
+              />
+            </div>
           </Access>
           <Access accessible={access?.['attendance.view_employeeschedule']}>
-            <ProTable<any>
-              className="card-shadow header-capitalize"
-              headerTitle="Pending Attendance Requests"
-              rowKey="id"
-              search={false}
-              request={async () => {
-                let data = await allAttendances();
-                const schedules = await Promise.all(
-                  data
-                    .filter((it) => it.attendance[0])
-                    .map(async (it) => {
-                      const employeeId = it.attendance[0].owner;
-                      return getSchedule(employeeId);
-                    }),
-                );
-                data = data
-                  // .filter((it) => it.attendance.length)
-                  .map((it) => {
-                    let work_schedule = 0;
-                    if (it.attendance[0]?.owner) {
-                      work_schedule =
-                        (schedules.find((x) => x.owner === it.attendance[0].owner)
-                          ?.schedule as API.Schedule).workdays.reduce(
-                          (acc, cur) => acc + calcHours(cur),
-                          0,
-                        ) * 3600;
-                    }
-                    return {
-                      ...it,
-                      status: {
-                        Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
-                        Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
-                        Rejected: countBy(it.attendance, (x) => x.status === 'Rejected').true,
-                        Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
-                      },
-                      actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
-                      work_schedule,
-                      attendances: mapValues(
-                        groupBy(
-                          it.attendance.map((x) => ({
-                            ...x,
-                            date: moment(x.date).format('DD MMM'),
-                            work_load: x.actual_work_hours * 3600,
-                          })),
-                          'date',
+            <div style={{ flex: 1 }}>
+              <ProTable<any>
+                className="card-shadow header-capitalize"
+                headerTitle="Pending Attendance Requests"
+                rowKey="id"
+                search={false}
+                request={async () => {
+                  let data = await allAttendances();
+                  const schedules = await Promise.all(
+                    data
+                      .filter((it) => it.attendance[0])
+                      .map(async (it) => {
+                        const employeeId = it.attendance[0].owner;
+                        return getSchedule(employeeId);
+                      }),
+                  );
+                  data = data
+                    // .filter((it) => it.attendance.length)
+                    .map((it) => {
+                      let work_schedule = 0;
+                      if (it.attendance[0]?.owner) {
+                        work_schedule =
+                          (schedules.find((x) => x.owner === it.attendance[0].owner)
+                            ?.schedule as API.Schedule).workdays.reduce(
+                            (acc, cur) => acc + calcHours(cur),
+                            0,
+                          ) * 3600;
+                      }
+                      return {
+                        ...it,
+                        status: {
+                          Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
+                          Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
+                          Rejected: countBy(it.attendance, (x) => x.status === 'Rejected').true,
+                          Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
+                        },
+                        actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
+                        work_schedule,
+                        attendances: mapValues(
+                          groupBy(
+                            it.attendance.map((x) => ({
+                              ...x,
+                              date: moment(x.date).format('DD MMM'),
+                              work_load: x.actual_work_hours * 3600,
+                            })),
+                            'date',
+                          ),
+                          (x) => x.reduce((acc, cur) => acc + cur.actual_work_hours * 3600, 0),
                         ),
-                        (x) => x.reduce((acc, cur) => acc + cur.actual_work_hours * 3600, 0),
-                      ),
-                    };
-                  });
-                return {
-                  success: true,
-                  data: data?.filter((it) => it.status.Pending),
-                };
-              }}
-              toolBarRender={() => [
-                <Button type="primary" onClick={() => history.push('/attendance/list')}>
-                  View all
-                </Button>,
-              ]}
-              columns={columns}
-              pagination={{ pageSize: 5, simple: true }}
-            />
+                      };
+                    });
+                  return {
+                    success: true,
+                    data: data?.filter((it) => it.status.Pending),
+                  };
+                }}
+                toolBarRender={() => [
+                  <Button type="primary" onClick={() => history.push('/attendance/list')}>
+                    View all
+                  </Button>,
+                ]}
+                columns={columns}
+                pagination={{ pageSize: 5, simple: true }}
+              />
+            </div>
           </Access>
         </div>
         <Access accessible={access?.['core.view_employee']}>
