@@ -3,9 +3,9 @@ import {
   allPayrollTemplates,
   createPayrollTemplate,
   deletePayrollTemplate,
-  updatePayrollTemplate
+  updatePayrollTemplate,
 } from '@/services/payroll.template';
-import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
@@ -13,7 +13,7 @@ import ProTable from '@ant-design/pro-table';
 import { Button, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, Link, useIntl } from 'umi';
+import { Access, FormattedMessage, Link, useAccess, useIntl } from 'umi';
 
 type RecordType = API.PayrollTemplate;
 
@@ -25,6 +25,7 @@ export const PayrollTemplate: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
   const intl = useIntl();
+  const access = useAccess();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -56,7 +57,7 @@ export const PayrollTemplate: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Button
+          {/* <Button
             title="Edit this template"
             size="small"
             onClick={() => {
@@ -65,27 +66,29 @@ export const PayrollTemplate: React.FC = () => {
             }}
           >
             <EditOutlined />
-          </Button>
+          </Button> */}
           <Link to={`/payroll/template/${record.id}?tab=columns`}>
             <Button title="Config this template" size="small">
               <EyeOutlined />
             </Button>
           </Link>
-          <Popconfirm
-            placement="right"
-            title={'Delete this template?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deletePayrollTemplate(record.id),
-                'Detete successfully!',
-                'Cannot delete template!',
-              );
-            }}
-          >
-            <Button title="Delete this template" size="small" danger>
-              <DeleteOutlined />
-            </Button>
-          </Popconfirm>
+          <Access accessible={access['payroll.delete_salarytemplate']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this template?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deletePayrollTemplate(record.id),
+                  'Detete successfully!',
+                  'Cannot delete template!',
+                );
+              }}
+            >
+              <Button title="Delete this template" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -110,17 +113,17 @@ export const PayrollTemplate: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-
-<Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>
-,
+          <Access accessible={access['payroll.add_salarytemplate']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
         request={async () => {
           const data = await allPayrollTemplates();

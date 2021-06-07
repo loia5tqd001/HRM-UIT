@@ -27,6 +27,7 @@ import { sortBy } from 'lodash';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import styles from './index.less';
+import { Access, useAccess } from 'umi';
 
 const EditableContext = React.createContext<any>(null);
 
@@ -150,58 +151,7 @@ const DraggableBodyRow = ({ className, style, ...restProps }) => {
 
 function SortableTable() {
   const { tableDataReady, tableData, setTableData } = useContext<any>(TableContext);
-
-  const columns = [
-    {
-      title: '#',
-      dataIndex: 'index',
-      width: 65,
-      className: 'drag-visible',
-      render: (_, __, index) => <DragHandle index={index} />,
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      width: 'max-content',
-      editable: true,
-    },
-    {
-      title: 'Datatype',
-      dataIndex: 'datatype',
-      width: 'max-content',
-      editable: true,
-    },
-    {
-      title: 'Display name',
-      dataIndex: 'display_name',
-      editable: true,
-    },
-    {
-      title: 'Code name',
-      dataIndex: 'code_name',
-      editable: true,
-    },
-    {
-      title: 'Define',
-      dataIndex: 'define',
-      editable: true,
-      width: '30%',
-    },
-    {
-      title: 'Actions',
-      dataIndex: 'actions',
-      width: 'min-content',
-      render: (_, record) =>
-        tableData.length >= 1 ? (
-          <Space>
-            <Button icon={<EyeOutlined />} size="small" disabled />
-            <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.index)}>
-              <Button icon={<CloseOutlined />} danger size="small" />
-            </Popconfirm>
-          </Space>
-        ) : null,
-    },
-  ];
+  const access = useAccess();
 
   const onSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex !== newIndex) {
@@ -237,6 +187,56 @@ function SortableTable() {
     newData.splice(index, 1, { ...item, ...row });
     setTableData(newData);
   };
+
+  const columns = [
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      width: 'max-content',
+      editable: true,
+    },
+    {
+      title: 'Datatype',
+      dataIndex: 'datatype',
+      width: 'max-content',
+      editable: true,
+    },
+    {
+      title: 'Display name',
+      dataIndex: 'display_name',
+      editable: true,
+    },
+    {
+      title: 'Code name',
+      dataIndex: 'code_name',
+      editable: true,
+    },
+    {
+      title: 'Define',
+      dataIndex: 'define',
+      editable: true,
+      width: '30%',
+    },
+  ];
+  if (access['payroll.change_salarytemplate']) {
+    columns.unshift({
+      title: '#',
+      dataIndex: 'index',
+      width: 65,
+      className: 'drag-visible',
+      render: (_, __, index) => <DragHandle index={index} />,
+    } as any);
+    columns.push({
+      title: '',
+      dataIndex: 'actions',
+      width: '30px',
+      render: (_, record) => (
+        <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.index)}>
+          <Button icon={<CloseOutlined />} danger size="small" />
+        </Popconfirm>
+      ),
+    } as any);
+  }
 
   return (
     <Table
@@ -284,6 +284,8 @@ export const PayrollColumns: React.FC<Props> = (props) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [tableData, setTableData] = useState<API.PayrollTemplate['fields']>([]);
   const [isCollapsed, setIsCollapse] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const access = useAccess();
 
   useEffect(() => {
     setTableData(
@@ -309,122 +311,132 @@ export const PayrollColumns: React.FC<Props> = (props) => {
           title={payrollTemplate?.name}
           style={{ minHeight: '50vh', height: '100%' }}
           extra={
-            <Space>
-              <Button
-                children="Save"
-                type="primary"
-                onClick={async () => {
-                  try {
-                    await onUpdateColumns(tableData);
-                    message.success('Updated successfully!');
-                  } catch {
-                    message.error('Updated unsuccessfully!');
-                  }
-                }}
-              />
-              <Tooltip title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}>
+            <Access accessible={access['payroll.change_salarytemplate']}>
+              <Space>
                 <Button
-                  icon={isCollapsed ? <DoubleLeftOutlined /> : <DoubleRightOutlined />}
-                  onClick={() => {
-                    setIsCollapse(!isCollapsed);
+                  children="Save"
+                  type="primary"
+                  loading={isSaving}
+                  onClick={async () => {
+                    try {
+                      setIsSaving(true);
+                      await onUpdateColumns(tableData);
+                      message.success('Updated successfully!');
+                    } catch {
+                      message.error('Updated unsuccessfully!');
+                    } finally {
+                      setIsSaving(false);
+                    }
                   }}
-                  type={isCollapsed ? 'primary' : undefined}
-                  className={isCollapsed ? undefined : 'primary-outlined-button'}
                 />
-              </Tooltip>
-            </Space>
+                <Tooltip title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}>
+                  <Button
+                    icon={isCollapsed ? <DoubleLeftOutlined /> : <DoubleRightOutlined />}
+                    onClick={() => {
+                      setIsCollapse(!isCollapsed);
+                    }}
+                    type={isCollapsed ? 'primary' : undefined}
+                    className={isCollapsed ? undefined : 'primary-outlined-button'}
+                  />
+                </Tooltip>
+              </Space>
+            </Access>
           }
         >
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: `1fr ${isCollapsed ? '0' : 'minmax(300px, auto)'}`,
+              display: 'flex',
+              // gridTemplateColumns: `1fr ${isCollapsed ? '0' : 'minmax(300px, 25vw)'}`,
               margin: '0 12px',
               gap: 12,
               overflow: 'hidden',
             }}
           >
-            <div style={{ height: 'calc(100vh - 120px)', overflow: 'auto' }}>
+            <div style={{ height: 'calc(100vh - 120px)', overflow: 'auto', flex: '2 0 70%' }}>
               <SortableTable />
             </div>
-            <div>
-              <div>
-                <Button
-                  className="primary-outlined-button"
-                  icon={<PlusOutlined />}
-                  style={{ width: '100%' }}
-                  children="Add Formula Column"
-                  onClick={() => {
-                    let nextNumber = String(tableData.length + 1);
-                    // eslint-disable-next-line @typescript-eslint/no-loop-func
-                    while (tableData.find((it) => it.code_name === `formula_${nextNumber}`)) {
-                      nextNumber += '.1';
-                    }
-                    setTableData([
-                      ...tableData,
-                      {
-                        type: 'Formula',
-                        datatype: 'Text',
-                        code_name: `formula_${nextNumber}`,
-                        define: '',
-                        display_name: `Column ${nextNumber}`,
-                        index: tableData.length,
-                      },
-                    ]);
-                  }}
-                />
-                <Input.Search
-                  style={{ width: '100%' }}
-                  placeholder="Or Add System Field Columns Below"
-                  onSearch={setSearchKeyword}
-                />
+            <Access accessible={access['payroll.change_salarytemplate']}>
+              <div
+                style={{ flex: isCollapsed ? 0 : '1 0 250px', width: isCollapsed ? 0 : undefined }}
+              >
+                <div>
+                  <Button
+                    className="primary-outlined-button"
+                    icon={<PlusOutlined />}
+                    style={{ width: '100%' }}
+                    children="Add Formula Column"
+                    onClick={() => {
+                      let nextNumber = String(tableData.length + 1);
+                      // eslint-disable-next-line @typescript-eslint/no-loop-func
+                      while (tableData.find((it) => it.code_name === `formula_${nextNumber}`)) {
+                        nextNumber += '.1';
+                      }
+                      setTableData([
+                        ...tableData,
+                        {
+                          type: 'Formula',
+                          datatype: 'Text',
+                          code_name: `formula_${nextNumber}`,
+                          define: '',
+                          display_name: `Column ${nextNumber}`,
+                          index: tableData.length,
+                        },
+                      ]);
+                    }}
+                  />
+                  <Input.Search
+                    style={{ width: '100%' }}
+                    placeholder="Or Add System Field Columns Below"
+                    onSearch={setSearchKeyword}
+                  />
+                </div>
+                <div
+                  style={{ height: 'calc(100vh - 182px)', overflow: 'auto', background: 'white' }}
+                >
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={systemFields?.filter(
+                      (it) =>
+                        it.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                        it.code_name.toLowerCase().includes(searchKeyword.toLowerCase()),
+                    )}
+                    loading={!systemFields}
+                    bordered
+                    renderItem={(item, index) => (
+                      <List.Item
+                        onClick={(e) => {
+                          if (!systemFields) {
+                            message.error('Cannot find system fields');
+                            return;
+                          }
+                          const codeName = systemFields?.[index].code_name;
+                          const codeNameExists = tableData.some((it) => it.code_name === codeName);
+                          if (codeNameExists) {
+                            message.error(`${codeName} already exists`);
+                            return;
+                          }
+                          setTableData([
+                            ...tableData,
+                            {
+                              type: 'System Field',
+                              datatype: 'Text',
+                              code_name: systemFields[index].code_name,
+                              define: '',
+                              display_name: systemFields[index].name,
+                              index: tableData.length,
+                            },
+                          ]);
+                        }}
+                        className={styles.listItem}
+                      >
+                        <span style={{ fontWeight: 500 }}>{item.code_name}</span> ({item.name})
+                        <List.Item.Meta description={item.description} />
+                      </List.Item>
+                    )}
+                  />
+                </div>
               </div>
-              <div style={{ height: 'calc(100vh - 182px)', overflow: 'auto', background: 'white' }}>
-                <List
-                  itemLayout="horizontal"
-                  dataSource={systemFields?.filter(
-                    (it) =>
-                      it.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                      it.code_name.toLowerCase().includes(searchKeyword.toLowerCase()),
-                  )}
-                  loading={!systemFields}
-                  bordered
-                  renderItem={(item, index) => (
-                    <List.Item
-                      onClick={(e) => {
-                        if (!systemFields) {
-                          message.error('Cannot find system fields');
-                          return;
-                        }
-                        const codeName = systemFields?.[index].code_name;
-                        const codeNameExists = tableData.some((it) => it.code_name === codeName);
-                        if (codeNameExists) {
-                          message.error(`${codeName} already exists`);
-                          return;
-                        }
-                        setTableData([
-                          ...tableData,
-                          {
-                            type: 'System Field',
-                            datatype: 'Text',
-                            code_name: systemFields[index].code_name,
-                            define: '',
-                            display_name: systemFields[index].name,
-                            index: tableData.length,
-                          },
-                        ]);
-                      }}
-                      className={styles.listItem}
-                    >
-                      <List.Item.Meta
-                        title={`${item.code_name} (${item.name})`}
-                        description={item.description}
-                      />
-                    </List.Item>
-                  )}
-                />
-              </div>
-            </div>
+            </Access>
           </div>
         </Card>
       </div>

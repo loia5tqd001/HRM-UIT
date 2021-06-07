@@ -353,11 +353,13 @@
         name: 'template',
         icon: 'profile',
         component: './Payroll/Template/List',
+        access: 'payroll.view_salarytemplate',
       },
       {
         path: '/payroll/template/:id',
         component: './Payroll/Template/Detail',
         hideInMenu: true,
+        access: 'payroll.view_salarytemplate',
       },
       {
         path: '/payroll/payrolls',

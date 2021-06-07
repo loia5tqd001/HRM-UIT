@@ -1,15 +1,17 @@
 import { readPayrollTemplate, updatePayrollTemplate } from '@/services/payroll.template';
 import { PageContainer } from '@ant-design/pro-layout';
 import React, { useEffect, useState } from 'react';
-import { history, useParams } from 'umi';
+import { history, useParams, useAccess } from 'umi';
 import { GeneralInformation } from './GeneralInformation';
 import { PayrollColumns } from './PayrollColumns';
 
 export const List: React.FC = () => {
+  const access = useAccess();
   const { tab } = history.location.query as {
-    tab: 'general' | 'columns' | 'payslip' | undefined;
+    tab: 'general' | 'columns' | undefined;
   };
-  if (tab === undefined) history.replace('?tab=general');
+  if (tab === undefined || (tab === 'general' && !access['payroll.change_salarytemplate']))
+    history.replace('?tab=columns');
 
   const { id } = useParams<any>();
   const [payrollTemplate, setPayrollTemplate] = useState<API.PayrollTemplate>();
@@ -35,33 +37,32 @@ export const List: React.FC = () => {
           payrollTemplate={payrollTemplate}
           onUpdateColumns={async (fields) => {
             if (!payrollTemplate) return;
-            updatePayrollTemplate(id, { ...payrollTemplate, fields });
+            const updated = { ...payrollTemplate, fields };
+            await updatePayrollTemplate(id, updated);
+            setPayrollTemplate(updated);
           }}
         />
       );
-    if (key === 'payslip') return <div>payslip</div>;
     return null;
   };
 
   return (
     <PageContainer
       title={false}
-      tabList={[
-        {
-          tab: 'General Information',
-          key: 'general',
-        },
-        {
-          tab: 'Payroll Columns',
-          key: 'columns',
-        },
-        // {
-        //   tab: 'Payslip Template',
-        //   key: 'payslip',
-        // },
-      ]}
+      tabList={
+        access['payroll.change_salarytemplate'] && [
+          {
+            tab: 'General Information',
+            key: 'general',
+          },
+          {
+            tab: 'Payroll Columns',
+            key: 'columns',
+          },
+        ]
+      }
       onTabChange={(key) => {
-        history.push(`?tab=${key}`);
+        history.replace(`?tab=${key}`);
       }}
       tabActiveKey={tab}
     >
