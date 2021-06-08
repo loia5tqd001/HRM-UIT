@@ -337,12 +337,14 @@ declare namespace API {
     check_in_lat: number;
     check_in_lng: number;
     check_in_note?: string;
+    face_image?: Blob | string | null;
   }
 
   interface CheckOutBody {
     check_out_lat: number;
     check_out_lng: number;
     check_out_note?: string;
+    face_image?: Blob | string | null;
   }
 
   interface EditActual {

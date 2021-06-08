@@ -22,12 +22,12 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import {
+  Alert,
   Badge,
   Button,
-  Dropdown,
   Form,
-  Menu,
   message,
+  notification,
   Space,
   Tag,
   TimePicker,
@@ -62,6 +62,10 @@ const MyAttendance: React.FC = () => {
   const [lastAction, setLastAction] = useState<string>();
   const [editModalForm] = useForm();
   const [holidays, setHolidays] = useState<API.Holiday[]>();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream>();
+  const [locationDenied, setLocationDenied] = useState(false);
+  const [faceDenied, setFaceDenied] = useState(false);
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
@@ -125,30 +129,37 @@ const MyAttendance: React.FC = () => {
 
   React.useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const { latitude, longitude } = position.coords;
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
 
-        const [location, locations] = await Promise.all([
-          allJobs(id).then((it) => it?.[0]?.location),
-          allLocations(),
-        ]);
-        const matchedLocation = locations.find((it) => it.name === location);
-        if (!matchedLocation) {
-          message.error('Cannot find location');
-          return;
-        }
-        const { lat, lng, radius, name, allow_outside } = matchedLocation;
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(
-          new google.maps.LatLng(lat, lng),
-          new google.maps.LatLng(latitude, longitude),
-        );
-        setCurrentLocation({
-          lat: latitude,
-          lng: longitude,
-          office: distance > radius ? 'Outside' : name,
-          allow_outside,
-        });
-      });
+          const [location, locations] = await Promise.all([
+            allJobs(id).then((it) => it?.[0]?.location),
+            allLocations(),
+          ]);
+          const matchedLocation = locations.find((it) => it.name === location);
+          if (!matchedLocation) {
+            message.error('Cannot find location');
+            return;
+          }
+          const { lat, lng, radius, name, allow_outside } = matchedLocation;
+          const distance = google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(lat, lng),
+            new google.maps.LatLng(latitude, longitude),
+          );
+          setCurrentLocation({
+            lat: latitude,
+            lng: longitude,
+            office: distance > radius ? 'Outside' : name,
+            allow_outside,
+          });
+        },
+        (err) => {
+          if (err.PERMISSION_DENIED) {
+            setLocationDenied(true);
+          }
+        },
+      );
     }
   }, [id]);
 
@@ -376,6 +387,20 @@ const MyAttendance: React.FC = () => {
 
   return (
     <PageContainer title={false}>
+      {locationDenied && (
+        <Alert
+          message="You need to grant location permission in order to check in / check out"
+          type="error"
+          showIcon
+        />
+      )}
+      {faceDenied && (
+        <Alert
+          message="You need to grant camera permission in order to check in / check out"
+          type="error"
+          showIcon
+        />
+      )}
       <ProTable<RecordType, API.PageParams>
         className="card-shadow"
         headerTitle="My attendance"
@@ -511,15 +536,28 @@ const MyAttendance: React.FC = () => {
       <ModalForm
         visible={clockModalVisible}
         title={`${nextStep} at ${moment().format('HH:mm')}`}
-        width="400px"
+        width="398px"
         onFinish={async (values) => {
           try {
             const { lat, lng } = currentLocation!;
+            // const imageCapture = new ImageCapture(streamRef.current?.getVideoTracks[0]);
+            const takePicture = () => {
+              const canvas = document.createElement('canvas');
+              const width = 350;
+              const height = 260;
+              if (!videoRef.current) return undefined;
+              const context = canvas.getContext('2d');
+              canvas.width = width;
+              canvas.height = height;
+              context?.drawImage(videoRef.current, 0, 0, width, height);
+              return canvas.toDataURL('image/png');
+            };
             if (nextStep === 'Clock in') {
               await checkIn(id, {
                 check_in_lat: lat,
                 check_in_lng: lng,
                 check_in_note: values.note,
+                face_image: takePicture(),
               });
               message.success('Clocked in successfully');
             } else {
@@ -527,6 +565,7 @@ const MyAttendance: React.FC = () => {
                 check_out_lat: lat,
                 check_out_lng: lng,
                 check_out_note: values.note,
+                face_image: takePicture(),
               });
               message.success('Clocked out successfully');
             }
@@ -536,7 +575,32 @@ const MyAttendance: React.FC = () => {
           setClockModalVisible(false);
           actionRef.current?.reload();
         }}
-        onVisibleChange={(visible) => setClockModalVisible(visible)}
+        onVisibleChange={(visible) => {
+          if (visible) {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+              navigator.mediaDevices
+                .getUserMedia({ video: true })
+                .then((stream) => {
+                  setTimeout(() => {
+                    if (!videoRef.current) return;
+                    videoRef.current.srcObject = stream;
+                    streamRef.current = stream;
+                    videoRef.current.play();
+                  }, 100);
+                })
+                .catch(() => {
+                  setFaceDenied(true);
+                  notification.error({
+                    message: 'You need to grant camera permission in order to check in / check out',
+                  });
+                });
+            }
+          } else {
+            videoRef.current?.pause();
+            streamRef.current?.getTracks().forEach((it) => it.stop());
+          }
+          setClockModalVisible(visible);
+        }}
       >
         <Space style={{ marginBottom: 20 }}>
           <EnvironmentOutlined />
@@ -550,6 +614,7 @@ const MyAttendance: React.FC = () => {
           name="note"
           label="Note"
         />
+        <video ref={videoRef} width="350px" height="260px" />
       </ModalForm>
       <ModalForm
         visible={editModalVisible !== 'hidden'}
