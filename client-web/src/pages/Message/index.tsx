@@ -5,6 +5,7 @@ import ProList from '@ant-design/pro-list';
 import { Button, Card, Spin } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import Talk from 'talkjs';
+import type { ConversationSelectedEvent } from 'talkjs/all';
 import { useModel } from 'umi';
 import styles from './index.less';
 
@@ -26,7 +27,13 @@ const employeeToUser = (employee: API.Employee): Talk.User => {
 const appId = 't6rbhbrZ';
 
 const ChatBox = React.memo(
-  ({ inboxRef }: { inboxRef: React.MutableRefObject<Talk.Inbox | undefined> }) => {
+  ({
+    inboxRef,
+    onConversationSelected,
+  }: {
+    inboxRef: React.MutableRefObject<Talk.Inbox | undefined>;
+    onConversationSelected: (event: ConversationSelectedEvent) => void;
+  }) => {
     const { initialState } = useModel('@@initialState');
     const { currentUser } = initialState!;
     const talkjsContainerRef = useRef<HTMLDivElement>(null);
@@ -39,6 +46,7 @@ const ChatBox = React.memo(
         window.talkSession = new Talk.Session({ appId, me });
         inboxRef.current = window.talkSession.createInbox();
         inboxRef.current.mount(talkjsContainerRef.current);
+        inboxRef.current.on('conversationSelected', onConversationSelected);
       });
 
       return () => {
@@ -69,6 +77,7 @@ export const Message: React.FC = () => {
   const inboxRef = useRef<Talk.Inbox>();
   const peopleRef = useRef<API.Employee[]>();
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedId, setSelectedId] = useState<number>();
 
   const changeConversation = (otherId: number) => {
     setTimeout(() => setIsLoading(true), 0);
@@ -88,7 +97,10 @@ export const Message: React.FC = () => {
       <Card style={{ fontFamily: 'inherit !important' }} className="card-shadow">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 30vw', gap: '1rem' }}>
           <Spin spinning={isLoading}>
-            <ChatBox inboxRef={inboxRef} />
+            <ChatBox
+              inboxRef={inboxRef}
+              onConversationSelected={({ others }) => setSelectedId(Number(others?.[0].id))}
+            />
           </Spin>
           <div className={styles.scrollableList}>
             <ProList<API.Employee>
@@ -128,7 +140,12 @@ export const Message: React.FC = () => {
                   render: (_, entity) => (
                     <Button
                       type="link"
-                      style={{ color: 'inherit' }}
+                      style={{
+                        color: entity.id === selectedId ? undefined : 'inherit',
+                        fontSize: entity.id === selectedId ? '1.4em' : undefined,
+                        fontWeight: entity.id === selectedId ? 'bolder' : undefined,
+                        transform: entity.id === selectedId ? 'translateY(-0.2em)' : undefined,
+                      }}
                       onClick={() => changeConversation(entity.id)}
                     >
                       <b>
