@@ -95,6 +95,13 @@ const MyAttendance: React.FC = () => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
   }, []);
 
+  useEffect(() => {
+    if (clockModalVisible === false) {
+      videoRef.current?.pause();
+      streamRef.current?.getTracks().forEach((it) => it.stop());
+    }
+  }, [clockModalVisible]);
+
   const isHoliday = useCallback(
     (date: moment.Moment) =>
       !!holidays?.some(
@@ -656,9 +663,6 @@ const MyAttendance: React.FC = () => {
                   });
                 });
             }
-          } else {
-            videoRef.current?.pause();
-            streamRef.current?.getTracks().forEach((it) => it.stop());
           }
           setClockModalVisible(visible);
         }}
