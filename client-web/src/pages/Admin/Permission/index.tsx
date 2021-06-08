@@ -275,7 +275,7 @@ const Permission: React.FC = () => {
                 title: 'Id',
                 key: 'id',
                 dataIndex: 'id',
-                width: 'max-content',
+                width: 100,
               },
               {
                 title: 'Permission',
@@ -302,12 +302,12 @@ const Permission: React.FC = () => {
                     }}
                   />
                 ),
-                width: 100,
+                width: 150,
               },
             ]}
             dataSource={viewingRecord?.permissions}
             style={{ height: 'calc(100vh - 350px)' }}
-            scroll={{ x: 'max-content', y: 'calc(100vh - 400px)' }}
+            scroll={{ y: 'calc(100vh - 400px)' }}
             pagination={false}
             className="no-header-color"
           />

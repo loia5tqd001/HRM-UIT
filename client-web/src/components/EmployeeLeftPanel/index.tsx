@@ -59,15 +59,11 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
   const roles = useAsyncData<API.RoleItem[]>(allRoles);
   const pageType = useEmployeeDetailType();
 
-  const {
-    canChangeAvatar,
-    canSetRole,
-    canSetPassword,
-    canTerminateEmployment,
-  } = useEmployeeDetailAccess({ isActive, employeeId: id });
+  const { canChangeAvatar, canSetRole, canSetPassword, canTerminateEmployment } =
+    useEmployeeDetailAccess({ isActive, employeeId: id });
 
   return (
-    <Affix offsetTop={50}>
+    <Affix offsetTop={50} style={{ minWidth: 200 }}>
       <Card bordered={false} loading={!record} className="card-shadow">
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Upload
