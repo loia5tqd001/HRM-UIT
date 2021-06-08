@@ -19,12 +19,14 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import {
+  Avatar,
   Badge,
   Button,
   Dropdown,
   Form,
   Menu,
   message,
+  Popover,
   Select,
   Space,
   Tag,
@@ -167,6 +169,18 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
+      title: 'Clock in image',
+      key: 'check_in_image',
+      dataIndex: 'check_in_image',
+      valueType: 'avatar',
+      renderText: (text) =>
+        text && (
+          <Popover content={<img style={{ width: 500 }} src={text} />}>
+            <Avatar src={text}></Avatar>
+          </Popover>
+        ),
+    },
+    {
       title: 'Clock out',
       key: 'check_out',
       dataIndex: 'check_out',
@@ -205,6 +219,18 @@ const EmployeeAttendanceDetail: React.FC = () => {
           );
         return '-';
       },
+    },
+    {
+      title: 'Clock out image',
+      key: 'check_out_image',
+      dataIndex: 'check_out_image',
+      valueType: 'avatar',
+      renderText: (text) =>
+        text && (
+          <Popover content={<img style={{ width: 500 }} src={text} />}>
+            <Avatar src={text}></Avatar>
+          </Popover>
+        ),
     },
     {
       title: 'Work schedule',
@@ -414,6 +440,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
           const fetchData = await readAttendances(id, {
             params: { period_id: period },
           });
+          fetchData.reverse(); // most recent comes first
 
           const schedule = await getSchedule(id).then((it) => it.schedule as API.Schedule);
           // manipulate backend data
@@ -430,11 +457,13 @@ const EmployeeAttendanceDetail: React.FC = () => {
               check_in_location:
                 first_check_in?.check_in_time &&
                 (first_check_in?.check_in_outside ? 'Outside' : first_check_in?.location),
+              check_in_image: first_check_in?.check_in_image,
               check_out: last_check_out?.check_out_time,
               check_out_note: last_check_out?.check_out_time && last_check_out?.check_out_note,
               check_out_location:
                 last_check_out?.check_out_time &&
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
+              check_out_image: last_check_out?.check_out_image,
               hours_work_by_schedule: getHourWorkDay(moment(it.date), schedule),
               children: it.tracking_data?.map((x) => {
                 return {

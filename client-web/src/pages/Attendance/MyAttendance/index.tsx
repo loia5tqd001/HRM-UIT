@@ -1,4 +1,5 @@
 import { allLocations } from '@/services/admin.organization.location';
+import { allPeriods } from '@/services/attendance';
 import {
   allJobs,
   checkIn,
@@ -28,11 +29,14 @@ import {
   Form,
   message,
   notification,
+  Popover,
+  Select,
   Space,
   Tag,
   TimePicker,
   Tooltip,
 } from 'antd';
+import Avatar from 'antd/lib/avatar/avatar';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -66,6 +70,18 @@ const MyAttendance: React.FC = () => {
   const streamRef = useRef<MediaStream>();
   const [locationDenied, setLocationDenied] = useState(false);
   const [faceDenied, setFaceDenied] = useState(false);
+  const [periods, setPeriods] = useState<API.Period[]>();
+  const [selectedPeriod, setSelectedPeriod] = useState<any>();
+
+  useEffect(() => {
+    allPeriods()
+      .then((fetchData) => fetchData.reverse())
+      .then((fetchData) => {
+        setSelectedPeriod(fetchData[0]?.id);
+        setPeriods(fetchData);
+        actionRef.current?.reload();
+      });
+  }, []);
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
@@ -211,6 +227,18 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
+      title: 'Clock in image',
+      key: 'check_in_image',
+      dataIndex: 'check_in_image',
+      valueType: 'avatar',
+      renderText: (text) =>
+        text && (
+          <Popover content={<img style={{ width: 500 }} src={text} />}>
+            <Avatar src={text}></Avatar>
+          </Popover>
+        ),
+    },
+    {
       title: 'Clock out',
       key: 'check_out',
       dataIndex: 'check_out',
@@ -249,6 +277,18 @@ const MyAttendance: React.FC = () => {
           );
         return '-';
       },
+    },
+    {
+      title: 'Clock out image',
+      key: 'check_out_image',
+      dataIndex: 'check_out_image',
+      valueType: 'avatar',
+      renderText: (text) =>
+        text && (
+          <Popover content={<img style={{ width: 500 }} src={text} />}>
+            <Avatar src={text}></Avatar>
+          </Popover>
+        ),
     },
     {
       title: 'Work schedule',
@@ -429,6 +469,22 @@ const MyAttendance: React.FC = () => {
               </Tag>
             )}
           </>,
+          <Select<number>
+            loading={!periods}
+            style={{ minWidth: 100 }}
+            value={selectedPeriod}
+            onChange={(value) => {
+              setSelectedPeriod(value);
+              actionRef.current?.reload();
+            }}
+          >
+            {periods?.map((it) => (
+              <Select.Option value={it.id}>
+                {moment(it.start_date).format('DD MMM YYYY')} →{' '}
+                {moment(it.end_date).format('DD MMM YYYY')}
+              </Select.Option>
+            ))}
+          </Select>,
           <Button
             type="primary"
             key="primary"
@@ -455,8 +511,11 @@ const MyAttendance: React.FC = () => {
             </Space>
           </Button>,
         ]}
+        loading={periods === undefined ? true : undefined}
         request={async () => {
-          const fetchData = await readAttendances(id);
+          const fetchData = await readAttendances(id, {
+            params: { period_id: selectedPeriod },
+          });
           // Handle for today data
           const todayData = fetchData
             .reverse()
@@ -502,11 +561,13 @@ const MyAttendance: React.FC = () => {
               check_in_location:
                 first_check_in?.check_in_time &&
                 (first_check_in?.check_in_outside ? 'Outside' : first_check_in?.location),
+              check_in_image: first_check_in?.check_in_image,
               check_out: last_check_out?.check_out_time,
               check_out_note: last_check_out?.check_out_time && last_check_out?.check_out_note,
               check_out_location:
                 last_check_out?.check_out_time &&
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
+              check_out_image: last_check_out?.check_out_image,
               hours_work_by_schedule: getHourWorkDay(moment(it.date), schedule),
               children: it.tracking_data?.map((x) => {
                 return {
