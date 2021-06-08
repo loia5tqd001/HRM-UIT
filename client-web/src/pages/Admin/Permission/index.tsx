@@ -275,6 +275,7 @@ const Permission: React.FC = () => {
                 title: 'Id',
                 key: 'id',
                 dataIndex: 'id',
+                width: 'max-content',
               },
               {
                 title: 'Permission',

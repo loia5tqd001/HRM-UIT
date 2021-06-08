@@ -347,6 +347,7 @@
     name: 'payroll',
     icon: 'calculator',
     path: '/payroll',
+    access: '/payroll',
     routes: [
       {
         path: '/payroll/template',
@@ -366,11 +367,13 @@
         name: 'payrolls',
         icon: 'transaction',
         component: './Payroll/Payrolls/List',
+        access: 'payroll.view_payroll',
       },
       {
         path: '/payroll/payrolls/:id',
         component: './Payroll/Payrolls/Detail',
         hideInMenu: true,
+        access: 'payroll.view_payslip',
       },
       // {
       //   path: '/payroll/configuration',

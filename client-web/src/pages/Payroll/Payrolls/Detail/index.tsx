@@ -11,7 +11,7 @@ import { Affix, Button, Card, message, Space, Table, Tag } from 'antd';
 import type { ColumnType } from 'antd/lib/table';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'umi';
+import { useParams, useAccess, Access } from 'umi';
 
 export const PayrollDetail: React.FC = () => {
   const { id } = useParams<any>();
@@ -21,6 +21,7 @@ export const PayrollDetail: React.FC = () => {
   const [isCalculating, setIsCalculating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const access = useAccess();
 
   const requestTable = useCallback(() => {
     readPayslips(id).then((fetchData) => {
@@ -89,56 +90,62 @@ export const PayrollDetail: React.FC = () => {
                     </span>
                   </Tag>
                 </div>
-                <Button
-                  className="primary-outlined-button"
-                  children="Send playslips via email"
-                  icon={<SendOutlined />}
-                  loading={isSending}
-                  onClick={async () => {
-                    try {
-                      setIsSending(true);
-                      await sendViaEmail(id);
-                      message.success('Sent successfully!');
-                    } catch {
-                      message.error('Cannot send!');
-                    } finally {
-                      setIsSending(false);
-                    }
-                  }}
-                />
-                <Button
-                  className="success-outlined-button"
-                  children="Export Excel"
-                  icon={<FileExcelOutlined />}
-                  loading={isExporting}
-                  onClick={async () => {
-                    try {
-                      setIsExporting(true);
-                      await exportExcel(id);
-                    } catch {
-                      message.error('Export unsuccessfully!');
-                    } finally {
-                      setIsExporting(false);
-                    }
-                  }}
-                />
-                <Button
-                  children="Run Calculation"
-                  type="primary"
-                  loading={isCalculating}
-                  onClick={async () => {
-                    try {
-                      setIsCalculating(true);
-                      await calculatePayslips(id);
-                      await requestTable();
-                      message.success('Calculate successfully!');
-                    } catch {
-                      message.error('Calculate unsuccessfully!');
-                    } finally {
-                      setIsCalculating(false);
-                    }
-                  }}
-                />
+                <Access accessible={access['payroll.can_send_payslip_payroll']}>
+                  <Button
+                    className="primary-outlined-button"
+                    children="Send playslips via email"
+                    icon={<SendOutlined />}
+                    loading={isSending}
+                    onClick={async () => {
+                      try {
+                        setIsSending(true);
+                        await sendViaEmail(id);
+                        message.success('Sent successfully!');
+                      } catch {
+                        message.error('Cannot send!');
+                      } finally {
+                        setIsSending(false);
+                      }
+                    }}
+                  />
+                </Access>
+                <Access accessible={access['payroll.can_export_excel_payroll']}>
+                  <Button
+                    className="success-outlined-button"
+                    children="Export Excel"
+                    icon={<FileExcelOutlined />}
+                    loading={isExporting}
+                    onClick={async () => {
+                      try {
+                        setIsExporting(true);
+                        await exportExcel(id);
+                      } catch {
+                        message.error('Export unsuccessfully!');
+                      } finally {
+                        setIsExporting(false);
+                      }
+                    }}
+                  />
+                </Access>
+                <Access accessible={access['payroll.can_calculate_payroll']}>
+                  <Button
+                    children="Run Calculation"
+                    type="primary"
+                    loading={isCalculating}
+                    onClick={async () => {
+                      try {
+                        setIsCalculating(true);
+                        await calculatePayslips(id);
+                        await requestTable();
+                        message.success('Calculate successfully!');
+                      } catch {
+                        message.error('Calculate unsuccessfully!');
+                      } finally {
+                        setIsCalculating(false);
+                      }
+                    }}
+                  />
+                </Access>
               </Space>
             }
           >

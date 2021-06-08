@@ -6,7 +6,14 @@ import defaultAccess from './defaultAccess';
 export default function (initialState: { currentUser?: API.Employee | undefined }) {
   const { currentUser } = initialState || {};
   if (!currentUser) return {};
-  const access = currentUser.permissions?.reduce((acc, cur) => ({ ...acc, [cur]: true }), {});
-  console.log('>  ~ file: access.ts ~ line 8 ~ access', access);
-  return { ...defaultAccess, ...access };
+  const permissions = currentUser.permissions?.reduce((acc, cur) => ({ ...acc, [cur]: true }), {});
+  const access = {
+    ...defaultAccess,
+    ...permissions,
+    '/payroll': !!(
+      permissions['payroll.view_salarytemplate'] || permissions['payroll.view_payroll']
+    ),
+  };
+  console.log('>  ~ file: access.ts ~ ', access);
+  return access;
 }

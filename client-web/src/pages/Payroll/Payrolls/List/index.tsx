@@ -12,7 +12,7 @@ import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FormattedMessage, Link, useIntl } from 'umi';
+import { FormattedMessage, Link, useIntl, useAccess, Access } from 'umi';
 
 type RecordType = API.Payroll;
 
@@ -26,6 +26,7 @@ export const Payroll: React.FC = () => {
   const intl = useIntl();
   const [templates, setTemplates] = useState<API.PayrollTemplate[]>();
   const [periods, setPeriods] = useState<API.Period[]>();
+  const access = useAccess();
 
   useEffect(() => {
     allPayrollTemplates().then((fetchData) => setTemplates(fetchData));
@@ -50,7 +51,12 @@ export const Payroll: React.FC = () => {
     {
       title: 'Name',
       dataIndex: 'name',
-      renderText: (it, record) => <Link to={`/payroll/payrolls/${record.id}`}>{it}</Link>,
+      renderText: (it, record) =>
+        access['payroll.view_payslip'] ? (
+          <Link to={`/payroll/payrolls/${record.id}`}>{it}</Link>
+        ) : (
+          it
+        ),
     },
     {
       title: 'Template',
@@ -69,7 +75,7 @@ export const Payroll: React.FC = () => {
       dataIndex: 'created_at',
       renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
     },
-    {
+    (access['payroll.view_payslip'] || access['payroll.delete_payroll']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -77,26 +83,30 @@ export const Payroll: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Link to={`/payroll/payrolls/${record.id}`}>
-            <Button title="View detail this payroll" size="small">
-              <EyeOutlined />
-            </Button>
-          </Link>
-          <Popconfirm
-            placement="right"
-            title={'Delete this payroll?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deletePayroll(record.id),
-                'Detete successfully!',
-                'Cannot delete payroll!',
-              );
-            }}
-          >
-            <Button title="Delete this payroll" size="small" danger>
-              <DeleteOutlined />
-            </Button>
-          </Popconfirm>
+          <Access accessible={access['payroll.view_payslip']}>
+            <Link to={`/payroll/payrolls/${record.id}`}>
+              <Button title="View detail this payroll" size="small">
+                <EyeOutlined />
+              </Button>
+            </Link>
+          </Access>
+          <Access accessible={access['payroll.delete_payroll']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this payroll?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deletePayroll(record.id),
+                  'Detete successfully!',
+                  'Cannot delete payroll!',
+                );
+              }}
+            >
+              <Button title="Delete this payroll" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -121,17 +131,17 @@ export const Payroll: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-
-<Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>
-,
+          <Access accessible={access['payroll.add_payroll']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
         request={async () => {
           const data = await allPayrolls();
