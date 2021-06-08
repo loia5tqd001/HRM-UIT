@@ -14,7 +14,8 @@ import {
   WomanOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import ProTable, { ProColumns } from '@ant-design/pro-table';
+import type { ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
 import { Avatar, Badge, Button, Card, Progress, Space, Tooltip } from 'antd';
 import { countBy, groupBy, mapValues, sumBy } from 'lodash';
 import moment from 'moment';
@@ -30,7 +31,7 @@ const CustomButton = ({ icon: Icon, text, ...props }) => {
         flexDirection: 'column',
         alignItems: 'center',
         height: '200%',
-        fontSize: '1.5em',
+        fontSize: '1.35em',
         ...props.style,
       }}
     >
@@ -326,7 +327,7 @@ export const Edit: React.FC = () => {
                   };
                 }}
                 toolBarRender={() => [
-                  <Button type="primary" onClick={() => history.push('/timeOff/list')}>
+                  <Button className="primary-outlined-button primary-hover-button" onClick={() => history.push('/timeOff/list')}>
                     View all
                   </Button>,
                 ]}
@@ -422,7 +423,7 @@ export const Edit: React.FC = () => {
                   };
                 }}
                 toolBarRender={() => [
-                  <Button type="primary" onClick={() => history.push('/attendance/list')}>
+                  <Button className="primary-outlined-button primary-hover-button" onClick={() => history.push('/attendance/list')}>
                     View all
                   </Button>,
                 ]}
@@ -439,7 +440,7 @@ export const Edit: React.FC = () => {
             rowKey="id"
             scroll={{ x: 'max-content' }}
             toolBarRender={() => [
-              <Button type="primary" onClick={() => history.push('/employee/list')}>
+              <Button className="primary-outlined-button primary-hover-button" onClick={() => history.push('/employee/list')}>
                 View All
               </Button>,
             ]}

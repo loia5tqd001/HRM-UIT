@@ -1,0 +1,49 @@
+@import '~antd/es/style/themes/default.less';
+
+.scrollableList {
+  :global(.ant-list-items) {
+    height: calc(100vh - 300px);
+    overflow-y: auto;
+  }
+  border: 1px solid #d0d8dc;
+  border-radius: 5px;
+  :global(.ant-pro-table-list-toolbar),
+  :global(.ant-pro-form-light-filter-container) {
+    background: #e7ecee;
+  }
+  :global(.ant-pro-table-list-toolbar-title) {
+    color: rgb(0, 0, 0, 0.85) !important;
+    font-weight: 600 !important;
+    text-transform: capitalize !important;
+  }
+  :global(.ant-list-item-meta-avatar) {
+    height: 100%;
+    :global(.ant-avatar) {
+      width: 32px !important;
+      height: 32px !important;
+      border: 2px solid @white;
+    }
+  }
+  :global(.ant-list-item-meta-title),
+  :global(.ant-list-item-meta-content) {
+    display: inline-block;
+  }
+  :global(.ant-list-item-meta) {
+    display: inline-flex;
+  }
+  :global(.ant-list-item) {
+    cursor: pointer;
+    &:hover {
+      background: rgba(208, 216, 220, 0.6);
+    }
+    h4 button {
+      transition: color 0s !important;
+    }
+  }
+  :global(.selected-item) {
+    background: @primary-color !important;
+    h4 {
+      color: @white !important;
+    }
+  }
+}

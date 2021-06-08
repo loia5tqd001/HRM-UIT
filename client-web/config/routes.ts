@@ -42,29 +42,7 @@
     path: '/message',
     name: 'message',
     icon: 'message',
-    routes: [
-      {
-        path: '/message/conversation',
-        name: 'conversation',
-        icon: 'comment',
-        component: './Message/Conversation',
-      },
-      {
-        path: '/message/conversation/:id',
-        icon: 'comment',
-        component: './Message/Conversation',
-      },
-      {
-        path: '/message/people',
-        name: 'people',
-        icon: 'contacts',
-        component: './Message/People',
-      },
-      {
-        path: '/message',
-        redirect: '/message/conversation',
-      },
-    ],
+    component: './Message',
   },
   {
     path: '/admin',

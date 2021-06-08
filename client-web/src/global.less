@@ -1,10 +1,14 @@
 @import '~antd/es/style/themes/default.less';
 
+.HubChatItem:hover {
+  background:red !important;
+}
+
 html,
 body,
 #root {
   height: 100%;
-  font-family: Roboto, Quicksand, @font-family;
+  font-family: "Open Sans", Roboto, Quicksand, @font-family;
 }
 
 #logo h1 {
@@ -117,6 +121,13 @@ body,
 }
 .primary-outlined-button {
   .outlined-button(@primary-color);
+}
+.primary-hover-button {
+  &:hover, &:focus {
+    border-color: fade(@primary-color, 70) !important;
+    color: @white !important;
+    background: @primary-color !important;
+  }
 }
 
 .emphasize-tag {
