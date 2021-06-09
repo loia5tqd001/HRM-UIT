@@ -306,8 +306,8 @@ const Permission: React.FC = () => {
               },
             ]}
             dataSource={viewingRecord?.permissions}
-            style={{ height: 'calc(100vh - 350px)' }}
-            scroll={{ y: 'calc(100vh - 400px)' }}
+            style={{ height: 'calc(100vh - 300px)' }}
+            scroll={{ y: 'calc(100vh - 350px)' }}
             pagination={false}
             className="no-header-color"
           />
