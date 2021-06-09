@@ -198,7 +198,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
                 <List.Item>
                   <List.Item.Meta
                     title={item.field.display_name}
-                    description={item.num_value || item.str_value}
+                    description={item.formatted_value}
                   />
                 </List.Item>
               )}

@@ -38,13 +38,7 @@ export const PayrollDetail: React.FC = () => {
       setTableData(
         fetchData.map((it) => {
           return it.values.reduce((acc, cur) => {
-            acc[cur.field.code_name] = cur.num_value ? Number(cur.num_value) : cur.str_value;
-            // TODO: Format currency
-            // if (cur.field.datatype === 'Currency') {
-            //   const formatCurrency = (value: string | number) =>
-            //     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            //   acc[cur.field.code_name] = formatCurrency(acc[cur.field.code_name]);
-            // }
+            acc[cur.field.code_name] = cur.formatted_value;
             return acc;
           }, {});
         }),

@@ -621,6 +621,7 @@ declare namespace API {
     values: {
       num_value: null | number;
       str_value: null | string;
+      formatted_value: null | string;
       field: PayrollField;
     }[];
     payrollDetail?: Payroll;
