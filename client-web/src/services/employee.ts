@@ -280,14 +280,14 @@ export async function readAttendances(employeeId: number, options?: { [key: stri
   });
 }
 
-export async function checkIn(employeeId: number, data: API.CheckInBody) {
+export async function checkIn(employeeId: number, data: API.CheckInBody | FormData) {
   return request(`${endpoint}${employeeId}/attendance/check_in/`, {
     method: 'POST',
     data,
   });
 }
 
-export async function checkOut(employeeId: number, data: API.CheckOutBody) {
+export async function checkOut(employeeId: number, data: API.CheckOutBody | FormData) {
   return request(`${endpoint}${employeeId}/attendance/check_out/`, {
     method: 'POST',
     data,

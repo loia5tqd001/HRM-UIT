@@ -65,6 +65,7 @@ const MyAttendance: React.FC = () => {
   const [lastClockOut, setLastClockOut] = useState<string>('--:--');
   const [lastAction, setLastAction] = useState<string>();
   const [editModalForm] = useForm();
+  const [clockModalForm] = useForm();
   const [holidays, setHolidays] = useState<API.Holiday[]>();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream>();
@@ -460,7 +461,7 @@ const MyAttendance: React.FC = () => {
         scroll={{ x: 'max-content' }}
         tableAlertRender={false}
         toolBarRender={() => [
-          <>
+          <div key="tags">
             {lastAction ? (
               <>
                 <Tag>
@@ -478,8 +479,9 @@ const MyAttendance: React.FC = () => {
                 <span className="emphasize-tag">No activities today yet</span>
               </Tag>
             )}
-          </>,
+          </div>,
           <Select<number>
+            key="periods"
             loading={!periods}
             style={{ minWidth: 100 }}
             value={selectedPeriod}
@@ -489,7 +491,7 @@ const MyAttendance: React.FC = () => {
             }}
           >
             {periods?.map((it) => (
-              <Select.Option value={it.id}>
+              <Select.Option value={it.id} key={it.id}>
                 {moment(it.start_date).format('DD MMM YYYY')} →{' '}
                 {moment(it.end_date).format('DD MMM YYYY')}
               </Select.Option>
@@ -611,40 +613,42 @@ const MyAttendance: React.FC = () => {
         onFinish={async (values) => {
           try {
             const { lat, lng } = currentLocation!;
-            // const imageCapture = new ImageCapture(streamRef.current?.getVideoTracks[0]);
-            const takePicture = () => {
-              const canvas = document.createElement('canvas');
-              const width = 350;
-              const height = 260;
-              if (!videoRef.current) return undefined;
-              const context = canvas.getContext('2d');
-              canvas.width = width;
-              canvas.height = height;
-              context?.drawImage(videoRef.current, 0, 0, width, height);
-              return canvas.toDataURL('image/png');
-            };
-            if (nextStep === 'Clock in') {
-              await checkIn(id, {
-                check_in_lat: lat,
-                check_in_lng: lng,
-                check_in_note: values.note,
-                face_image: takePicture(),
-              });
-              message.success('Clocked in successfully');
-            } else {
-              await checkOut(id, {
-                check_out_lat: lat,
-                check_out_lng: lng,
-                check_out_note: values.note,
-                face_image: takePicture(),
-              });
-              message.success('Clocked out successfully');
-            }
+            const canvas = document.createElement('canvas');
+            const width = 350;
+            const height = 260;
+            if (!videoRef.current) return undefined;
+            const context = canvas.getContext('2d');
+            canvas.width = width;
+            canvas.height = height;
+            context?.drawImage(videoRef.current, 0, 0, width, height);
+            return canvas.toBlob(async (blob) => {
+              if (!blob) {
+                throw new Error();
+              }
+
+              if (nextStep === 'Clock in') {
+                const submitData = new FormData();
+                submitData.append('face_image', blob, 'face_image.png');
+                submitData.append('check_in_lat', String(lat));
+                submitData.append('check_in_lng', String(lng));
+                submitData.append('check_in_note', values.note);
+                await checkIn(id, submitData);
+                message.success('Clocked in successfully');
+              } else {
+                const submitData = new FormData();
+                submitData.append('face_image', blob, 'face_image.png');
+                submitData.append('check_out_lat', String(lat));
+                submitData.append('check_out_lng', String(lng));
+                submitData.append('check_out_note', values.note);
+                await checkOut(id, submitData);
+                message.success('Clocked out successfully');
+              }
+              setClockModalVisible(false);
+              actionRef.current?.reload();
+            });
           } catch {
             message.error(`${nextStep} unsuccessfully`);
           }
-          setClockModalVisible(false);
-          actionRef.current?.reload();
         }}
         onVisibleChange={(visible) => {
           if (visible) {
@@ -659,16 +663,24 @@ const MyAttendance: React.FC = () => {
                     videoRef.current.play();
                   }, 100);
                 })
-                .catch(() => {
+                .catch((err) => {
+                  // console.log(err.name);
+                  if (err?.name === 'NotReadableError') {
+                    message.error('Your camera might be obtained by another software');
+                    return;
+                  }
                   setFaceDenied(true);
                   notification.error({
                     message: 'You need to grant camera permission in order to check in / check out',
                   });
                 });
             }
+          } else {
+            clockModalForm.resetFields();
           }
           setClockModalVisible(visible);
         }}
+        form={clockModalForm}
       >
         <Space style={{ marginBottom: 20 }}>
           <EnvironmentOutlined />
