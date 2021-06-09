@@ -88,8 +88,11 @@ const MyAttendance: React.FC = () => {
 
   useEffect(() => {
     const { action } = history.location.query as any;
-    if (action === 'nextStep') setClockModalVisible(true);
-  }, []);
+    if (action === 'nextStep' && currentLocation) {
+      setClockModalVisible(true);
+      history.replace('/attendance/me');
+    }
+  }, [nextStep, currentLocation]);
 
   useEffect(() => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
@@ -161,7 +164,7 @@ const MyAttendance: React.FC = () => {
             allLocations(),
           ]);
           const matchedLocation = locations.find((it) => it.name === location);
-          if (!matchedLocation) {
+          if (!matchedLocation || !google) {
             message.error('Cannot find location');
             return;
           }

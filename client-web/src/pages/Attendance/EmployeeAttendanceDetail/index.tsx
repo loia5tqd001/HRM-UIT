@@ -64,9 +64,10 @@ const EmployeeAttendanceDetail: React.FC = () => {
       .then((fetchData) => fetchData.reverse())
       .then((fetchData) => {
         setPeriods(fetchData);
+        if (period === undefined) history.replace(`?period=${fetchData?.[0].id}`);
         actionRef.current?.reload();
       });
-  }, []);
+  }, [period]);
 
   useEffect(() => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
