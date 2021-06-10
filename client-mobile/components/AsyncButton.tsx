@@ -24,7 +24,7 @@ export const AsyncButton: React.FC<Props> = (props) => {
       if (destroyOnSubmit === undefined || destroyOnSubmit.success === false) {
         setIsLoading(false);
       }
-    } catch {
+    } catch (err) {
       errorMsg && Alert.alert(errorMsg);
       if (destroyOnSubmit === undefined || destroyOnSubmit.error === false) {
         setIsLoading(false);

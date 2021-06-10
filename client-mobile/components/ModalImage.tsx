@@ -18,6 +18,30 @@ import AsyncButton from './AsyncButton';
 import ModalCustom from './ModalCustom';
 import axios from '../commons/axios';
 import { AuthContext } from '../Context/AuthContext';
+import { CameraCapturedPicture } from 'expo-camera';
+import Base64 from 'js-base64';
+import LzString from 'lz-string';
+// import RNFetchBlob from 'react-native-blob-util';
+import { getDataAsync } from '../commons';
+import RN from 'react-native-image-to-blob';
+// function dataURItoBlob(dataURI) {
+//   // convert base64 to raw binary data held in a string
+//   // console.log('hei', dataURI.split(',')[1]);
+//   var byteString = Base64.atob(dataURI.split(',')[1]);
+
+//   // separate out the mime component
+//   var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+//   // write the bytes of the string to an ArrayBuffer
+//   var arrayBuffer = new ArrayBuffer(byteString.length);
+//   var _ia = new Uint8Array(arrayBuffer);
+//   for (var i = 0; i < byteString.length; i++) {
+//     _ia[i] = byteString.charCodeAt(i);
+//   }
+//   var dataView = new DataView(arrayBuffer);
+//   var blob = new Blob([dataView], { type: mimeString });
+//   return blob;
+// }
 
 const ModalImage = ({
   modalVisible,
@@ -36,14 +60,74 @@ const ModalImage = ({
 
   const submitData = async () => {
     const key = nextStep === 'clock in' ? 'check_in' : 'check_out';
-    const blob = await (await fetch(captureImage.uri)).blob();
-    const dataSubmit = {
-      [`${key}_lat`]: location?.lat,
-      [`${key}_lng`]: location?.lng,
-      [`${key}_note`]: `${nextStep} with face`,
-      face_image: blob,
-    };
+    // console.log(
+    //   '>  ~ file: ModalImage.tsx ~ line 58 ~ key',
+    //   captureImage.width,
+    //   captureImage.height,
+    //   captureImage.uri,
+    // );
+    // const blob = await fetch('data:image/jpg;base64,' + captureImage.base64).then((it) =>
+    //   console.log(it),
+    // );
+    // console.log(captureImage.base64);
+    // console.log('>  ~ file: ModalImage.tsx ~ line 71 ~ captureImage.base64', captureImage.base64)
+    // const blob = dataURItoBlob('data:image/jpeg;base64,' + captureImage.base64);
+    // console.log('>  ~ file: ModalImage.tsx ~ line 73 ~ blob', blob.size);
+    // console.log('>  ~ file: ModalImage.tsx ~ line 60 ~ blob', blob);
+    // const dataSubmit = {
+    //   [`${key}_lat`]: location?.lat,
+    //   [`${key}_lng`]: location?.lng,
+    //   [`${key}_note`]: `${nextStep} with face`,
+    //   // face_image: await fetch(captureImage.uri).then(it => it.blob()),
+    //   face_image: new Blob([captureImage.base64], { type: 'image/jpeg'}),
+    // };
+    // const blob = await fetch(captureImage.uri).then((it) => it.blob());
+    // const dataSubmit = new FormData();
+    // dataSubmit.append(`${key}_lat`, String(location?.lat));
+    // dataSubmit.append(`${key}_lng`, String(location?.lng));
+    // dataSubmit.append(`${key}_note`, `${nextStep} with face`);
+    // dataSubmit.append('face_image', blob, 'face.jpeg');
 
+    // RNFetchBlob.fetch(
+    //   'POST',
+    //   `/employees/${user?.id}/attendance/${nextStep === 'clock in' ? 'check_in' : 'check_out'}/`,
+    //   {
+    //     Authorization: `Bearer ${await getDataAsync('token')}`,
+    //     'Content-Type': 'application/json',
+    //   },
+    //   [
+    //     { name: `${key}_lat`, data: String(location?.lat) },
+    //     { name: `${key}_lng`, data: String(location?.lng) },
+    //     { name: `${key}_note`, data: `${nextStep} with face` },
+    //     // {
+    //     //   name: 'face_image',
+    //     //   filename: 'face_image.jpg',
+    //     //   type: 'image/jpeg',
+    //     //   data: RNFetchBlob.wrap(
+    //     //     Platform.OS === 'ios' ? captureImage.uri.replace('file://', '') : captureImage.uri,
+    //     //   ),
+    //     // },
+
+    //     // RNFetchBlob.wrap(
+    //     //   Platform.OS === 'ios' ? localImageUri.replace('file://', '') : localImageUri,
+    //     // ),
+    //   ],
+    // )
+    //   .then(() => {
+    //     Alert.alert(`${nextStep === 'clock in' ? 'Clocked in' : 'Clocked out'} successfully`);
+    //     setModalVisible(false);
+    //   })
+    //   .catch((error) => {
+    //     console.log('>  ~ file: ModalImage.tsx ~ line 95 ~ error', error);
+    //     if (error.response.data !== 'HANDLED') Alert.alert('Submit request unsuccessfully!');
+    //     throw error;
+    //   });
+    const blob = await fetch(captureImage.uri).then((it) => it.blob());
+    const dataSubmit = new FormData();
+    dataSubmit.append(`${key}_lat`, String(location?.lat));
+    dataSubmit.append(`${key}_lng`, String(location?.lng));
+    dataSubmit.append(`${key}_note`, `${nextStep} with face`);
+    dataSubmit.append('face_image', blob, 'face.jpeg');
     await axios
       .post(
         `/employees/${user?.id}/attendance/${nextStep === 'clock in' ? 'check_in' : 'check_out'}/`,
