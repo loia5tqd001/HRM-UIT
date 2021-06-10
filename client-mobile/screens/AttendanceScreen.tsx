@@ -145,8 +145,7 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
 
         TaskManager.defineTask(TASK_NAME, ({ data, error }) => {
           if (error) {
-            Alert.alert(error.message);
-            return;
+            throw error;
           }
           if ((data as any).eventType === LocationGeofencingEventType.Enter) {
             setOutside(false);

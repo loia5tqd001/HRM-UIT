@@ -28,7 +28,7 @@ const ModalImage = ({
 }: {
   modalVisible: boolean;
   setModalVisible: SetStateAction<boolean | any>;
-  captureImage: { uri: string; width: number; height: number };
+  captureImage: CameraCapturedPicture;
   nextStep: 'clock in' | 'clock out';
   location: { lat: number | undefined; lng: number | undefined };
 }) => {
@@ -49,17 +49,13 @@ const ModalImage = ({
         `/employees/${user?.id}/attendance/${nextStep === 'clock in' ? 'check_in' : 'check_out'}/`,
         dataSubmit,
       )
-      .then((res) => {
-        return fetchAttendanceStatus();
-      })
       .then(() => {
         Alert.alert(`${nextStep === 'clock in' ? 'Clocked in' : 'Clocked out'} successfully`);
-      })
-      .then(() => {
         setModalVisible(false);
       })
       .catch((error) => {
         if (error.response.data !== 'HANDLED') Alert.alert('Submit request unsuccessfully!');
+        throw error;
       });
   };
 

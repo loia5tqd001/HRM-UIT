@@ -12,6 +12,7 @@ import {
 import { BORDER_RADIUS, getWindowSize } from '../constants/Layout';
 import { primaryColor } from './../constants/Colors';
 import ModalImage from './ModalImage';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 interface StateInterface {
   hasPermission: null | boolean;
@@ -76,8 +77,17 @@ const CameraComponents = ({ nextStep, location }: any) => {
             onPress={async () => {
               // setShowPopup(true);
               if (ref.current) {
-                let photo = await ref.current?.takePictureAsync({
-                  quality: 0,
+                let photo = await ref.current?.takePictureAsync().then((takenPhoto) => {
+                  // lessen the image's size
+                  return ImageManipulator.manipulateAsync(
+                    takenPhoto.uri,
+                    [{ resize: { width: 350 } }, { flip: ImageManipulator.FlipType.Horizontal }],
+                    {
+                      base64: true,
+                      compress: 0.5,
+                      format: ImageManipulator.SaveFormat.JPEG,
+                    },
+                  );
                 });
                 setPreviewVisible(true);
                 setCapturedImage(photo);

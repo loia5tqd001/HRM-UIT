@@ -30,7 +30,11 @@ const onResponse = (response: AxiosResponse): AxiosResponse => {
 let refreshTokenRequest: Promise<AxiosResponse<ResponseData>> | null = null;
 const onResponseError = async (error: AxiosError): Promise<AxiosError> => {
   if (!error.response) return Promise.reject('Network Error');
-  console.log(error.config, error.response);
+  console.log(`${'='.repeat(10)}REQUEST${'='.repeat(10)}\n`, JSON.stringify(error.config, null, 2));
+  console.log(
+    `${'='.repeat(10)}RESPONSE${'='.repeat(10)}\n`,
+    JSON.stringify(error.response, null, 2),
+  );
 
   const accessTokenExpired =
     error.response.status === 401 && !error.response.config.url?.includes('/auth/token/refresh');
@@ -55,7 +59,7 @@ const onResponseError = async (error: AxiosError): Promise<AxiosError> => {
       refreshTokenRequest = null;
     }
   }
-  if (error.response.data) {
+  if (typeof error.response.data === 'string' && error.response.data.length < 50) {
     Alert.alert(error.response.data);
     error.response.data = 'HANDLED';
   }
