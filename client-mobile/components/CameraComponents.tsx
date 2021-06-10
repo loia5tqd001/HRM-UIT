@@ -24,7 +24,7 @@ const Touchable = Platform.select({
   android: TouchableWithoutFeedback,
 })!;
 
-const CameraComponents = ({ nextStep, location }: any) => {
+const CameraComponents = ({ nextStep, setNextStep, location }: any) => {
   const [state, setState] = useState<StateInterface>({
     hasPermission: null,
     type: Camera.Constants.Type.front,
@@ -121,6 +121,7 @@ const CameraComponents = ({ nextStep, location }: any) => {
           setModalVisible={(c: boolean) => setPreviewVisible(c)}
           captureImage={capturedImage}
           nextStep={nextStep}
+          onSuccess={() => setNextStep(nextStep === 'clock in' ? 'clock out' : 'clock in')}
           location={location}
         />
       </View>

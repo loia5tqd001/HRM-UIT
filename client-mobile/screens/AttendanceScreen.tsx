@@ -200,6 +200,7 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
 
             <CameraComponents
               nextStep={nextStep}
+              setNextStep={setNextStep}
               location={{
                 lat: currentLocation?.latitude,
                 lng: currentLocation?.longitude,
