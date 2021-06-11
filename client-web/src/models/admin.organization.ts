@@ -1,4 +1,4 @@
-import { allDepartments, deleteDepartment } from '@/services/admin.organization.structure';
+import { allDepartments } from '@/services/admin.organization.structure';
 import { message } from 'antd';
 import { useCallback, useState } from 'react';
 
@@ -25,13 +25,6 @@ export default function useAdminOrganizationStructure() {
     [],
   );
 
-  const onDeleteDepartment = useCallback(async (id: number) => {
-    setDepartmentsPending(true);
-    const newDepartments = await deleteDepartment(id);
-    setDepartments(newDepartments);
-    setDepartmentsPending(false);
-  }, []);
-
   const selectDepartment = useCallback(
     (id: number) => {
       setSelectedDepartment(departments.find((it) => it.id === id));
@@ -45,7 +38,6 @@ export default function useAdminOrganizationStructure() {
     departmentsPending,
     setDepartmentsPending,
     onCrudOperation,
-    onDeleteDepartment,
     crudModalVisible,
     setCrudModalVisible,
     selectedDepartment,

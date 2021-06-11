@@ -1,14 +1,14 @@
-import { allDepartments } from '@/services/admin.organization.structure';
+import { allDepartments, deleteDepartment } from '@/services/admin.organization.structure';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Avatar, Button, message, Popconfirm, Space } from 'antd';
+import { Avatar, Button, Popconfirm, Space } from 'antd';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { Access, useAccess, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
-import { calculateAllExpandedRowKeys } from './utils';
-import { PageContainer } from '@ant-design/pro-layout';
 import styles from './index.less';
+import { calculateAllExpandedRowKeys } from './utils';
 
 export const OrganziationStructure: React.FC = () => {
   const [expandedRowKeys, setExpandedRowKeys] = React.useState<number[]>([]);
@@ -19,7 +19,7 @@ export const OrganziationStructure: React.FC = () => {
     setDepartments,
     departmentsPending,
     setDepartmentsPending,
-    onDeleteDepartment,
+    onCrudOperation,
   } = useModel('admin.organization');
   const access = useAccess();
 
@@ -118,12 +118,11 @@ export const OrganziationStructure: React.FC = () => {
               }
               onConfirm={async () => {
                 if (record.employee_no > 1) return;
-                try {
-                  await onDeleteDepartment(record.id);
-                  message.success('Delete successfully!');
-                } catch (err) {
-                  message.error('Cannot delete!');
-                }
+                await onCrudOperation(
+                  () => deleteDepartment(record.id),
+                  'Deleted successfully!',
+                  'Deleted failed!',
+                );
               }}
               // okText="Đồng ý"
               // cancelText="Không"
