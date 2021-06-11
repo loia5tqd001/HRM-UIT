@@ -5,7 +5,7 @@ import {
   readPayslips,
   sendViaEmail,
 } from '@/services/payroll.payrolls';
-import { FileExcelOutlined, SendOutlined } from '@ant-design/icons';
+import { DollarOutlined, FileExcelOutlined, SendOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Affix, Button, Card, message, Space, Table, Tag } from 'antd';
 import type { ColumnType } from 'antd/lib/table';
@@ -33,6 +33,18 @@ export const PayrollDetail: React.FC = () => {
           .map((it) => ({
             dataIndex: it.code_name,
             title: it.display_name,
+            render: (text: string) => {
+              if (it.datatype === 'Currency') {
+                return (
+                  <span style={{ color: '#ad8b00' }}>
+                    {text} <DollarOutlined />
+                  </span>
+                );
+              }
+              if (it.datatype === 'Number')
+                return <span style={{ textDecoration: 'underline' }}>{text}</span>;
+              return text;
+            },
           })),
       );
       setTableData(

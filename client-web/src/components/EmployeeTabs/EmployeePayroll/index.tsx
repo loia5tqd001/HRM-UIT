@@ -4,23 +4,26 @@ import { allTaxPlans } from '@/services/admin.payroll.taxPlan';
 import {
   getEmployeePayroll,
   getEmployeePayslips,
-  updateEmployeePayroll
+  updateEmployeePayroll,
 } from '@/services/employee';
 import { allPayrolls } from '@/services/payroll.payrolls';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useEmployeeDetailAccess } from '@/utils/hooks/useEmployeeDetailType';
+import { DollarOutlined, FilePdfOutlined } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormSelect } from '@ant-design/pro-form';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button, Card, Form, InputNumber, List, message } from 'antd';
 import faker from 'faker';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import ReactToPrint from 'react-to-print';
 import { Access } from 'umi';
 import type { EmployeeTabProps } from '..';
 
 export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
+  const toPrintRef = useRef<HTMLDivElement>(null);
 
   // == RBAC.BEGIN
 
@@ -103,12 +106,12 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
                         onClick={() => {
                           form?.setFieldsValue({
                             salary:
-                              faker.random.number({
+                              faker.datatype.number({
                                 min: 10,
                                 max: 100,
                               }) * 100000,
                             basic_salary:
-                              faker.random.number({
+                              faker.datatype.number({
                                 min: 10,
                                 max: 100,
                               }) * 100000,
@@ -168,6 +171,24 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
           </ProForm>
         </Card>
       </Access>
+      <div ref={toPrintRef} className="print-table">
+        <table>
+          <tbody>
+            <tr>
+              <th colSpan={2}>{selectedPayslip?.payrollDetail?.name}</th>
+            </tr>
+            {selectedPayslip?.values.map((it) => (
+              <tr key={it.field.code_name}>
+                <td>{it.field.display_name}</td>
+                <td style={{ color: it.field.datatype === 'Currency' ? '#ad8b00' : undefined }}>
+                  {it.formatted_value}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="copy-right">© UIT HRM</div>
+      </div>
       <Access accessible={canViewPayslips}>
         <ProTable<API.Payslip>
           headerTitle="Payslips"
@@ -189,19 +210,61 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
             if (!visible) setSelectedPayslip(undefined);
           }}
           title={selectedPayslip?.payrollDetail?.name}
+          submitter={{
+            render: () => {
+              return [
+                <ReactToPrint
+                  // documentTitle={selectedPayslip?.payrollDetail?.name}
+                  trigger={() => <Button icon={<FilePdfOutlined />}>Print</Button>}
+                  content={() => toPrintRef.current}
+                  // print={() => { console.log('custom print')}}
+                  // This library sucks, no download will appear: https://github.com/gregnb/react-to-print/issues/337
+                />,
+              ];
+            },
+          }}
         >
           <div style={{ height: '50vh', overflow: 'auto' }}>
             <List
               itemLayout="horizontal"
               dataSource={selectedPayslip?.values}
-              renderItem={(item) => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={item.field.display_name}
-                    description={item.formatted_value}
-                  />
-                </List.Item>
-              )}
+              renderItem={(item) => {
+                let itemValue: React.ReactNode = (
+                  <p style={{ display: 'contents' }}>{item.formatted_value}</p>
+                );
+                if (item.field.datatype === 'Currency') {
+                  itemValue = (
+                    <p style={{ color: '#ad8b00', display: 'contents' }}>
+                      {item.formatted_value} <DollarOutlined />
+                    </p>
+                  );
+                }
+                if (item.field.datatype === 'Number')
+                  itemValue = (
+                    <p style={{ textDecoration: 'underline', display: 'contents' }}>
+                      {item.formatted_value}
+                    </p>
+                  );
+                return (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={
+                        <p
+                          className="ant-list-item-meta-description"
+                          style={{ margin: 0, fontSize: '0.85em' }}
+                        >
+                          {item.field.display_name}:
+                        </p>
+                      }
+                      description={
+                        <p className="ant-list-item-meta-title" style={{ fontSize: '1.1em' }}>
+                          {itemValue}
+                        </p>
+                      }
+                    />
+                  </List.Item>
+                );
+              }}
             />
           </div>
         </ModalForm>

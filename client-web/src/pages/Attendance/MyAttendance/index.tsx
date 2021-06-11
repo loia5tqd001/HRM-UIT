@@ -165,14 +165,14 @@ const MyAttendance: React.FC = () => {
             allLocations(),
           ]);
           const matchedLocation = locations.find((it) => it.name === location);
-          if (!matchedLocation || !google) {
+          if (!matchedLocation || !window.google) {
             message.error('Cannot find location');
             return;
           }
           const { lat, lng, radius, name, allow_outside } = matchedLocation;
-          const distance = google.maps.geometry.spherical.computeDistanceBetween(
-            new google.maps.LatLng(lat, lng),
-            new google.maps.LatLng(latitude, longitude),
+          const distance = window.google.maps.geometry.spherical.computeDistanceBetween(
+            new window.google.maps.LatLng(lat, lng),
+            new window.google.maps.LatLng(latitude, longitude),
           );
           setCurrentLocation({
             lat: latitude,
@@ -616,38 +616,65 @@ const MyAttendance: React.FC = () => {
             const canvas = document.createElement('canvas');
             const width = 350;
             const height = 260;
-            if (!videoRef.current) return undefined;
+            if (!videoRef.current) return false;
             const context = canvas.getContext('2d');
             canvas.width = width;
             canvas.height = height;
             context?.drawImage(videoRef.current, 0, 0, width, height);
-            return canvas.toBlob(async (blob) => {
-              if (!blob) {
-                throw new Error();
-              }
+            const datauri = canvas.toDataURL('image/png');
+            const blob = await fetch(datauri).then(it => it.blob())
+            if (!blob) {
+              throw new Error();
+            }
 
-              if (nextStep === 'Clock in') {
-                const submitData = new FormData();
-                submitData.append('face_image', blob, 'face_image.png');
-                submitData.append('check_in_lat', String(lat));
-                submitData.append('check_in_lng', String(lng));
-                submitData.append('check_in_note', values.note);
-                await checkIn(id, submitData);
-                message.success('Clocked in successfully');
-              } else {
-                const submitData = new FormData();
-                submitData.append('face_image', blob, 'face_image.png');
-                submitData.append('check_out_lat', String(lat));
-                submitData.append('check_out_lng', String(lng));
-                submitData.append('check_out_note', values.note);
-                await checkOut(id, submitData);
-                message.success('Clocked out successfully');
-              }
-              setClockModalVisible(false);
-              actionRef.current?.reload();
-            });
+            if (nextStep === 'Clock in') {
+              const submitData = new FormData();
+              submitData.append('face_image', blob, 'face_image.png');
+              submitData.append('check_in_lat', String(lat));
+              submitData.append('check_in_lng', String(lng));
+              submitData.append('check_in_note', values.note);
+              await checkIn(id, submitData);
+              message.success('Clocked in successfully');
+            } else {
+              const submitData = new FormData();
+              submitData.append('face_image', blob, 'face_image.png');
+              submitData.append('check_out_lat', String(lat));
+              submitData.append('check_out_lng', String(lng));
+              submitData.append('check_out_note', values.note);
+              await checkOut(id, submitData);
+              message.success('Clocked out successfully');
+            }
+            setClockModalVisible(false);
+            actionRef.current?.reload();
+            return true;
+            // canvas.toBlob(async (blob) => {
+            //   if (!blob) {
+            //     throw new Error();
+            //   }
+
+            //   if (nextStep === 'Clock in') {
+            //     const submitData = new FormData();
+            //     submitData.append('face_image', blob, 'face_image.png');
+            //     submitData.append('check_in_lat', String(lat));
+            //     submitData.append('check_in_lng', String(lng));
+            //     submitData.append('check_in_note', values.note);
+            //     await checkIn(id, submitData);
+            //     message.success('Clocked in successfully');
+            //   } else {
+            //     const submitData = new FormData();
+            //     submitData.append('face_image', blob, 'face_image.png');
+            //     submitData.append('check_out_lat', String(lat));
+            //     submitData.append('check_out_lng', String(lng));
+            //     submitData.append('check_out_note', values.note);
+            //     await checkOut(id, submitData);
+            //     message.success('Clocked out successfully');
+            //   }
+            //   setClockModalVisible(false);
+            //   actionRef.current?.reload();
+            // });
           } catch {
             message.error(`${nextStep} unsuccessfully`);
+            return false;
           }
         }}
         onVisibleChange={(visible) => {

@@ -5,7 +5,7 @@ import defaultAccess from './defaultAccess';
  * */
 export default function (initialState: { currentUser?: API.Employee | undefined }) {
   const { currentUser } = initialState || {};
-  if (!currentUser) return {};
+  if (!currentUser?.permissions) return {};
   const permissions = currentUser.permissions?.reduce((acc, cur) => ({ ...acc, [cur]: true }), {});
   const access = {
     ...defaultAccess,

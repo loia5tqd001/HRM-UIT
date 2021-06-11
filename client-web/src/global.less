@@ -1,9 +1,5 @@
 @import '~antd/es/style/themes/default.less';
 
-.HubChatItem:hover {
-  background:red !important;
-}
-
 html,
 body,
 #root {
@@ -53,10 +49,74 @@ body,
 }
 
 // layout:top, theme:dark, the current style is too subtle, we need this to make it more apparent
-.ant-menu-dark .ant-menu-submenu-horizontal.ant-menu-submenu-selected {
-  color: @white;
-  background: fade(@primary-color, 95);
+.ant-menu-dark {
+  .ant-menu-overflow-item {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      height: 5px;
+      left: 0;
+      width: 0;
+      background: @primary-color;
+      transition: 0s;
+      visibility: hidden;
+    }
+    &.ant-menu-submenu-selected,
+    &.ant-menu-item-selected {
+      &::after {
+        visibility: visible;
+        width: 100%;
+        transition: width 1s cubic-bezier(0.08, 1.12, 0.4, 0.99);
+      }
+    }
+    &.ant-menu-item-selected {
+      background: transparent !important;
+    }
+    &:hover {
+      background: transparent !important;
+      color: @white;
+    }
+  }
+  .ant-menu-submenu-open,
+  .ant-menu-submenu-active {
+    color: @white !important;
+  }
 }
+
+@media print {
+  html, body {
+    height: auto;    
+  }
+}
+.print-table {
+  display: none;
+  @media print {
+    display: unset;
+    table, table& {
+      width: 80%;
+      border-collapse: collapse;
+      margin: 10%;
+      
+      &, td, th {
+        border: 1px solid black;
+        padding: 5px 10px;
+        background: #f6f6f6;
+      }
+      th {
+        color: @primary-color;
+        background: #faf5f1;
+        font-size: 1.5em;
+      }
+    }
+    .copy-right {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}
+
 
 // layout:top, theme:dark, the current menu color stuff only applys for text BUT NOT THE ICONS, we apply it for the icon as well
 .ant-pro-top-nav-header .ant-menu .anticon {
