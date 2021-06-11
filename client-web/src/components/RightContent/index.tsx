@@ -1,11 +1,11 @@
-import { Tag, Space } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import React from 'react';
-import { useModel, SelectLang } from 'umi';
+import { employeeToUser } from '@/pages/Message';
+import { NotificationOutlined } from '@ant-design/icons';
+import { Badge, Space, Tag } from 'antd';
+import React, { useEffect, useState } from 'react';
+import Talk from 'talkjs';
+import { Link, SelectLang, useModel } from 'umi';
 import Avatar from './AvatarDropdown';
-import HeaderSearch from '../HeaderSearch';
 import styles from './index.less';
-import NoticeIcon from '../NoticeIcon';
 
 export type SiderTheme = 'light' | 'dark';
 
@@ -17,6 +17,25 @@ const ENVTagColor = {
 
 const GlobalHeaderRight: React.FC = () => {
   const { initialState } = useModel('@@initialState');
+  const [amountOfUnreads, setAmountOfUnreads] = useState(0);
+
+  useEffect(() => {
+    if (!initialState?.currentUser) {
+      console.log('currentUser is not defined when trying to initialize Talkjs');
+      return;
+    }
+    Talk.ready.then(() => {
+      const me = employeeToUser(initialState.currentUser!);
+      const appId = 't6rbhbrZ';
+      window.talkSession = new Talk.Session({ appId, me });
+      window.talkSession.setDesktopNotificationEnabled(
+        Boolean(localStorage.getItem('talkjs:desktop_notify')) || true,
+      );
+      window.talkSession.unreads.on('change', (unreadConversations) => {
+        setAmountOfUnreads(unreadConversations.length);
+      });
+    });
+  }, [initialState?.currentUser]);
 
   if (!initialState || !initialState.settings) {
     return null;
@@ -28,6 +47,7 @@ const GlobalHeaderRight: React.FC = () => {
   if ((navTheme === 'dark' && layout === 'top') || layout === 'mix') {
     className = `${styles.right}  ${styles.dark}`;
   }
+
   return (
     <Space className={className}>
       {/* <HeaderSearch
@@ -54,6 +74,11 @@ const GlobalHeaderRight: React.FC = () => {
         // }}
       /> */}
       {/* <NoticeIcon /> */}
+      <Badge count={amountOfUnreads}>
+        <Link to="/message">
+          <NotificationOutlined />
+        </Link>
+      </Badge>
       <Avatar />
       {REACT_APP_ENV && (
         <span>

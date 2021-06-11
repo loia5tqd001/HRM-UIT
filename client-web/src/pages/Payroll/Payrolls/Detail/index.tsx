@@ -12,6 +12,7 @@ import type { ColumnType } from 'antd/lib/table';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useAccess, Access } from 'umi';
+import styles from './index.less';
 
 export const PayrollDetail: React.FC = () => {
   const { id } = useParams<any>();
@@ -36,7 +37,7 @@ export const PayrollDetail: React.FC = () => {
             render: (text: string) => {
               if (it.datatype === 'Currency') {
                 return (
-                  <span style={{ color: '#ad8b00' }}>
+                  <span style={{ color: '#ad8b00', whiteSpace: 'nowrap' }}>
                     {text} <DollarOutlined />
                   </span>
                 );
@@ -78,7 +79,7 @@ export const PayrollDetail: React.FC = () => {
       <div style={{ display: 'grid', gap: 24 }}>
         <Affix offsetTop={50}>
           <Card
-            className="card-shadow"
+            className={`card-shadow ${styles.fixOverflowTable}`}
             title={`Payslips of ${payroll?.name}`}
             style={{ height: '100%' }}
             extra={
@@ -160,7 +161,7 @@ export const PayrollDetail: React.FC = () => {
                 pagination={false}
                 loading={!tableData}
                 dataSource={tableData}
-                scroll={{ x: 'max-content' }}
+                // scroll={{ x: 'max-content' }}
                 columns={columns}
                 rowKey="index"
                 bordered

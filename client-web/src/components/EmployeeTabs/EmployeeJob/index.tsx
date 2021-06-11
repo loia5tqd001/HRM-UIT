@@ -73,6 +73,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
     pId: it.parent,
     value: it.name,
     title: it.name,
+    key: it.id,
     isLeaf: !departments.some((x) => x.parent === it.id),
   }));
 

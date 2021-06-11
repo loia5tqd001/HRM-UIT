@@ -15,16 +15,15 @@ declare global {
   }
 }
 
-const employeeToUser = (employee: API.Employee): Talk.User => {
+export const employeeToUser = (employee: API.Employee): Talk.User => {
   return new Talk.User({
     id: employee.id,
     name: `${employee.first_name} ${employee.last_name}`,
     email: employee.email,
     photoUrl: employee.avatar,
+    role: 'Admin',
   });
 };
-
-const appId = 't6rbhbrZ';
 
 const ChatBox = React.memo(
   ({
@@ -34,16 +33,17 @@ const ChatBox = React.memo(
     inboxRef: React.MutableRefObject<Talk.Inbox | undefined>;
     onConversationSelected: (event: ConversationSelectedEvent) => void;
   }) => {
-    const { initialState } = useModel('@@initialState');
-    const { currentUser } = initialState!;
     const talkjsContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
       if (!talkjsContainerRef.current) return undefined;
 
-      Talk.ready.then(async () => {
-        const me = employeeToUser(currentUser!);
-        window.talkSession = new Talk.Session({ appId, me });
+      Talk.ready.then(() => {
+        if (!window.talkSession) {
+          // eslint-disable-next-line no-console
+          console.log('window.talkSession is not defined', window.talkSession);
+          return;
+        }
         inboxRef.current = window.talkSession.createInbox();
         inboxRef.current.mount(talkjsContainerRef.current);
         inboxRef.current.on('conversationSelected', onConversationSelected);
@@ -52,7 +52,7 @@ const ChatBox = React.memo(
       return () => {
         inboxRef.current?.destroy();
       };
-    }, [currentUser, inboxRef]);
+    }, [inboxRef]);
 
     return (
       <div style={{ width: '100%', height: 'calc(100vh - 230px)' }} ref={talkjsContainerRef}>
