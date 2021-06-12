@@ -42,42 +42,39 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
     isActive && !isCurrentUser(employeeId) && access['job.can_terminate_job'];
 
   // GENERAL
-  const canViewBasicInfo = isActive && (isCurrentUser(employeeId) || access['core.view_employee']);
+  const canViewBasicInfo = isCurrentUser(employeeId) || access['core.view_employee'];
   const canChangeBasicInfo =
     isActive && (isCurrentUser(employeeId) || access['core.change_employee']);
-  const canViewHomeAddress =
-    isActive && (isCurrentUser(employeeId) || access['core.view_contactinfo']);
+  const canViewHomeAddress = isCurrentUser(employeeId) || access['core.view_contactinfo'];
   const canChangeHomeAddress =
     isActive && (isCurrentUser(employeeId) || access['core.change_contactinfo']);
-  const canViewEmergencyContact =
-    isActive && (isCurrentUser(employeeId) || access['core.view_emergencycontact']);
+  const canViewEmergencyContact = isCurrentUser(employeeId) || access['core.view_emergencycontact'];
   const canChangeEmergencyContact =
     isActive && (isCurrentUser(employeeId) || access['core.change_emergencycontact']);
-  const canViewBankInfo = isActive && (isCurrentUser(employeeId) || access['core.view_bankinfo']);
+  const canViewBankInfo = isCurrentUser(employeeId) || access['core.view_bankinfo'];
   const canChangeBankInfo =
     isActive && (isCurrentUser(employeeId) || access['core.change_bankinfo']);
   const canViewGeneralTab =
     canViewBasicInfo || canViewHomeAddress || canViewEmergencyContact || canViewBankInfo;
 
   // JOB
-  const canViewJob = isActive && (isCurrentUser(employeeId) || access['job.view_job']);
+  const canViewJob = isCurrentUser(employeeId) || access['job.view_job'];
   const canChangeJob = isActive && (isCurrentUser(employeeId) || access['job.add_job']);
-  const canViewSchedule =
-    isActive && (isCurrentUser(employeeId) || access['attendance.view_employeeschedule']);
+  const canViewSchedule = isCurrentUser(employeeId) || access['attendance.view_employeeschedule'];
   const canChangeSchedule =
     isActive && (isCurrentUser(employeeId) || access['attendance.change_employeeschedule']);
   const canViewJobTab = canViewJob || canViewSchedule;
 
   // PAYROLL
   const canViewSalaryInfo =
-    isActive && (isCurrentUser(employeeId) || access['payroll.view_employeesalary']);
+    (isCurrentUser(employeeId) || access['payroll.view_employeesalary']);
   const canChangeSalaryInfo =
     isActive && (isCurrentUser(employeeId) || access['payroll.change_employeesalary']);
-  const canViewPayslips = isActive && (isCurrentUser(employeeId) || access['payroll.view_payslip']);
+  const canViewPayslips = (isCurrentUser(employeeId) || access['payroll.view_payslip']);
   const canViewPayrollTab = canViewSalaryInfo || canViewPayslips;
 
   // DEPENDENT
-  const canViewDependent = isActive && (isCurrentUser(employeeId) || access['core.view_dependent']);
+  const canViewDependent = (isCurrentUser(employeeId) || access['core.view_dependent']);
   const canAddDependent = isActive && (isCurrentUser(employeeId) || access['core.add_dependent']);
   const canChangeDependent =
     isActive && (isCurrentUser(employeeId) || access['core.change_dependent']);
@@ -111,7 +108,7 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
     canViewSalaryInfo,
     canChangeSalaryInfo,
     canViewPayslips,
-    
+
     canViewDependentTab,
     canViewDependent,
     canAddDependent,
