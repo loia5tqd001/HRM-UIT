@@ -3,14 +3,21 @@ import {
   allPayrollTemplates,
   createPayrollTemplate,
   deletePayrollTemplate,
-  updatePayrollTemplate,
+  duplicatePayrollTemplate,
 } from '@/services/payroll.template';
-import { DeleteOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+  DiffOutlined,
+  EyeOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, message, Popconfirm, Space } from 'antd';
+import { Button, message, Popconfirm, Space, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import React, { useCallback, useRef, useState } from 'react';
 import { Access, FormattedMessage, Link, useAccess, useIntl } from 'umi';
@@ -19,7 +26,7 @@ type RecordType = API.PayrollTemplate;
 
 export const PayrollTemplate: React.FC = () => {
   const actionRef = useRef<ActionType>();
-  const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'update'>(
+  const [crudModalVisible, setCrudModalVisible] = useState<'hidden' | 'create' | 'duplicate'>(
     'hidden',
   );
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
@@ -50,6 +57,21 @@ export const PayrollTemplate: React.FC = () => {
       ),
     },
     {
+      title: 'Can be modified',
+      dataIndex: 'can_be_modified',
+      align: 'center',
+      renderText: (it) =>
+        it ? (
+          <Tooltip title="Modifiable">
+            <CheckOutlined style={{ color: '#52c41a' }} />
+          </Tooltip>
+        ) : (
+          <Tooltip title="Cannot modify this template because it will affect existent payrolls">
+            <CloseOutlined style={{ color: '#ff4d4f' }} />
+          </Tooltip>
+        ),
+    },
+    {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -57,16 +79,16 @@ export const PayrollTemplate: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          {/* <Button
-            title="Edit this template"
+          <Button
+            title="Duplicate this template"
             size="small"
             onClick={() => {
-              setCrudModalVisible('update');
+              setCrudModalVisible('duplicate');
               setSelectedRecord(record);
             }}
           >
-            <EditOutlined />
-          </Button> */}
+            <DiffOutlined />
+          </Button>
           <Link to={`/payroll/template/${record.id}?tab=columns`}>
             <Button title="Config this template" size="small">
               <EyeOutlined />
@@ -98,6 +120,7 @@ export const PayrollTemplate: React.FC = () => {
     title: {
       create: 'Create template',
       update: 'Update template',
+      duplicate: `Duplicate template ${selectedRecord?.name}`,
     },
   };
 
@@ -146,10 +169,8 @@ export const PayrollTemplate: React.FC = () => {
             return;
           }
           if (!selectedRecord) return;
-          if (crudModalVisible === 'update') {
-            form.setFieldsValue({
-              ...selectedRecord,
-            });
+          if (crudModalVisible === 'duplicate') {
+            form.setFieldsValue({});
           } else if (crudModalVisible === 'create') {
             form.setFieldsValue({});
           }
@@ -166,11 +187,11 @@ export const PayrollTemplate: React.FC = () => {
               'Create successfully!',
               'Create unsuccessfully!',
             );
-          } else if (crudModalVisible === 'update') {
+          } else if (crudModalVisible === 'duplicate') {
             await onCrudOperation(
-              () => updatePayrollTemplate(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              () => duplicatePayrollTemplate(record.id, { name: value.name }),
+              'Duplicate successfully!',
+              'Duplicate unsuccessfully!',
             );
           }
           setCrudModalVisible('hidden');

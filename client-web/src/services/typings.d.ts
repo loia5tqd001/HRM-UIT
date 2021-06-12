@@ -511,6 +511,7 @@ declare namespace API {
     first_name: string;
     last_name: string;
     avatar: string;
+    work_schedule: number;
     attendance: {
       id: number;
       owner: number;
@@ -602,6 +603,7 @@ declare namespace API {
   interface PayrollTemplate {
     id: number;
     name: string;
+    can_be_modified: boolean;
     fields: PayrollField[];
   }
 
@@ -609,9 +611,10 @@ declare namespace API {
     id: number;
     template: PayrollTemplate['name'];
     name: string;
-    period_id: Period['id'];
     period: Period;
     created_at: string | moment.Moment;
+    confirmed_by: string | null;
+    status: 'Temporary' | 'Confirmed';
   }
 
   interface Payslip {

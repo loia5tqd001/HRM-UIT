@@ -73,3 +73,13 @@ export async function deletePayroll(id: number, options?: { [key: string]: any }
     ...(options || {}),
   });
 }
+
+export async function confirmPayroll(id: number, options?: { [key: string]: any }) {
+  return request<Item>(`${endpoint}${id}/confirm/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}

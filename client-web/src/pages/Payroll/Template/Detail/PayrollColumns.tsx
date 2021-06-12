@@ -1,14 +1,15 @@
-import { allPayrollSystemFields } from '@/services/payroll.template';
+import { allPayrollSystemFields, duplicatePayrollTemplate } from '@/services/payroll.template';
 import {
   CloseOutlined,
+  DiffOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
-  EyeOutlined,
+  LockOutlined,
   MenuOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
+import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import {
-  Affix,
   Button,
   Card,
   Form,
@@ -26,8 +27,8 @@ import arrayMove from 'array-move';
 import { sortBy } from 'lodash';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+import { Access, history, useAccess } from 'umi';
 import styles from './index.less';
-import { Access, useAccess } from 'umi';
 
 const EditableContext = React.createContext<any>(null);
 
@@ -308,27 +309,66 @@ export const PayrollColumns: React.FC<Props> = (props) => {
       <div style={{ display: 'grid', gap: 24 }}>
         <Card
           className="card-shadow"
-          title={payrollTemplate?.name}
+          title={
+            <>
+              {payrollTemplate?.can_be_modified ? null : <LockOutlined />} {payrollTemplate?.name}
+            </>
+          }
           style={{ minHeight: '50vh', height: '100%' }}
           extra={
             <Access accessible={access['payroll.change_salarytemplate']}>
               <Space>
-                <Button
-                  children="Save"
-                  type="primary"
-                  loading={isSaving}
-                  onClick={async () => {
+                <Tooltip
+                  title={
+                    payrollTemplate?.can_be_modified
+                      ? null
+                      : 'Cannot modify this template because it will affect existent payrolls. Duplicate to create new template.'
+                  }
+                >
+                  <Button
+                    children="Save"
+                    type="primary"
+                    loading={isSaving}
+                    disabled={!payrollTemplate?.can_be_modified}
+                    onClick={async () => {
+                      try {
+                        setIsSaving(true);
+                        await onUpdateColumns(tableData);
+                        message.success('Updated successfully!');
+                      } catch {
+                        message.error('Updated unsuccessfully!');
+                      } finally {
+                        setIsSaving(false);
+                      }
+                    }}
+                  />
+                </Tooltip>
+
+                <ModalForm<API.PayrollTemplate>
+                  title={`Duplicate template ${payrollTemplate?.name}`}
+                  width="400px"
+                  onFinish={async (value) => {
                     try {
-                      setIsSaving(true);
-                      await onUpdateColumns(tableData);
-                      message.success('Updated successfully!');
+                      const { id } = await duplicatePayrollTemplate(payrollTemplate!.id, {
+                        name: value.name,
+                      });
+                      history.push(`${id}`);
+                      message.success('Duplicate successfully');
                     } catch {
-                      message.error('Updated unsuccessfully!');
-                    } finally {
-                      setIsSaving(false);
+                      message.error('Duplicate unsuccessfully');
                     }
                   }}
-                />
+                  trigger={
+                    <Button
+                      children="Duplicate"
+                      icon={<DiffOutlined />}
+                      className="primary-outlined-button"
+                    />
+                  }
+                >
+                  <ProFormText rules={[{ required: true }]} name="name" label="New name" />
+                </ModalForm>
+
                 <Tooltip title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}>
                   <Button
                     icon={isCollapsed ? <DoubleLeftOutlined /> : <DoubleRightOutlined />}

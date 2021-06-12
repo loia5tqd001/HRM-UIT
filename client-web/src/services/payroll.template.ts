@@ -25,9 +25,28 @@ export async function readPayrollTemplate(id: number, options?: { [key: string]:
   });
 }
 
-export async function updatePayrollTemplate(id: number, body: Item, options?: { [key: string]: any }) {
+export async function updatePayrollTemplate(
+  id: number,
+  body: Item,
+  options?: { [key: string]: any },
+) {
   return request<Item>(`${endpoint}${id}/`, {
     method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function duplicatePayrollTemplate(
+  id: number,
+  body: { name: string },
+  options?: { [key: string]: any },
+) {
+  return request<Item>(`${endpoint}${id}/duplicate/`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },

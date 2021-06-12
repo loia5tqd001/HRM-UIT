@@ -1,17 +1,24 @@
 import {
-  calculatePayslips,
+  confirmPayroll,
   exportExcel,
   readPayroll,
   readPayslips,
-  sendViaEmail,
+  sendViaEmail
 } from '@/services/payroll.payrolls';
-import { DollarOutlined, FileExcelOutlined, SendOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  DollarOutlined,
+  FileExcelOutlined,
+  LockOutlined,
+  SendOutlined,
+  SyncOutlined
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Affix, Button, Card, message, Space, Table, Tag } from 'antd';
+import { Affix, Button, Card, message, Popconfirm, Space, Table, Tag } from 'antd';
 import type { ColumnType } from 'antd/lib/table';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useParams, useAccess, Access } from 'umi';
+import { Access, useAccess, useParams } from 'umi';
 import styles from './index.less';
 
 export const PayrollDetail: React.FC = () => {
@@ -19,7 +26,6 @@ export const PayrollDetail: React.FC = () => {
   const [tableData, setTableData] = useState<any[]>([]);
   const [payroll, setPayroll] = useState<API.Payroll>();
   const [dynamicColumns, setDynamicColumns] = useState<any>();
-  const [isCalculating, setIsCalculating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const access = useAccess();
@@ -80,7 +86,12 @@ export const PayrollDetail: React.FC = () => {
         <Affix offsetTop={50}>
           <Card
             className={`card-shadow ${styles.fixOverflowTable}`}
-            title={`Payslips of ${payroll?.name}`}
+            title={
+              <>
+                {payroll?.status === 'Confirmed' ? <LockOutlined /> : <SyncOutlined spin />}{' '}
+                Payslips of {payroll?.name}
+              </>
+            }
             style={{ height: '100%' }}
             extra={
               <Space>
@@ -134,7 +145,31 @@ export const PayrollDetail: React.FC = () => {
                     }}
                   />
                 </Access>
-                <Access accessible={access['payroll.can_calculate_payroll']}>
+                <Access
+                  accessible={
+                    access['payroll.can_confirm_payroll'] && payroll?.status === 'Temporary'
+                  }
+                >
+                  <Popconfirm
+                    placement="right"
+                    title={'This action is irreversible. Are you sure?'}
+                    onConfirm={async () => {
+                      try {
+                        // setIsCalculating(true);
+                        await confirmPayroll(id);
+                        setPayroll({ ...payroll!, status: 'Confirmed' });
+                        message.success('Confirm successfully!');
+                      } catch {
+                        message.error('Confirm unsuccessfully!');
+                      } finally {
+                        // setIsCalculating(false);
+                      }
+                    }}
+                  >
+                    <Button children="Confirm" type="primary" icon={<CheckCircleOutlined />} />
+                  </Popconfirm>
+                </Access>
+                {/* <Access accessible={access['payroll.can_calculate_payroll']}>
                   <Button
                     children="Run Calculation"
                     type="primary"
@@ -152,7 +187,7 @@ export const PayrollDetail: React.FC = () => {
                       }
                     }}
                   />
-                </Access>
+                </Access> */}
               </Space>
             }
           >

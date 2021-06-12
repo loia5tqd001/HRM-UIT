@@ -2,12 +2,19 @@ import { __DEV__ } from '@/global';
 import { allPeriods } from '@/services/attendance';
 import { allPayrolls, createPayroll, deletePayroll } from '@/services/payroll.payrolls';
 import { allPayrollTemplates } from '@/services/payroll.template';
-import { DeleteOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  LockOutlined,
+  PlusOutlined,
+  SyncOutlined,
+} from '@ant-design/icons';
 import { ModalForm, ProFormSelect, ProFormText } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, message, Popconfirm, Space } from 'antd';
+import { Badge, Button, message, Popconfirm, Space, Tag, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
@@ -74,6 +81,33 @@ export const Payroll: React.FC = () => {
       title: 'Created At',
       dataIndex: 'created_at',
       renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: 'max-content',
+      renderText: (status, record) => {
+        const symbols = {
+          Confirmed: (
+            <Tooltip title={`Confirmed by ${record.confirmed_by}`}>
+              <Tag icon={<LockOutlined />} color="success">
+                Confirmed
+              </Tag>
+            </Tooltip>
+          ),
+          Temporary: (
+            <Tag icon={<SyncOutlined spin />} color="processing">
+              Temporary
+            </Tag>
+          ),
+        };
+        return (
+          <Space size="small">
+            <span>{symbols[status]}</span>
+          </Space>
+        );
+      },
     },
     (access['payroll.view_payslip'] || access['payroll.delete_payroll']) && {
       title: 'Actions',
