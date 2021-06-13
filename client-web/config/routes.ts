@@ -229,6 +229,7 @@
         name: 'list',
         icon: 'unorderedList',
         component: './Timeoff/EmployeeTimeoff',
+        access: 'view_timeoff',
       },
       {
         path: '/timeOff/configuration',
@@ -239,11 +240,13 @@
             path: '/timeOff/configuration/holiday',
             name: 'holiday',
             component: './Timeoff/Configuration/Holiday',
+            access: 'view_holiday',
           },
           {
             path: '/timeOff/configuration/timeoffType',
             name: 'timeoffType',
             component: './Timeoff/Configuration/TimeoffType',
+            access: 'view_timeofftype',
           },
           {
             path: '/timeOff/configuration',

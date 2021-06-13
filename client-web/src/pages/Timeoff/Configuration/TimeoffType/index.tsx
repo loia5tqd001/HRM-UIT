@@ -20,7 +20,8 @@ import { Button, message, Popconfirm, Space, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'umi';
+import { Access, FormattedMessage, useIntl } from 'umi';
+import { useAccess } from 'umi';
 
 type RecordType = API.TimeOffType;
 
@@ -32,6 +33,7 @@ export const TimeOffType: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
   const intl = useIntl();
+  const access = useAccess();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -71,7 +73,7 @@ export const TimeOffType: React.FC = () => {
       title: 'Description',
       dataIndex: 'description',
     },
-    {
+    (access['change_timeofftype'] || access['delete_timeofftype']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -79,31 +81,35 @@ export const TimeOffType: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Button
-            title="Edit this timeoff type"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this timeoff type?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteTimeOffType(record.id),
-                'Detete successfully!',
-                'Cannot delete timeoff type!',
-              );
-            }}
-          >
-            <Button title="Delete this timeoff type" size="small" danger>
-              <DeleteOutlined />
+          <Access accessible={access['change_timeofftype']}>
+            <Button
+              title="Edit this timeoff type"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                setSelectedRecord(record);
+              }}
+            >
+              <EditOutlined />
             </Button>
-          </Popconfirm>
+          </Access>
+          <Access accessible={access['delete_timeofftype']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this timeoff type?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deleteTimeOffType(record.id),
+                  'Detete successfully!',
+                  'Cannot delete timeoff type!',
+                );
+              }}
+            >
+              <Button title="Delete this timeoff type" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -125,17 +131,17 @@ export const TimeOffType: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-
-<Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>
-,
+          <Access accessible={access['add_timeofftype']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
         request={async () => {
           const data = await allTimeOffTypes();

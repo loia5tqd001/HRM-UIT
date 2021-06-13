@@ -7,7 +7,12 @@ import {
 } from '@/services/timeOff.holiday';
 import { filterData } from '@/utils/utils';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { ModalForm, ProFormDateRangePicker, ProFormText } from '@ant-design/pro-form';
+import {
+  ModalForm,
+  ProFormDateRangePicker,
+  ProFormSelect,
+  ProFormText,
+} from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -16,7 +21,9 @@ import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useCallback, useRef, useState } from 'react';
-import { FormattedMessage, useIntl } from 'umi';
+import { FormattedMessage, useIntl, useAccess, Access } from 'umi';
+import { useAsyncData } from '@/utils/hooks/useAsyncData';
+import { allSchedules } from '@/services/admin.job.workSchedule';
 
 type RecordType = API.Holiday & {
   date?: [moment.Moment, moment.Moment];
@@ -33,6 +40,12 @@ export const Holiday: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const [dataNek, setData] = useState<RecordType[]>();
+  const schedules = useAsyncData<API.Schedule[]>(async () => {
+    const data = await allSchedules();
+    actionRef.current?.reload();
+    return data;
+  });
+  const access = useAccess();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -52,6 +65,11 @@ export const Holiday: React.FC = () => {
     {
       title: 'Holiday',
       dataIndex: 'name',
+    },
+    {
+      title: 'For schedule',
+      dataIndex: 'schedule',
+      renderText: (scheduleId) => schedules.data?.find((it) => it.id === scheduleId)?.name,
     },
     {
       title: 'Year',
@@ -78,7 +96,7 @@ export const Holiday: React.FC = () => {
       renderText: (_, record) =>
         moment(record.end_date).diff(moment(record.start_date), 'days') + 1,
     },
-    {
+    (access['change_holiday'] || access['delete_holiday']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -86,31 +104,35 @@ export const Holiday: React.FC = () => {
       width: 200,
       render: (dom, record) => (
         <Space size="small">
-          <Button
-            title="Edit this holiday"
-            size="small"
-            onClick={() => {
-              setCrudModalVisible('update');
-              setSelectedRecord(record);
-            }}
-          >
-            <EditOutlined />
-          </Button>
-          <Popconfirm
-            placement="right"
-            title={'Delete this holiday?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => deleteHoliday(record.id),
-                'Detete successfully!',
-                'Cannot delete holiday!',
-              );
-            }}
-          >
-            <Button title="Delete this holiday" size="small" danger>
-              <DeleteOutlined />
+          <Access accessible={access['change_holiday']}>
+            <Button
+              title="Edit this holiday"
+              size="small"
+              onClick={() => {
+                setCrudModalVisible('update');
+                setSelectedRecord(record);
+              }}
+            >
+              <EditOutlined />
             </Button>
-          </Popconfirm>
+          </Access>
+          <Access accessible={access['delete_holiday']}>
+            <Popconfirm
+              placement="right"
+              title={'Delete this holiday?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => deleteHoliday(record.id),
+                  'Detete successfully!',
+                  'Cannot delete holiday!',
+                );
+              }}
+            >
+              <Button title="Delete this holiday" size="small" danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },
@@ -132,18 +154,19 @@ export const Holiday: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-
-<Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>
-,
+          <Access accessible={access['add_holiday']}>
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+            >
+              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            </Button>
+          </Access>,
         ]}
+        loading={schedules.isLoading ? true : undefined}
         request={async (query) => {
           let data: RecordType[] = await allHolidays();
           // if (query.start_date)
@@ -194,6 +217,7 @@ export const Holiday: React.FC = () => {
           end_date.set({ hours: 23, minutes: 59 });
           const record = {
             ...value,
+            ...selectedRecord,
             start_date: moment(value.date![0]),
             end_date,
           };
@@ -290,6 +314,14 @@ export const Holiday: React.FC = () => {
       >
         <ProFormText rules={[{ required: true }]} name="name" label="Holiday" width="md" />
         <ProFormDateRangePicker rules={[{ required: true }]} name="date" label="Time" width="md" />
+        <ProFormSelect
+          name="schedule"
+          width="md"
+          label="For schedule"
+          options={schedules.data?.map((it) => ({ value: it.id, label: it.name }))}
+          hasFeedback={schedules.isLoading}
+          rules={[{ required: true }]}
+        />
         <ProFormText name="days" label="Number of days" width="md" readonly />
       </ModalForm>
     </PageContainer>

@@ -1,7 +1,7 @@
 import {
   approveEmployeeTimeoff,
   cancelEmployeeTimeoff,
-  rejectEmployeeTimeoff
+  rejectEmployeeTimeoff,
 } from '@/services/employee';
 import { allTimeoffs } from '@/services/timeOff';
 import { filterData } from '@/utils/utils';
@@ -12,7 +12,7 @@ import ProTable from '@ant-design/pro-table';
 import { Avatar, Button, message, Popconfirm, Space } from 'antd';
 import moment from 'moment';
 import React, { useCallback, useRef, useState } from 'react';
-import { useIntl } from 'umi';
+import { useIntl, useAccess, Access } from 'umi';
 
 type RecordType = API.TimeoffRequest & {
   off_days?: [moment.Moment, moment.Moment];
@@ -23,6 +23,7 @@ export const Timeoff: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const intl = useIntl();
   const [dataNek, setData] = useState<RecordType[]>();
+  const access = useAccess();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -115,7 +116,9 @@ export const Timeoff: React.FC = () => {
         },
       },
     },
-    {
+    (access['can_approve_timeoff'] ||
+      access['can_reject_timeoff'] ||
+      access['can_cancel_timeoff']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -123,69 +126,75 @@ export const Timeoff: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Popconfirm
-            placement="right"
-            title={'Approve this request?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => approveEmployeeTimeoff(record.owner.id, record.id),
-                'Approved successfully!',
-                'Cannot approve this request!',
-              );
-            }}
-            disabled={record.status !== 'Pending'}
-          >
-            <Button
-              title="Approve this request"
-              size="small"
-              type="default"
+          <Access accessible={access['can_approve_timeoff']}>
+            <Popconfirm
+              placement="right"
+              title={'Approve this request?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => approveEmployeeTimeoff(record.owner.id, record.id),
+                  'Approved successfully!',
+                  'Cannot approve this request!',
+                );
+              }}
               disabled={record.status !== 'Pending'}
             >
-              <CheckOutlined />
-            </Button>
-          </Popconfirm>
-          <Popconfirm
-            placement="right"
-            title={'Reject this request?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => rejectEmployeeTimeoff(record.owner.id, record.id),
-                'Rejected successfully!',
-                'Cannot reject this request!',
-              );
-            }}
-            disabled={record.status !== 'Pending'}
-          >
-            <Button
-              title="Reject this request"
-              size="small"
-              danger
+              <Button
+                title="Approve this request"
+                size="small"
+                type="default"
+                disabled={record.status !== 'Pending'}
+              >
+                <CheckOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
+          <Access accessible={access['can_reject_timeoff']}>
+            <Popconfirm
+              placement="right"
+              title={'Reject this request?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => rejectEmployeeTimeoff(record.owner.id, record.id),
+                  'Rejected successfully!',
+                  'Cannot reject this request!',
+                );
+              }}
               disabled={record.status !== 'Pending'}
             >
-              <CloseOutlined />
-            </Button>
-          </Popconfirm>
-          <Popconfirm
-            placement="right"
-            title={'Revert this request?'}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => cancelEmployeeTimeoff(record.owner.id, record.id),
-                'Reverted successfully!',
-                'Cannot revert this request!',
-              );
-            }}
-            disabled={record.status !== 'Approved'}
-          >
-            <Button
-              title="Revert this request"
-              size="small"
-              danger
+              <Button
+                title="Reject this request"
+                size="small"
+                danger
+                disabled={record.status !== 'Pending'}
+              >
+                <CloseOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
+          <Access accessible={access['can_cancel_timeoff']}>
+            <Popconfirm
+              placement="right"
+              title={'Revert this request?'}
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => cancelEmployeeTimeoff(record.owner.id, record.id),
+                  'Reverted successfully!',
+                  'Cannot revert this request!',
+                );
+              }}
               disabled={record.status !== 'Approved'}
             >
-              <EnterOutlined />
-            </Button>
-          </Popconfirm>
+              <Button
+                title="Revert this request"
+                size="small"
+                danger
+                disabled={record.status !== 'Approved'}
+              >
+                <EnterOutlined />
+              </Button>
+            </Popconfirm>
+          </Access>
         </Space>
       ),
     },

@@ -439,6 +439,7 @@ declare namespace API {
   interface Holiday {
     id: number;
     name: string;
+    schedule: Schedule['id'];
     start_date: moment.Moment | string;
     end_date: moment.Moment | string;
   }

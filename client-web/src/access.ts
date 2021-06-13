@@ -12,6 +12,7 @@ export default function (initialState: { currentUser?: API.Employee | undefined 
   const access = {
     // ...defaultAccess,
     ...permissions,
+    can_cancel_timeoff: permissions['can_approve_timeoff'],
     '/payroll': !!(permissions['view_salarytemplate'] || permissions['view_payroll']),
   };
   console.log('>  ~ file: access.ts ~ ', JSON.stringify(access, null, 2));
