@@ -114,6 +114,7 @@ export const Payroll: React.FC = () => {
       key: 'action',
       fixed: 'right',
       align: 'center',
+      width: 'min-content',
       search: false,
       render: (dom, record) => (
         <Space size="small">

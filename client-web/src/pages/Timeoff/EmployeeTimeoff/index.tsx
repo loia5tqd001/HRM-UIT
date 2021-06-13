@@ -117,8 +117,7 @@ export const Timeoff: React.FC = () => {
       },
     },
     (access['can_approve_timeoff'] ||
-      access['can_reject_timeoff'] ||
-      access['can_cancel_timeoff']) && {
+      access['can_reject_timeoff']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -169,29 +168,6 @@ export const Timeoff: React.FC = () => {
                 disabled={record.status !== 'Pending'}
               >
                 <CloseOutlined />
-              </Button>
-            </Popconfirm>
-          </Access>
-          <Access accessible={access['can_cancel_timeoff']}>
-            <Popconfirm
-              placement="right"
-              title={'Revert this request?'}
-              onConfirm={async () => {
-                await onCrudOperation(
-                  () => cancelEmployeeTimeoff(record.owner.id, record.id),
-                  'Reverted successfully!',
-                  'Cannot revert this request!',
-                );
-              }}
-              disabled={record.status !== 'Approved'}
-            >
-              <Button
-                title="Revert this request"
-                size="small"
-                danger
-                disabled={record.status !== 'Approved'}
-              >
-                <EnterOutlined />
               </Button>
             </Popconfirm>
           </Access>

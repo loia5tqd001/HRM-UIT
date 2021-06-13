@@ -1,6 +1,7 @@
 import { __DEV__ } from '@/global';
 import {
   allEmployeeTimeoffs,
+  cancelEmployeeTimeoff,
   createEmployeeTimeoff,
   getSchedule,
   updateEmployeeTimeoff,
@@ -8,12 +9,12 @@ import {
 import { allHolidays } from '@/services/timeOff.holiday';
 import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
 import { filterData } from '@/utils/utils';
-import { PlusOutlined } from '@ant-design/icons';
+import { EnterOutlined, PlusOutlined } from '@ant-design/icons';
 import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, DatePicker, Form, message } from 'antd';
+import { Button, DatePicker, Form, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
@@ -148,49 +149,37 @@ export const Timeoff: React.FC = () => {
         },
       },
     },
-    // {
-    //   title: 'Actions',
-    //   key: 'action',
-    //   fixed: 'right',
-    //   align: 'center',
-    //   search: false,
-    //   render: (dom, record) => (
-    //     <Space size="small">
-    //       <Button
-    //         title="Edit this timeoff"
-    //         size="small"
-    //         onClick={() => {
-    //           setCrudModalVisible('update');
-    //           setSelectedRecord(record);
-    //         }}
-    //         disabled={record.status !== 'Pending'}
-    //       >
-    //         <EditOutlined />
-    //       </Button>
-    //       <Popconfirm
-    //         placement="right"
-    //         title={'Delete this timeoff?'}
-    //         onConfirm={async () => {
-    //           await onCrudOperation(
-    //             () => deleteEmployeeTimeoff(id, record.id),
-    //             'Detete successfully!',
-    //             'Cannot delete timeoff!',
-    //           );
-    //         }}
-    //         disabled={record.status !== 'Pending'}
-    //       >
-    //         <Button
-    //           title="Delete this timeoff"
-    //           size="small"
-    //           danger
-    //           disabled={record.status !== 'Pending'}
-    //         >
-    //           <DeleteOutlined />
-    //         </Button>
-    //       </Popconfirm>
-    //     </Space>
-    //   ),
-    // },
+    {
+      title: 'Actions',
+      key: 'action',
+      fixed: 'right',
+      align: 'center',
+      search: false,
+      render: (dom, record) => (
+        <Space size="small">
+          <Popconfirm
+            placement="right"
+            title={'Cancel this request?'}
+            onConfirm={async () => {
+              await onCrudOperation(
+                () => cancelEmployeeTimeoff(id, record.id),
+                'Canceled successfully!',
+                'Cannot cancel this request!',
+              );
+            }}
+            disabled={!(record.status === 'Approved' || record.status === 'Pending')}
+          >
+            <Button
+              title="Cancel this request"
+              size="small"
+              disabled={!(record.status === 'Approved' || record.status === 'Pending')}
+            >
+              <EnterOutlined />
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
   ];
 
   const dict = {
@@ -209,8 +198,7 @@ export const Timeoff: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-
-<Button
+          <Button
             type="primary"
             key="primary"
             onClick={() => {
@@ -218,8 +206,7 @@ export const Timeoff: React.FC = () => {
             }}
           >
             <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
-          </Button>
-,
+          </Button>,
         ]}
         request={async () => {
           const data = await allEmployeeTimeoffs(id);
