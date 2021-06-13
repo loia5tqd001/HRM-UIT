@@ -312,7 +312,7 @@ export const Edit: React.FC = () => {
           </div>
         </Card>
         <div style={{ display: 'flex', gap: 24 }}>
-          <Access accessible={access?.['timeoff.view_timeoff']}>
+          <Access accessible={access['view_timeoff']}>
             <div style={{ flex: 1 }}>
               <ProTable<any>
                 className="card-shadow header-capitalize"
@@ -365,7 +365,7 @@ export const Edit: React.FC = () => {
               />
             </div>
           </Access>
-          <Access accessible={access?.['attendance.view_employeeschedule']}>
+          <Access accessible={access['view_employeeschedule']}>
             <div style={{ flex: 1 }}>
               <ProTable<any>
                 className="card-shadow header-capitalize"
@@ -433,7 +433,7 @@ export const Edit: React.FC = () => {
             </div>
           </Access>
         </div>
-        <Access accessible={access?.['core.view_employee']}>
+        <Access accessible={access['view_employee']}>
           <ProTable<any, API.PageParams>
             headerTitle="New Hires"
             className="card-shadow header-capitalize"

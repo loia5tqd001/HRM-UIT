@@ -40,7 +40,7 @@ export const toolbarButtons = [
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Pending',
     api: approveEmployeeAttendance,
     buttonProps: undefined,
-    access: 'attendance.can_approve_attendance',
+    access: 'can_approve_attendance',
   },
   {
     action: 'Reject',
@@ -48,7 +48,7 @@ export const toolbarButtons = [
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Pending',
     api: rejectEmployeeAttendance,
     buttonProps: { danger: true },
-    access: 'attendance.can_reject_attendance',
+    access: 'can_reject_attendance',
   },
   {
     action: 'Revert',
@@ -57,7 +57,7 @@ export const toolbarButtons = [
       it.status === 'Approved' || it.status === 'Rejected',
     api: revertEmployeeAttendance,
     buttonProps: undefined,
-    access: 'attendance.can_revert_attendance',
+    access: 'can_revert_attendance',
   },
   {
     action: 'Confirm',
@@ -65,7 +65,7 @@ export const toolbarButtons = [
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Approved',
     api: confirmEmployeeAttendance,
     buttonProps: { type: 'primary' },
-    access: 'attendance.can_confirm_attendance',
+    access: 'can_confirm_attendance',
   },
 ];
 
