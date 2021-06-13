@@ -8,7 +8,11 @@ import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
 import { getIntl, history, request as requestUmi } from 'umi';
 import type { RequestInterceptor, RequestOptionsInit, ResponseError } from 'umi-request';
 import Reqs from 'umi-request';
-import { currentUser as queryCurrentUser, refreshAccessToken } from './services/auth';
+import {
+  currentUser as queryCurrentUser,
+  getMyPermission,
+  refreshAccessToken,
+} from './services/auth';
 import jwt from './utils/jwt';
 
 /** When obtaining user information is slow, render a loading */
@@ -27,6 +31,7 @@ export async function getInitialState(): Promise<{
   const fetchUserInfo = async () => {
     try {
       const currentUser = await queryCurrentUser();
+      currentUser.permissions = await getMyPermission();
       return currentUser;
     } catch (error) {
       history.push('/user/login');

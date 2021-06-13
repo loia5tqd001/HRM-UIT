@@ -14,6 +14,17 @@ export async function login(body: API.LoginParams, options?: { [key: string]: an
   });
 }
 
+export async function getMyPermission(options?: { [key: string]: any }) {
+  // NOTE: The endpoint must trail with a slash "/", or set APPEND_SLASH=False in the Django settings
+  return request<API.AuthenticatedPermission[]>('/api/auth/authenticated_permissions/', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...(options || {}),
+  });
+}
+
 export async function refreshAccessToken(refresh_token: string, options?: { [key: string]: any }) {
   // NOTE: The endpoint must trail with a slash "/", or set APPEND_SLASH=False in the Django settings
   return request<API.LoginResult>('/api/auth/token/refresh/', {
@@ -50,7 +61,7 @@ export async function changeAvatar(data: any, options?: { [key: string]: any }) 
     ...(options || {}),
   });
 }
-  
+
 export async function changePassword(
   password: string,
   new_password: string,

@@ -167,18 +167,18 @@ export const Timeoff: React.FC = () => {
           </Popconfirm>
           <Popconfirm
             placement="right"
-            title={'Cancel this request?'}
+            title={'Revert this request?'}
             onConfirm={async () => {
               await onCrudOperation(
                 () => cancelEmployeeTimeoff(record.owner.id, record.id),
-                'Canceled successfully!',
-                'Cannot cancel this request!',
+                'Reverted successfully!',
+                'Cannot revert this request!',
               );
             }}
             disabled={record.status !== 'Approved'}
           >
             <Button
-              title="Cancel this request"
+              title="Revert this request"
               size="small"
               danger
               disabled={record.status !== 'Approved'}

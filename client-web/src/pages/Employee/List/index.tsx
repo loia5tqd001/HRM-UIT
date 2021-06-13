@@ -223,7 +223,7 @@ const EmployeeList: React.FC = () => {
         }}
         scroll={{ x: 'max-content' }}
         toolBarRender={() => [
-          <Access accessible={access['core.add_employee']}>
+          <Access accessible={access['add_employee']}>
             <Button
               type="primary"
               key="primary"

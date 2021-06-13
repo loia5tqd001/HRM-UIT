@@ -46,7 +46,7 @@ export const OrganziationStructure: React.FC = () => {
             type="link"
             children={text}
             onClick={() => {
-              if (!access['core.change_department']) return;
+              if (!access['change_department']) return;
               setCrudModalVisible('update');
               selectDepartment(record.id);
             }}
@@ -74,9 +74,9 @@ export const OrganziationStructure: React.FC = () => {
       align: 'center',
       width: '20%',
     },
-    (access['core.add_department'] ||
-      access['core.change_department'] ||
-      access['core.delete_department']) && {
+    (access['add_department'] ||
+      access['change_department'] ||
+      access['delete_department']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -84,7 +84,7 @@ export const OrganziationStructure: React.FC = () => {
       width: '20%',
       render: (text, record) => (
         <Space size="small">
-          <Access accessible={access['core.add_department']}>
+          <Access accessible={access['add_department']}>
             <Button
               title="Add a child department"
               size="small"
@@ -96,7 +96,7 @@ export const OrganziationStructure: React.FC = () => {
               <PlusOutlined />
             </Button>
           </Access>
-          <Access accessible={access['core.change_department']}>
+          <Access accessible={access['change_department']}>
             <Button
               title="Edit this department"
               size="small"
@@ -108,7 +108,7 @@ export const OrganziationStructure: React.FC = () => {
               <EditOutlined />
             </Button>
           </Access>
-          <Access accessible={access['core.delete_department']}>
+          <Access accessible={access['delete_department']}>
             <Popconfirm
               placement="right"
               title={

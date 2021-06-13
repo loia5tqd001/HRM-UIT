@@ -316,8 +316,8 @@ const EmployeeAttendanceDetail: React.FC = () => {
     //   dataIndex: 'edited_by',
     //   renderText: (_, record) => (record.edited_by ? 'hello' : null),
     // },
-    (access['attendance.can_edit_actual_hours_attendance'] ||
-      access['attendance.can_edit_overtime_hours_attendance']) && {
+    (access['can_edit_actual_hours_attendance'] ||
+      access['can_edit_overtime_hours_attendance']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -330,7 +330,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
               disabled={record.status === 'Confirmed'}
               overlay={
                 <Menu>
-                  {access['attendance.can_edit_actual_hours_attendance'] && (
+                  {access['can_edit_actual_hours_attendance'] && (
                     <Menu.Item
                       onClick={() => {
                         setEditModalVisible('actual');
@@ -347,7 +347,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
                       Edit actual
                     </Menu.Item>
                   )}
-                  {access['attendance.can_edit_overtime_hours_attendance'] && (
+                  {access['can_edit_overtime_hours_attendance'] && (
                     <Menu.Item
                       onClick={() => {
                         setEditModalVisible('overtime');

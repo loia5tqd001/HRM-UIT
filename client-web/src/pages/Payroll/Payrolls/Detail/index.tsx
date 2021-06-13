@@ -103,7 +103,7 @@ export const PayrollDetail: React.FC = () => {
                     </span>
                   </Tag>
                 </div>
-                <Access accessible={access['payroll.can_send_payslip_payroll']}>
+                <Access accessible={access['can_send_payslip_payroll']}>
                   <Button
                     className="primary-outlined-button"
                     children="Send playslips via email"
@@ -122,7 +122,7 @@ export const PayrollDetail: React.FC = () => {
                     }}
                   />
                 </Access>
-                <Access accessible={access['payroll.can_export_excel_payroll']}>
+                <Access accessible={access['can_export_excel_payroll']}>
                   <Button
                     className="success-outlined-button"
                     children="Export Excel"
@@ -142,7 +142,7 @@ export const PayrollDetail: React.FC = () => {
                 </Access>
                 <Access
                   accessible={
-                    access['payroll.can_confirm_payroll'] && payroll?.status === 'Temporary'
+                    access['can_confirm_payroll'] && payroll?.status === 'Temporary'
                   }
                 >
                   <Popconfirm
@@ -164,7 +164,7 @@ export const PayrollDetail: React.FC = () => {
                     <Button children="Confirm" type="primary" icon={<CheckCircleOutlined />} />
                   </Popconfirm>
                 </Access>
-                {/* <Access accessible={access['payroll.can_calculate_payroll']}>
+                {/* <Access accessible={access['can_calculate_payroll']}>
                   <Button
                     children="Run Calculation"
                     type="primary"

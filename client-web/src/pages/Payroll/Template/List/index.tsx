@@ -94,7 +94,7 @@ export const PayrollTemplate: React.FC = () => {
               <EyeOutlined />
             </Button>
           </Link>
-          <Access accessible={access['payroll.delete_salarytemplate']}>
+          <Access accessible={access['delete_salarytemplate']}>
             <Popconfirm
               placement="right"
               title={
@@ -139,7 +139,7 @@ export const PayrollTemplate: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Access accessible={access['payroll.add_salarytemplate']}>
+          <Access accessible={access['add_salarytemplate']}>
             <Button
               type="primary"
               key="primary"

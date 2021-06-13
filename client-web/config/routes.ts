@@ -61,25 +61,25 @@
           {
             path: '/admin/job/jobTitle',
             name: 'jobTitle',
-            access: 'job.view_jobtitle',
+            access: 'view_jobtitle',
             component: './Admin/Job/JobTitle',
           },
           {
             path: '/admin/job/employmentStatus',
             name: 'employmentStatus',
-            access: 'job.view_employmentstatus',
+            access: 'view_employmentstatus',
             component: './Admin/Job/EmploymentStatus',
           },
           {
             path: '/admin/job/workSchedule',
             name: 'workSchedule',
-            access: 'attendance.view_schedule',
+            access: 'view_schedule',
             component: './Admin/Job/WorkSchedule',
           },
           {
             path: '/admin/job/terminationReason',
             name: 'terminationReason',
-            access: 'job.view_terminationreason',
+            access: 'view_terminationreason',
             component: './Admin/Job/TerminationReason',
           },
           // {
@@ -101,13 +101,13 @@
           {
             path: '/admin/organization/structure',
             name: 'structure',
-            access: 'core.view_department',
+            access: 'view_department',
             component: './Admin/Organization/Structure',
           },
           {
             path: '/admin/organization/location',
             name: 'location',
-            access: 'job.view_location',
+            access: 'view_location',
             component: './Admin/Organization/Location',
           },
           // {
@@ -146,13 +146,13 @@
           {
             path: '/admin/payroll/taxPlan',
             name: 'taxPlan',
-            access: 'payroll.view_taxpolicy',
+            access: 'view_taxpolicy',
             component: './Admin/Payroll/TaxPlan',
           },
           {
             path: '/admin/payroll/insurancePlan',
             name: 'insurancePlan',
-            access: 'payroll.view_insurancepolicy',
+            access: 'view_insurancepolicy',
             component: './Admin/Payroll/InsurancePlan',
           },
         ],
@@ -161,14 +161,14 @@
         path: '/admin/permission',
         name: 'permission',
         icon: 'key',
-        access: 'auth.view_permission',
+        access: 'view_permission',
         component: './Admin/Permission',
       },
       {
         path: '/admin/configuration',
         name: 'configuration',
         icon: 'setting',
-        access: 'core.view_applicationconfig',
+        access: 'view_applicationconfig',
         component: './Admin/Configuration',
       },
       {
@@ -181,7 +181,7 @@
     path: '/employee',
     name: 'employee',
     icon: 'userSwitch',
-    access: 'core.view_employee',
+    access: 'view_employee',
     routes: [
       // { path: '/employee/import', name: '__import', icon: 'import', component: './Welcome' },
       // {
@@ -201,14 +201,14 @@
         path: '/employee/list',
         name: 'list',
         icon: 'unorderedList',
-        access: 'core.view_employee',
+        access: 'view_employee',
         component: './Employee/List',
       },
       {
         path: '/employee/list/:id',
         name: 'edit',
         component: './Employee/Edit',
-        access: 'core.view_employee',
+        access: 'view_employee',
         hideInMenu: true,
       },
       {
@@ -221,7 +221,7 @@
     path: '/timeOff',
     name: 'timeOff',
     icon: 'clockCircle',
-    // access: 'canAdmin',
+    // access: ',
     routes: [
       { path: '/timeOff/me', name: 'me', icon: 'frown', component: './Timeoff/MyTimeoff' },
       {
@@ -262,7 +262,6 @@
     path: '/attendance',
     name: 'attendance',
     icon: 'schedule',
-    // access: 'canAdmin',
     routes: [
       {
         path: '/attendance/me',
@@ -275,13 +274,13 @@
         name: 'list',
         icon: 'unorderedList',
         component: './Attendance/EmployeeAttendance',
-        access: 'attendance.view_attendance',
+        access: 'view_attendance',
       },
       {
         path: '/attendance/list/:id',
         component: './Attendance/EmployeeAttendanceDetail',
         name: 'detail',
-        access: 'attendance.view_attendance',
+        access: 'view_attendance',
         hideInMenu: true,
       },
       // { path: '/attendance/import', name: '__import', icon: 'import', component: './Welcome' },
@@ -289,18 +288,18 @@
         path: '/attendance/configuration',
         name: 'configuration',
         icon: 'setting',
-        access: 'job.view_location',
+        access: 'view_location',
         routes: [
           {
             path: '/attendance/configuration/office',
             name: 'office',
             component: './Attendance/Configuration/Office',
-            access: 'job.view_location',
+            access: 'view_location',
           },
           {
             path: '/attendance/configuration/office/:id',
             component: './Attendance/Configuration/OfficeEdit',
-            access: 'job.view_location',
+            access: 'view_location',
             hideInMenu: true,
           },
           // {
@@ -332,26 +331,26 @@
         name: 'payrolls',
         icon: 'transaction',
         component: './Payroll/Payrolls/List',
-        access: 'payroll.view_payroll',
+        access: 'view_payroll',
       },
       {
         path: '/payroll/payrolls/:id',
         component: './Payroll/Payrolls/Detail',
         hideInMenu: true,
-        access: 'payroll.view_payslip',
+        access: 'view_payslip',
       },
       {
         path: '/payroll/template',
         name: 'template',
         icon: 'profile',
         component: './Payroll/Template/List',
-        access: 'payroll.view_salarytemplate',
+        access: 'view_salarytemplate',
       },
       {
         path: '/payroll/template/:id',
         component: './Payroll/Template/Detail',
         hideInMenu: true,
-        access: 'payroll.view_salarytemplate',
+        access: 'view_salarytemplate',
       },
 
       // {

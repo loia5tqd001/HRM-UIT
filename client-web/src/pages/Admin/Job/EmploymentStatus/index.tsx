@@ -52,7 +52,7 @@ export const EmploymentStatus: React.FC = () => {
       ),
       dataIndex: 'name',
     },
-    (access['job.change_employmentstatus'] || access['job.delete_employmentstatus']) && {
+    (access['change_employmentstatus'] || access['delete_employmentstatus']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -60,7 +60,7 @@ export const EmploymentStatus: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Access accessible={access['job.change_employmentstatus']}>
+          <Access accessible={access['change_employmentstatus']}>
             <Button
               title="Edit this employment status"
               size="small"
@@ -72,7 +72,7 @@ export const EmploymentStatus: React.FC = () => {
               <EditOutlined />
             </Button>
           </Access>
-          <Access accessible={access['job.delete_employmentstatus']}>
+          <Access accessible={access['delete_employmentstatus']}>
             <Popconfirm
               placement="right"
               title={'Delete this employment status?'}
@@ -113,7 +113,7 @@ export const EmploymentStatus: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Access accessible={access['job.add_employmentstatus']}>
+          <Access accessible={access['add_employmentstatus']}>
             <Button
               type="primary"
               key="primary"

@@ -29,7 +29,7 @@ export const Office: React.FC = () => {
               message.error('Update unsuccesffully');
             }
           }}
-          submitter={access['core.change_applicationconfig'] ? undefined : false}
+          submitter={access['change_applicationconfig'] ? undefined : false}
           initialValues={config}
         >
           <ProForm.Group>

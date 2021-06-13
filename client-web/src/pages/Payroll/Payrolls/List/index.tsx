@@ -59,7 +59,7 @@ export const Payroll: React.FC = () => {
       title: 'Name',
       dataIndex: 'name',
       renderText: (it, record) =>
-        access['payroll.view_payslip'] ? (
+        access['view_payslip'] ? (
           <Link to={`/payroll/payrolls/${record.id}`}>{it}</Link>
         ) : (
           it
@@ -109,7 +109,7 @@ export const Payroll: React.FC = () => {
         );
       },
     },
-    (access['payroll.view_payslip'] || access['payroll.delete_payroll']) && {
+    (access['view_payslip'] || access['delete_payroll']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -117,14 +117,14 @@ export const Payroll: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Access accessible={access['payroll.view_payslip']}>
+          <Access accessible={access['view_payslip']}>
             <Link to={`/payroll/payrolls/${record.id}`}>
               <Button title="View detail this payroll" size="small">
                 <EyeOutlined />
               </Button>
             </Link>
           </Access>
-          <Access accessible={access['payroll.delete_payroll']}>
+          <Access accessible={access['delete_payroll']}>
             <Popconfirm
               placement="right"
               title={'Delete this payroll?'}
@@ -165,7 +165,7 @@ export const Payroll: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Access accessible={access['payroll.add_payroll']}>
+          <Access accessible={access['add_payroll']}>
             <Button
               type="primary"
               key="primary"

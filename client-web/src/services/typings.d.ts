@@ -65,6 +65,14 @@ declare namespace API {
     refresh: string;
   };
 
+  interface AuthenticatedPermission {
+    id: number;
+    name: string;
+    codename: string;
+    content_type: string;
+    has_perm: boolean;
+  }
+
   type ErrorResponse = {
     errorCode: number;
     errorMessage?: string;
@@ -218,9 +226,8 @@ declare namespace API {
     social_insurance: string;
     health_insurance: string;
     role: string;
-    permissions: string[];
     status: 'Working' | 'NewHired' | 'Terminated';
-    permissions: string[];
+    permissions?: AuthenticatedPermission[];
   }
 
   interface TerminateContract {

@@ -134,7 +134,7 @@ export const Location: React.FC = () => {
     //   ),
     //   dataIndex: 'note',
     // },
-    (access['job.change_location'] || access['job.delete_location']) && {
+    (access['change_location'] || access['delete_location']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -142,7 +142,7 @@ export const Location: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Access accessible={access['job.change_location']}>
+          <Access accessible={access['change_location']}>
             <Button
               title="Edit this location"
               size="small"
@@ -154,7 +154,7 @@ export const Location: React.FC = () => {
               <EditOutlined />
             </Button>
           </Access>
-          <Access accessible={access['job.delete_location']}>
+          <Access accessible={access['delete_location']}>
             <Popconfirm
               placement="right"
               title={'Delete this location?'}
@@ -195,7 +195,7 @@ export const Location: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Access accessible={access['job.add_location']}>
+          <Access accessible={access['add_location']}>
             <Button
               type="primary"
               key="primary"

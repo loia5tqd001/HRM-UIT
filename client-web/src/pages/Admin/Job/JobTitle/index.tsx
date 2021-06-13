@@ -60,7 +60,7 @@ export const JobTitle: React.FC = () => {
       valueType: 'textarea',
       hideInForm: true,
     },
-    (access['job.change_jobtitle'] || access['job.delete_jobtitle']) && {
+    (access['change_jobtitle'] || access['delete_jobtitle']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -68,7 +68,7 @@ export const JobTitle: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Access accessible={access['job.change_jobtitle']}>
+          <Access accessible={access['change_jobtitle']}>
             <Button
               title="Edit this job title"
               size="small"
@@ -80,7 +80,7 @@ export const JobTitle: React.FC = () => {
               <EditOutlined />
             </Button>
           </Access>
-          <Access accessible={access['job.delete_jobtitle']}>
+          <Access accessible={access['delete_jobtitle']}>
             <Popconfirm
               placement="right"
               title={'Delete this job title?'}
@@ -121,7 +121,7 @@ export const JobTitle: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Access accessible={access['job.add_jobtitle']}>
+          <Access accessible={access['add_jobtitle']}>
             <Button
               type="primary"
               key="primary"

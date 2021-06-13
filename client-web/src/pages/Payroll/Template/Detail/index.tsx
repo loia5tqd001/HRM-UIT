@@ -10,7 +10,7 @@ export const List: React.FC = () => {
   const { tab } = history.location.query as {
     tab: 'general' | 'columns' | undefined;
   };
-  if (tab === undefined || (tab === 'general' && !access['payroll.change_salarytemplate']))
+  if (tab === undefined || (tab === 'general' && !access['change_salarytemplate']))
     history.replace('?tab=columns');
 
   const { id } = useParams<any>();
@@ -50,7 +50,7 @@ export const List: React.FC = () => {
     <PageContainer
       title={false}
       tabList={
-        access['payroll.change_salarytemplate'] && [
+        access['change_salarytemplate'] && [
           {
             tab: 'General Information',
             key: 'general',

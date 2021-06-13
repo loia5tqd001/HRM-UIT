@@ -71,7 +71,7 @@ export const InsurancePlan: React.FC = () => {
       dataIndex: 'percent_employee',
       valueType: 'percent',
     },
-    (access['payroll.change_insurancepolicy'] || access['payroll.delete_insurancepolicy']) && {
+    (access['change_insurancepolicy'] || access['delete_insurancepolicy']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -79,7 +79,7 @@ export const InsurancePlan: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Access accessible={access['payroll.change_insurancepolicy']}>
+          <Access accessible={access['change_insurancepolicy']}>
             <Button
               title="Edit this insurance plan"
               size="small"
@@ -91,7 +91,7 @@ export const InsurancePlan: React.FC = () => {
               <EditOutlined />
             </Button>
           </Access>
-          <Access accessible={access['payroll.delete_insurancepolicy']}>
+          <Access accessible={access['delete_insurancepolicy']}>
             <Popconfirm
               placement="right"
               title={'Delete this insurance plan?'}
@@ -129,7 +129,7 @@ export const InsurancePlan: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Access accessible={access['payroll.add_insurancepolicy']}>
+          <Access accessible={access['add_insurancepolicy']}>
             <Button
               type="primary"
               key="primary"

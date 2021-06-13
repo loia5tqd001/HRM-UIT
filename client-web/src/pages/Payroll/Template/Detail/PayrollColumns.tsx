@@ -219,7 +219,7 @@ function SortableTable() {
       width: '30%',
     },
   ];
-  if (access['payroll.change_salarytemplate']) {
+  if (access['change_salarytemplate']) {
     columns.unshift({
       title: '#',
       dataIndex: 'index',
@@ -316,7 +316,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
           }
           style={{ minHeight: '50vh', height: '100%' }}
           extra={
-            <Access accessible={access['payroll.change_salarytemplate']}>
+            <Access accessible={access['change_salarytemplate']}>
               <Space>
                 <Tooltip
                   title={
@@ -395,7 +395,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
             <div style={{ height: 'calc(100vh - 120px)', overflow: 'auto', flex: '2 0 70%' }}>
               <SortableTable />
             </div>
-            <Access accessible={access['payroll.change_salarytemplate']}>
+            <Access accessible={access['change_salarytemplate']}>
               <div
                 style={{ flex: isCollapsed ? 0 : '1 0 250px', width: isCollapsed ? 0 : undefined }}
               >

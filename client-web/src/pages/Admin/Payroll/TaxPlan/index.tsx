@@ -82,7 +82,7 @@ export const TaxPlan: React.FC = () => {
     //     },
     //   },
     // },
-    (access['payroll.change_taxpolicy'] || access['payroll.delete_taxpolicy']) && {
+    (access['change_taxpolicy'] || access['delete_taxpolicy']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -90,7 +90,7 @@ export const TaxPlan: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Access accessible={access['payroll.change_taxpolicy']}>
+          <Access accessible={access['change_taxpolicy']}>
             <Button
               title="Edit this tax plan"
               size="small"
@@ -102,7 +102,7 @@ export const TaxPlan: React.FC = () => {
               <EditOutlined />
             </Button>
           </Access>
-          <Access accessible={access['payroll.delete_taxpolicy']}>
+          <Access accessible={access['delete_taxpolicy']}>
             <Popconfirm
               placement="right"
               title={'Delete this tax plan?'}
@@ -143,7 +143,7 @@ export const TaxPlan: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Access accessible={access['payroll.add_taxpolicy']}>
+          <Access accessible={access['add_taxpolicy']}>
             <Button
               type="primary"
               key="primary"

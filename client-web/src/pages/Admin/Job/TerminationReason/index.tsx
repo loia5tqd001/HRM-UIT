@@ -67,7 +67,7 @@ export const TerminationReason: React.FC = () => {
       valueType: 'textarea',
       hideInForm: true,
     },
-    (access['job.change_terminationreason'] || access['job.delete_terminationreason']) && {
+    (access['change_terminationreason'] || access['delete_terminationreason']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -75,7 +75,7 @@ export const TerminationReason: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Access accessible={access['job.change_terminationreason']}>
+          <Access accessible={access['change_terminationreason']}>
             <Button
               title="Edit this termination reason"
               size="small"
@@ -87,7 +87,7 @@ export const TerminationReason: React.FC = () => {
               <EditOutlined />
             </Button>
           </Access>
-          <Access accessible={access['job.delete_terminationreason']}>
+          <Access accessible={access['delete_terminationreason']}>
             <Popconfirm
               placement="right"
               title={'Delete this termination reason?'}
@@ -128,7 +128,7 @@ export const TerminationReason: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Access accessible={access['job.add_terminationreason']}>
+          <Access accessible={access['add_terminationreason']}>
             <Button
               type="primary"
               key="primary"

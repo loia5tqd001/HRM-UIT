@@ -281,7 +281,7 @@ export const WorkSchedule: React.FC = () => {
       renderText: (workdays: DayItem[]) =>
         `${workdays.reduce((acc, cur) => acc + calcHours(cur), 0)} hrs`,
     },
-    (access['attendance.change_schedule'] || access['attendance.delete_schedule']) && {
+    (access['change_schedule'] || access['delete_schedule']) && {
       title: 'Actions',
       key: 'action',
       fixed: 'right',
@@ -289,7 +289,7 @@ export const WorkSchedule: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
-          <Access accessible={access['attendance.change_schedule']}>
+          <Access accessible={access['change_schedule']}>
             <Button
               title="Edit this schedule"
               size="small"
@@ -301,7 +301,7 @@ export const WorkSchedule: React.FC = () => {
               <EditOutlined />
             </Button>
           </Access>
-          <Access accessible={access['attendance.delete_schedule']}>
+          <Access accessible={access['delete_schedule']}>
             <Popconfirm
               placement="right"
               title={'Delete this schedule?'}
@@ -342,7 +342,7 @@ export const WorkSchedule: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Access accessible={access['attendance.view_schedule']}>
+          <Access accessible={access['view_schedule']}>
             <Button
               type="primary"
               key="primary"

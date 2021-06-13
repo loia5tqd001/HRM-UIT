@@ -127,7 +127,7 @@ export const OfficeEdit: React.FC = () => {
         loading={!officeReady}
         className="card-shadow"
         extra={
-          <Access accessible={access['job.change_location']}>
+          <Access accessible={access['change_location']}>
             <Button
               type="primary"
               onClick={async () => {
