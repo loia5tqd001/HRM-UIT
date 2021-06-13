@@ -6,7 +6,7 @@ import { Button, Card, Spin } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import Talk from 'talkjs';
 import type { ConversationSelectedEvent } from 'talkjs/all';
-import { useModel } from 'umi';
+import { FormattedMessage, useModel } from 'umi';
 import styles from './index.less';
 
 declare global {
@@ -110,7 +110,7 @@ export const Message: React.FC = () => {
               bordered
               split
               rowKey="id"
-              headerTitle="All People"
+              headerTitle={<FormattedMessage id="pages.allPeople" defaultMessage="All People" />}
               request={async (query) => {
                 const { title: fullname, user } = query;
                 if (peopleRef.current === undefined) {
@@ -153,7 +153,7 @@ export const Message: React.FC = () => {
                       </b>
                     </Button>
                   ),
-                  title: 'Fullname',
+                  title: <FormattedMessage id="property.full_name" defaultMessage="Fullname" />,
                 },
                 avatar: {
                   dataIndex: 'avatar',
@@ -162,7 +162,7 @@ export const Message: React.FC = () => {
                 subTitle: {
                   dataIndex: ['user', 'username'],
                   render: (dom) => `@${dom}`,
-                  title: 'Username',
+                  title: <FormattedMessage id="property.username" defaultMessage="Username" />,
                 },
                 actions: {
                   render: (_, entity) => [

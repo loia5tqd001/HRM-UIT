@@ -7,14 +7,7 @@ import { Button, Form, TreeSelect } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import faker from 'faker';
 import React from 'react';
-import { FormattedMessage, useModel } from 'umi';
-
-const dict = {
-  title: {
-    create: 'New Department',
-    update: 'Edit Department',
-  },
-};
+import { FormattedMessage, useAccess, useIntl, useModel } from 'umi';
 
 export const CrudModal: React.FC = () => {
   const [form] = useForm<API.DepartmentUnit>();
@@ -27,6 +20,25 @@ export const CrudModal: React.FC = () => {
     onCrudOperation,
   } = useModel('admin.organization');
   const managers = useAsyncData<API.Employee[]>(() => allEmployees());
+  const intl = useIntl();
+  const access = useAccess();
+  const localeFeature = intl.formatMessage({
+    id: 'property.department',
+    defaultMessage: 'Department',
+  });
+
+  const dict = {
+    title: {
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
+    },
+  };
 
   const treeData = departments.map((it) => ({
     id: it.id,
@@ -69,14 +81,26 @@ export const CrudModal: React.FC = () => {
         if (crudModalVisible === 'create') {
           await onCrudOperation(
             () => createDepartment(convertedToSubmit),
-            'Created successfully!',
-            'Created failed!',
+            intl.formatMessage({
+              id: 'error.createSuccessfully',
+              defaultMessage: 'Create successfully!',
+            }),
+            intl.formatMessage({
+              id: 'error.createUnsuccessfully',
+              defaultMessage: 'Create unsuccessfully!',
+            }),
           );
         } else if (crudModalVisible === 'update') {
           await onCrudOperation(
             () => updateDepartment(selectedDepartment!.id!, convertedToSubmit),
-            'Updated successfully!',
-            'Updated failed!',
+            intl.formatMessage({
+              id: 'error.updateSuccessfully',
+              defaultMessage: 'Update successfully!',
+            }),
+            intl.formatMessage({
+              id: 'error.updateUnsuccessfully',
+              defaultMessage: 'Update unsuccessfully!',
+            }),
           );
         }
         setCrudModalVisible('hidden');
@@ -105,7 +129,14 @@ export const CrudModal: React.FC = () => {
         },
       }}
     >
-      <Form.Item name="parent" label="Parent department" rules={[{ required: true }]}>
+      <Form.Item
+        name="parent"
+        label={intl.formatMessage({
+          id: 'property.parentDepartment',
+          defaultMessage: 'Parent department',
+        })}
+        rules={[{ required: true }]}
+      >
         <TreeSelect
           treeDataSimpleMode
           style={{ width: '100%' }}
@@ -115,24 +146,13 @@ export const CrudModal: React.FC = () => {
           treeData={treeData}
         />
       </Form.Item>
-      <ProFormText
-        rules={[
-          {
-            required: true,
-            message: (
-              <FormattedMessage
-                id="pages.searchTable.ruleName1"
-                defaultMessage="Department name is required"
-              />
-            ),
-          },
-        ]}
-        name="name"
-        label="Department name"
-      />
+      <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
       <ProFormSelect
         name="manager"
-        label="Manager"
+        label={intl.formatMessage({
+          id: 'property.manager',
+          defaultMessage: 'Manager',
+        })}
         showSearch
         options={managers.data?.map((it) => ({
           value: it.id,
@@ -140,7 +160,10 @@ export const CrudModal: React.FC = () => {
         }))}
         rules={[{ required: true, message: 'Manager is required' }]}
       />
-      <ProFormTextArea name="description" label="Description" />
+      <ProFormTextArea
+        name="description"
+        label={intl.formatMessage({ id: 'property.description' })}
+      />
     </ModalForm>
   );
 };

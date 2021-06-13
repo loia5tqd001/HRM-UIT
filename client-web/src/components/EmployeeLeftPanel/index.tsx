@@ -25,7 +25,7 @@ import { Affix, Badge, Button, Card, message, Space, Tooltip, Upload } from 'ant
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React from 'react';
-import { Access } from 'umi';
+import { Access, FormattedMessage, useIntl } from 'umi';
 import type { OnChangeSubscription } from '../EmployeeTabs';
 
 type Props = {
@@ -33,21 +33,6 @@ type Props = {
   setEmployee: (x: API.Employee) => void;
   onChange?: OnChangeSubscription;
 };
-
-const mapStatus = {
-  NewHired: {
-    text: 'New Hire',
-    status: 'warning',
-  },
-  Working: {
-    text: 'Working',
-    status: 'success',
-  },
-  Terminated: {
-    text: 'Terminated',
-    status: 'error',
-  },
-} as const;
 
 export const EmployeeLeftPanel: React.FC<Props> = (props) => {
   const { employee: record, setEmployee: setRecord, onChange } = props;
@@ -58,6 +43,22 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
   const terminationReasons = useAsyncData<API.TerminationReason[]>(allTerminationReasons);
   const roles = useAsyncData<API.RoleItem[]>(allRoles);
   const pageType = useEmployeeDetailType();
+  const intl = useIntl();
+
+  const mapStatus = {
+    NewHired: {
+      text: intl.formatMessage({ id: 'property.status.newHire' }),
+      status: 'warning',
+    },
+    Working: {
+      text: intl.formatMessage({ id: 'property.status.working' }),
+      status: 'success',
+    },
+    Terminated: {
+      text: intl.formatMessage({ id: 'property.status.terminated' }),
+      status: 'error',
+    },
+  } as const;
 
   const { canChangeAvatar, canSetRole, canSetPassword, canTerminateEmployment } =
     useEmployeeDetailAccess({ isActive, employeeId: id });
@@ -100,7 +101,10 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
               }
             }}
           >
-            <Tooltip title={canChangeAvatar && 'Change avatar'} placement="top">
+            <Tooltip
+              title={canChangeAvatar && intl.formatMessage({ id: 'button.changeAvatar' })}
+              placement="top"
+            >
               <div className={styles.avatar}>
                 <img src={record?.avatar} alt="avatar" />
               </div>
@@ -123,7 +127,9 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
           <h4
             style={{ fontWeight: 400 }}
             className={styles.badge}
-            title={`Status: ${record.status}`}
+            title={`${intl.formatMessage({ id: 'property.status' })}: ${
+              mapStatus[record.status].text
+            }`}
           >
             <Badge {...mapStatus[record.status]} />
           </h4>
@@ -133,13 +139,15 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             fontWeight: 400,
             display: 'inline-flex',
           }}
-          title={`Role: ${record?.role}`}
+          title={`${intl.formatMessage({ id: 'property.role' })}: ${record?.role}`}
           className={`${styles.textEllipse} ${styles.roleButton}`}
         >
           <KeyOutlined /> <span className={styles.content}>{record?.role}</span>
           <Access accessible={canSetRole}>
             <ModalForm<{ role: string }>
-              title="Edit Role"
+              title={`${intl.formatMessage({ id: 'property.actions.update' })} ${intl.formatMessage(
+                { id: 'property.role' },
+              )}`}
               width="400px"
               trigger={
                 <span className={styles.button}>
@@ -147,7 +155,9 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                     size="small"
                     className="primary-outlined-button"
                     icon={<EditOutlined />}
-                    title="Edit role"
+                    title={`${intl.formatMessage({
+                      id: 'property.actions.update',
+                    })} ${intl.formatMessage({ id: 'property.role' })}`}
                   ></Button>
                 </span>
               }
@@ -174,7 +184,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
               <ProFormSelect
                 name="role"
                 width="md"
-                label="Role"
+                label={intl.formatMessage({ id: 'property.role' })}
                 options={roles.data?.map((it) => ({
                   value: it.name,
                   label: it.name,
@@ -189,7 +199,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
           style={{
             fontWeight: 400,
           }}
-          title={`Username: ${record?.user.username}`}
+          title={`${intl.formatMessage({ id: 'property.username' })}: ${record?.user.username}`}
           className={styles.textEllipse}
         >
           <UserOutlined /> <span className={styles.content}>{record?.user.username}</span>
@@ -199,7 +209,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             fontWeight: 400,
             marginBottom: 12,
           }}
-          title={`Email: ${record?.email}`}
+          title={`${intl.formatMessage({ id: 'property.email' })}: ${record?.email}`}
           className={styles.textEllipse}
         >
           <MailOutlined />
@@ -210,20 +220,32 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             <Access accessible={canSetPassword}>
               {pageType === 'employee-edit' ? (
                 <ModalForm
-                  title="Change password"
+                  title={intl.formatMessage({ id: 'component.button.changePassword' })}
                   width="400px"
                   trigger={
                     <Button className={styles.changePasswordButton} type="primary">
-                      Change password
+                      {intl.formatMessage({
+                        id: 'component.button.changePassword',
+                      })}
                     </Button>
                   }
                   onFinish={async (value) => {
                     try {
                       await changeEmployeePassword(id!, value.new_password);
-                      message.success('Password changed successfully!');
+                      message.success(
+                        intl.formatMessage({
+                          id: 'error.updateSuccessfully',
+                          defaultMessage: 'Update successfully!',
+                        }),
+                      );
                       return true;
                     } catch {
-                      message.error('Cannot change password!');
+                      message.error(
+                        intl.formatMessage({
+                          id: 'error.updateUnsuccessfully',
+                          defaultMessage: 'Update unsuccessfully!',
+                        }),
+                      );
                       return false;
                     }
                   }}
@@ -231,15 +253,26 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                   <ProFormText.Password
                     width="md"
                     name="new_password"
-                    label="New password"
+                    label={intl.formatMessage({
+                      id: 'property.newPassword',
+                    })}
                     rules={[
                       { required: true },
-                      { min: 6, message: 'Password must contain at least 6 characters!' },
+                      {
+                        min: 6,
+                        message: intl.formatMessage({
+                          id: 'error.password6Characters',
+                        }),
+                      },
                       ({ getFieldValue }) => ({
                         validator(rule, value) {
                           if (value && getFieldValue('password') === value) {
                             return Promise.reject(
-                              Error('New password must be different than current password'),
+                              Error(
+                                intl.formatMessage({
+                                  id: 'error.newPasswordMustBeDifferentThanCurrent',
+                                }),
+                              ),
                             );
                           }
                           return Promise.resolve();
@@ -250,7 +283,9 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                   <ProFormText.Password
                     width="md"
                     name="confirm_password"
-                    label="Confirm password"
+                    label={intl.formatMessage({
+                      id: 'property.confirmPassword',
+                    })}
                     dependencies={['new_password']}
                     rules={[
                       { required: true },
@@ -259,7 +294,13 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                           if (!value || getFieldValue('new_password') === value) {
                             return Promise.resolve();
                           }
-                          return Promise.reject(Error('Confirm password does not match!'));
+                          return Promise.reject(
+                            Error(
+                              intl.formatMessage({
+                                id: 'error.confirmPasswordDoesNotMatch',
+                              }),
+                            ),
+                          );
                         },
                       }),
                     ]}
@@ -267,20 +308,32 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                 </ModalForm>
               ) : (
                 <ModalForm
-                  title="Change password"
+                  title={intl.formatMessage({ id: 'component.button.changePassword' })}
                   width="400px"
                   trigger={
                     <Button className={styles.changePasswordButton} type="primary">
-                      Change password
+                      {intl.formatMessage({
+                        id: 'component.button.changePassword',
+                      })}
                     </Button>
                   }
                   onFinish={async (value) => {
                     try {
                       await changePassword(value.password, value.new_password);
-                      message.success('Password changed successfully!');
+                      message.success(
+                        intl.formatMessage({
+                          id: 'error.updateSuccessfully',
+                          defaultMessage: 'Update successfully!',
+                        }),
+                      );
                       return true;
                     } catch {
-                      message.error('Cannot change password!');
+                      message.error(
+                        intl.formatMessage({
+                          id: 'error.updateUnsuccessfully',
+                          defaultMessage: 'Update unsuccessfully!',
+                        }),
+                      );
                       return false;
                     }
                   }}
@@ -288,21 +341,34 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                   <ProFormText.Password
                     width="md"
                     name="password"
-                    label="Current password"
+                    label={intl.formatMessage({
+                      id: 'property.currentPassword',
+                    })}
                     rules={[{ required: true }]}
                   />
                   <ProFormText.Password
                     width="md"
                     name="new_password"
-                    label="New password"
+                    label={intl.formatMessage({
+                      id: 'property.newPassword',
+                    })}
                     rules={[
                       { required: true },
-                      { min: 6, message: 'Password must contain at least 6 characters!' },
+                      {
+                        min: 6,
+                        message: intl.formatMessage({
+                          id: 'error.password6Characters',
+                        }),
+                      },
                       ({ getFieldValue }) => ({
                         validator(rule, value) {
                           if (value && getFieldValue('password') === value) {
                             return Promise.reject(
-                              Error('New password must be different than current password'),
+                              Error(
+                                intl.formatMessage({
+                                  id: 'error.newPasswordMustBeDifferentThanCurrent',
+                                }),
+                              ),
                             );
                           }
                           return Promise.resolve();
@@ -313,7 +379,9 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                   <ProFormText.Password
                     width="md"
                     name="confirm_password"
-                    label="Confirm password"
+                    label={intl.formatMessage({
+                      id: 'property.confirmPassword',
+                    })}
                     dependencies={['new_password']}
                     rules={[
                       { required: true },
@@ -322,7 +390,13 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                           if (!value || getFieldValue('new_password') === value) {
                             return Promise.resolve();
                           }
-                          return Promise.reject(Error('Confirm password does not match!'));
+                          return Promise.reject(
+                            Error(
+                              intl.formatMessage({
+                                id: 'error.confirmPasswordDoesNotMatch',
+                              }),
+                            ),
+                          );
                         },
                       }),
                     ]}
@@ -332,11 +406,15 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             </Access>
             <Access accessible={canTerminateEmployment}>
               <ModalForm<API.TerminateContract>
-                title="Termination Form"
+                title={intl.formatMessage({
+                  id: 'property.terminationForm',
+                })}
                 width="400px"
                 trigger={
                   <Button key="terminate" danger style={{ width: '100%' }}>
-                    Terminate Employment
+                    {intl.formatMessage({
+                      id: 'component.button.terminateEmployment',
+                    })}
                   </Button>
                 }
                 onVisibleChange={() => {
@@ -349,13 +427,23 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                       ...value,
                       date: moment(value.date),
                     });
-                    message.success('Terminate successfully!');
+                    message.success(
+                      intl.formatMessage({
+                        id: 'error.updateSuccessfully',
+                        defaultMessage: 'Update successfully!',
+                      }),
+                    );
                     // jobs.fetchData();
                     // schedule.fetchData();
                     onChange?.status?.('Terminated');
                     return true;
                   } catch {
-                    message.error('Terminate unsuccessfully!');
+                    message.error(
+                      intl.formatMessage({
+                        id: 'error.updateUnsuccessfully',
+                        defaultMessage: 'Update unsuccessfully!',
+                      }),
+                    );
                     return false;
                   }
                 }}
@@ -363,7 +451,9 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                 <ProFormSelect
                   name="reason"
                   width="md"
-                  label="Termination reason"
+                  label={intl.formatMessage({
+                    id: 'property.terminationReason',
+                  })}
                   options={terminationReasons.data?.map((it) => ({
                     value: it.name,
                     label: it.name,
@@ -375,10 +465,18 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                   rules={[{ required: true }]}
                   width="md"
                   name="date"
-                  label="Date"
+                  label={intl.formatMessage({
+                    id: 'property.start_date',
+                  })}
                   initialValue={moment()}
                 />
-                <ProFormTextArea width="md" name="note" label="Note" />
+                <ProFormTextArea
+                  width="md"
+                  name="note"
+                  label={intl.formatMessage({
+                    id: 'property.note',
+                  })}
+                />
               </ModalForm>
             </Access>
           </Space>

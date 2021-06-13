@@ -83,7 +83,9 @@ export const Payroll: React.FC = () => {
       renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
     },
     {
-      title: 'Status',
+      title: (
+      <FormattedMessage id="property.status" defaultMessage="Status" />
+    ),
       dataIndex: 'status',
       key: 'status',
       width: 'max-content',
@@ -110,7 +112,7 @@ export const Payroll: React.FC = () => {
       },
     },
     (access['view_payslip'] || access['delete_payroll']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -128,16 +130,32 @@ export const Payroll: React.FC = () => {
           <Access accessible={access['delete_payroll']}>
             <Popconfirm
               placement="right"
-              title={'Delete this payroll?'}
+                            title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deletePayroll(record.id),
-                  'Detete successfully!',
-                  'Cannot delete payroll!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
-              <Button title="Delete this payroll" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -174,7 +192,7 @@ export const Payroll: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -215,8 +233,14 @@ export const Payroll: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createPayroll(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');

@@ -97,7 +97,7 @@ export const Holiday: React.FC = () => {
         moment(record.end_date).diff(moment(record.start_date), 'days') + 1,
     },
     (access['change_holiday'] || access['delete_holiday']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -106,7 +106,10 @@ export const Holiday: React.FC = () => {
         <Space size="small">
           <Access accessible={access['change_holiday']}>
             <Button
-              title="Edit this holiday"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -119,16 +122,32 @@ export const Holiday: React.FC = () => {
           <Access accessible={access['delete_holiday']}>
             <Popconfirm
               placement="right"
-              title={'Delete this holiday?'}
+                            title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deleteHoliday(record.id),
-                  'Detete successfully!',
-                  'Cannot delete holiday!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
-              <Button title="Delete this holiday" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -140,8 +159,14 @@ export const Holiday: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create holiday',
-      update: 'Update holiday',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -162,7 +187,7 @@ export const Holiday: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -224,14 +249,26 @@ export const Holiday: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createHoliday(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateHoliday(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');

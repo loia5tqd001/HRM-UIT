@@ -1,4 +1,16 @@
 export default {
+  // Dashboard
+  'pages.dashboard.quickActions': 'Quick actions',
+  'pages.dashboard.pendingTimeOffRequest': 'Pending Timeoff Requests',
+  'pages.dashboard.pendingAttendanceRequest': 'Pending Attendance Requests',
+  'pages.dashboard.newHires': 'New Hires',
+
+  // Message
+  'pages.allPeople': 'All People',
+  
+  // Job Title
+  'pages.jobTitle.title': 'Job Titles',
+
   'pages.admin.user.listForm.title': 'Users',
 
   'pages.layouts.userLayout.title':
@@ -74,32 +86,4 @@ export default {
   'pages.employee.edit.title': 'Edit Employee',
   'pages.employee.list.table.title': 'Employees',
   'pages.employee.list.table.new': 'New',
-  'pages.employee.list.column.username': 'Username',
-  'pages.employee.list.column.password': 'Password',
-  'pages.employee.list.column.confirm_password': 'Confirm password',
-  'pages.employee.list.column.full_name': 'Full name',
-  'pages.employee.list.column.first_name': 'First name',
-  'pages.employee.list.column.last_name': 'Last name',
-  'pages.employee.list.column.role': 'Role',
-  'pages.employee.list.column.gender': 'Gender',
-  'pages.employee.list.column.gender.male': 'Male',
-  'pages.employee.list.column.gender.female': 'Female',
-  'pages.employee.list.column.gender.other': 'Other',
-  'pages.employee.list.column.email': 'Email address',
-  'pages.employee.list.column.marital_status': 'Marital status',
-  'pages.employee.list.column.marital_status.single': 'Single',
-  'pages.employee.list.column.marital_status.married': 'Married',
-  'pages.employee.list.column.marital_status.divorced': 'Divorced',
-  'pages.employee.list.column.marital_status.seperated': 'Seperated',
-  'pages.employee.list.column.marital_status.widowed': 'Widowed',
-  'pages.employee.list.column.marital_status.other': 'Other',
-  'pages.employee.list.column.date_of_birth': 'DoB (YYYY-MM-DD)',
-  'pages.employee.list.column.personal_tax_id': 'Personal tax id',
-  'pages.employee.list.column.nationality': 'Nationality',
-  'pages.employee.list.column.phone': 'Phone',
-  'pages.employee.list.column.social_insurance': 'Social insurance',
-  'pages.employee.list.column.health_insurance': 'Health insurance',
-  'pages.employee.list.column.status': 'Status',
-  'pages.employee.list.column.status.active': 'Active',
-  'pages.employee.list.column.status.inactive': 'Inactive',
 };

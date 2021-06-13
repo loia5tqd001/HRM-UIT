@@ -165,6 +165,10 @@ export const WorkSchedule: React.FC = () => {
     | 'closed'
   >('closed');
   const access = useAccess();
+  const localeFeature = intl.formatMessage({
+    id: 'property.workSchedule',
+    defaultMessage: 'Work Schedule',
+  });
 
   const getDisabledMinutes = (
     day: DayInWeek,
@@ -252,37 +256,33 @@ export const WorkSchedule: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: (
-        <FormattedMessage id="pages.admin.job.workShift.column.name" defaultMessage="Schedule" />
-      ),
+      title: localeFeature,
       dataIndex: 'name',
     },
     {
-      title: (
-        <FormattedMessage id="pages.admin.job.workShift.column.days" defaultMessage="Work days" />
-      ),
+      title: <FormattedMessage id="property.workDays" defaultMessage="Work days" />,
       dataIndex: 'workdays',
       renderText: (workdays: DayItem[]) =>
         workdays
           .filter(
             (it) => (it.morning_enabled && it.morning) || (it.afternoon_enabled && it.afternoon),
           )
-          .map((it) => it.day)
+          .map((it) =>
+            intl.formatMessage({
+              id: `property.workDays.${it.day}`,
+              defaultMessage: it.day,
+            }),
+          )
           .join(', '),
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.workShift.column.duration"
-          defaultMessage="Weekly work hours"
-        />
-      ),
+      title: <FormattedMessage id="property.weeklyWorkHours" defaultMessage="Weekly work hours" />,
       dataIndex: 'workdays',
       renderText: (workdays: DayItem[]) =>
         `${workdays.reduce((acc, cur) => acc + calcHours(cur), 0)} hrs`,
     },
     (access['change_schedule'] || access['delete_schedule']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -291,7 +291,10 @@ export const WorkSchedule: React.FC = () => {
         <Space size="small">
           <Access accessible={access['change_schedule']}>
             <Button
-              title="Edit this schedule"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -304,16 +307,32 @@ export const WorkSchedule: React.FC = () => {
           <Access accessible={access['delete_schedule']}>
             <Popconfirm
               placement="right"
-              title={'Delete this schedule?'}
+              title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deleteSchedule(record.id),
-                  'Detete successfully!',
-                  'Cannot delete schedule!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
-              <Button title="Delete this schedule" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -325,8 +344,14 @@ export const WorkSchedule: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create work schedule',
-      update: 'Update work schedule',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -334,10 +359,10 @@ export const WorkSchedule: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.workShift.list.title',
-          defaultMessage: 'Work schedules',
-        })}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -350,7 +375,8 @@ export const WorkSchedule: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -395,14 +421,26 @@ export const WorkSchedule: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createSchedule(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateSchedule(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');
@@ -428,22 +466,14 @@ export const WorkSchedule: React.FC = () => {
           },
         }}
       >
-        <ProFormText
-          rules={[{ required: true }]}
-          name="name"
-          width="xl"
-          label={intl.formatMessage({
-            id: 'pages.admin.job.workShift.column.name',
-            defaultMessage: 'Schedule name',
-          })}
-        />
+        <ProFormText rules={[{ required: true }]} name="name" width="xl" label={localeFeature} />
         {days.map((it) => (
           <Form.Item
             name={it.day}
-            label={intl.formatMessage({
-              id: 'pages.admin.job.workShift.column.morning',
-              defaultMessage: `${it.day} (${calcHours(it)}hrs)`,
-            })}
+            label={`${intl.formatMessage({
+              id: `property.workDays.${it.day}`,
+              defaultMessage: `${it.day}`,
+            })} (${calcHours(it)}hrs)`}
             labelCol={{ flex: 1 }}
             wrapperCol={{ span: 20 }}
             style={{ flexDirection: 'row' }}
@@ -539,7 +569,12 @@ export const WorkSchedule: React.FC = () => {
             </Space>
           </Form.Item>
         ))}
-        <Form.Item label="Total week hours">
+        <Form.Item
+          label={intl.formatMessage({
+            id: 'property.weeklyWorkHours',
+            defaultMessage: 'Weekly work hours',
+          })}
+        >
           <Input readOnly suffix="hrs" value={days.reduce((acc, cur) => acc + calcHours(cur), 0)} />
         </Form.Item>
       </ModalForm>

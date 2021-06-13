@@ -132,7 +132,7 @@ export const CrudModal: React.FC = () => {
           rules={[{ required: true }]}
           name={['user', 'username']}
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.username',
+            id: 'property.username',
             defaultMessage: 'Username',
           })}
         />
@@ -141,7 +141,7 @@ export const CrudModal: React.FC = () => {
           rules={[{ required: true }]}
           name={['user', 'password']}
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.password',
+            id: 'property.password',
             defaultMessage: 'Password',
           })}
         />
@@ -150,7 +150,7 @@ export const CrudModal: React.FC = () => {
           rules={[{ required: true }]}
           name={['user', 'confirm_password']}
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.confirm_password',
+            id: 'property.confirm_password',
             defaultMessage: 'Confirm Password',
           })}
         />
@@ -159,7 +159,7 @@ export const CrudModal: React.FC = () => {
           rules={[{ required: true, type: 'email' }]}
           name="email"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.email',
+            id: 'property.email',
             defaultMessage: 'Email',
           })}
         />
@@ -168,7 +168,7 @@ export const CrudModal: React.FC = () => {
           rules={[{ required: true }]}
           name="first_name"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.first_name',
+            id: 'property.first_name',
             defaultMessage: 'First name',
           })}
         />
@@ -177,38 +177,36 @@ export const CrudModal: React.FC = () => {
           rules={[{ required: true }]}
           name="last_name"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.last_name',
+            id: 'property.last_name',
             defaultMessage: 'Last name',
           })}
         />
-      </ProForm.Group>
-      <ProForm.Group>
         <ProFormSelect
           width="sm"
           name="gender"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.gender',
+            id: 'property.gender',
             defaultMessage: 'Gender',
           })}
           options={[
             {
               value: 'Male',
               label: intl.formatMessage({
-                id: 'pages.employee.list.column.gender.male',
+                id: 'property.gender.male',
                 defaultMessage: 'Gender',
               }),
             },
             {
               value: 'Female',
               label: intl.formatMessage({
-                id: 'pages.employee.list.column.gender.female',
+                id: 'property.gender.female',
                 defaultMessage: 'Gender',
               }),
             },
             {
               value: 'Other',
               label: intl.formatMessage({
-                id: 'pages.employee.list.column.gender.other',
+                id: 'property.gender.other',
                 defaultMessage: 'Gender',
               }),
             },
@@ -218,7 +216,7 @@ export const CrudModal: React.FC = () => {
           width="sm"
           name="date_of_birth"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.date_of_birth',
+            id: 'property.date_of_birth',
             defaultMessage: 'Date of birth',
           })}
         />
@@ -226,49 +224,49 @@ export const CrudModal: React.FC = () => {
           width="sm"
           name="marital_status"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.marital_status',
+            id: 'property.marital_status',
             defaultMessage: 'Marital status',
           })}
           options={[
             {
               value: 'Single',
               label: intl.formatMessage({
-                id: 'pages.employee.list.column.marital_status.single',
+                id: 'property.marital_status.single',
                 defaultMessage: 'Single',
               }),
             },
             {
               value: 'Married',
               label: intl.formatMessage({
-                id: 'pages.employee.list.column.marital_status.married',
+                id: 'property.marital_status.married',
                 defaultMessage: 'Married',
               }),
             },
             {
               value: 'Divorced',
               label: intl.formatMessage({
-                id: 'pages.employee.list.column.marital_status.divorced',
+                id: 'property.marital_status.divorced',
                 defaultMessage: 'Divorced',
               }),
             },
             {
               value: 'Seperated',
               label: intl.formatMessage({
-                id: 'pages.employee.list.column.marital_status.seperated',
+                id: 'property.marital_status.seperated',
                 defaultMessage: 'Seperated',
               }),
             },
             {
               value: 'Widowed',
               label: intl.formatMessage({
-                id: 'pages.employee.list.column.marital_status.widowed',
+                id: 'property.marital_status.widowed',
                 defaultMessage: 'Widowed',
               }),
             },
             {
               value: 'Other',
               label: intl.formatMessage({
-                id: 'pages.employee.list.column.marital_status.other',
+                id: 'property.marital_status.other',
                 defaultMessage: 'Other',
               }),
             },
@@ -278,7 +276,7 @@ export const CrudModal: React.FC = () => {
           width="sm"
           name="personal_tax_id"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.personal_tax_id',
+            id: 'property.personal_tax_id',
             defaultMessage: 'Personal tax id',
           })}
         />
@@ -286,7 +284,7 @@ export const CrudModal: React.FC = () => {
           width="sm"
           name="nationality"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.nationality',
+            id: 'property.nationality',
             defaultMessage: 'Nationality',
           })}
         />
@@ -294,7 +292,7 @@ export const CrudModal: React.FC = () => {
           width="sm"
           name="phone"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.phone',
+            id: 'property.phone',
             defaultMessage: 'Phone',
           })}
         />
@@ -302,7 +300,7 @@ export const CrudModal: React.FC = () => {
           width="sm"
           name="social_insurance"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.social_insurance',
+            id: 'property.social_insurance',
             defaultMessage: 'Social insurance',
           })}
         />
@@ -310,7 +308,7 @@ export const CrudModal: React.FC = () => {
           width="sm"
           name="health_insurance"
           label={intl.formatMessage({
-            id: 'pages.employee.list.column.health_insurance',
+            id: 'property.health_insurance',
             defaultMessage: 'Health insurance',
           })}
         />

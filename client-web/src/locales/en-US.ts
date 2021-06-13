@@ -6,6 +6,7 @@ import settingDrawer from './en-US/settingDrawer';
 import settings from './en-US/settings';
 import pages from './en-US/pages';
 import error from './en-US/error';
+import property from './en-US/property';
 
 export default {
   'app.title': 'HRM',
@@ -24,4 +25,5 @@ export default {
   ...component,
   ...pages,
   ...error,
+  ...property,
 };

@@ -292,7 +292,9 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
-      title: 'Status',
+      title: (
+      <FormattedMessage id="property.status" defaultMessage="Status" />
+    ),
       dataIndex: 'status',
       hideInForm: true,
       renderText: (it) => {
@@ -318,7 +320,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
     // },
     (access['can_edit_actual_hours_attendance'] ||
       access['can_edit_overtime_hours_attendance']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',

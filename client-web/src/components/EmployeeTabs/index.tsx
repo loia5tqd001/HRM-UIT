@@ -8,6 +8,7 @@ import { Access, history, Link } from 'umi';
 import styles from '@/styles/employee_detail.less';
 import { useEffect } from 'react';
 import { useEmployeeDetailAccess } from '@/utils/hooks/useEmployeeDetailType';
+import { useIntl } from 'umi';
 
 export type OnChangeSubscription = {
   status?: (newValue: API.Employee['status']) => any;
@@ -26,15 +27,12 @@ export const EmployeeTabs: React.FC<EmployeeTabProps> = (props) => {
     tab: 'general' | 'job' | 'payroll' | 'dependent' | undefined;
   };
   const { isActive, employeeId } = props;
-  const {
-    canViewGeneralTab,
-    canViewJobTab,
-    canViewPayrollTab,
-    canViewDependentTab,
-  } = useEmployeeDetailAccess({
-    isActive,
-    employeeId,
-  });
+  const { canViewGeneralTab, canViewJobTab, canViewPayrollTab, canViewDependentTab } =
+    useEmployeeDetailAccess({
+      isActive,
+      employeeId,
+    });
+  const intl = useIntl();
 
   useEffect(() => {
     if (tab === undefined) history.replace('?tab=general');
@@ -52,22 +50,30 @@ export const EmployeeTabs: React.FC<EmployeeTabProps> = (props) => {
         >
           <Access accessible={canViewGeneralTab}>
             <Link to="?tab=general">
-              <Radio.Button value="general">GENERAL</Radio.Button>
+              <Radio.Button className="uppercase" value="general">
+                {intl.formatMessage({ id: 'property.general' })}
+              </Radio.Button>
             </Link>
           </Access>
           <Access accessible={canViewJobTab}>
             <Link to="?tab=job">
-              <Radio.Button value="job">JOB</Radio.Button>
+              <Radio.Button className="uppercase" value="job">
+                {intl.formatMessage({ id: 'property.job' })}
+              </Radio.Button>
             </Link>
           </Access>
           <Access accessible={canViewPayrollTab}>
             <Link to="?tab=payroll">
-              <Radio.Button value="payroll">PAYROLL</Radio.Button>
+              <Radio.Button className="uppercase" value="payroll">
+                {intl.formatMessage({ id: 'property.payroll' })}
+              </Radio.Button>
             </Link>
           </Access>
           <Access accessible={canViewDependentTab}>
             <Link to="?tab=dependent">
-              <Radio.Button value="dependent">DEPENDENT</Radio.Button>
+              <Radio.Button className="uppercase" value="dependent">
+                {intl.formatMessage({ id: 'property.dependent' })}
+              </Radio.Button>
             </Link>
           </Access>
         </Radio.Group>

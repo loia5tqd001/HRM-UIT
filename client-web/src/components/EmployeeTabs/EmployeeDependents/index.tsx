@@ -76,7 +76,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
     { title: 'First name', dataIndex: 'first_name' },
     { title: 'Last name', dataIndex: 'last_name' },
     {
-      title: <FormattedMessage id="pages.employee.list.column.gender" defaultMessage="Gender" />,
+      title: <FormattedMessage id="property.gender" defaultMessage="Gender" />,
       key: 'gender',
       dataIndex: 'gender',
       valueEnum: {
@@ -94,7 +94,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
     {
       title: (
         <FormattedMessage
-          id="pages.employee.list.column.date_of_birth"
+          id="property.date_of_birth"
           defaultMessage="Date of birth"
         />
       ),
@@ -127,7 +127,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
         }`,
     },
     (canChangeDependent || canDeleteDependent) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -136,7 +136,10 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
         <Space size="small">
           <Access accessible={canChangeDependent}>
             <Button
-              title="Edit this dependent"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -149,12 +152,21 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
           <Access accessible={canDeleteDependent}>
             <Popconfirm
               placement="right"
-              title={'Delete this dependent?'}
+                            title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deleteDependent(employeeId, record.id),
-                  'Detete successfully!',
-                  'Cannot delete dependent!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
@@ -197,7 +209,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -242,14 +254,26 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createDependent(employeeId, record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateDependent(employeeId, record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');

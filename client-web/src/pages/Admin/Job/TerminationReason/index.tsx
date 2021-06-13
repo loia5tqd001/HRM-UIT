@@ -27,6 +27,10 @@ export const TerminationReason: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const access = useAccess();
+  const localeFeature = intl.formatMessage({
+    id: 'property.terminationReason',
+    defaultMessage: 'Termination Reason',
+  });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -48,27 +52,17 @@ export const TerminationReason: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.terminationReason.column.name"
-          defaultMessage="Termination reason"
-        />
-      ),
+      title: localeFeature,
       dataIndex: 'name',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.terminationReason.column.description"
-          defaultMessage="Description"
-        />
-      ),
+      title: <FormattedMessage id="property.description" defaultMessage="Description" />,
       dataIndex: 'description',
       valueType: 'textarea',
       hideInForm: true,
     },
     (access['change_terminationreason'] || access['delete_terminationreason']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -77,7 +71,10 @@ export const TerminationReason: React.FC = () => {
         <Space size="small">
           <Access accessible={access['change_terminationreason']}>
             <Button
-              title="Edit this termination reason"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -90,16 +87,32 @@ export const TerminationReason: React.FC = () => {
           <Access accessible={access['delete_terminationreason']}>
             <Popconfirm
               placement="right"
-              title={'Delete this termination reason?'}
+              title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deleteTerminationReason(record.id),
-                  'Detete successfully!',
-                  'Cannot delete termination reason!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
-              <Button title="Delete this termination reason" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -111,8 +124,14 @@ export const TerminationReason: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create termination reason',
-      update: 'Update termination reason',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -120,10 +139,10 @@ export const TerminationReason: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.terminationReason.list.title',
-          defaultMessage: 'Termination Reasons',
-        })}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -136,7 +155,8 @@ export const TerminationReason: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -177,14 +197,26 @@ export const TerminationReason: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createTerminationReason(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateTerminationReason(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');
@@ -223,18 +255,11 @@ export const TerminationReason: React.FC = () => {
           },
         }}
       >
-        <ProFormText
-          rules={[{ required: true }]}
-          name="name"
-          label={intl.formatMessage({
-            id: 'pages.admin.job.terminationReason.column.name',
-            defaultMessage: 'Termination reason',
-          })}
-        />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
         <ProFormTextArea
           name="description"
           label={intl.formatMessage({
-            id: 'pages.admin.job.terminationReason.column.description',
+            id: 'property.description',
             defaultMessage: 'Description',
           })}
         />

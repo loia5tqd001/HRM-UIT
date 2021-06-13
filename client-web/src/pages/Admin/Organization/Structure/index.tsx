@@ -5,7 +5,7 @@ import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Avatar, Button, Popconfirm, Space } from 'antd';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Access, useAccess, useModel } from 'umi';
+import { Access, FormattedMessage, useAccess, useIntl, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import styles from './index.less';
 import { calculateAllExpandedRowKeys } from './utils';
@@ -22,6 +22,11 @@ export const OrganziationStructure: React.FC = () => {
     onCrudOperation,
   } = useModel('admin.organization');
   const access = useAccess();
+  const intl = useIntl();
+  const localeFeature = intl.formatMessage({
+    id: 'property.department',
+    defaultMessage: 'Deparment',
+  });
 
   useEffect(() => {
     setDepartmentsPending(true);
@@ -38,7 +43,7 @@ export const OrganziationStructure: React.FC = () => {
 
   const columns: ProColumns<API.DepartmentUnit>[] = [
     {
-      title: 'Department name',
+      title: localeFeature,
       dataIndex: 'name',
       render: (text, record) => {
         return (
@@ -55,7 +60,10 @@ export const OrganziationStructure: React.FC = () => {
       },
     },
     {
-      title: 'Manager',
+      title: intl.formatMessage({
+        id: 'property.manager',
+        defaultMessage: 'Manager',
+      }),
       dataIndex: 'manager_avatar',
       align: 'left',
       width: '20%',
@@ -68,16 +76,18 @@ export const OrganziationStructure: React.FC = () => {
         );
       },
     },
+
     {
-      title: 'Number of members',
+      title: intl.formatMessage({
+        id: 'property.numberOfEmployees',
+        defaultMessage: 'Number of employees',
+      }),
       dataIndex: 'employee_no',
       align: 'center',
       width: '20%',
     },
-    (access['add_department'] ||
-      access['change_department'] ||
-      access['delete_department']) && {
-      title: 'Actions',
+    (access['add_department'] || access['change_department'] || access['delete_department']) && {
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -86,7 +96,10 @@ export const OrganziationStructure: React.FC = () => {
         <Space size="small">
           <Access accessible={access['add_department']}>
             <Button
-              title="Add a child department"
+              title={intl.formatMessage({
+                id: 'property.actions.addChildDeparment',
+                defaultMessage: 'Add a child department',
+              })}
               size="small"
               onClick={() => {
                 setCrudModalVisible('create');
@@ -98,7 +111,10 @@ export const OrganziationStructure: React.FC = () => {
           </Access>
           <Access accessible={access['change_department']}>
             <Button
-              title="Edit this department"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -113,22 +129,37 @@ export const OrganziationStructure: React.FC = () => {
               placement="right"
               title={
                 record.employee_no > 1
-                  ? 'Must remove members from this department first!'
-                  : 'Delete this?'
+                  ? intl.formatMessage({
+                      id: 'error.mustRemoveMemberFromThisDepartmentFirst',
+                      defaultMessage: 'Must remove members from this department first!',
+                    })
+                  : `${intl.formatMessage({
+                      id: 'property.actions.delete',
+                      defaultMessage: 'Delete',
+                    })} ${localeFeature}`
               }
               onConfirm={async () => {
                 if (record.employee_no > 1) return;
                 await onCrudOperation(
                   () => deleteDepartment(record.id),
-                  'Deleted successfully!',
-                  'Deleted failed!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
               // okText="Đồng ý"
               // cancelText="Không"
             >
               <Button
-                title="Delete this department"
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
                 size="small"
                 danger
                 disabled={record.employee_no > 1}
@@ -195,7 +226,10 @@ export const OrganziationStructure: React.FC = () => {
     <PageContainer title={false}>
       <div className={styles['padding-card']}>
         <ProTable<API.DepartmentUnit>
-          headerTitle="Organization structure"
+          headerTitle={`${intl.formatMessage({
+            id: 'property.actions.list',
+            defaultMessage: ' ',
+          })} ${localeFeature}`}
           className="card-shadow"
           columns={columns}
           dataSource={dataSource}

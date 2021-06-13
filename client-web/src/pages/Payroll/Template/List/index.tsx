@@ -33,6 +33,10 @@ export const PayrollTemplate: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const access = useAccess();
+  const localeFeature = intl.formatMessage({
+    id: 'property.jobTitle',
+    defaultMessage: 'job title',
+  });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -72,7 +76,7 @@ export const PayrollTemplate: React.FC = () => {
         ),
     },
     {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -104,8 +108,14 @@ export const PayrollTemplate: React.FC = () => {
                 if (record.is_default) return;
                 await onCrudOperation(
                   () => deletePayrollTemplate(record.id),
-                  'Detete successfully!',
-                  'Cannot delete template!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
@@ -147,7 +157,7 @@ export const PayrollTemplate: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -187,8 +197,14 @@ export const PayrollTemplate: React.FC = () => {
             record.fields = [];
             await onCrudOperation(
               () => createPayrollTemplate(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'duplicate') {
             await onCrudOperation(

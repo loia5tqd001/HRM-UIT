@@ -33,6 +33,9 @@ export const InsurancePlan: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const access = useAccess();
+  const localeFeature = intl.formatMessage({
+    id: 'property.insurancePlan',
+  });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -50,29 +53,37 @@ export const InsurancePlan: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Name',
+      title: localeFeature,
       dataIndex: 'name',
     },
     {
-      title: 'Code',
+      title: intl.formatMessage({
+        id: 'property.code',
+      }),
       dataIndex: 'code',
     },
     {
-      title: 'Based on',
+      title: intl.formatMessage({
+        id: 'property.insuranceType',
+      }),
       dataIndex: 'base_on',
     },
     {
-      title: 'Company percent',
+      title: intl.formatMessage({
+        id: 'property.companyPercent',
+      }),
       dataIndex: 'percent_company',
       valueType: 'percent',
     },
     {
-      title: 'Employee percent',
+      title: intl.formatMessage({
+        id: 'property.employeePercent',
+      }),
       dataIndex: 'percent_employee',
       valueType: 'percent',
     },
     (access['change_insurancepolicy'] || access['delete_insurancepolicy']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -81,7 +92,10 @@ export const InsurancePlan: React.FC = () => {
         <Space size="small">
           <Access accessible={access['change_insurancepolicy']}>
             <Button
-              title="Edit this insurance plan"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -94,16 +108,32 @@ export const InsurancePlan: React.FC = () => {
           <Access accessible={access['delete_insurancepolicy']}>
             <Popconfirm
               placement="right"
-              title={'Delete this insurance plan?'}
+              title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deleteInsurancePlan(record.id),
-                  'Detete successfully!',
-                  'Cannot delete insurance plan!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
-              <Button title="Delete this insurance plan" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -115,8 +145,14 @@ export const InsurancePlan: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create insurance plan',
-      update: 'Update insurance plan',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -124,7 +160,10 @@ export const InsurancePlan: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={'Insurance Plans'}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -137,7 +176,8 @@ export const InsurancePlan: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -178,14 +218,26 @@ export const InsurancePlan: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createInsurancePlan(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateInsurancePlan(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');
@@ -215,18 +267,28 @@ export const InsurancePlan: React.FC = () => {
           },
         }}
       >
-        <ProFormText rules={[{ required: true }]} name="name" label="Name" />
-        <ProFormText rules={[{ required: true }]} name="code" label="code" />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
+        <ProFormText
+          rules={[{ required: true }]}
+          name="code"
+          label={intl.formatMessage({
+            id: 'property.code',
+          })}
+        />
         <ProFormSelect
           rules={[{ required: true }]}
           name="base_on"
-          label="Based on"
+          label={intl.formatMessage({
+            id: 'property.insuranceType',
+          })}
           options={[{ value: 'Basic Salary', label: 'Basic Salary' }]}
         />
         <ProFormDigit
           rules={[{ required: true }]}
           name="percent_company"
-          label="Company percennt"
+          label={intl.formatMessage({
+            id: 'property.companyPercent',
+          })}
           min={0}
           max={100}
           fieldProps={{
@@ -238,7 +300,9 @@ export const InsurancePlan: React.FC = () => {
         <ProFormDigit
           rules={[{ required: true }]}
           name="percent_employee"
-          label="Employee percent"
+          label={intl.formatMessage({
+            id: 'property.employeePercent',
+          })}
           min={0}
           max={100}
           fieldProps={{

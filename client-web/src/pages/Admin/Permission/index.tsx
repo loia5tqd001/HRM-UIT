@@ -38,6 +38,9 @@ const Permission: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const dataRef = useRef<RecordType[]>();
+  const localeFeature = intl.formatMessage({
+    id: 'property.permission',
+  });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -55,8 +58,14 @@ const Permission: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create role',
-      update: 'Update role',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -155,7 +164,7 @@ const Permission: React.FC = () => {
                 dataIndex: 'name',
               },
               {
-                title: 'Actions',
+                title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
                 key: 'actions',
                 dataIndex: 'actions',
                 align: 'center',
@@ -174,7 +183,10 @@ const Permission: React.FC = () => {
                       <EyeOutlined />
                     </Button>
                     <Button
-                      title="Edit this role"
+                      title={`${intl.formatMessage({
+                        id: 'property.actions.update',
+                        defaultMessage: 'Update',
+                      })} ${localeFeature}`}
                       size="small"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -186,7 +198,10 @@ const Permission: React.FC = () => {
                     </Button>
                     <Popconfirm
                       placement="right"
-                      title={'Delete this role?'}
+                      title={`${intl.formatMessage({
+                        id: 'property.actions.delete',
+                        defaultMessage: 'Delete',
+                      })} ${localeFeature}?`}
                       onConfirm={async (e) => {
                         e?.stopPropagation();
                         await onCrudOperation(
@@ -346,14 +361,26 @@ const Permission: React.FC = () => {
                   permissions:
                     dataRef.current?.find((it) => it.id === value.based_on)?.permissions || [],
                 }),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateRole(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');

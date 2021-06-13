@@ -360,7 +360,9 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Status',
+      title: (
+      <FormattedMessage id="property.status" defaultMessage="Status" />
+    ),
       dataIndex: 'status',
       hideInForm: true,
       renderText: (it) => {
@@ -385,7 +387,7 @@ const MyAttendance: React.FC = () => {
     //   renderText: (_, record) => (record.edited_by ? 'hello' : null),
     // },
     // {
-    //   title: 'Actions',
+    //   title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
     //   key: 'action',
     //   fixed: 'right',
     //   align: 'center',

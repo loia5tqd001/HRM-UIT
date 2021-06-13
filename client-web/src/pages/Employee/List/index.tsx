@@ -17,9 +17,7 @@ const EmployeeList: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: (
-        <FormattedMessage id="pages.employee.list.column.full_name" defaultMessage="Full name" />
-      ),
+      title: <FormattedMessage id="property.full_name" defaultMessage="Full name" />,
       key: 'full_name',
       dataIndex: 'avatar',
       valueType: 'avatar',
@@ -34,13 +32,13 @@ const EmployeeList: React.FC = () => {
       fixed: 'left',
     },
     {
-      title: <FormattedMessage id="pages.employee.list.column.role" defaultMessage="Role" />,
+      title: <FormattedMessage id="property.role" defaultMessage="Role" />,
 
       key: 'role',
       dataIndex: 'role',
     },
     {
-      title: <FormattedMessage id="pages.employee.list.column.gender" defaultMessage="Gender" />,
+      title: <FormattedMessage id="property.gender" defaultMessage="Gender" />,
       key: 'gender',
       dataIndex: 'gender',
       valueEnum: {
@@ -51,81 +49,73 @@ const EmployeeList: React.FC = () => {
           text: <WomanOutlined style={{ color: '#F23A87' }} />,
         },
         Other: {
-          text: 'Other',
+          text: <FormattedMessage id="property.gender.other" defaultMessage="Other" />,
         },
       },
     },
     {
-      title: (
-        <FormattedMessage id="pages.employee.list.column.email" defaultMessage="Email address" />
-      ),
+      title: <FormattedMessage id="property.email" defaultMessage="Email address" />,
 
       key: 'email',
       dataIndex: 'email',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.employee.list.column.marital_status"
-          defaultMessage="Marital status"
-        />
-      ),
+      title: <FormattedMessage id="property.marital_status" defaultMessage="Marital status" />,
       key: 'marital_status',
       dataIndex: 'marital_status',
+      valueEnum: {
+        Single: {
+          text: <FormattedMessage id="property.marital_status.single" defaultMessage="Single" />,
+        },
+        Married: {
+          text: <FormattedMessage id="property.marital_status.married" defaultMessage="Married" />,
+        },
+        Divorced: {
+          text: (
+            <FormattedMessage id="property.marital_status.divorced" defaultMessage="Divorced" />
+          ),
+        },
+        Seperated: {
+          text: (
+            <FormattedMessage id="property.marital_status.seperated" defaultMessage="Seperated" />
+          ),
+        },
+        Widowed: {
+          text: <FormattedMessage id="property.marital_status.widowed" defaultMessage="Widowed" />,
+        },
+        Other: {
+          text: <FormattedMessage id="property.marital_status.other" defaultMessage="Other" />,
+        },
+      },
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.employee.list.column.date_of_birth"
-          defaultMessage="DoB (YYYY-MM-DD)"
-        />
-      ),
+      title: <FormattedMessage id="property.date_of_birth" defaultMessage="DoB (YYYY-MM-DD)" />,
       key: 'date_of_birth',
       dataIndex: 'date_of_birth',
       valueType: 'date',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.employee.list.column.personal_tax_id"
-          defaultMessage="Personal tax id"
-        />
-      ),
+      title: <FormattedMessage id="property.personal_tax_id" defaultMessage="Personal tax id" />,
       key: 'personal_tax_id',
       dataIndex: 'personal_tax_id',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.employee.list.column.nationality"
-          defaultMessage="Nationality"
-        />
-      ),
+      title: <FormattedMessage id="property.nationality" defaultMessage="Nationality" />,
       key: 'nationality',
       dataIndex: 'nationality',
     },
     {
-      title: <FormattedMessage id="pages.employee.list.column.phone" defaultMessage="Phone" />,
+      title: <FormattedMessage id="property.phone" defaultMessage="Phone" />,
       key: 'phone',
       dataIndex: 'phone',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.employee.list.column.social_insurance"
-          defaultMessage="Social insurance"
-        />
-      ),
+      title: <FormattedMessage id="property.social_insurance" defaultMessage="Social insurance" />,
       key: 'social_insurance',
       dataIndex: 'social_insurance',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.employee.list.column.health_insurance"
-          defaultMessage="Health insurance"
-        />
-      ),
+      title: <FormattedMessage id="property.health_insurance" defaultMessage="Health insurance" />,
       key: 'health_insurance',
       dataIndex: 'health_insurance',
     },
@@ -144,9 +134,9 @@ const EmployeeList: React.FC = () => {
     //   ),
     // },
     {
-      title: <FormattedMessage id="pages.employee.list.column.status" defaultMessage="Status" />,
+      title: <FormattedMessage id="property.status" defaultMessage="Status" />,
       fixed: 'right',
-      width: 120,
+      width: 150,
       dataIndex: 'status',
       hideInForm: true,
       sorter: (a, b) => {
@@ -159,22 +149,22 @@ const EmployeeList: React.FC = () => {
       },
       valueEnum: {
         NewHired: {
-          text: 'New Hire',
-          status: 'Warning',
+          text: <FormattedMessage id="property.status.newHire" defaultMessage="New Hire" />,
+          status: 'warning',
         },
         Working: {
-          text: 'Working',
-          status: 'Success',
+          text: <FormattedMessage id="property.status.working" defaultMessage="'Working'" />,
+          status: 'success',
         },
         Terminated: {
-          text: 'Terminated',
-          status: 'Error',
+          text: <FormattedMessage id="property.status.terminated" defaultMessage="'Terminated'" />,
+          status: 'error',
         },
       },
     },
     // NOTE: might need in the future
     // {
-    //   title: 'Actions',
+    //   title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
     //   key: 'action',
     //   fixed: 'right',
     //   align: 'center',
@@ -194,7 +184,10 @@ const EmployeeList: React.FC = () => {
     //       {/* Delete button: might need in the future */}
     //       {/* <Popconfirm
     //         placement="right"
-    //         title={'Delete this employee?'}
+    //                       title={`${intl.formatMessage({
+              //   id: 'property.actions.delete',
+              //   defaultMessage: 'Delete',
+              // })} ${localeFeature}?`}
     //         onConfirm={async () => {
     //           await onCrudOperation(() => deleteEmployee(record.id), 'Cannot delete employee!');
     //         }}

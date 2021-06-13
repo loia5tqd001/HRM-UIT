@@ -27,6 +27,9 @@ export const TaxPlan: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const access = useAccess();
+  const localeFeature = intl.formatMessage({
+    id: 'property.taxPlan',
+  });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -44,15 +47,19 @@ export const TaxPlan: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Name',
+      title: localeFeature,
       dataIndex: 'name',
     },
     {
-      title: 'Code',
+      title: intl.formatMessage({
+        id: 'property.code',
+      }),
       dataIndex: 'code',
     },
     {
-      title: 'Tax type',
+      title: intl.formatMessage({
+        id: 'property.taxType',
+      }),
       dataIndex: 'tax_type',
     },
     // {
@@ -65,7 +72,7 @@ export const TaxPlan: React.FC = () => {
     //     true: {
     //       text: (
     //         <FormattedMessage
-    //           id="pages.employee.list.column.status.active"
+    //           id="property.status.active"
     //           defaultMessage="Status"
     //         />
     //       ),
@@ -74,7 +81,7 @@ export const TaxPlan: React.FC = () => {
     //     false: {
     //       text: (
     //         <FormattedMessage
-    //           id="pages.employee.list.column.status.inactive"
+    //           id="property.status.inactive"
     //           defaultMessage="Status"
     //         />
     //       ),
@@ -83,7 +90,7 @@ export const TaxPlan: React.FC = () => {
     //   },
     // },
     (access['change_taxpolicy'] || access['delete_taxpolicy']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -92,7 +99,10 @@ export const TaxPlan: React.FC = () => {
         <Space size="small">
           <Access accessible={access['change_taxpolicy']}>
             <Button
-              title="Edit this tax plan"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -105,16 +115,32 @@ export const TaxPlan: React.FC = () => {
           <Access accessible={access['delete_taxpolicy']}>
             <Popconfirm
               placement="right"
-              title={'Delete this tax plan?'}
+              title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deleteTaxPlan(record.id),
-                  'Detete successfully!',
-                  'Cannot delete tax plan!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
-              <Button title="Delete this tax plan" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -126,8 +152,14 @@ export const TaxPlan: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create tax plan',
-      update: 'Update tax plan',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -135,10 +167,10 @@ export const TaxPlan: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.jobTitle.list.title',
-          defaultMessage: 'Tax Plans',
-        })}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -151,7 +183,8 @@ export const TaxPlan: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -192,14 +225,26 @@ export const TaxPlan: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createTaxPlan(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateTaxPlan(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');
@@ -227,12 +272,20 @@ export const TaxPlan: React.FC = () => {
           },
         }}
       >
-        <ProFormText rules={[{ required: true }]} name="name" label="Name" />
-        <ProFormText rules={[{ required: true }]} name="code" label="code" />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
+        <ProFormText
+          rules={[{ required: true }]}
+          name="code"
+          label={intl.formatMessage({
+            id: 'property.code',
+          })}
+        />
         <ProFormSelect
           rules={[{ required: true }]}
           name="tax_type"
-          label="Tax type"
+          label={intl.formatMessage({
+            id: 'property.taxType',
+          })}
           options={[{ value: 'Progressive', label: 'Progressive' }]}
         />
       </ModalForm>

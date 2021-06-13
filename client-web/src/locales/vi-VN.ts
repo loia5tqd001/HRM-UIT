@@ -6,6 +6,7 @@ import settingDrawer from './vi-VN/settingDrawer';
 import settings from './vi-VN/settings';
 import pages from './vi-VN/pages';
 import error from './vi-VN/error';
+import property from './vi-VN/property';
 
 export default {
   'app.title': 'QLNS',
@@ -24,4 +25,5 @@ export default {
   ...component,
   ...pages,
   ...error,
+  ...property,
 };

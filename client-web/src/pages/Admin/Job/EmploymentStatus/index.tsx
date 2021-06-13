@@ -27,6 +27,10 @@ export const EmploymentStatus: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const access = useAccess();
+  const localeFeature = intl.formatMessage({
+    id: 'property.employmentStatus',
+    defaultMessage: 'Employment Status',
+  });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -44,16 +48,11 @@ export const EmploymentStatus: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.employmentStatus.column.name"
-          defaultMessage="Employment status"
-        />
-      ),
+      title: localeFeature,
       dataIndex: 'name',
     },
     (access['change_employmentstatus'] || access['delete_employmentstatus']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -62,7 +61,10 @@ export const EmploymentStatus: React.FC = () => {
         <Space size="small">
           <Access accessible={access['change_employmentstatus']}>
             <Button
-              title="Edit this employment status"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -75,16 +77,32 @@ export const EmploymentStatus: React.FC = () => {
           <Access accessible={access['delete_employmentstatus']}>
             <Popconfirm
               placement="right"
-              title={'Delete this employment status?'}
+              title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deleteEmploymentStatus(record.id),
-                  'Detete successfully!',
-                  'Cannot delete employment status!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
-              <Button title="Delete this employment status" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -96,8 +114,14 @@ export const EmploymentStatus: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create employment status',
-      update: 'Update employment status',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -105,10 +129,10 @@ export const EmploymentStatus: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.employmentStatus.list.title',
-          defaultMessage: 'Employment Statuses',
-        })}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -121,7 +145,8 @@ export const EmploymentStatus: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -162,14 +187,26 @@ export const EmploymentStatus: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createEmploymentStatus(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateEmploymentStatus(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');
@@ -197,14 +234,7 @@ export const EmploymentStatus: React.FC = () => {
           },
         }}
       >
-        <ProFormText
-          rules={[{ required: true }]}
-          name="name"
-          label={intl.formatMessage({
-            id: 'pages.admin.job.employmentStatus.column.name',
-            defaultMessage: 'Employment status',
-          })}
-        />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
         {/* <ProFormTextArea
           rules={[{ required: true }]}
           name="description"

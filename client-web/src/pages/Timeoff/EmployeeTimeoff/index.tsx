@@ -88,7 +88,9 @@ export const Timeoff: React.FC = () => {
       hideInForm: true,
     },
     {
-      title: 'Status',
+      title: (
+      <FormattedMessage id="property.status" defaultMessage="Status" />
+    ),
       dataIndex: 'status',
       hideInForm: true,
       onFilter: true,
@@ -118,7 +120,7 @@ export const Timeoff: React.FC = () => {
     },
     (access['can_approve_timeoff'] ||
       access['can_reject_timeoff']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',

@@ -577,8 +577,8 @@ declare namespace API {
     zipcode: string;
     phone: string;
     fax: string;
-    note: string;
     country: number;
+    note: string;
 
     accurate_address: string;
     radius: number;

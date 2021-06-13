@@ -27,6 +27,10 @@ export const JobTitle: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const access = useAccess();
+  const localeFeature = intl.formatMessage({
+    id: 'property.jobTitle',
+    defaultMessage: 'job title',
+  });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -44,24 +48,17 @@ export const JobTitle: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: (
-        <FormattedMessage id="pages.admin.job.jobTitle.column.name" defaultMessage="Job title" />
-      ),
+      title: localeFeature,
       dataIndex: 'name',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.jobTitle.column.description"
-          defaultMessage="Description"
-        />
-      ),
+      title: <FormattedMessage id="property.description" defaultMessage="Description" />,
       dataIndex: 'description',
       valueType: 'textarea',
       hideInForm: true,
     },
     (access['change_jobtitle'] || access['delete_jobtitle']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -70,7 +67,10 @@ export const JobTitle: React.FC = () => {
         <Space size="small">
           <Access accessible={access['change_jobtitle']}>
             <Button
-              title="Edit this job title"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -83,16 +83,32 @@ export const JobTitle: React.FC = () => {
           <Access accessible={access['delete_jobtitle']}>
             <Popconfirm
               placement="right"
-              title={'Delete this job title?'}
+              title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deleteJobTitle(record.id),
-                  'Detete successfully!',
-                  'Cannot delete job title!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
-              <Button title="Delete this job title" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -104,8 +120,14 @@ export const JobTitle: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create job title',
-      update: 'Update job title',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -113,10 +135,10 @@ export const JobTitle: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.jobTitle.list.title',
-          defaultMessage: 'Job Titles',
-        })}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -129,7 +151,8 @@ export const JobTitle: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -170,14 +193,26 @@ export const JobTitle: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createJobTitle(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateJobTitle(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');
@@ -205,18 +240,11 @@ export const JobTitle: React.FC = () => {
           },
         }}
       >
-        <ProFormText
-          rules={[{ required: true }]}
-          name="name"
-          label={intl.formatMessage({
-            id: 'pages.admin.job.jobTitle.column.name',
-            defaultMessage: 'Job title',
-          })}
-        />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
         <ProFormTextArea
           name="description"
           label={intl.formatMessage({
-            id: 'pages.admin.job.jobTitle.column.description',
+            id: 'property.description',
             defaultMessage: 'Description',
           })}
         />

@@ -20,7 +20,7 @@ import { Avatar, Badge, Button, Card, Progress, Space, Tooltip } from 'antd';
 import { countBy, groupBy, mapValues, sumBy } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { Access, FormattedMessage, history, Link, useAccess } from 'umi';
+import { Access, FormattedMessage, history, Link, useAccess, useIntl } from 'umi';
 
 const CustomButton = ({ icon: Icon, text, ...props }) => {
   return (
@@ -46,9 +46,9 @@ const formatDuration = (seconds: number) => {
   return `${Math.floor(duration.asHours())}h${duration.minutes() ? `${duration.minutes()}m` : ''}`;
 };
 
-const columns: ProColumns<any>[] = [
+const attendanceColumns: ProColumns<any>[] = [
   {
-    title: 'Employee',
+    title: <FormattedMessage id="property.employee" defaultMessage="Employee" />,
     fixed: 'left',
     key: 'employee',
     dataIndex: 'avatar',
@@ -63,7 +63,9 @@ const columns: ProColumns<any>[] = [
     ),
   },
   {
-    title: 'Actual/work schedule',
+    title: (
+      <FormattedMessage id="property.actualWorkSchedule" defaultMessage="Actual/work schedule" />
+    ),
     fixed: 'left',
     key: 'actual',
     dataIndex: 'actual',
@@ -92,7 +94,7 @@ const columns: ProColumns<any>[] = [
     },
   },
   {
-    title: 'Status',
+    title: <FormattedMessage id="property.status" defaultMessage="Status" />,
     fixed: 'left',
     dataIndex: 'status',
     key: 'status',
@@ -138,9 +140,7 @@ const calcHours = ({
 
 const empColumns: ProColumns<any>[] = [
   {
-    title: (
-      <FormattedMessage id="pages.employee.list.column.full_name" defaultMessage="Full name" />
-    ),
+    title: <FormattedMessage id="property.full_name" defaultMessage="Full name" />,
     key: 'full_name',
     dataIndex: 'avatar',
     valueType: 'avatar',
@@ -155,13 +155,13 @@ const empColumns: ProColumns<any>[] = [
     fixed: 'left',
   },
   {
-    title: <FormattedMessage id="pages.employee.list.column.role" defaultMessage="Role" />,
+    title: <FormattedMessage id="property.role" defaultMessage="Role" />,
 
     key: 'role',
     dataIndex: 'role',
   },
   {
-    title: <FormattedMessage id="pages.employee.list.column.gender" defaultMessage="Gender" />,
+    title: <FormattedMessage id="property.gender" defaultMessage="Gender" />,
     key: 'gender',
     dataIndex: 'gender',
     valueEnum: {
@@ -172,83 +172,77 @@ const empColumns: ProColumns<any>[] = [
         text: <WomanOutlined style={{ color: '#F23A87' }} />,
       },
       Other: {
-        text: 'Other',
+        text: <FormattedMessage id="property.gender.other" defaultMessage="Other" />,
       },
     },
   },
   {
-    title: (
-      <FormattedMessage id="pages.employee.list.column.email" defaultMessage="Email address" />
-    ),
+    title: <FormattedMessage id="property.email" defaultMessage="Email address" />,
 
     key: 'email',
     dataIndex: 'email',
   },
   {
-    title: (
-      <FormattedMessage
-        id="pages.employee.list.column.marital_status"
-        defaultMessage="Marital status"
-      />
-    ),
+    title: <FormattedMessage id="property.marital_status" defaultMessage="Marital status" />,
     key: 'marital_status',
     dataIndex: 'marital_status',
+    valueEnum: {
+      Single: {
+        text: <FormattedMessage id="property.marital_status.single" defaultMessage="Single" />,
+      },
+      Married: {
+        text: <FormattedMessage id="property.marital_status.married" defaultMessage="Married" />,
+      },
+      Divorced: {
+        text: <FormattedMessage id="property.marital_status.divorced" defaultMessage="Divorced" />,
+      },
+      Seperated: {
+        text: (
+          <FormattedMessage id="property.marital_status.seperated" defaultMessage="Seperated" />
+        ),
+      },
+      Widowed: {
+        text: <FormattedMessage id="property.marital_status.widowed" defaultMessage="Widowed" />,
+      },
+      Other: {
+        text: <FormattedMessage id="property.marital_status.other" defaultMessage="Other" />,
+      },
+    },
   },
   {
-    title: (
-      <FormattedMessage
-        id="pages.employee.list.column.date_of_birth"
-        defaultMessage="DoB (YYYY-MM-DD)"
-      />
-    ),
+    title: <FormattedMessage id="property.date_of_birth" defaultMessage="DoB (YYYY-MM-DD)" />,
     key: 'date_of_birth',
     dataIndex: 'date_of_birth',
     valueType: 'date',
   },
   {
-    title: (
-      <FormattedMessage
-        id="pages.employee.list.column.personal_tax_id"
-        defaultMessage="Personal tax id"
-      />
-    ),
+    title: <FormattedMessage id="property.personal_tax_id" defaultMessage="Personal tax id" />,
     key: 'personal_tax_id',
     dataIndex: 'personal_tax_id',
   },
   {
-    title: (
-      <FormattedMessage id="pages.employee.list.column.nationality" defaultMessage="Nationality" />
-    ),
+    title: <FormattedMessage id="property.nationality" defaultMessage="Nationality" />,
     key: 'nationality',
     dataIndex: 'nationality',
   },
   {
-    title: <FormattedMessage id="pages.employee.list.column.phone" defaultMessage="Phone" />,
+    title: <FormattedMessage id="property.phone" defaultMessage="Phone" />,
     key: 'phone',
     dataIndex: 'phone',
   },
   {
-    title: (
-      <FormattedMessage
-        id="pages.employee.list.column.social_insurance"
-        defaultMessage="Social insurance"
-      />
-    ),
+    title: <FormattedMessage id="property.social_insurance" defaultMessage="Social insurance" />,
     key: 'social_insurance',
     dataIndex: 'social_insurance',
   },
   {
-    title: (
-      <FormattedMessage
-        id="pages.employee.list.column.health_insurance"
-        defaultMessage="Health insurance"
-      />
-    ),
+    title: <FormattedMessage id="property.health_insurance" defaultMessage="Health insurance" />,
     key: 'health_insurance',
     dataIndex: 'health_insurance',
   },
   {
-    title: 'Actions',
+    title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
+    width: 'min-width',
     key: 'action',
     fixed: 'right',
     align: 'center',
@@ -273,12 +267,16 @@ const empColumns: ProColumns<any>[] = [
 export const Edit: React.FC = () => {
   const attendanceInfo = useAsyncData<API.AttendanceHelper>(attendanceHelper);
   const access = useAccess();
+  const intl = useIntl();
 
   return (
     <PageContainer title={false}>
       <div style={{ display: 'grid', gap: 24 }}>
         <Card
-          title="Quick Actions"
+          title={intl.formatMessage({
+            id: 'pages.dashboard.quickActions',
+            defaultMessage: 'Quick Actions',
+          })}
           className="card-shadow header-capitalize"
           loading={attendanceInfo.isLoading}
         >
@@ -286,28 +284,43 @@ export const Edit: React.FC = () => {
             <CustomButton
               icon={HistoryOutlined}
               type="primary"
-              text="Clock In / Out"
+              text={intl.formatMessage({
+                id: 'menu.attendance.clockInOut',
+                defaultMessage: 'Clock In/ Out',
+              })}
               onClick={() => history.push('/attendance/me?action=nextStep')}
             />
             <CustomButton
               icon={MehOutlined}
-              text="Request Time Off"
+              text={intl.formatMessage({
+                id: 'menu.timeOff.new',
+                defaultMessage: 'Request Time Off',
+              })}
               onClick={() => history.push('/timeOff/me?action=new')}
             />
             <CustomButton
               icon={ScheduleOutlined}
-              text="My Attendance"
+              text={intl.formatMessage({
+                id: 'menu.attendance.me',
+                defaultMessage: 'My Attendance',
+              })}
               onClick={() => history.push('/attendance/me')}
             />
             <CustomButton
               icon={TableOutlined}
-              text="My Time Off Requests"
+              text={intl.formatMessage({
+                id: 'menu.timeOff.me',
+                defaultMessage: 'My Time Off Requests',
+              })}
               onClick={() => history.push('/timeOff/me')}
             />
             <CustomButton
               icon={CommentOutlined}
-              text="Messages"
-              onClick={() => history.push('/message/conversation')}
+              text={intl.formatMessage({
+                id: 'menu.message',
+                defaultMessage: 'Messages',
+              })}
+              onClick={() => history.push('/message')}
             />
           </div>
         </Card>
@@ -316,7 +329,10 @@ export const Edit: React.FC = () => {
             <div style={{ flex: 1 }}>
               <ProTable<any>
                 className="card-shadow header-capitalize"
-                headerTitle="Pending Timeoff Requests"
+                headerTitle={intl.formatMessage({
+                  id: 'pages.dashboard.pendingTimeOffRequest',
+                  defaultMessage: 'Pending Timeoff Requests',
+                })}
                 rowKey="id"
                 search={false}
                 request={async () => {
@@ -327,13 +343,16 @@ export const Edit: React.FC = () => {
                   };
                 }}
                 toolBarRender={() => [
-                  <Button className="primary-outlined-button primary-hover-button" onClick={() => history.push('/timeOff/list')}>
-                    View all
+                  <Button
+                    className="primary-outlined-button primary-hover-button"
+                    onClick={() => history.push('/timeOff/list')}
+                  >
+                    <FormattedMessage id="component.button.viewAll" defaultMessage="View all" />
                   </Button>,
                 ]}
                 columns={[
                   {
-                    title: 'Employee',
+                    title: <FormattedMessage id="property.employee" defaultMessage="Employee" />,
                     dataIndex: ['owner', 'id'],
                     render: (avatar, record) => (
                       <Space>
@@ -347,16 +366,23 @@ export const Edit: React.FC = () => {
                     ),
                   },
                   {
-                    title: 'Timeoff type',
+                    title: (
+                      <FormattedMessage
+                        id="property.time_off_type"
+                        defaultMessage="Time Off Type"
+                      />
+                    ),
                     dataIndex: 'time_off_type',
                   },
                   {
-                    title: 'Start date',
+                    title: (
+                      <FormattedMessage id="property.start_date" defaultMessage="Start date" />
+                    ),
                     dataIndex: 'start_date',
                     valueType: 'date',
                   },
                   {
-                    title: 'End date',
+                    title: <FormattedMessage id="property.end_date" defaultMessage="End date" />,
                     dataIndex: 'end_date',
                     valueType: 'date',
                   },
@@ -369,7 +395,10 @@ export const Edit: React.FC = () => {
             <div style={{ flex: 1 }}>
               <ProTable<any>
                 className="card-shadow header-capitalize"
-                headerTitle="Pending Attendance Requests"
+                headerTitle={intl.formatMessage({
+                  id: 'pages.dashboard.pendingAttendanceRequest',
+                  defaultMessage: 'Pending Attendance Requests',
+                })}
                 rowKey="id"
                 search={false}
                 request={async () => {
@@ -388,11 +417,10 @@ export const Edit: React.FC = () => {
                       let work_schedule = 0;
                       if (it.attendance[0]?.owner) {
                         work_schedule =
-                          (schedules.find((x) => x.owner === it.attendance[0].owner)
-                            ?.schedule as API.Schedule).workdays.reduce(
-                            (acc, cur) => acc + calcHours(cur),
-                            0,
-                          ) * 3600;
+                          (
+                            schedules.find((x) => x.owner === it.attendance[0].owner)
+                              ?.schedule as API.Schedule
+                          ).workdays.reduce((acc, cur) => acc + calcHours(cur), 0) * 3600;
                       }
                       return {
                         ...it,
@@ -423,11 +451,14 @@ export const Edit: React.FC = () => {
                   };
                 }}
                 toolBarRender={() => [
-                  <Button className="primary-outlined-button primary-hover-button" onClick={() => history.push('/attendance/list')}>
-                    View all
+                  <Button
+                    className="primary-outlined-button primary-hover-button"
+                    onClick={() => history.push('/attendance/list')}
+                  >
+                    <FormattedMessage id="component.button.viewAll" defaultMessage="View all" />
                   </Button>,
                 ]}
-                columns={columns}
+                columns={attendanceColumns}
                 pagination={{ pageSize: 5, simple: true }}
               />
             </div>
@@ -435,13 +466,19 @@ export const Edit: React.FC = () => {
         </div>
         <Access accessible={access['view_employee']}>
           <ProTable<any, API.PageParams>
-            headerTitle="New Hires"
+            headerTitle={intl.formatMessage({
+              id: 'pages.dashboard.newHires',
+              defaultMessage: 'New Hires',
+            })}
             className="card-shadow header-capitalize"
             rowKey="id"
             scroll={{ x: 'max-content' }}
             toolBarRender={() => [
-              <Button className="primary-outlined-button primary-hover-button" onClick={() => history.push('/employee/list')}>
-                View All
+              <Button
+                className="primary-outlined-button primary-hover-button"
+                onClick={() => history.push('/employee/list')}
+              >
+                <FormattedMessage id="component.button.viewAll" defaultMessage="View all" />
               </Button>,
             ]}
             request={async (query) => {

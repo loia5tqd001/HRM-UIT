@@ -121,7 +121,9 @@ export const Timeoff: React.FC = () => {
       hideInForm: true,
     },
     {
-      title: 'Status',
+      title: (
+      <FormattedMessage id="property.status" defaultMessage="Status" />
+    ),
       dataIndex: 'status',
       hideInForm: true,
       onFilter: true,
@@ -150,7 +152,7 @@ export const Timeoff: React.FC = () => {
       },
     },
     {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -205,7 +207,7 @@ export const Timeoff: React.FC = () => {
               setCrudModalVisible('create');
             }}
           >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
           </Button>,
         ]}
         request={async () => {
@@ -259,14 +261,26 @@ export const Timeoff: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createEmployeeTimeoff(id, record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateEmployeeTimeoff(id, record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');

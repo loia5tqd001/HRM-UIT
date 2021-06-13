@@ -223,7 +223,7 @@ const TableList: React.FC = () => {
               handleModalVisible(true);
             }}
           >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+            <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
           </Button>,
         ]}
         request={rule}

@@ -35,6 +35,7 @@ export const Location: React.FC = () => {
   const intl = useIntl();
   const [countries, setCountries] = useState<API.Country[]>([]);
   const access = useAccess();
+  const localeFeature = intl.formatMessage({ id: 'property.location' });
 
   useEffect(() => {
     allCountries().then((data) => setCountries(data));
@@ -56,73 +57,36 @@ export const Location: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.name"
-          defaultMessage="Location"
-        />
-      ),
+      title: localeFeature,
       dataIndex: 'name',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.country"
-          defaultMessage="Country"
-        />
-      ),
+      title: <FormattedMessage id="property.country" defaultMessage="Country" />,
       dataIndex: 'country',
       renderText: (text) => countries.find((it) => it.id === text)?.name,
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.province"
-          defaultMessage="Province"
-        />
-      ),
+      title: <FormattedMessage id="property.province" defaultMessage="Province" />,
       dataIndex: 'province',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.city"
-          defaultMessage="City"
-        />
-      ),
+      title: <FormattedMessage id="property.city" defaultMessage="City" />,
       dataIndex: 'city',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.address"
-          defaultMessage="Address"
-        />
-      ),
+      title: <FormattedMessage id="property.address" defaultMessage="Address" />,
       dataIndex: 'address',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.zipcode"
-          defaultMessage="Zipcode"
-        />
-      ),
+      title: <FormattedMessage id="property.zipcode" defaultMessage="Zipcode" />,
       dataIndex: 'zipcode',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.location.column.phone"
-          defaultMessage="Phone"
-        />
-      ),
+      title: <FormattedMessage id="property.phone" defaultMessage="Phone" />,
       dataIndex: 'phone',
     },
     {
-      title: (
-        <FormattedMessage id="pages.admin.organization.location.column.fax" defaultMessage="Fax" />
-      ),
+      title: <FormattedMessage id="property.fax" defaultMessage="Fax" />,
       dataIndex: 'fax',
     },
     // {
@@ -135,7 +99,7 @@ export const Location: React.FC = () => {
     //   dataIndex: 'note',
     // },
     (access['change_location'] || access['delete_location']) && {
-      title: 'Actions',
+      title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
@@ -144,7 +108,10 @@ export const Location: React.FC = () => {
         <Space size="small">
           <Access accessible={access['change_location']}>
             <Button
-              title="Edit this location"
+              title={`${intl.formatMessage({
+                id: 'property.actions.update',
+                defaultMessage: 'Update',
+              })} ${localeFeature}`}
               size="small"
               onClick={() => {
                 setCrudModalVisible('update');
@@ -157,16 +124,32 @@ export const Location: React.FC = () => {
           <Access accessible={access['delete_location']}>
             <Popconfirm
               placement="right"
-              title={'Delete this location?'}
+              title={`${intl.formatMessage({
+                id: 'property.actions.delete',
+                defaultMessage: 'Delete',
+              })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => deleteLocation(record.id),
-                  'Detete successfully!',
-                  'Cannot delete location!',
+                  intl.formatMessage({
+                    id: 'error.deleteSuccessfully',
+                    defaultMessage: 'Delete successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.deleteUnsuccessfully',
+                    defaultMessage: 'Delete unsuccessfully!',
+                  }),
                 );
               }}
             >
-              <Button title="Delete this location" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -178,8 +161,14 @@ export const Location: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create location',
-      update: 'Update location',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -187,10 +176,10 @@ export const Location: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.organization.location.list.title',
-          defaultMessage: 'Locations',
-        })}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -203,7 +192,8 @@ export const Location: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -243,14 +233,26 @@ export const Location: React.FC = () => {
           if (crudModalVisible === 'create') {
             await onCrudOperation(
               () => createLocation(record),
-              'Create successfully!',
-              'Create unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.createSuccessfully',
+                defaultMessage: 'Create successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.createUnsuccessfully',
+                defaultMessage: 'Create unsuccessfully!',
+              }),
             );
           } else if (crudModalVisible === 'update') {
             await onCrudOperation(
               () => updateLocation(record.id, record),
-              'Update successfully!',
-              'Update unsuccessfully!',
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
             );
           }
           setCrudModalVisible('hidden');
@@ -289,17 +291,14 @@ export const Location: React.FC = () => {
             rules={[{ required: true }]}
             name="name"
             width="sm"
-            label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.name',
-              defaultMessage: 'Location',
-            })}
+            label={localeFeature}
           />
           {/* <ProFormText
             rules={[{ required: true }]}
             name="country"
             width="sm"
             label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.country',
+              id: 'property.country',
               defaultMessage: 'Country',
             })}
           /> */}
@@ -308,7 +307,7 @@ export const Location: React.FC = () => {
             name="country"
             width="sm"
             label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.country',
+              id: 'property.country',
               defaultMessage: 'Country',
             })}
             options={countries.map((it) => ({ value: it.id, label: it.name }))}
@@ -317,7 +316,7 @@ export const Location: React.FC = () => {
             name="province"
             width="sm"
             label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.province',
+              id: 'property.province',
               defaultMessage: 'Province',
             })}
           />
@@ -325,7 +324,7 @@ export const Location: React.FC = () => {
             name="city"
             width="sm"
             label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.city',
+              id: 'property.city',
               defaultMessage: 'City',
             })}
           />
@@ -333,17 +332,15 @@ export const Location: React.FC = () => {
             name="address"
             width="sm"
             label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.address',
+              id: 'property.address',
               defaultMessage: 'Address',
             })}
           />
-        </ProForm.Group>
-        <ProForm.Group>
           <ProFormText
             name="zipcode"
             width="sm"
             label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.zipcode',
+              id: 'property.zipcode',
               defaultMessage: 'Zipcode',
             })}
           />
@@ -351,7 +348,7 @@ export const Location: React.FC = () => {
             name="phone"
             width="sm"
             label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.phone',
+              id: 'property.phone',
               defaultMessage: 'Phone',
             })}
           />
@@ -359,7 +356,7 @@ export const Location: React.FC = () => {
             name="fax"
             width="sm"
             label={intl.formatMessage({
-              id: 'pages.admin.organization.location.column.fax',
+              id: 'property.fax',
               defaultMessage: 'Fax',
             })}
           />

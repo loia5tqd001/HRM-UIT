@@ -19,7 +19,7 @@ import { Badge, Button, message, Progress, Select, Space, Tooltip } from 'antd';
 import { countBy, groupBy, mapValues, sumBy, uniq } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import { Access, Link, useAccess, useIntl } from 'umi';
+import { Access, FormattedMessage, Link, useAccess, useIntl } from 'umi';
 
 type RecordType = API.AttendanceEmployee & {
   status?: {
@@ -165,7 +165,7 @@ const EmployeeAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Status',
+      title: <FormattedMessage id="property.status" defaultMessage="Status" />,
       fixed: 'left',
       dataIndex: 'status',
       key: 'status',
@@ -203,7 +203,7 @@ const EmployeeAttendance: React.FC = () => {
             {formatDuration(seconds)}
           </span>
         ) : (
-          formatDuration(seconds)
+          <span style={{ fontWeight: 100 }}>{formatDuration(seconds)}</span>
         ),
     })),
   ];
