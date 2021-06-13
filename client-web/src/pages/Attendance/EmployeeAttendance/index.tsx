@@ -75,7 +75,7 @@ const EmployeeAttendance: React.FC = () => {
   const [selectedRows, setSelectedRows] = useState<RecordType[]>([]);
   const [attendanceKeys, setAttendanceKeys] = useState<string[]>([]);
   const [periods, setPeriods] = useState<API.Period[]>();
-  const [selectedPeriod, setSelectedPeriod] = useState<any>();
+  const [selectedPeriod, setSelectedPeriod] = useState<API.Period['id']>();
   const access = useAccess();
 
   useEffect(() => {
@@ -87,6 +87,30 @@ const EmployeeAttendance: React.FC = () => {
         actionRef.current?.reload();
       });
   }, []);
+
+  useEffect(() => {
+    const getDaysBetweenDates = (startDate: moment.Moment, endDate: moment.Moment) => {
+      const now = startDate.clone();
+      const dates: string[] = [];
+
+      while (now.isSameOrBefore(endDate)) {
+        dates.push(now.format('DD/MM/YYYY'));
+        now.add(1, 'days');
+      }
+      return dates;
+    };
+
+    if (selectedPeriod) {
+      const selectedPeriodObject = periods?.find((it) => it.id === selectedPeriod);
+      if (!selectedPeriodObject) return;
+      setAttendanceKeys(
+        getDaysBetweenDates(
+          moment(selectedPeriodObject.start_date),
+          moment(selectedPeriodObject.end_date),
+        ),
+      );
+    }
+  }, [selectedPeriod, periods]);
 
   const formatDuration = (seconds: number) => {
     const duration = moment.duration(seconds, 'seconds');
@@ -170,10 +194,17 @@ const EmployeeAttendance: React.FC = () => {
       },
     },
     ...attendanceKeys.map((it) => ({
-      title: it,
+      title: moment(it, 'DD/MM/YYYY').format('DD MMM'),
       key: it,
       dataIndex: ['attendances', it],
-      renderText: (seconds: number) => formatDuration(seconds),
+      renderText: (seconds: number) =>
+        seconds ? (
+          <span className="colorPrimary" style={{ fontWeight: 600 }}>
+            {formatDuration(seconds)}
+          </span>
+        ) : (
+          formatDuration(seconds)
+        ),
     })),
   ];
 
@@ -248,11 +279,11 @@ const EmployeeAttendance: React.FC = () => {
             params: { period_id: selectedPeriod },
           });
 
-          setAttendanceKeys(
-            uniq(
-              data.flatMap((it) => it.attendance.flatMap((x) => moment(x.date).format('DD MMM'))),
-            ),
-          );
+          // setAttendanceKeys(
+          //   uniq(
+          //     data.flatMap((it) => it.attendance.flatMap((x) => moment(x.date).format('DD/MM/YYYY'))),
+          //   ),
+          // );
 
           data = data.map((it) => {
             return {
@@ -269,7 +300,7 @@ const EmployeeAttendance: React.FC = () => {
                 groupBy(
                   it.attendance.map((x) => ({
                     ...x,
-                    date: moment(x.date).format('DD MMM'),
+                    date: moment(x.date).format('DD/MM/YYYY'),
                     work_load: x.actual_work_hours * 3600,
                   })),
                   'date',
