@@ -106,21 +106,23 @@ const Login: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.lang}>{SelectLang && <SelectLang />}</div>
       <div className={styles.content}>
-        <div className={styles.top}>
-          <div className={styles.header}>
-            <Link to="/">
-              <img alt="logo" className={styles.logo} src="/logo-uit.svg" />
-              <span className={styles.title}>UIT</span>
-            </Link>
+        <div className={styles.form}>
+          <div className={styles.top}>
+            <div className={styles.header}>
+              <Link to="/">
+                <img alt="logo" className={styles.logo} src="/logo-uit.svg" />
+                <span className={styles.title}>UIT</span>
+              </Link>
+            </div>
+            <div className={styles.desc}>
+              <FormattedMessage
+                id="pages.login.applicationName"
+                defaultMessage="Human Resource Management Application"
+              />
+            </div>
           </div>
-          <div className={styles.desc}>
-            <FormattedMessage
-              id="pages.login.applicationName"
-              defaultMessage="Human Resource Management Application"
-            />
-          </div>
+          <div className={styles.main}>
         </div>
-        <div className={styles.main}>
           <ProForm
             initialValues={{
               autoLogin: true,

@@ -197,7 +197,8 @@ body,
 
 // Custom shadow for Cards
 // source: https://getcssscan.com/css-box-shadow-examples #7
-@custom-subtle-shadow: rgba(0, 0, 0, 0.12) 0px 3px 48px 0px, rgba(0, 0, 0, 0.12) 0px 0px 0px 1px;
+@custom-subtle-shadow: rgba(36, 48, 73, 0.12) 0px 6px 48px 0px, rgba(36, 48, 73, 0.04) 0px 0px 0px 1px;
+@custom-subtle-shadow-lessen: rgba(36, 48, 73, 0.12) 0px 0px 24px 0px, rgba(36, 48, 73, 0.04) 0px 0px 0px 1px;
 
 // the mixin
 .card-shadow() {
@@ -215,9 +216,11 @@ body,
   }
 }
 // breadcrumb should have the shadow as well
-.ant-pro-global-header,
-.ant-pro-page-container-warp {
+.ant-pro-global-header {
   box-shadow: @custom-subtle-shadow;
+}
+.ant-pro-page-container-warp {
+  box-shadow: @custom-subtle-shadow-lessen;
 }
 .ant-pro-core-field-dropdown-overlay {
   border-radius: @border-radius-base;

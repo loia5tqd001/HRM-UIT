@@ -6,6 +6,7 @@ import Talk from 'talkjs';
 import { Link, SelectLang, useModel } from 'umi';
 import Avatar from './AvatarDropdown';
 import styles from './index.less';
+import Favicon from 'react-favicon';
 
 export type SiderTheme = 'light' | 'dark';
 
@@ -75,6 +76,10 @@ const GlobalHeaderRight: React.FC = () => {
       /> */}
       {/* <NoticeIcon /> */}
       <Badge count={amountOfUnreads}>
+        <Favicon
+          url="/favicon.ico"
+          alertCount={amountOfUnreads}
+        />
         <Link to="/message">
           <NotificationOutlined />
         </Link>
