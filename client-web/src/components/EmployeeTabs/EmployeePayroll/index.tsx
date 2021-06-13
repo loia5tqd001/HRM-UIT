@@ -9,7 +9,7 @@ import {
 import { allPayrolls } from '@/services/payroll.payrolls';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useEmployeeDetailAccess } from '@/utils/hooks/useEmployeeDetailType';
-import { DollarOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { FilePdfOutlined } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormSelect } from '@ant-design/pro-form';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -234,9 +234,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
                 );
                 if (item.field.datatype === 'Currency') {
                   itemValue = (
-                    <p style={{ color: '#ad8b00', display: 'contents' }}>
-                      {item.formatted_value} <DollarOutlined />
-                    </p>
+                    <p style={{ color: '#ad8b00', display: 'contents' }}>{item.formatted_value}</p>
                   );
                 }
                 if (item.field.datatype === 'Number')

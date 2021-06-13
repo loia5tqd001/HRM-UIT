@@ -3,15 +3,14 @@ import {
   exportExcel,
   readPayroll,
   readPayslips,
-  sendViaEmail
+  sendViaEmail,
 } from '@/services/payroll.payrolls';
 import {
   CheckCircleOutlined,
-  DollarOutlined,
   FileExcelOutlined,
   LockOutlined,
   SendOutlined,
-  SyncOutlined
+  SyncOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Affix, Button, Card, message, Popconfirm, Space, Table, Tag } from 'antd';
@@ -42,11 +41,7 @@ export const PayrollDetail: React.FC = () => {
             title: it.display_name,
             render: (text: string) => {
               if (it.datatype === 'Currency') {
-                return (
-                  <span style={{ color: '#ad8b00', whiteSpace: 'nowrap' }}>
-                    {text} <DollarOutlined />
-                  </span>
-                );
+                return <span style={{ color: '#ad8b00', whiteSpace: 'nowrap' }}>{text}</span>;
               }
               if (it.datatype === 'Number')
                 return <span style={{ textDecoration: 'underline' }}>{text}</span>;

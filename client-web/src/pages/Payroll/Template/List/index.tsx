@@ -97,8 +97,11 @@ export const PayrollTemplate: React.FC = () => {
           <Access accessible={access['payroll.delete_salarytemplate']}>
             <Popconfirm
               placement="right"
-              title={'Delete this template?'}
+              title={
+                record.is_default ? 'Cannot delete default template!' : 'Delete this template?'
+              }
               onConfirm={async () => {
+                if (record.is_default) return;
                 await onCrudOperation(
                   () => deletePayrollTemplate(record.id),
                   'Detete successfully!',
@@ -106,7 +109,7 @@ export const PayrollTemplate: React.FC = () => {
                 );
               }}
             >
-              <Button title="Delete this template" size="small" danger>
+              <Button title="Delete this template" size="small" danger disabled={record.is_default}>
                 <DeleteOutlined />
               </Button>
             </Popconfirm>

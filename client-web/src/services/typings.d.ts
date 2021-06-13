@@ -511,8 +511,8 @@ declare namespace API {
     first_name: string;
     last_name: string;
     avatar: string;
-    work_schedule: number;
     attendance: {
+      schedule_hours: number;
       id: number;
       owner: number;
       date: string | moment.Moment;
@@ -602,6 +602,7 @@ declare namespace API {
 
   interface PayrollTemplate {
     id: number;
+    is_default: boolean;
     name: string;
     can_be_modified: boolean;
     fields: PayrollField[];
