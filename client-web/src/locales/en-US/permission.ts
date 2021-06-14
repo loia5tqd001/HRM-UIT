@@ -82,7 +82,7 @@ export default {
   'permission.employee skill.view_employeeskill': 'Can view employee skill',
   'permission.employee.add_employee': 'Can add employee',
   'permission.employee.can_change_avatar_employee':
-    'Can change employee avatar (also use for face identity)',
+    'Can change employee avatar use for face identity',
   'permission.employee.can_set_password_employee': 'Can change employee password',
   'permission.employee.can_set_role_employee': 'Can change employee role',
   'permission.employee.change_employee': 'Can change employee',

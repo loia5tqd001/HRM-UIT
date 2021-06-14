@@ -46,15 +46,13 @@
   },
   {
     path: '/admin',
+    access: '/admin',
     name: 'admin',
     icon: 'control',
-    // access: 'canAdmin',
-    // component: './Welcome',
-    // redirect: '/admin/user',
-    // component: './Admin/User',
     routes: [
       {
         path: '/admin/job',
+        access: '/admin/job',
         name: 'job',
         icon: 'audit',
         routes: [
@@ -90,6 +88,7 @@
       },
       {
         path: '/admin/organization',
+        access: '/admin/organization',
         name: 'organization',
         icon: 'apartment',
         routes: [
@@ -140,6 +139,7 @@
       // },
       {
         path: '/admin/payroll',
+        access: '/admin/payroll',
         name: 'payroll',
         icon: 'moneyCollect',
         routes: [
@@ -219,9 +219,9 @@
   },
   {
     path: '/timeOff',
+    access: '/timeOff',
     name: 'timeOff',
     icon: 'clockCircle',
-    // access: ',
     routes: [
       { path: '/timeOff/me', name: 'me', icon: 'frown', component: './Timeoff/MyTimeoff' },
       {
@@ -233,6 +233,7 @@
       },
       {
         path: '/timeOff/configuration',
+        access: '/timeOff/configuration',
         name: 'configuration',
         icon: 'setting',
         routes: [

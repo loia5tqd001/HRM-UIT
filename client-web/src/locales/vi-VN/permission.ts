@@ -87,7 +87,7 @@ export default {
   'permission.employee skill.view_employeeskill': 'Có thể xem kỹ năng của nhân viên',
   'permission.employee.add_employee': 'Có thể thêm nhân viên',
   'permission.employee.can_change_avatar_employee':
-    'Có thể thay đổi hình đại diện của nhân viên (cũng có thể sử dụng cho nhận dạng khuôn mặt)',
+    'Thay đổi hình đại diện nhân viên sử dụng cho nhận dạng khuôn mặt',
   'permission.employee.can_set_password_employee': 'Có thể thay đổi mật khẩu của nhân viên',
   'permission.employee.can_set_role_employee': 'Có thể thay đổi phân quyền của nhân viên',
   'permission.employee.change_employee': 'Có thể thay đổi thông tin nhân viên',
@@ -159,8 +159,7 @@ export default {
   'permission.period.view_period': 'Có thể xem chu kì',
   'permission.salary system field': 'Biến hệ thống',
   'permission.salary system field.add_salarysystemfield': 'Có thể thêm biến hệ thống',
-  'permission.salary system field.change_salarysystemfield':
-    'Có thể thay đổi biến hệ thống',
+  'permission.salary system field.change_salarysystemfield': 'Có thể thay đổi biến hệ thống',
   'permission.salary system field.delete_salarysystemfield': 'Có thể xóa biến hệ thống',
   'permission.salary system field.view_salarysystemfield': 'Có thể xem biến hệ thống',
   'permission.salary template': 'Mẫu lương',

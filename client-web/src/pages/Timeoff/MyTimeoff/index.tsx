@@ -151,7 +151,6 @@ export const Timeoff: React.FC = () => {
       dataIndex: 'status',
       hideInForm: true,
       onFilter: true,
-      width: 'min-content',
       filters: filterData(dataNek || [])(
         (it) => it.status,
         (it) => mapStatus[it.status].text,

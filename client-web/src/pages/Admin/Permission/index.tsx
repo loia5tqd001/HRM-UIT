@@ -398,13 +398,23 @@ const Permission: React.FC = () => {
             id="permissions-form"
             form={permissionsForm}
             className={styles.permissionForm}
-            style={{ height: 'calc(100vh - 250px)', overflow: 'auto' }}
+            style={{ height: 'calc(100vh - 250px)', overflowX: 'auto' }}
           >
-            <ProFormGroup>
+            {/* <ProFormGroup> */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flexWrap: 'wrap',
+                height: 'calc(100vh - 260px)',
+                columnGap: 32,
+              }}
+            >
               {permissions &&
                 Object.entries(permissions).map(([k, v]) => (
                   <ProFormCheckbox.Group
                     layout="vertical"
+                    style={{ marginRight: 24 }}
                     name={k}
                     label={intl.formatMessage({
                       id: `permission.${k}`,
@@ -417,7 +427,8 @@ const Permission: React.FC = () => {
                     }))}
                   />
                 ))}
-            </ProFormGroup>
+              {/* </ProFormGroup> */}
+            </div>
           </Form>
         </ProCard>
       </ProCard>
