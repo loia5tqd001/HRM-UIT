@@ -4,7 +4,7 @@ import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { Button, Space } from 'antd';
 import React from 'react';
-import { Access, FormattedMessage, Link, useAccess, useIntl, useModel } from 'umi';
+import { Access, FormattedMessage, history, Link, useAccess, useIntl, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { PageContainer } from '@ant-design/pro-layout';
 
@@ -14,6 +14,10 @@ const EmployeeList: React.FC = () => {
   const intl = useIntl();
   const { actionRef, setCrudModalVisible, setSelectedRecord } = useModel('employee');
   const access = useAccess();
+  if (history.location.pathname.includes('add')) {
+    setCrudModalVisible('create');
+    history.replace('/employee/list');
+  }
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -185,9 +189,9 @@ const EmployeeList: React.FC = () => {
     //       {/* <Popconfirm
     //         placement="right"
     //                       title={`${intl.formatMessage({
-              //   id: 'property.actions.delete',
-              //   defaultMessage: 'Delete',
-              // })} ${localeFeature}?`}
+    //   id: 'property.actions.delete',
+    //   defaultMessage: 'Delete',
+    // })} ${localeFeature}?`}
     //         onConfirm={async () => {
     //           await onCrudOperation(() => deleteEmployee(record.id), 'Cannot delete employee!');
     //         }}

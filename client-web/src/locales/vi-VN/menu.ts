@@ -42,7 +42,7 @@ export default {
   'menu.timeOff.configuration.timeoffType': 'Loại nghỉ phép',
   'menu.timeOff.entitlement': 'Quyền hưởng phép',
   'menu.timeOff.report': 'Báo cáo',
-  'menu.attendance': 'Bảng công',
+  'menu.attendance': 'Chấm công',
   'menu.attendance.me': 'Chấm công của tôi',
   'menu.attendance.clockInOut': 'Chấm công',
   'menu.attendance.list': 'Chấm công nhân viên',

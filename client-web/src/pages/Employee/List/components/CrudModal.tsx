@@ -63,14 +63,26 @@ export const CrudModal: React.FC = () => {
         if (crudModalVisible === 'create') {
           await onCrudOperation(
             () => createEmployee(record),
-            'Create successfully!',
-            'Create unsuccessfully!',
+            intl.formatMessage({
+              id: 'error.createSuccessfully',
+              defaultMessage: 'Create successfully!',
+            }),
+            intl.formatMessage({
+              id: 'error.createUnsuccessfully',
+              defaultMessage: 'Create unsuccessfully!',
+            }),
           );
         } else if (crudModalVisible === 'update') {
           await onCrudOperation(
             () => updateEmployee(record.id, record),
-            'Update successfully!',
-            'Update unsuccessfully!',
+            intl.formatMessage({
+              id: 'error.updateSuccessfully',
+              defaultMessage: 'Update successfully!',
+            }),
+            intl.formatMessage({
+              id: 'error.updateUnsuccessfully',
+              defaultMessage: 'Update unsuccessfully!',
+            }),
           );
         }
         setCrudModalVisible('hidden');

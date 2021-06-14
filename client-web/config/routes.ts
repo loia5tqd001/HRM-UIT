@@ -212,6 +212,13 @@
         hideInMenu: true,
       },
       {
+        path: '/employee/add',
+        name: 'add',
+        icon: 'plus',
+        acces: 'add_employee',
+        component: './Employee/List',
+      },
+      {
         path: '/employee',
         redirect: '/employee/list',
       },
