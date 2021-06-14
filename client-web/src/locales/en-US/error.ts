@@ -16,4 +16,5 @@ export default {
   'error.noActivities': 'No activities today yet',
   'error.actionIrreversible': 'This action is irreversible. Are you sure?',
   'error.cannotDeleteDefaultTemplate': 'Cannot delete default template',
+  'error.alreadyExists': 'already exists',
 };

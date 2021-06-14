@@ -590,10 +590,10 @@ const MyAttendance: React.FC = () => {
               const lastRecord = todayData.tracking_data[todayData.tracking_data.length - 1];
               setLastAction(
                 lastRecord.check_out_time
-                  ? `${nextStepTranslate['Clock out']} at ${moment(
+                  ? `${nextStepTranslate['Clock out']} ${moment(
                       lastRecord.check_out_time,
                     ).format('HH:mm')}`
-                  : `${nextStepTranslate['Clock in']} at ${moment(lastRecord.check_in_time).format(
+                  : `${nextStepTranslate['Clock in']} ${moment(lastRecord.check_in_time).format(
                       'HH:mm',
                     )}`,
               );

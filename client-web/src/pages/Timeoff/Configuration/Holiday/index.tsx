@@ -64,23 +64,23 @@ export const Holiday: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Holiday',
+      title: localeFeature,
       dataIndex: 'name',
     },
     {
-      title: 'For schedule',
+      title: intl.formatMessage({ id: 'property.for_schedule' }),
       dataIndex: 'schedule',
       renderText: (scheduleId) => schedules.data?.find((it) => it.id === scheduleId)?.name,
     },
     {
-      title: 'Year',
+      title: intl.formatMessage({ id: 'property.year' }),
       dataIndex: 'start_year',
       filters: filterData(dataNek || [])((it) => it.start_year),
       onFilter: true,
       width: 150,
     },
     {
-      title: 'Time',
+      title: intl.formatMessage({ id: 'property.time' }),
       dataIndex: 'start_date',
       width: 250,
       sorter: (a, b) => (moment(a.start_date).isSameOrAfter(b.start_date) ? 1 : -1),
@@ -90,7 +90,7 @@ export const Holiday: React.FC = () => {
         )}`,
     },
     {
-      title: 'Number of days',
+      title: intl.formatMessage({ id: 'property.numberOfDays' }),
       dataIndex: 'start_date',
       width: 150,
       align: 'right',
@@ -175,7 +175,10 @@ export const Holiday: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle="Holidays"
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -351,17 +354,27 @@ export const Holiday: React.FC = () => {
           },
         }}
       >
-        <ProFormText rules={[{ required: true }]} name="name" label="Holiday" width="md" />
-        <ProFormDateRangePicker rules={[{ required: true }]} name="date" label="Time" width="md" />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} width="md" />
+        <ProFormDateRangePicker
+          rules={[{ required: true }]}
+          name="date"
+          label={intl.formatMessage({ id: 'property.time' })}
+          width="md"
+        />
         <ProFormSelect
           name="schedule"
           width="md"
-          label="For schedule"
+          label={intl.formatMessage({ id: 'property.for_schedule' })}
           options={schedules.data?.map((it) => ({ value: it.id, label: it.name }))}
           hasFeedback={schedules.isLoading}
           rules={[{ required: true }]}
         />
-        <ProFormText name="days" label="Number of days" width="md" readonly />
+        <ProFormText
+          name="days"
+          label={intl.formatMessage({ id: 'property.numberOfDays' })}
+          width="md"
+          readonly
+        />
       </ModalForm>
     </PageContainer>
   );

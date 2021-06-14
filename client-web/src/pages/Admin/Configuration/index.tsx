@@ -20,7 +20,13 @@ export const Office: React.FC = () => {
 
   return (
     <PageContainer title={false}>
-      <Card loading={!appConfigReady} className="card-shadow" title="Configuration">
+      <Card
+        loading={!appConfigReady}
+        className="card-shadow"
+        title={intl.formatMessage({
+          id: 'property.configuration',
+        })}
+      >
         <ProForm<API.AppConfig>
           onFinish={async (values) => {
             try {

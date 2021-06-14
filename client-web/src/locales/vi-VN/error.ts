@@ -14,4 +14,5 @@ export default {
   'error.noActivities': 'Chưa có hoạt động hôm nay',
   'error.actionIrreversible': 'Hành động này không thể hoàn tác. Bạn có chắc chưa?',
   'error.cannotDeleteDefaultTemplate': 'Không thể xoá mẫu lương mặc định',
+  'error.alreadyExists': 'đã tồn tại',
 };

@@ -27,8 +27,9 @@ import arrayMove from 'array-move';
 import { sortBy } from 'lodash';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
-import { Access, history, useAccess } from 'umi';
+import { Access, history, useAccess, getIntl, FormattedMessage } from 'umi';
 import styles from './index.less';
+import { useIntl } from 'umi';
 
 const EditableContext = React.createContext<any>(null);
 
@@ -61,7 +62,16 @@ const EditableCell = ({
   };
 
   let childNode = children;
-
+  // property.columnType
+  // property.columnType.systemField
+  // property.columnType.formula
+  // property.datatype
+  // property.datatype.Text
+  // property.datatype.Number
+  // property.datatype.Currency
+  // property.display_name
+  // property.codename
+  // property.define
   if (editable) {
     if (dataIndex === 'type') {
       childNode = (
@@ -69,9 +79,16 @@ const EditableCell = ({
           <Select
             allowClear={false}
             options={[
-              { value: 'System Field', label: 'System Field', disabled: true }, // this's disabled because System Field will be selected programmatically, not support manually
+              {
+                value: 'System Field',
+                label: getIntl().formatMessage({ id: 'property.columnType.systemField' }),
+                disabled: true,
+              }, // this's disabled because System Field will be selected programmatically, not support manually
               // { value: 'Input', label: 'Input' },
-              { value: 'Formula', label: 'Formula' },
+              {
+                value: 'Formula',
+                label: getIntl().formatMessage({ id: 'property.columnType.formula' }),
+              },
             ]}
             ref={inputRef}
             onChange={save}
@@ -84,9 +101,15 @@ const EditableCell = ({
           <Select
             allowClear={false}
             options={[
-              { value: 'Text', label: 'Text' },
-              { value: 'Number', label: 'Number' },
-              { value: 'Currency', label: 'Currency' },
+              { value: 'Text', label: getIntl().formatMessage({ id: 'property.datatype.Text' }) },
+              {
+                value: 'Number',
+                label: getIntl().formatMessage({ id: 'property.datatype.Number' }),
+              },
+              {
+                value: 'Currency',
+                label: getIntl().formatMessage({ id: 'property.datatype.Currency' }),
+              },
             ]}
             ref={inputRef}
             onChange={save}
@@ -191,29 +214,30 @@ function SortableTable() {
 
   const columns = [
     {
-      title: 'Type',
+      // title: 'Type',
+      title: getIntl().formatMessage({ id: 'property.columnType' }),
       dataIndex: 'type',
       width: 'max-content',
       editable: true,
     },
     {
-      title: 'Datatype',
+      title: getIntl().formatMessage({ id: 'property.datatype' }),
       dataIndex: 'datatype',
       width: 'max-content',
       editable: true,
     },
     {
-      title: 'Display name',
+      title: getIntl().formatMessage({ id: 'property.display_name' }),
       dataIndex: 'display_name',
       editable: true,
     },
     {
-      title: 'Code name',
+      title: getIntl().formatMessage({ id: 'property.codename' }),
       dataIndex: 'code_name',
       editable: true,
     },
     {
-      title: 'Define',
+      title: getIntl().formatMessage({ id: 'property.define' }),
       dataIndex: 'define',
       editable: true,
       width: '30%',
@@ -232,7 +256,10 @@ function SortableTable() {
       dataIndex: 'actions',
       width: '30px',
       render: (_, record) => (
-        <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.index)}>
+        <Popconfirm
+          title={`${getIntl().formatMessage({ id: 'property.actions.sureToDelete' })}?`}
+          onConfirm={() => handleDelete(record.index)}
+        >
           <Button icon={<CloseOutlined />} danger size="small" />
         </Popconfirm>
       ),
@@ -287,6 +314,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
   const [isCollapsed, setIsCollapse] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const access = useAccess();
+  const intl = useIntl();
 
   useEffect(() => {
     setTableData(
@@ -322,11 +350,11 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                   title={
                     payrollTemplate?.can_be_modified
                       ? null
-                      : 'Cannot modify this template because it will affect existent payrolls. Duplicate to create new template.'
+                      : getIntl().formatMessage({ id: 'property.can_be_modified.no' })
                   }
                 >
                   <Button
-                    children="Save"
+                    children={getIntl().formatMessage({ id: 'component.button.save' })}
                     type="primary"
                     loading={isSaving}
                     disabled={!payrollTemplate?.can_be_modified}
@@ -335,18 +363,18 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                         setIsSaving(true);
                         await onUpdateColumns(tableData);
                         message.success(
-                  intl.formatMessage({
-                    id: 'error.updateSuccessfully',
-                    defaultMessage: 'Update successfully!',
-                  }),
-                );
+                          intl.formatMessage({
+                            id: 'error.updateSuccessfully',
+                            defaultMessage: 'Update successfully!',
+                          }),
+                        );
                       } catch {
                         message.success(
-                  intl.formatMessage({
-                    id: 'error.updateUnsuccessfully',
-                    defaultMessage: 'Update unsuccessfully!',
-                  }),
-                );
+                          intl.formatMessage({
+                            id: 'error.updateUnsuccessfully',
+                            defaultMessage: 'Update unsuccessfully!',
+                          }),
+                        );
                       } finally {
                         setIsSaving(false);
                       }
@@ -355,7 +383,11 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                 </Tooltip>
 
                 <ModalForm<API.PayrollTemplate>
-                  title={`Duplicate template ${payrollTemplate?.name}`}
+                  title={`${getIntl().formatMessage({
+                    id: 'property.actions.duplicate',
+                  })} ${getIntl().formatMessage({ id: 'property.template' })} ${
+                    payrollTemplate?.name
+                  }`}
                   width="400px"
                   onFinish={async (value) => {
                     try {
@@ -363,23 +395,45 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                         name: value.name,
                       });
                       history.push(`${id}`);
-                      message.success('Duplicate successfully');
+                      message.success(
+                        `${intl.formatMessage({
+                          id: 'property.actions.duplicate',
+                        })} ${intl.formatMessage({
+                          id: 'property.actions.successfully',
+                        })}`,
+                      );
                     } catch {
-                      message.error('Duplicate unsuccessfully');
+                      message.error(
+                        `${intl.formatMessage({
+                          id: 'property.actions.duplicate',
+                        })} ${intl.formatMessage({
+                          id: 'property.actions.unsuccessfully',
+                        })}`,
+                      );
                     }
                   }}
                   trigger={
                     <Button
-                      children="Duplicate"
+                      children={getIntl().formatMessage({ id: 'property.actions.duplicate' })}
                       icon={<DiffOutlined />}
                       className="primary-outlined-button"
                     />
                   }
                 >
-                  <ProFormText rules={[{ required: true }]} name="name" label="New name" />
+                  <ProFormText
+                    rules={[{ required: true }]}
+                    name="name"
+                    label={getIntl().formatMessage({ id: 'property.template.new_name' })}
+                  />
                 </ModalForm>
 
-                <Tooltip title={`${isCollapsed ? 'Show' : 'Hide'} system fields`}>
+                <Tooltip
+                  title={`${
+                    isCollapsed
+                      ? getIntl().formatMessage({ id: 'property.actions.showSystemFields' })
+                      : getIntl().formatMessage({ id: 'property.actions.hideSystemFields' })
+                  }`}
+                >
                   <Button
                     icon={isCollapsed ? <DoubleLeftOutlined /> : <DoubleRightOutlined />}
                     onClick={() => {
@@ -414,7 +468,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                     className="primary-outlined-button"
                     icon={<PlusOutlined />}
                     style={{ width: '100%' }}
-                    children="Add Formula Column"
+                    children={getIntl().formatMessage({ id: 'property.actions.addFormulaColumn' })}
                     onClick={() => {
                       let nextNumber = String(tableData.length + 1);
                       // eslint-disable-next-line @typescript-eslint/no-loop-func
@@ -436,7 +490,9 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                   />
                   <Input.Search
                     style={{ width: '100%' }}
-                    placeholder="Or Add System Field Columns Below"
+                    placeholder={getIntl().formatMessage({
+                      id: 'property.actions.orAddSystemFieldColumnBelow',
+                    })}
                     onSearch={setSearchKeyword}
                   />
                 </div>
@@ -462,7 +518,11 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                           const codeName = systemFields?.[index].code_name;
                           const codeNameExists = tableData.some((it) => it.code_name === codeName);
                           if (codeNameExists) {
-                            message.error(`${codeName} already exists`);
+                            message.error(
+                              `${codeName} ${getIntl().formatMessage({
+                                id: 'error.alreadyExists',
+                              })}`,
+                            );
                             return;
                           }
                           setTableData([

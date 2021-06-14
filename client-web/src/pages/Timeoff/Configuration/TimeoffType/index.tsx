@@ -34,7 +34,7 @@ export const TimeOffType: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const access = useAccess();
-  const localeFeature = intl.formatMessage({ id: 'property.timeoff_type' });
+  const localeFeature = intl.formatMessage({ id: 'property.timeoffType' });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -52,11 +52,11 @@ export const TimeOffType: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Timeoff type',
+      title: localeFeature,
       dataIndex: 'name',
     },
     {
-      title: 'Paid',
+      title: intl.formatMessage({ id: 'property.is_paid' }),
       dataIndex: 'is_paid',
       align: 'center',
       renderText: (it) =>
@@ -71,7 +71,7 @@ export const TimeOffType: React.FC = () => {
         ),
     },
     {
-      title: 'Description',
+      title: intl.formatMessage({ id: 'property.description' }),
       dataIndex: 'description',
     },
     (access['change_timeofftype'] || access['delete_timeofftype']) && {
@@ -152,7 +152,10 @@ export const TimeOffType: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle="Timeoff types"
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -279,12 +282,15 @@ export const TimeOffType: React.FC = () => {
           },
         }}
       >
-        <ProFormText rules={[{ required: true }]} name="name" label="Timeoff type" />
-        <ProFormTextArea name="description" label="Description" />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
+        <ProFormTextArea
+          name="description"
+          label={intl.formatMessage({ id: 'property.description' })}
+        />
         <ProFormSwitch
           rules={[{ required: true }]}
           name="is_paid"
-          label="Paid"
+          label={intl.formatMessage({ id: 'property.is_paid' })}
           initialValue={true}
         />
       </ModalForm>
