@@ -10,16 +10,22 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 import ProCard from '@ant-design/pro-card';
-import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import {
+  ModalForm,
+  ProFormCheckbox,
+  ProFormGroup,
+  ProFormSelect,
+  ProFormText,
+  ProFormTextArea,
+} from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Input, message, Popconfirm, Space, Switch, Table } from 'antd';
+import { Button, Form, Input, message, Popconfirm, Space } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
-import produce from 'immer';
-import { sortBy } from 'lodash';
-import React, { useCallback, useRef, useState } from 'react';
+import { groupBy, omit, sortBy } from 'lodash';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { useIntl } from 'umi';
 import styles from './index.less';
@@ -39,8 +45,10 @@ const Permission: React.FC = () => {
   const intl = useIntl();
   const dataRef = useRef<RecordType[]>();
   const localeFeature = intl.formatMessage({
-    id: 'property.permission',
+    id: 'property.role',
   });
+  type PermissionForm = Record<string, string[]>;
+  const [permissionsForm] = useForm<PermissionForm>();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -136,6 +144,61 @@ const Permission: React.FC = () => {
       ),
   });
 
+  const permissions =
+    viewingRecord?.permissions &&
+    omit(groupBy(viewingRecord?.permissions, 'content_type'), [
+      'user',
+      'country',
+      'education level',
+      'language',
+      'license',
+      'skill',
+      'employee license',
+      'employee language',
+      'employee education',
+      'employee skill',
+      'tracking',
+      'timeofftype',
+      'timeoff',
+      'payroll config',
+      'salary system field',
+      'period',
+      'termination',
+      'contact info',
+    ]);
+  // console.log(
+  //   '>  ~ file: index.tsx ~ line 150 ~ permissions',
+  //   permissions && Object.keys(permissions),
+  // );
+  // console.log(
+  //   '>  ~ file: index.tsx ~ line 150 ~ permissions',
+  //   permissions &&
+  //     Object.values(permissions)
+  //       .flat()
+  //       .reduce(
+  //         (acc, cur) => ({
+  //           ...acc,
+  //           [`permission.${cur.content_type}.${cur.codename}`]: cur.name,
+  //           [`permission.${cur.content_type}`]: startCase(camelCase(cur.content_type)),
+  //         }),
+  //         {},
+  //       ),
+  // );
+
+  useEffect(() => {
+    const permissionFormValues: PermissionForm | undefined =
+      permissions &&
+      Object.entries(permissions).reduce(
+        (acc, [k, v]) => ({
+          ...acc,
+          [k]: v.filter((item) => item.has_perm).map((item) => item.codename),
+        }),
+        {},
+      );
+
+    if (permissionFormValues) permissionsForm.setFieldsValue(permissionFormValues);
+  }, [viewingRecord]);
+
   return (
     <PageContainer title={false}>
       <ProCard split="vertical" style={{ height: '100%' }} className="card-shadow">
@@ -154,7 +217,7 @@ const Permission: React.FC = () => {
               <FormattedMessage id="pages.employee.list.table.new" defaultMessage="New" />
             </Button>
           }
-          title="Roles"
+          title={intl.formatMessage({ id: 'property.roles' })}
         >
           <ProTable<RecordType>
             columns={[
@@ -170,7 +233,7 @@ const Permission: React.FC = () => {
                 align: 'center',
                 renderText: (value, record) => (
                   <Space>
-                    <Button
+                    {/* <Button
                       title="View permissions"
                       size="small"
                       onClick={(e) => {
@@ -181,7 +244,7 @@ const Permission: React.FC = () => {
                       }}
                     >
                       <EyeOutlined />
-                    </Button>
+                    </Button> */}
                     <Button
                       title={`${intl.formatMessage({
                         id: 'property.actions.update',
@@ -206,13 +269,22 @@ const Permission: React.FC = () => {
                         e?.stopPropagation();
                         await onCrudOperation(
                           () => deleteRole(record.id),
-                          'Detete successfully!',
-                          'Cannot delete role!',
+                          intl.formatMessage({
+                            id: 'error.deleteSuccessfully',
+                            defaultMessage: 'Delete successfully!',
+                          }),
+                          intl.formatMessage({
+                            id: 'error.deleteUnsuccessfully',
+                            defaultMessage: 'Delete unsuccessfully!',
+                          }),
                         );
                       }}
                     >
                       <Button
-                        title="Delete this role"
+                        title={`${intl.formatMessage({
+                          id: 'property.actions.delete',
+                          defaultMessage: 'Delete',
+                        })} ${localeFeature}?`}
                         size="small"
                         danger
                         onClick={(e) => e.stopPropagation()}
@@ -232,7 +304,12 @@ const Permission: React.FC = () => {
             actionRef={actionRef}
             rowKey="id"
             request={async () => {
-              let data = await allRoles();
+              let data: any = await allRoles();
+              // data = data.map((it) => ({
+              //   ...it,
+              //   permissions: groupBy(it.permissions, 'content_type'),
+              // }));
+              // console.log('>  ~ file: index.tsx ~ line 247 ~ data', data);
               data = sortBy(data, 'id');
               if (data.length) {
                 const index = data.findIndex((it) => it.id === viewingRecord?.id);
@@ -263,69 +340,85 @@ const Permission: React.FC = () => {
         </ProCard>
         <ProCard
           className="header-capitalize"
-          title={`Permissions of: ${viewingRecord?.name || ''}`}
+          title={`${intl.formatMessage({ id: 'property.permissionsOf' })}: ${
+            viewingRecord?.name || ''
+          }`}
           extra={
             <Button
-              onClick={async () => {
-                if (!viewingRecord) return;
-                setSaving(true);
-                await onCrudOperation(
-                  () => updateRole(viewingRecord.id, viewingRecord),
-                  'Update successfully!',
-                  'Update unsuccessfully!',
-                );
-                setSaving(false);
-              }}
+              // onClick={async () => {
+              //   if (!viewingRecord) return;
+              //   setSaving(true);
+              // await onCrudOperation(
+              //   () => updateRole(viewingRecord.id, viewingRecord),
+              //   'Update successfully!',
+              //   'Update unsuccessfully!',
+              // );
+              //   setSaving(false);
+              // }}
               type="primary"
               key="primary"
               loading={saving}
+              htmlType="submit"
+              form="permissions-form"
             >
-              <SaveOutlined /> Save
+              <SaveOutlined /> {intl.formatMessage({ id: 'component.button.save' })}
             </Button>
           }
         >
-          <Table<RecordType['permissions'][0]>
-            columns={[
-              {
-                title: 'Id',
-                key: 'id',
-                dataIndex: 'id',
-                width: 100,
-              },
-              {
-                title: 'Permission',
-                key: 'name',
-                dataIndex: 'name',
-                ...getColumnSearchProps('name', 'Search permissions'),
-              },
-              {
-                title: 'Enabled',
-                key: 'has_perm',
-                dataIndex: 'has_perm',
-                align: 'center',
-                render: (value: boolean, record) => (
-                  <Switch
-                    checked={value}
-                    onChange={(checked) => {
-                      setViewingRecord(
-                        produce(viewingRecord, (draft) => {
-                          const toChange = draft?.permissions.find((it) => it.id === record.id);
-                          if (!toChange) return;
-                          toChange.has_perm = checked;
-                        }),
-                      );
-                    }}
+          <Form<Record<string, string[]>>
+            onFinish={async (values) => {
+              try {
+                setSaving(true);
+                let updatedPermission = viewingRecord?.permissions;
+                if (!updatedPermission || !viewingRecord) return;
+                const allPermissionsEnabled = Object.values(values).flat();
+                updatedPermission = updatedPermission.map((it) => ({
+                  ...it,
+                  has_perm: allPermissionsEnabled.includes(it.codename),
+                }));
+                const updatedRecord = {
+                  ...viewingRecord,
+                  permissions: updatedPermission,
+                };
+                await onCrudOperation(
+                  () => updateRole(viewingRecord.id, updatedRecord),
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
+              } finally {
+                setSaving(false);
+              }
+            }}
+            id="permissions-form"
+            form={permissionsForm}
+            className={styles.permissionForm}
+            style={{ height: 'calc(100vh - 250px)', overflow: 'auto' }}
+          >
+            <ProFormGroup>
+              {permissions &&
+                Object.entries(permissions).map(([k, v]) => (
+                  <ProFormCheckbox.Group
+                    layout="vertical"
+                    name={k}
+                    label={intl.formatMessage({
+                      id: `permission.${k}`,
+                    })}
+                    options={v.map((it) => ({
+                      label: intl.formatMessage({
+                        id: `permission.${it.content_type}.${it.codename}`,
+                      }),
+                      value: it.codename,
+                    }))}
                   />
-                ),
-                width: 150,
-              },
-            ]}
-            dataSource={viewingRecord?.permissions}
-            style={{ height: 'calc(100vh - 300px)' }}
-            scroll={{ y: 'calc(100vh - 350px)' }}
-            pagination={false}
-            className="no-header-color"
-          />
+                ))}
+            </ProFormGroup>
+          </Form>
         </ProCard>
       </ProCard>
       <ModalForm<RecordType>
@@ -408,25 +501,20 @@ const Permission: React.FC = () => {
           },
         }}
       >
-        <ProFormText
-          rules={[{ required: true }]}
-          name="name"
-          label={intl.formatMessage({
-            id: 'pages.admin.job.jobTitle.column.name',
-            defaultMessage: 'Name',
-          })}
-        />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
         <ProFormTextArea
           name="description"
           label={intl.formatMessage({
-            id: 'pages.admin.job.jobTitle.column.description',
+            id: 'property.description',
             defaultMessage: 'Description',
           })}
         />
         {crudModalVisible === 'create' && (
           <ProFormSelect
             name="based_on"
-            label="Copy permissions from"
+            label={intl.formatMessage({
+              id: 'property.copyPermissionFrom',
+            })}
             options={dataRef.current?.map((it) => ({
               value: it.id,
               label: it.name,

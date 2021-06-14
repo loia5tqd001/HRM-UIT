@@ -232,4 +232,7 @@ export default {
   'property.year': 'Năm',
   'property.time': 'Thời gian',
   'property.is_paid': 'Hưởng lương',
+  'property.permissionsOf': 'Các quyền của',
+  'property.roles': 'Phân quyền',
+  'property.copyPermissionFrom': 'Sao chép quyền từ',
 };

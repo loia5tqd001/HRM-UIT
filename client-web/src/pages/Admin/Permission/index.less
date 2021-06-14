@@ -37,3 +37,16 @@
 .color-primary {
   color: @primary-color;
 }
+
+.permissionForm {
+  :global(.ant-pro-field-checkbox-vertical .ant-checkbox-group-item) {
+    display: flex;
+  }
+  :global(.ant-form-item) {
+    flex-direction: column;
+    align-items: start;
+  }
+  :global(.ant-form-item-label) {
+    font-weight: 600;
+  }
+}

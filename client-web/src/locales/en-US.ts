@@ -7,6 +7,7 @@ import settings from './en-US/settings';
 import pages from './en-US/pages';
 import error from './en-US/error';
 import property from './en-US/property';
+import permission from './en-US/permission';
 
 export default {
   'app.title': 'HRM',
@@ -26,4 +27,5 @@ export default {
   ...pages,
   ...error,
   ...property,
+  ...permission,
 };

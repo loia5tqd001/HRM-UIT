@@ -231,4 +231,7 @@ export default {
   'property.year': 'Year',
   'property.time': 'Time',
   'property.is_paid': 'Paid',
+  'property.permissionsOf': 'Permissions of',
+  'property.roles': 'Roles',
+  'property.copyPermissionFrom': 'Copy permissions from',
 };

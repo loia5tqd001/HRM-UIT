@@ -7,6 +7,7 @@ import settings from './vi-VN/settings';
 import pages from './vi-VN/pages';
 import error from './vi-VN/error';
 import property from './vi-VN/property';
+import permission from './vi-VN/permission';
 
 export default {
   'app.title': 'QLNS',
@@ -26,4 +27,5 @@ export default {
   ...pages,
   ...error,
   ...property,
+  ...permission,
 };

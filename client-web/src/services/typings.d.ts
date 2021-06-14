@@ -641,12 +641,7 @@ declare namespace API {
 
   type User = any;
 
-  interface PermissionItem {
-    id: number;
-    name: string;
-    codename: string;
-    has_perm: boolean;
-  }
+  type PermissionItem = AuthenticatedPermission;
 
   interface RoleItem {
     id: number;
