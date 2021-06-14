@@ -1,4 +1,4 @@
-import { FormattedMessage } from '@/.umi/plugin-locale/localeExports';
+import { FormattedMessage, useIntl } from '@/.umi/plugin-locale/localeExports';
 import { __DEV__ } from '@/global';
 import { calcHours, convertFromBackend } from '@/pages/Admin/Job/WorkSchedule';
 import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
@@ -28,15 +28,16 @@ import type { EmployeeTabProps } from '..';
 
 const jobEvents: API.JobEvent[] = [
   // 'Joined',
+  // 'Terminated',
   'Error Correction',
   'Location Changed',
   'Promoted',
-  // 'Terminated',
   'Other',
 ];
 
 export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
+  const intl = useIntl();
 
   // == RBAC.BEGIN
   const { canViewJob, canChangeJob, canViewSchedule, canChangeSchedule } = useEmployeeDetailAccess({
@@ -77,6 +78,15 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
     isLeaf: !departments.some((x) => x.parent === it.id),
   }));
 
+  const jobEventsMap = {
+    Joined: { text: intl.formatMessage({ id: 'property.jobEvent.Joined' }) },
+    Terminated: { text: intl.formatMessage({ id: 'property.jobEvent.Terminated' }) },
+    'Error Correction': { text: intl.formatMessage({ id: 'property.jobEvent.ErrorCorrection' }) },
+    'Location Changed': { text: intl.formatMessage({ id: 'property.jobEvent.LocationChanged' }) },
+    Promoted: { text: intl.formatMessage({ id: 'property.jobEvent.Promoted' }) },
+    Other: { text: intl.formatMessage({ id: 'property.jobEvent.Other' }) },
+  };
+
   const onUpdateJob = useCallback(
     async (value: API.EmployeeJob) => {
       try {
@@ -98,9 +108,19 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
             await jobs.fetchData();
           }
         }
-        message.success('Updated successfully!');
+        message.success(
+          intl.formatMessage({
+            id: 'error.updateSuccessfully',
+            defaultMessage: 'Update successfully!',
+          }),
+        );
       } catch {
-        message.error('Updated unsuccessfully!');
+        message.success(
+          intl.formatMessage({
+            id: 'error.updateUnsuccessfully',
+            defaultMessage: 'Update unsuccessfully!',
+          }),
+        );
       }
     },
     [employeeId, jobs, onChange, isActive],
@@ -108,74 +128,68 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
 
   const columns: ProColumns<API.EmployeeJob>[] = [
     {
-      title: <FormattedMessage id="pages.admin.job.column.timestamp" defaultMessage="Timestamp" />,
+      title: intl.formatMessage({
+        id: 'property.timestamp',
+      }),
       dataIndex: 'timestamp',
       renderText: (it) => moment(it).format('YYYY-MM-DD hh:mm:ss'),
     },
     {
-      title: (
-        <FormattedMessage id="pages.admin.job.column.department" defaultMessage="Department" />
-      ),
+      title: intl.formatMessage({
+        id: 'property.department',
+      }),
       dataIndex: 'department',
     },
     {
-      title: <FormattedMessage id="pages.admin.job.column.jobTitle" defaultMessage="Job title" />,
+      title: intl.formatMessage({
+        id: 'property.job_title',
+      }),
       dataIndex: 'job_title',
     },
     {
-      title: <FormattedMessage id="pages.admin.job.column.location" defaultMessage="Location" />,
+      title: intl.formatMessage({
+        id: 'property.location',
+      }),
       dataIndex: 'location',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.column.employmentStatus"
-          defaultMessage="Employment status"
-        />
-      ),
+      title: intl.formatMessage({
+        id: 'property.employment_status',
+      }),
       dataIndex: 'employment_status',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.column.probationStartDate"
-          defaultMessage="Probation start date"
-        />
-      ),
+      title: intl.formatMessage({
+        id: 'property.probation_start_date',
+      }),
       dataIndex: 'probation_start_date',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.column.probationEndDate"
-          defaultMessage="Probation end date"
-        />
-      ),
+      title: intl.formatMessage({
+        id: 'property.probation_end_date',
+      }),
       dataIndex: 'probation_end_date',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.column.contractStartDate"
-          defaultMessage="Contract start date"
-        />
-      ),
+      title: intl.formatMessage({
+        id: 'property.contract_start_date',
+      }),
       dataIndex: 'contract_start_date',
     },
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.job.column.contractEndDate"
-          defaultMessage="Contract end date"
-        />
-      ),
+      title: intl.formatMessage({
+        id: 'property.contract_end_date',
+      }),
       dataIndex: 'contract_end_date',
     },
     {
-      title: <FormattedMessage id="pages.admin.job.column.event" defaultMessage="Event" />,
+      title: intl.formatMessage({
+        id: 'property.event',
+      }),
       dataIndex: 'event',
       fixed: 'right',
       width: 'max-content',
+      valueEnum: jobEventsMap,
     },
   ];
 
@@ -188,7 +202,15 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
       <Access accessible={canViewJob}>
         <Card
           loading={jobs.isLoading}
-          title={isActive ? 'Job info' : 'Job Terminated'}
+          title={
+            isActive
+              ? intl.formatMessage({
+                  id: 'property.jobInfo',
+                })
+              : intl.formatMessage({
+                  id: 'property.jobTerminated',
+                })
+          }
           className="card-shadow"
         >
           {isActive ? (
@@ -236,21 +258,25 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
               <ProForm.Group>
                 <ProFormSelect
                   name="employment_status"
+                  label={intl.formatMessage({ id: 'property.employment_status' })}
                   width="md"
-                  label="Employment status"
                   options={employmentStatuses?.map((it) => ({ value: it.name, label: it.name }))}
                   hasFeedback={!employmentStatuses}
                   rules={[{ required: true }]}
                 />
                 <ProFormSelect
                   name="job_title"
+                  label={intl.formatMessage({ id: 'property.job_title' })}
                   width="md"
-                  label="Job title"
                   options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
                   hasFeedback={!jobTitles}
                   rules={[{ required: true }]}
                 />
-                <Form.Item name="department" label="Department" rules={[{ required: true }]}>
+                <Form.Item
+                  name="department"
+                  label={intl.formatMessage({ id: 'property.department' })}
+                  rules={[{ required: true }]}
+                >
                   <TreeSelect
                     treeDataSimpleMode
                     style={{ width: '100%', minWidth: 328 }}
@@ -262,9 +288,9 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                   />
                 </Form.Item>
                 <ProFormSelect
-                  name="location"
                   width="md"
-                  label="Location"
+                  name="location"
+                  label={intl.formatMessage({ id: 'property.location' })}
                   options={locations?.map((it) => ({ value: it.name, label: it.name }))}
                   hasFeedback={!locations}
                   rules={[{ required: true }]}
@@ -272,24 +298,28 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                 <ProFormDatePicker
                   width="md"
                   name="probation_start_date"
-                  label="Probation start date"
+                  label={intl.formatMessage({ id: 'property.probation_start_date' })}
                 />
                 <ProFormDatePicker
                   width="md"
                   name="probation_end_date"
-                  label="Probation end date"
+                  label={intl.formatMessage({ id: 'property.probation_end_date' })}
                 />
                 <ProFormDatePicker
                   width="md"
                   name="contract_start_date"
-                  label="Contract start date"
+                  label={intl.formatMessage({ id: 'property.contract_start_date' })}
                 />
-                <ProFormDatePicker width="md" name="contract_end_date" label="Contract end date" />
+                <ProFormDatePicker
+                  width="md"
+                  name="contract_end_date"
+                  label={intl.formatMessage({ id: 'property.contract_end_date' })}
+                />
                 {jobs.data?.[0] !== undefined && (
                   <ProFormSelect
                     name="event"
                     width="md"
-                    label="Job event"
+                    label={intl.formatMessage({ id: 'property.jobEvent' })}
                     options={jobEvents.map((it) => ({ value: it, label: it }))}
                     rules={[{ required: true }]}
                   />
@@ -304,12 +334,12 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                 render: () => {
                   return [
                     <ModalForm<API.EmployeeJob>
-                      title="Rejoin"
+                      title={intl.formatMessage({ id: 'property.actions.rejoin' })}
                       width="780px"
                       form={rejoinForm}
                       trigger={
                         <Button key="rejoin" type="primary">
-                          Rejoin
+                          {intl.formatMessage({ id: 'property.actions.rejoin' })}
                         </Button>
                       }
                       onVisibleChange={(visible) => {
@@ -356,9 +386,9 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                     >
                       <ProForm.Group>
                         <ProFormSelect
-                          name="employment_status"
                           width="md"
-                          label="Employment status"
+                          name="employment_status"
+                          label={intl.formatMessage({ id: 'property.employment_status' })}
                           options={employmentStatuses?.map((it) => ({
                             value: it.name,
                             label: it.name,
@@ -367,16 +397,16 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                           rules={[{ required: true }]}
                         />
                         <ProFormSelect
-                          name="job_title"
                           width="md"
-                          label="Job title"
+                          name="job_title"
+                          label={intl.formatMessage({ id: 'property.job_title' })}
                           options={jobTitles?.map((it) => ({ value: it.name, label: it.name }))}
                           hasFeedback={!jobTitles}
                           rules={[{ required: true }]}
                         />
                         <Form.Item
                           name="department"
-                          label="Department"
+                          label={intl.formatMessage({ id: 'property.department' })}
                           rules={[{ required: true }]}
                         >
                           <TreeSelect
@@ -390,9 +420,9 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                           />
                         </Form.Item>
                         <ProFormSelect
-                          name="location"
                           width="md"
-                          label="Location"
+                          name="location"
+                          label={intl.formatMessage({ id: 'property.location' })}
                           options={locations?.map((it) => ({ value: it.name, label: it.name }))}
                           hasFeedback={!locations}
                           rules={[{ required: true }]}
@@ -400,22 +430,22 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                         <ProFormDatePicker
                           width="md"
                           name="probation_start_date"
-                          label="Probation start date"
+                          label={intl.formatMessage({ id: 'property.probation_start_date' })}
                         />
                         <ProFormDatePicker
                           width="md"
                           name="probation_end_date"
-                          label="Probation end date"
+                          label={intl.formatMessage({ id: 'property.probation_end_date' })}
                         />
                         <ProFormDatePicker
                           width="md"
                           name="contract_start_date"
-                          label="Contract start date"
+                          label={intl.formatMessage({ id: 'property.contract_start_date' })}
                         />
                         <ProFormDatePicker
                           width="md"
                           name="contract_end_date"
-                          label="Contract end date"
+                          label={intl.formatMessage({ id: 'property.contract_end_date' })}
                         />
                       </ProForm.Group>
                     </ModalForm>,
@@ -424,16 +454,26 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
               }}
             >
               <ProForm.Group>
-                <ProFormText width="md" name="reason" label="Reason" disabled />
+                <ProFormText
+                  width="md"
+                  name="reason"
+                  label={intl.formatMessage({ id: 'property.reason' })}
+                  disabled
+                />
                 <ProFormDatePicker
                   width="md"
                   name="date"
-                  label="Date"
+                  label={intl.formatMessage({ id: 'property.date' })}
                   initialValue={moment()}
                   disabled
                 />
               </ProForm.Group>
-              <ProFormTextArea width="md" name="note" label="Note" disabled />
+              <ProFormTextArea
+                width="md"
+                name="note"
+                label={intl.formatMessage({ id: 'property.note' })}
+                disabled
+              />
             </ProForm>
           )}
         </Card>
@@ -442,7 +482,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
       <Access accessible={canViewSchedule}>
         <Card
           loading={schedules === undefined || schedule.isLoading}
-          title={`Work schedule`}
+          title={intl.formatMessage({ id: 'property.workSchedule' })}
           className="card-shadow"
         >
           <ProForm<API.EmployeeSchedule>
@@ -452,9 +492,19 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                 value.owner = employeeId;
                 await updateSchedule(employeeId, value);
                 // onChange?.();
-                message.success('Updated successfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                );
               } catch {
-                message.error('Updated unsuccessfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
               }
             }}
             initialValues={schedule.data}
@@ -477,28 +527,32 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
               rules={[{ required: true }]}
               name={['schedule', 'name']}
               width="lg"
-              label={`Work schedule  (${scheduleDays?.reduce(
-                (acc, cur) => acc + calcHours(cur),
-                0,
-              )} hrs)`}
+              label={`${intl.formatMessage({
+                id: 'property.workSchedule',
+              })}  (${scheduleDays?.reduce((acc, cur) => acc + calcHours(cur), 0)} hrs)`}
               options={schedules?.map((it) => ({ value: it.name, label: it.name }))}
               disabled={!isActive}
             />
             {isActive && (
               <>
                 <Typography style={{ marginBottom: 24, fontSize: '1.1em' }}>
-                  <b>Preview</b>{' '}
+                  <b>{intl.formatMessage({ id: 'pages.employee.preview' })}:</b>{' '}
                   <small>
                     <i>
-                      (below is readonly for previewing purpose,{' '}
-                      <b style={{ textTransform: 'uppercase' }}>please select above</b>):
+                      {intl.formatMessage({ id: 'pages.employee.belowIsReadonly' })},{' '}
+                      <b style={{ textTransform: 'uppercase' }}>
+                        {intl.formatMessage({ id: 'pages.employee.pleaseSelectBelow' })}
+                      </b>
+                      ):
                     </i>
                   </small>
                 </Typography>
                 {scheduleDays.map((it) => (
                   <Form.Item
                     name={it.day}
-                    label={`${it.day} (${calcHours(it)}hrs)`}
+                    label={`${intl.formatMessage({
+                      id: `property.workDays.${it.day}`,
+                    })} (${calcHours(it)}hrs)`}
                     labelCol={{ span: 2 }}
                     wrapperCol={{ span: 20 }}
                     style={{ flexDirection: 'row' }}
@@ -534,7 +588,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
 
       <Access accessible={canViewJob}>
         <ProTable<API.EmployeeJob>
-          headerTitle="Job history"
+          headerTitle={intl.formatMessage({ id: 'property.jobHistory' })}
           rowKey="id"
           columns={columns}
           dataSource={jobs.data}

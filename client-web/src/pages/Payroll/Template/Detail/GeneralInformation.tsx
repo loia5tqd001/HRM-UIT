@@ -29,9 +29,19 @@ export const GeneralInformation: React.FC<Props> = (props) => {
               };
               await updatePayrollTemplate(payrollTemplate!.id, final);
               setPayrollTemplate(final);
-              message.success('Updated successfully!');
+              message.success(
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                );
             } catch {
-              message.error('Updated unsuccessfully!');
+              message.success(
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
             }
           }}
         >

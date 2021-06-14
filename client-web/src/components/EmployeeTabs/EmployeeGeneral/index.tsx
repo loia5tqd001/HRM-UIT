@@ -8,7 +8,7 @@ import {
   updateBankInfo,
   updateEmergencyContact,
   updateEmployee,
-  updateHomeAddress
+  updateHomeAddress,
 } from '@/services/employee';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useEmployeeDetailAccess } from '@/utils/hooks/useEmployeeDetailType';
@@ -18,12 +18,13 @@ import faker from 'faker';
 import merge from 'lodash/merge';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { Access } from 'umi';
+import { Access, useIntl } from 'umi';
 import type { EmployeeTabProps } from '..';
 
 export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
   const [countries, setCountries] = useState<API.Country[]>([]);
+  const intl = useIntl();
 
   // == RBAC.BEGIN
   const {
@@ -61,7 +62,11 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
   return (
     <>
       <Access accessible={canViewBasicInfo}>
-        <Card loading={basicInfo.isLoading} title="Basic info" className="card-shadow">
+        <Card
+          loading={basicInfo.isLoading}
+          title={intl.formatMessage({ id: 'property.basicInfo' })}
+          className="card-shadow"
+        >
           <ProForm<API.Employee>
             name="basic_info"
             onFinish={async (value) => {
@@ -73,9 +78,19 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
                 await updateEmployee(employeeId, final);
                 basicInfo.setData(final);
                 onChange?.basicInfo?.(final);
-                message.success('Updated successfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                );
               } catch {
-                message.error('Updated unsuccessfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
               }
             }}
             initialValues={basicInfo.data}
@@ -127,74 +142,100 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
                 width="sm"
                 rules={[{ required: true, type: 'email' }]}
                 name="email"
-                label="Email"
+                label={intl.formatMessage({ id: 'property.email' })}
                 disabled={!isActive}
               />
               <ProFormText
                 width="sm"
                 rules={[{ required: true }]}
                 name="first_name"
-                label="First name"
+                label={intl.formatMessage({ id: 'property.first_name' })}
                 disabled={!isActive}
               />
               <ProFormText
                 width="sm"
                 rules={[{ required: true }]}
                 name="last_name"
-                label="Last name"
+                label={intl.formatMessage({ id: 'property.last_name' })}
                 disabled={!isActive}
               />
-            </ProForm.Group>
-            <ProForm.Group>
               <ProFormSelect
                 width="sm"
                 name="gender"
-                label="Gender"
+                label={intl.formatMessage({ id: 'property.gender' })}
                 options={[
-                  { value: 'Male', label: 'Male' },
-                  { value: 'Female', label: 'Female' },
-                  { value: 'Other', label: 'Other' },
+                  { value: 'Male', label: intl.formatMessage({ id: 'property.gender.male' }) },
+                  { value: 'Female', label: intl.formatMessage({ id: 'property.gender.female' }) },
+                  { value: 'Other', label: intl.formatMessage({ id: 'property.gender.other' }) },
                 ]}
                 disabled={!isActive}
               />
               <ProFormDatePicker
                 width="sm"
                 name="date_of_birth"
-                label="Date of birth"
+                label={intl.formatMessage({ id: 'property.date_of_birth' })}
                 disabled={!isActive}
               />
               <ProFormSelect
                 width="sm"
                 name="marital_status"
-                label="Marital status"
+                label={intl.formatMessage({ id: 'property.marital_status' })}
                 options={[
-                  { value: 'Single', label: 'Single' },
-                  { value: 'Married', label: 'Married' },
-                  { value: 'Divorced', label: 'Divorced' },
-                  { value: 'Seperated', label: 'Seperated' },
-                  { value: 'Widowed', label: 'Widowed' },
-                  { value: 'Other', label: 'Other' },
+                  {
+                    value: 'Single',
+                    label: intl.formatMessage({ id: 'property.marital_status.single' }),
+                  },
+                  {
+                    value: 'Married',
+                    label: intl.formatMessage({ id: 'property.marital_status.married' }),
+                  },
+                  {
+                    value: 'Divorced',
+                    label: intl.formatMessage({ id: 'property.marital_status.divorced' }),
+                  },
+                  {
+                    value: 'Seperated',
+                    label: intl.formatMessage({ id: 'property.marital_status.seperated' }),
+                  },
+                  {
+                    value: 'Widowed',
+                    label: intl.formatMessage({ id: 'property.marital_status.widowed' }),
+                  },
+                  {
+                    value: 'Other',
+                    label: intl.formatMessage({ id: 'property.marital_status.other' }),
+                  },
                 ]}
                 disabled={!isActive}
               />
               <ProFormText
                 width="sm"
                 name="personal_tax_id"
-                label="Personal tax id"
+                label={intl.formatMessage({ id: 'property.personal_tax_id' })}
                 disabled={!isActive}
               />
-              <ProFormText width="sm" name="nationality" label="Nationality" disabled={!isActive} />
-              <ProFormText width="sm" name="phone" label="Phone" disabled={!isActive} />
+              <ProFormText
+                width="sm"
+                name="nationality"
+                label={intl.formatMessage({ id: 'property.nationality' })}
+                disabled={!isActive}
+              />
+              <ProFormText
+                width="sm"
+                name="phone"
+                label={intl.formatMessage({ id: 'property.phone' })}
+                disabled={!isActive}
+              />
               <ProFormText
                 width="sm"
                 name="social_insurance"
-                label="Social insurance"
+                label={intl.formatMessage({ id: 'property.social_insurance' })}
                 disabled={!isActive}
               />
               <ProFormText
                 width="sm"
                 name="health_insurance"
-                label="Health insurance"
+                label={intl.formatMessage({ id: 'property.health_insurance' })}
                 disabled={!isActive}
               />
             </ProForm.Group>
@@ -202,7 +243,11 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
         </Card>
       </Access>
       <Access accessible={canViewHomeAddress}>
-        <Card loading={homeAddress.isLoading} title="Home address" className="card-shadow">
+        <Card
+          loading={homeAddress.isLoading}
+          title={intl.formatMessage({ id: 'property.homeAddress' })}
+          className="card-shadow"
+        >
           <ProForm<API.EmployeeHomeAddress>
             onFinish={async (value) => {
               try {
@@ -211,9 +256,19 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
                 await updateHomeAddress(employeeId, final);
                 homeAddress.setData(final);
                 // onChange?.();
-                message.success('Updated successfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                );
               } catch {
-                message.error('Updated unsuccessfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
               }
             }}
             initialValues={homeAddress.data}
@@ -243,16 +298,31 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
             }
           >
             <ProForm.Group>
-              <ProFormText width="sm" name="address" label="Full address" disabled={!isActive} />
+              <ProFormText
+                width="sm"
+                name="address"
+                label={intl.formatMessage({ id: 'property.fullAddress' })}
+                disabled={!isActive}
+              />
               <ProFormSelect
                 name="country"
                 width="sm"
-                label="Country"
+                label={intl.formatMessage({ id: 'property.country' })}
                 options={countries.map((it) => ({ value: it.name, label: it.name }))}
                 disabled={!isActive}
               />
-              <ProFormText width="sm" name="province" label="Province" disabled={!isActive} />
-              <ProFormText width="sm" name="city" label="City" disabled={!isActive} />
+              <ProFormText
+                width="sm"
+                name="province"
+                label={intl.formatMessage({ id: 'property.province' })}
+                disabled={!isActive}
+              />
+              <ProFormText
+                width="sm"
+                name="city"
+                label={intl.formatMessage({ id: 'property.city' })}
+                disabled={!isActive}
+              />
             </ProForm.Group>
           </ProForm>
         </Card>
@@ -260,7 +330,7 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
       <Access accessible={canViewEmergencyContact}>
         <Card
           loading={emergencyContact.isLoading}
-          title="Emergency contact"
+          title={intl.formatMessage({ id: 'property.emergencyContact' })}
           className="card-shadow"
         >
           <ProForm<API.EmployeeEmergencyContact>
@@ -271,9 +341,19 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
                 await updateEmergencyContact(employeeId, final);
                 emergencyContact.setData(final);
                 // onChange?.();
-                message.success('Updated successfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                );
               } catch {
-                message.error('Updated unsuccessfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
               }
             }}
             initialValues={emergencyContact.data}
@@ -310,40 +390,85 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
             }
           >
             <ProForm.Group>
-              <ProFormText width="sm" name="fullname" label="Full name" disabled={!isActive} />
+              <ProFormText
+                width="sm"
+                name="fullname"
+                label={intl.formatMessage({ id: 'property.full_name' })}
+                disabled={!isActive}
+              />
               <ProFormSelect
                 width="sm"
                 name="relationship"
-                label="Relationship"
+                label={intl.formatMessage({ id: 'property.relationship' })}
                 options={[
-                  { value: 'Father', label: 'Father' },
-                  { value: 'Mother', label: 'Mother' },
-                  { value: 'Parent', label: 'Parent' },
-                  { value: 'Spouse', label: 'Spouse' },
-                  { value: 'Sibling', label: 'Sibling' },
-                  { value: 'Friend', label: 'Friend' },
-                  { value: 'Other', label: 'Other' },
+                  {
+                    value: 'Father',
+                    label: intl.formatMessage({ id: 'property.relationship.Father' }),
+                  },
+                  {
+                    value: 'Mother',
+                    label: intl.formatMessage({ id: 'property.relationship.Mother' }),
+                  },
+                  {
+                    value: 'Parent',
+                    label: intl.formatMessage({ id: 'property.relationship.Parent' }),
+                  },
+                  {
+                    value: 'Spouse',
+                    label: intl.formatMessage({ id: 'property.relationship.Spouse' }),
+                  },
+                  {
+                    value: 'Sibling',
+                    label: intl.formatMessage({ id: 'property.relationship.Sibling' }),
+                  },
+                  {
+                    value: 'Friend',
+                    label: intl.formatMessage({ id: 'property.relationship.Friend' }),
+                  },
+                  {
+                    value: 'Other',
+                    label: intl.formatMessage({ id: 'property.relationship.Other' }),
+                  },
                 ]}
                 disabled={!isActive}
               />
-              <ProFormText width="sm" name="phone" label="Phone" disabled={!isActive} />
+              <ProFormText
+                width="sm"
+                name="phone"
+                label={intl.formatMessage({ id: 'property.phone' })}
+                disabled={!isActive}
+              />
             </ProForm.Group>
           </ProForm>
         </Card>
       </Access>
       <Access accessible={canViewBankInfo}>
-        <Card loading={bankInfo.isLoading} title="Bank info" className="card-shadow">
+        <Card
+          loading={bankInfo.isLoading}
+          title={intl.formatMessage({ id: 'property.bankInfo' })}
+          className="card-shadow"
+        >
           <ProForm<API.EmployeeBankInfo>
             onFinish={async (value) => {
               try {
                 const final = merge(bankInfo.data, value);
                 final.owner = employeeId;
                 await updateBankInfo(employeeId, final);
-                message.success('Updated successfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                );
                 bankInfo.setData(final);
                 // onChange?.();
               } catch {
-                message.error('Updated unsuccessfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
               }
             }}
             initialValues={bankInfo.data}
@@ -375,22 +500,42 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
             }
           >
             <ProForm.Group>
-              <ProFormText width="sm" name="bank_name" label="Bank name" disabled={!isActive} />
+              <ProFormText
+                width="sm"
+                name="bank_name"
+                label={intl.formatMessage({ id: 'property.bank_name' })}
+                disabled={!isActive}
+              />
               <ProFormText
                 width="sm"
                 name="account_name"
-                label="Account name"
+                label={intl.formatMessage({ id: 'property.account_name' })}
                 disabled={!isActive}
               />
-              <ProFormText width="sm" name="branch" label="Branch" disabled={!isActive} />
+              <ProFormText
+                width="sm"
+                name="branch"
+                label={intl.formatMessage({ id: 'property.branch' })}
+                disabled={!isActive}
+              />
               <ProFormText
                 width="sm"
                 name="account_number"
-                label="Account number"
+                label={intl.formatMessage({ id: 'property.account_number' })}
                 disabled={!isActive}
               />
-              <ProFormText width="sm" name="swift_bic" label="Swift BIC" disabled={!isActive} />
-              <ProFormText width="sm" name="iban" label="IBAN" disabled={!isActive} />
+              <ProFormText
+                width="sm"
+                name="swift_bic"
+                label={intl.formatMessage({ id: 'property.swift_bic' })}
+                disabled={!isActive}
+              />
+              <ProFormText
+                width="sm"
+                name="iban"
+                label={intl.formatMessage({ id: 'property.iban' })}
+                disabled={!isActive}
+              />
             </ProForm.Group>
           </ProForm>
         </Card>

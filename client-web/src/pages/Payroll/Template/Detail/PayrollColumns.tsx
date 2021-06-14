@@ -334,9 +334,19 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                       try {
                         setIsSaving(true);
                         await onUpdateColumns(tableData);
-                        message.success('Updated successfully!');
+                        message.success(
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                );
                       } catch {
-                        message.error('Updated unsuccessfully!');
+                        message.success(
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
                       } finally {
                         setIsSaving(false);
                       }

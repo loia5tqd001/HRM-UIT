@@ -7,4 +7,5 @@ export default {
   'component.button.changePassword': 'Change Password',
   'component.button.changeAvatar': 'Change Avatar',
   'component.button.terminateEmployment': 'Terminate Employment',
+  'component.button.print': 'Print',
 };

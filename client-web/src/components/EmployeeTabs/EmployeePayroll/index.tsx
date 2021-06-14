@@ -18,11 +18,12 @@ import faker from 'faker';
 import moment from 'moment';
 import React, { useRef, useState } from 'react';
 import ReactToPrint from 'react-to-print';
-import { Access } from 'umi';
+import { Access, useIntl } from 'umi';
 import type { EmployeeTabProps } from '..';
 
 export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
+  const intl = useIntl();
   const toPrintRef = useRef<HTMLDivElement>(null);
 
   // == RBAC.BEGIN
@@ -48,7 +49,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
 
   const columns: ProColumns<API.Payslip>[] = [
     {
-      title: 'Name',
+      title: intl.formatMessage({ id: 'property.payslip' }),
       dataIndex: ['payrollDetail', 'name'],
       renderText: (it, record) => (
         <Button type="link" onClick={() => setSelectedPayslip(record)}>
@@ -57,11 +58,11 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
       ),
     },
     {
-      title: 'Template',
+      title: intl.formatMessage({ id: 'property.template' }),
       dataIndex: ['payrollDetail', 'template'],
     },
     {
-      title: 'Cycle',
+      title: intl.formatMessage({ id: 'property.period' }),
       dataIndex: ['payrollDetail', 'period'],
       renderText: (it) =>
         `${moment(it?.start_date).format('DD MMM YYYY')} → ${moment(it?.end_date).format(
@@ -69,7 +70,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
         )}`,
     },
     {
-      title: 'Created At',
+      title: intl.formatMessage({ id: 'property.created_at' }),
       dataIndex: ['payrollDetail', 'created_at'],
       renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
     },
@@ -80,7 +81,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
       <Access accessible={canViewSalaryInfo}>
         <Card
           loading={payroll.isLoading || taxPlans.isLoading || insurancePlans.isLoading}
-          title="Payroll info"
+          title={intl.formatMessage({ id: 'property.payrollInfo' })}
           className="card-shadow"
         >
           <ProForm<API.EmployeePayroll>
@@ -89,9 +90,19 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
                 updateEmployeePayroll(employeeId, value);
                 payroll.setData(value);
                 // onChange?.();
-                message.success('Updated successfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                );
               } catch {
-                message.error('Updated unsuccessfully!');
+                message.success(
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
               }
             }}
             initialValues={payroll.data}
@@ -131,7 +142,11 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
             }
           >
             <ProForm.Group>
-              <Form.Item name="salary" label="Salary" rules={[{ required: true }]}>
+              <Form.Item
+                name="salary"
+                label={intl.formatMessage({ id: 'property.salary' })}
+                rules={[{ required: true }]}
+              >
                 <InputNumber
                   style={{ width: 328 }}
                   formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -141,7 +156,11 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
                   disabled={!isActive}
                 />
               </Form.Item>
-              <Form.Item name="basic_salary" label="Basic salary" rules={[{ required: true }]}>
+              <Form.Item
+                name="basic_salary"
+                label={intl.formatMessage({ id: 'property.basic_salary' })}
+                rules={[{ required: true }]}
+              >
                 <InputNumber
                   style={{ width: 328 }}
                   formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -153,16 +172,16 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
               </Form.Item>
               <ProFormSelect
                 name="tax_policy"
+                label={intl.formatMessage({ id: 'property.tax_policy' })}
                 width="md"
-                label="Tax plan"
                 options={taxPlans.data?.map((it) => ({ value: it.name, label: it.name }))}
                 rules={[{ required: true }]}
                 disabled={!isActive}
               />
               <ProFormSelect
                 name="insurance_policy"
+                label={intl.formatMessage({ id: 'property.insurance_policy' })}
                 width="md"
-                label="Insurance plan"
                 options={insurancePlans.data?.map((it) => ({ value: it.name, label: it.name }))}
                 rules={[{ required: true }]}
                 disabled={!isActive}
@@ -191,7 +210,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
       </div>
       <Access accessible={canViewPayslips}>
         <ProTable<API.Payslip>
-          headerTitle="Payslips"
+          headerTitle={intl.formatMessage({ id: 'property.payslips' })}
           rowKey="id"
           columns={columns}
           loading={employeePayslips.isLoading || payrolls.isLoading}
@@ -215,7 +234,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
               return [
                 <ReactToPrint
                   // documentTitle={selectedPayslip?.payrollDetail?.name}
-                  trigger={() => <Button icon={<FilePdfOutlined />}>Print</Button>}
+                  trigger={() => <Button icon={<FilePdfOutlined />}>{intl.formatMessage({ id: 'component.button.print'})}</Button>}
                   content={() => toPrintRef.current}
                   // print={() => { console.log('custom print')}}
                   // This library sucks, no download will appear: https://github.com/gregnb/react-to-print/issues/337

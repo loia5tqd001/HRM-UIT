@@ -10,7 +10,9 @@ export default {
 
   // Job Title
   'pages.jobTitle.title': 'Danh sách chức vụ',
-
+  'pages.employee.preview': 'Xem trước',
+  'pages.employee.belowIsReadonly': 'Bên dưới chỉ cho mục đích xem trước',
+  'pages.employee.pleaseSelectBelow': 'chọn ở bên trên',
 
   'pages.admin.user.listForm.title': 'Danh sách tài khoản',
 

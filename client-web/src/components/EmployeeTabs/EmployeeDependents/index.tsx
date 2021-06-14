@@ -4,7 +4,7 @@ import {
   allDependents,
   createDependent,
   deleteDependent,
-  updateDependent
+  updateDependent,
 } from '@/services/employee';
 import { useEmployeeDetailAccess } from '@/utils/hooks/useEmployeeDetailType';
 import {
@@ -12,13 +12,13 @@ import {
   EditOutlined,
   ManOutlined,
   PlusOutlined,
-  WomanOutlined
+  WomanOutlined,
 } from '@ant-design/icons';
 import ProForm, {
   ModalForm,
   ProFormDatePicker,
   ProFormSelect,
-  ProFormText
+  ProFormText,
 } from '@ant-design/pro-form';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -34,14 +34,12 @@ type RecordType = API.EmployeeDependent;
 
 export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
+  const intl = useIntl();
+  const localeFeature = intl.formatMessage({ id: 'property.dependent' });
 
   // == RBAC.BEGIN
-  const {
-    canViewDependent,
-    canAddDependent,
-    canChangeDependent,
-    canDeleteDependent,
-  } = useEmployeeDetailAccess({ employeeId, isActive });
+  const { canViewDependent, canAddDependent, canChangeDependent, canDeleteDependent } =
+    useEmployeeDetailAccess({ employeeId, isActive });
   // == RBAC.END
 
   const actionRef = useRef<ActionType>();
@@ -50,7 +48,6 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
   );
   const [selectedRecord, setSelectedRecord] = useState<RecordType>();
   const [form] = useForm<RecordType>();
-  const intl = useIntl();
   const [countries, setCountries] = useState<API.Country[]>([]);
 
   useEffect(() => {
@@ -73,10 +70,10 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
   );
 
   const columns: ProColumns<RecordType>[] = [
-    { title: 'First name', dataIndex: 'first_name' },
-    { title: 'Last name', dataIndex: 'last_name' },
+    { title: intl.formatMessage({ id: 'property.first_name' }), dataIndex: 'first_name' },
+    { title: intl.formatMessage({ id: 'property.last_name' }), dataIndex: 'last_name' },
     {
-      title: <FormattedMessage id="property.gender" defaultMessage="Gender" />,
+      title: intl.formatMessage({ id: 'property.gender' }),
       key: 'gender',
       dataIndex: 'gender',
       valueEnum: {
@@ -87,33 +84,47 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
           text: <WomanOutlined style={{ color: '#F23A87' }} />,
         },
         Other: {
-          text: 'Other',
+          text: intl.formatMessage({ id: 'property.gender.other' }),
         },
       },
     },
     {
-      title: (
-        <FormattedMessage
-          id="property.date_of_birth"
-          defaultMessage="Date of birth"
-        />
-      ),
+      title: intl.formatMessage({ id: 'property.date_of_birth' }),
       key: 'date_of_birth',
       dataIndex: 'date_of_birth',
       renderText: (it) => moment(it).format('DD MMM YYYY'),
     },
-    { title: 'Relationship', dataIndex: 'relationship' },
     {
-      title: 'Nationality',
+      title: intl.formatMessage({ id: 'property.relationship' }),
+      dataIndex: 'relationship',
+      valueEnum: {
+        Father: { text: intl.formatMessage({ id: 'property.relationship.Father' }) },
+        Mother: { text: intl.formatMessage({ id: 'property.relationship.Mother' }) },
+        'Father-in-law': {
+          text: intl.formatMessage({ id: 'property.relationship.Father-in-law' }),
+        },
+        'Mother-in-law': {
+          text: intl.formatMessage({ id: 'property.relationship.Mother-in-law' }),
+        },
+        Son: { text: intl.formatMessage({ id: 'property.relationship.Son' }) },
+        Daughter: { text: intl.formatMessage({ id: 'property.relationship.Daughter' }) },
+        Sister: { text: intl.formatMessage({ id: 'property.relationship.Sister' }) },
+        Brother: { text: intl.formatMessage({ id: 'property.relationship.Brother' }) },
+        Spouse: { text: intl.formatMessage({ id: 'property.relationship.Spouse' }) },
+        Other: { text: intl.formatMessage({ id: 'property.relationship.Other' }) },
+      },
+    },
+    {
+      title: intl.formatMessage({ id: 'property.nationality' }),
       dataIndex: 'nationality',
       renderText: (it) => countries.find((x) => x.id === it)?.name,
     },
-    { title: 'Province', dataIndex: 'province' },
-    { title: 'City', dataIndex: 'city' },
-    { title: 'Peronal tax id', dataIndex: 'personal_tax_id' },
-    { title: 'Personal id', dataIndex: 'personal_id' },
+    { title: intl.formatMessage({ id: 'property.province' }), dataIndex: 'province' },
+    { title: intl.formatMessage({ id: 'property.city' }), dataIndex: 'city' },
+    { title: intl.formatMessage({ id: 'property.personal_tax_id' }), dataIndex: 'personal_tax_id' },
+    { title: intl.formatMessage({ id: 'property.personal_id' }), dataIndex: 'personal_id' },
     {
-      title: 'Effective',
+      title: intl.formatMessage({ id: 'property.effective' }),
       dataIndex: 'effective_start_date',
       renderText: (_, record) =>
         `${
@@ -131,6 +142,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
       key: 'action',
       fixed: 'right',
       align: 'center',
+      width: 'min-content',
       search: false,
       render: (dom, record) => (
         <Space size="small">
@@ -152,7 +164,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
           <Access accessible={canDeleteDependent}>
             <Popconfirm
               placement="right"
-                            title={`${intl.formatMessage({
+              title={`${intl.formatMessage({
                 id: 'property.actions.delete',
                 defaultMessage: 'Delete',
               })} ${localeFeature}?`}
@@ -170,7 +182,14 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
                 );
               }}
             >
-              <Button title="Delete this dependent" size="small" danger>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}?`}
+                size="small"
+                danger
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -182,18 +201,24 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
 
   const dict = {
     title: {
-      create: 'Add dependent',
-      update: 'Update dependent',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
   return (
     <Access accessible={canViewDependent}>
       <ProTable<RecordType>
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.Dependent.list.title',
-          defaultMessage: 'Dependents',
-        })}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         className="card-shadow"
         actionRef={actionRef}
         scroll={{ x: 'max-content' }}
@@ -209,7 +234,8 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -326,44 +352,117 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
             width="sm"
             rules={[{ required: true }]}
             name="first_name"
-            label="First name"
+            label={intl.formatMessage({ id: 'property.first_name' })}
           />
-          <ProFormText width="sm" rules={[{ required: true }]} name="last_name" label="Last name" />
+          <ProFormText
+            width="sm"
+            rules={[{ required: true }]}
+            name="last_name"
+            label={intl.formatMessage({ id: 'property.last_name' })}
+          />
           <ProFormSelect
             width="sm"
             name="gender"
-            label="Gender"
+            label={intl.formatMessage({ id: 'property.gender' })}
             options={[
-              { value: 'Male', label: 'Male' },
-              { value: 'Female', label: 'Female' },
-              { value: 'Other', label: 'Other' },
+              { value: 'Male', label: intl.formatMessage({ id: 'property.gender.male' }) },
+              { value: 'Female', label: intl.formatMessage({ id: 'property.gender.female' }) },
+              { value: 'Other', label: intl.formatMessage({ id: 'property.gender.other' }) },
             ]}
           />
-        </ProForm.Group>
-        <ProForm.Group>
-          <ProFormDatePicker width="sm" name="date_of_birth" label="Date of birth" />
+          <ProFormDatePicker
+            width="sm"
+            name="date_of_birth"
+            label={intl.formatMessage({ id: 'property.date_of_birth' })}
+          />
           <ProFormSelect
             width="sm"
             name="relationship"
-            label="Relationship"
+            label={intl.formatMessage({ id: 'property.relationship' })}
             options={[
-              { value: 'Male', label: 'Male' },
-              { value: 'Female', label: 'Female' },
-              { value: 'Other', label: 'Other' },
+              {
+                value: 'Father',
+                label: intl.formatMessage({ id: 'property.relationship.Father' }),
+              },
+
+              {
+                value: 'Mother',
+                label: intl.formatMessage({ id: 'property.relationship.Mother' }),
+              },
+
+              {
+                value: 'Father-in-law',
+                label: intl.formatMessage({ id: 'property.relationship.Father-in-law' }),
+              },
+
+              {
+                value: 'Mother-in-law',
+                label: intl.formatMessage({ id: 'property.relationship.Mother-in-law' }),
+              },
+
+              {
+                value: 'Son',
+                label: intl.formatMessage({ id: 'property.relationship.Son' }),
+              },
+
+              {
+                value: 'Daughter',
+                label: intl.formatMessage({ id: 'property.relationship.Daughter' }),
+              },
+
+              {
+                value: 'Sister',
+                label: intl.formatMessage({ id: 'property.relationship.Sister' }),
+              },
+
+              {
+                value: 'Brother',
+                label: intl.formatMessage({ id: 'property.relationship.Brother' }),
+              },
+
+              {
+                value: 'Spouse',
+                label: intl.formatMessage({ id: 'property.relationship.Spouse' }),
+              },
+
+              {
+                value: 'Other',
+                label: intl.formatMessage({ id: 'property.relationship.Other' }),
+              },
             ]}
           />
           <ProFormSelect
             width="sm"
             name="nationality"
-            label="Nationality"
+            label={intl.formatMessage({ id: 'property.nationality' })}
             options={countries.map((it) => ({ value: it.id, label: it.name }))}
           />
-          <ProFormText width="sm" name="province" label="Province" />
-          <ProFormText width="sm" name="city" label="City" />
-          <ProFormText width="sm" name="personal_id" label="Personal id" />
-          <ProFormText width="sm" name="personal_tax_id" label="Personal tax id" />
-          <ProFormDatePicker width="sm" name="effective_start_date" label="Effective start date" />
-          <ProFormDatePicker width="sm" name="effective_end_date" label="Effective end date" />
+          <ProFormText
+            width="sm"
+            name="province"
+            label={intl.formatMessage({ id: 'property.province' })}
+          />
+          <ProFormText width="sm" name="city" label={intl.formatMessage({ id: 'property.city' })} />
+          <ProFormText
+            width="sm"
+            name="personal_id"
+            label={intl.formatMessage({ id: 'property.personal_id' })}
+          />
+          <ProFormText
+            width="sm"
+            name="personal_tax_id"
+            label={intl.formatMessage({ id: 'property.personal_tax_id' })}
+          />
+          <ProFormDatePicker
+            width="sm"
+            name="effective_start_date"
+            label={intl.formatMessage({ id: 'property.effective_start_date' })}
+          />
+          <ProFormDatePicker
+            width="sm"
+            name="effective_end_date"
+            label={intl.formatMessage({ id: 'property.effective_end_date' })}
+          />
         </ProForm.Group>
       </ModalForm>
     </Access>

@@ -7,9 +7,11 @@ export default {
 
   // Message
   'pages.allPeople': 'All People',
-  
-  // Job Title
-  'pages.jobTitle.title': 'Job Titles',
+
+  // Employee
+  'pages.employee.preview': 'Preview',
+  'pages.employee.belowIsReadonly': 'below is readonly for previewing purpose',
+  'pages.employee.pleaseSelectBelow': 'please select above',
 
   'pages.admin.user.listForm.title': 'Users',
 

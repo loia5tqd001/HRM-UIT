@@ -6,4 +6,5 @@ export default {
   'component.button.new': 'Thêm mới',
   'component.button.changePassword': 'Đổi mật khẩu',
   'component.button.terminateEmployment': 'Thôi việc',
+  'component.button.print': 'In',
 };

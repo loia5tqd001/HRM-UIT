@@ -128,7 +128,7 @@ export const OrganziationStructure: React.FC = () => {
             <Popconfirm
               placement="right"
               title={
-                record.employee_no > 1
+              record.employee_no > 0
                   ? intl.formatMessage({
                       id: 'error.mustRemoveMemberFromThisDepartmentFirst',
                       defaultMessage: 'Must remove members from this department first!',
