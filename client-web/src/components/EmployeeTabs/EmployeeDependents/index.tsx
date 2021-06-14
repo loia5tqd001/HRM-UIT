@@ -221,7 +221,6 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
         })} ${localeFeature}`}
         className="card-shadow"
         actionRef={actionRef}
-        scroll={{ x: 'max-content' }}
         rowKey="id"
         search={false}
         locale={{ emptyText: 'No dependents' }}

@@ -594,8 +594,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
           dataSource={jobs.data}
           loading={jobs.isLoading}
           search={false}
-          style={{ width: '100%' }}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'min-content' }}
           className="card-shadow"
         />
       </Access>
