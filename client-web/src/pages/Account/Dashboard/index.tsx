@@ -1,4 +1,4 @@
-import { allAttendances, attendanceHelper } from '@/services/attendance';
+import { allAttendances, allPeriods, attendanceHelper } from '@/services/attendance';
 import { allEmployees, getSchedule } from '@/services/employee';
 import { allTimeoffs } from '@/services/timeOff';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
@@ -402,49 +402,37 @@ export const Edit: React.FC = () => {
                 rowKey="id"
                 search={false}
                 request={async () => {
-                  let data = await allAttendances();
-                  const schedules = await Promise.all(
-                    data
-                      .filter((it) => it.attendance[0])
-                      .map(async (it) => {
-                        const employeeId = it.attendance[0].owner;
-                        return getSchedule(employeeId);
-                      }),
-                  );
-                  data = data
-                    // .filter((it) => it.attendance.length)
-                    .map((it) => {
-                      let work_schedule = 0;
-                      if (it.attendance[0]?.owner) {
-                        work_schedule =
-                          (
-                            schedules.find((x) => x.owner === it.attendance[0].owner)
-                              ?.schedule as API.Schedule
-                          ).workdays.reduce((acc, cur) => acc + calcHours(cur), 0) * 3600;
-                      }
-                      return {
-                        ...it,
-                        status: {
-                          Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
-                          Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
-                          Rejected: countBy(it.attendance, (x) => x.status === 'Rejected').true,
-                          Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
-                        },
-                        actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
-                        work_schedule,
-                        attendances: mapValues(
-                          groupBy(
-                            it.attendance.map((x) => ({
-                              ...x,
-                              date: moment(x.date).format('DD MMM'),
-                              work_load: x.actual_work_hours * 3600,
-                            })),
-                            'date',
-                          ),
-                          (x) => x.reduce((acc, cur) => acc + cur.actual_work_hours * 3600, 0),
+                  const selectedPeriod = await allPeriods()
+                    .then((fetchData) => fetchData.reverse())
+                    .then((fetchData) => fetchData[0]?.id);
+                  let data = await allAttendances({
+                    params: { period_id: selectedPeriod },
+                  });
+
+                  data = data.map((it) => {
+                    return {
+                      ...it,
+                      status: {
+                        Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
+                        Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
+                        Rejected: countBy(it.attendance, (x) => x.status === 'Rejected').true,
+                        Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
+                      },
+                      actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
+                      work_schedule: it.schedule_hours * 3600,
+                      attendances: mapValues(
+                        groupBy(
+                          it.attendance.map((x) => ({
+                            ...x,
+                            date: moment(x.date).format('DD MMM'),
+                            work_load: x.actual_work_hours * 3600,
+                          })),
+                          'date',
                         ),
-                      };
-                    });
+                        (x) => x.reduce((acc, cur) => acc + cur.actual_work_hours * 3600, 0),
+                      ),
+                    };
+                  });
                   return {
                     success: true,
                     data: data?.filter((it) => it.status.Pending),

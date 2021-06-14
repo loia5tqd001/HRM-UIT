@@ -519,8 +519,8 @@ declare namespace API {
     first_name: string;
     last_name: string;
     avatar: string;
+    schedule_hours: number;
     attendance: {
-      schedule_hours: number;
       id: number;
       owner: number;
       date: string | moment.Moment;

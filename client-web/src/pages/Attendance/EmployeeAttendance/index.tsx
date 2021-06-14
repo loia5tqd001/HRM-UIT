@@ -65,7 +65,7 @@ export const toolbarButtons = [
   {
     // action: 'Confirm',
     action: getIntl().formatMessage({ id: 'property.actions.confirm' }),
-    icon: <CheckCircleOutlined />,
+    icon: <LockOutlined />,
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Approved',
     api: confirmEmployeeAttendance,
     buttonProps: { type: 'primary' },
@@ -309,7 +309,7 @@ const EmployeeAttendance: React.FC = () => {
                 Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
               },
               actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
-              work_schedule: it.attendance[0]?.schedule_hours * 3600,
+              work_schedule: it.schedule_hours * 3600,
               attendances: mapValues(
                 groupBy(
                   it.attendance.map((x) => ({

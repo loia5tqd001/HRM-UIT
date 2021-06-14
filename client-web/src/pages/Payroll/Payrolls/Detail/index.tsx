@@ -190,7 +190,7 @@ export const PayrollDetail: React.FC = () => {
                     <Button
                       children={intl.formatMessage({ id: 'property.actions.confirm' })}
                       type="primary"
-                      icon={<CheckCircleOutlined />}
+                      icon={<LockOutlined />}
                     />
                   </Popconfirm>
                 </Access>
