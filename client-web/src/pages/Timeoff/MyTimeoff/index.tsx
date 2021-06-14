@@ -41,6 +41,9 @@ export const Timeoff: React.FC = () => {
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
+  const localeFeature = intl.formatMessage({
+    id: 'property.timeoffRequest',
+  });
 
   useEffect(() => {
     allTimeOffTypes().then((fetchData) => setTimeoffTypes(fetchData));
@@ -91,88 +94,99 @@ export const Timeoff: React.FC = () => {
     return schedule.workdays.map((it) => mapWeekdayToValue[it.day]);
   }, [schedule]);
 
+  const mapStatus = {
+    Approved: {
+      text: intl.formatMessage({ id: 'property.status.Approved' }),
+      status: 'Success',
+    },
+    Pending: {
+      text: intl.formatMessage({ id: 'property.status.Pending' }),
+      status: 'Warning',
+    },
+    Cancelled: {
+      text: intl.formatMessage({ id: 'property.status.Cancelled' }),
+      status: 'Default',
+    },
+    Canceled: {
+      text: intl.formatMessage({ id: 'property.status.Canceled' }),
+      status: 'Default',
+    },
+    Rejected: {
+      text: intl.formatMessage({ id: 'property.status.Rejected' }),
+      status: 'Error',
+    },
+  };
+
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Type',
+      title: intl.formatMessage({ id: 'property.timeoffType' }),
       dataIndex: 'time_off_type',
       onFilter: true,
       filters: filterData(dataNek || [])((it) => it.time_off_type),
     },
     {
-      title: 'Start date',
+      title: intl.formatMessage({ id: 'property.start_date' }),
       dataIndex: 'start_date',
       valueType: 'date',
       sorter: (a, b) => (moment(a.start_date).isSameOrAfter(b.start_date) ? 1 : -1),
     },
     {
-      title: 'End date',
+      title: intl.formatMessage({ id: 'property.end_date' }),
       dataIndex: 'end_date',
       valueType: 'date',
     },
     {
-      title: 'Number of days',
+      title: intl.formatMessage({ id: 'property.numberOfDays' }),
       dataIndex: 'days',
       renderText: (_, record) =>
         moment(record.end_date).diff(moment(record.start_date), 'days') + 1,
     },
     {
-      title: 'Note',
+      title: intl.formatMessage({ id: 'property.note' }),
       dataIndex: 'note',
       hideInForm: true,
     },
     {
-      title: (
-      <FormattedMessage id="property.status" defaultMessage="Status" />
-    ),
+      title: intl.formatMessage({ id: 'property.status' }),
       dataIndex: 'status',
       hideInForm: true,
       onFilter: true,
-      filters: filterData(dataNek || [])((it) => it.status),
-      valueEnum: {
-        Approved: {
-          text: 'Approved',
-          status: 'Success',
-        },
-        Pending: {
-          text: 'Pending',
-          status: 'Warning',
-        },
-        Cancelled: {
-          text: 'Cancelled',
-          status: 'Default',
-        },
-        Canceled: {
-          text: 'Canceled',
-          status: 'Default',
-        },
-        Rejected: {
-          text: 'Rejected',
-          status: 'Error',
-        },
-      },
+      width: 'min-content',
+      filters: filterData(dataNek || [])(
+        (it) => it.status,
+        (it) => mapStatus[it.status].text,
+      ),
+      valueEnum: mapStatus,
     },
     {
       title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
       align: 'center',
+      width: 'min-content',
       search: false,
       render: (dom, record) => (
         <Space size="small">
           <Popconfirm
             placement="right"
-            title={'Cancel this request?'}
+            title={`${intl.formatMessage({ id: 'property.actions.cancel' })} ${localeFeature}?`}
             onConfirm={async () => {
               await onCrudOperation(
                 () => cancelEmployeeTimeoff(id, record.id),
-                'Canceled successfully!',
-                'Cannot cancel this request!',
+                intl.formatMessage({
+                  id: 'error.updateSuccessfully',
+                  defaultMessage: 'Update successfully!',
+                }),
+                intl.formatMessage({
+                  id: 'error.updateUnsuccessfully',
+                  defaultMessage: 'Update unsuccessfully!',
+                }),
               );
             }}
             disabled={!(record.status === 'Approved' || record.status === 'Pending')}
           >
             <Button
-              title="Cancel this request"
+              title={`${intl.formatMessage({ id: 'property.actions.cancel' })} ${localeFeature}?`}
               size="small"
               disabled={!(record.status === 'Approved' || record.status === 'Pending')}
             >
@@ -186,8 +200,14 @@ export const Timeoff: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create timeoff request',
-      update: 'Update timeoff request',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -195,7 +215,7 @@ export const Timeoff: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle="My requests"
+        headerTitle={intl.formatMessage({ id: 'property.myRequests' })}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -315,13 +335,17 @@ export const Timeoff: React.FC = () => {
       >
         <ProFormSelect
           name="time_off_type"
+          label={intl.formatMessage({ id: 'property.timeoffType' })}
           rules={[{ required: true }]}
           width="md"
-          label="Timeoff type"
           options={timeoffTypes?.map((it) => ({ value: it.name, label: it.name }))}
           hasFeedback={!timeoffTypes}
         />
-        <Form.Item rules={[{ required: true }]} name="off_days" label="Off days">
+        <Form.Item
+          rules={[{ required: true }]}
+          name="off_days"
+          label={intl.formatMessage({ id: 'property.offDays' })}
+        >
           <DatePicker.RangePicker
             style={{ width: 328 }}
             disabledDate={(theDate) => {
@@ -333,12 +357,16 @@ export const Timeoff: React.FC = () => {
         <ProFormText
           rules={[{ required: true }]}
           name="days"
-          label="Number of days"
+          label={intl.formatMessage({ id: 'property.numberOfDays' })}
           width="md"
           readonly
           initialValue={0}
         />
-        <ProFormTextArea name="note" label="Note" width="md" />
+        <ProFormTextArea
+          name="note"
+          label={intl.formatMessage({ id: 'property.note' })}
+          width="md"
+        />
       </ModalForm>
     </PageContainer>
   );

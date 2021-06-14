@@ -2,6 +2,7 @@ import { updatePayrollTemplate } from '@/services/payroll.template';
 import ProForm, { ProFormText } from '@ant-design/pro-form';
 import { Card, message } from 'antd';
 import React from 'react';
+import { useIntl } from 'umi';
 
 type Props = {
   payrollTemplate: API.PayrollTemplate | undefined;
@@ -10,6 +11,7 @@ type Props = {
 
 export const GeneralInformation: React.FC<Props> = (props) => {
   const { payrollTemplate, setPayrollTemplate } = props;
+  const intl = useIntl();
 
   return (
     <div style={{ display: 'grid', gap: 24 }}>
@@ -30,23 +32,28 @@ export const GeneralInformation: React.FC<Props> = (props) => {
               await updatePayrollTemplate(payrollTemplate!.id, final);
               setPayrollTemplate(final);
               message.success(
-                  intl.formatMessage({
-                    id: 'error.updateSuccessfully',
-                    defaultMessage: 'Update successfully!',
-                  }),
-                );
+                intl.formatMessage({
+                  id: 'error.updateSuccessfully',
+                  defaultMessage: 'Update successfully!',
+                }),
+              );
             } catch {
-              message.success(
-                  intl.formatMessage({
-                    id: 'error.updateUnsuccessfully',
-                    defaultMessage: 'Update unsuccessfully!',
-                  }),
-                );
+              message.error(
+                intl.formatMessage({
+                  id: 'error.updateUnsuccessfully',
+                  defaultMessage: 'Update unsuccessfully!',
+                }),
+              );
             }
           }}
         >
           <ProForm.Group>
-            <ProFormText width="sm" rules={[{ required: true }]} name="name" label="Name" />
+            <ProFormText
+              width="sm"
+              rules={[{ required: true }]}
+              name="name"
+              label={intl.formatMessage({ id: 'property.template' })}
+            />
           </ProForm.Group>
         </ProForm>
       </Card>

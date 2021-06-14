@@ -17,7 +17,7 @@ import { Affix, Button, Card, message, Popconfirm, Space, Table, Tag } from 'ant
 import type { ColumnType } from 'antd/lib/table';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Access, useAccess, useParams } from 'umi';
+import { Access, useAccess, useIntl, useParams } from 'umi';
 import styles from './index.less';
 
 export const PayrollDetail: React.FC = () => {
@@ -28,6 +28,7 @@ export const PayrollDetail: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const access = useAccess();
+  const intl = useIntl();
 
   const requestTable = useCallback(() => {
     readPayslips(id).then((fetchData) => {
@@ -84,7 +85,7 @@ export const PayrollDetail: React.FC = () => {
             title={
               <>
                 {payroll?.status === 'Confirmed' ? <LockOutlined /> : <SyncOutlined spin />}{' '}
-                Payslips of {payroll?.name}
+                {intl.formatMessage({ id: 'property.payslipsOf' })} {payroll?.name}
               </>
             }
             style={{ height: '100%' }}
@@ -92,10 +93,11 @@ export const PayrollDetail: React.FC = () => {
               <Space>
                 <div style={{ alignSelf: 'flex-end' }}>
                   <Tag>
-                    Template: <span className="emphasize-tag">{payroll?.template}</span>
+                    {intl.formatMessage({ id: 'property.template' })}:{' '}
+                    <span className="emphasize-tag">{payroll?.template}</span>
                   </Tag>
                   <Tag>
-                    Cycle:{' '}
+                    {intl.formatMessage({ id: 'property.period' })}:{' '}
                     <span className="emphasize-tag">
                       {moment(payroll?.period.start_date).format('DD MMM YYYY')}
                       {' → '}
@@ -106,16 +108,28 @@ export const PayrollDetail: React.FC = () => {
                 <Access accessible={access['can_send_payslip_payroll']}>
                   <Button
                     className="primary-outlined-button"
-                    children="Send playslips via email"
+                    children={intl.formatMessage({ id: 'component.button.sendPayslipsViaEmail' })}
                     icon={<SendOutlined />}
                     loading={isSending}
                     onClick={async () => {
                       try {
                         setIsSending(true);
                         await sendViaEmail(id);
-                        message.success('Sent successfully!');
+                        message.success(
+                          `${intl.formatMessage({
+                            id: 'component.button.sendPayslipsViaEmail',
+                          })} ${intl.formatMessage({
+                            id: 'property.actions.successfully',
+                          })}`,
+                        );
                       } catch {
-                        message.error('Cannot send!');
+                        message.success(
+                          `${intl.formatMessage({
+                            id: 'component.button.sendPayslipsViaEmail',
+                          })} ${intl.formatMessage({
+                            id: 'property.actions.unsuccessfully',
+                          })}`,
+                        );
                       } finally {
                         setIsSending(false);
                       }
@@ -125,7 +139,7 @@ export const PayrollDetail: React.FC = () => {
                 <Access accessible={access['can_export_excel_payroll']}>
                   <Button
                     className="success-outlined-button"
-                    children="Export Excel"
+                    children={intl.formatMessage({ id: 'component.button.exportExcel' })}
                     icon={<FileExcelOutlined />}
                     loading={isExporting}
                     onClick={async () => {
@@ -133,7 +147,9 @@ export const PayrollDetail: React.FC = () => {
                         setIsExporting(true);
                         await exportExcel(id);
                       } catch {
-                        message.error('Export unsuccessfully!');
+                        message.error(
+                          `Export ${intl.formatMessage({ id: 'property.actions.unsuccessfully' })}!`,
+                        );
                       } finally {
                         setIsExporting(false);
                       }
@@ -141,27 +157,41 @@ export const PayrollDetail: React.FC = () => {
                   />
                 </Access>
                 <Access
-                  accessible={
-                    access['can_confirm_payroll'] && payroll?.status === 'Temporary'
-                  }
+                  accessible={access['can_confirm_payroll'] && payroll?.status === 'Temporary'}
                 >
                   <Popconfirm
                     placement="right"
-                    title={'This action is irreversible. Are you sure?'}
+                    title={intl.formatMessage({ id: 'error.actionIrreversible' })}
                     onConfirm={async () => {
                       try {
                         // setIsCalculating(true);
                         await confirmPayroll(id);
                         setPayroll({ ...payroll!, status: 'Confirmed' });
-                        message.success('Confirm successfully!');
+                        message.success(
+                          `${intl.formatMessage({
+                            id: 'property.actions.confirm',
+                          })} ${intl.formatMessage({
+                            id: 'property.actions.successfully',
+                          })}`,
+                        );
                       } catch {
-                        message.error('Confirm unsuccessfully!');
+                        message.success(
+                          `${intl.formatMessage({
+                            id: 'property.actions.confirm',
+                          })} ${intl.formatMessage({
+                            id: 'property.actions.unsuccessfully',
+                          })}`,
+                        );
                       } finally {
                         // setIsCalculating(false);
                       }
                     }}
                   >
-                    <Button children="Confirm" type="primary" icon={<CheckCircleOutlined />} />
+                    <Button
+                      children={intl.formatMessage({ id: 'property.actions.confirm' })}
+                      type="primary"
+                      icon={<CheckCircleOutlined />}
+                    />
                   </Popconfirm>
                 </Access>
                 {/* <Access accessible={access['can_calculate_payroll']}>

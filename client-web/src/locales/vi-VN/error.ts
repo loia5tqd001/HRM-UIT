@@ -11,4 +11,7 @@ export default {
   'error.password6Characters': 'Mật khẩu phải gồm ít nhất 6 kí tự',
   'error.newPasswordMustBeDifferentThanCurrent': 'Mật khẩu mới phải khác mật khẩu hiện tại',
   'error.confirmPasswordDoesNotMatch': 'Mật khẩu không khớp',
+  'error.noActivities': 'Chưa có hoạt động hôm nay',
+  'error.actionIrreversible': 'Hành động này không thể hoàn tác. Bạn có chắc chưa?',
+  'error.cannotDeleteDefaultTemplate': 'Không thể xoá mẫu lương mặc định',
 };

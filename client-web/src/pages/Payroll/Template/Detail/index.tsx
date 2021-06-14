@@ -1,7 +1,7 @@
 import { readPayrollTemplate, updatePayrollTemplate } from '@/services/payroll.template';
 import { PageContainer } from '@ant-design/pro-layout';
 import React, { useEffect, useState } from 'react';
-import { history, useParams, useAccess } from 'umi';
+import { history, useParams, useAccess, getIntl } from 'umi';
 import { GeneralInformation } from './GeneralInformation';
 import { PayrollColumns } from './PayrollColumns';
 
@@ -52,11 +52,11 @@ export const List: React.FC = () => {
       tabList={
         access['change_salarytemplate'] && [
           {
-            tab: 'General Information',
+            tab: getIntl().formatMessage({ id: 'property.general' }),
             key: 'general',
           },
           {
-            tab: 'Payroll Columns',
+            tab: getIntl().formatMessage({ id: 'property.payrollColumns' }),
             key: 'columns',
           },
         ]

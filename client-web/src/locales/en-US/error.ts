@@ -13,4 +13,7 @@ export default {
   'error.newPasswordMustBeDifferentThanCurrent':
     'New password must be different than current password',
   'error.confirmPasswordDoesNotMatch': 'Confirm password does not match!',
+  'error.noActivities': 'No activities today yet',
+  'error.actionIrreversible': 'This action is irreversible. Are you sure?',
+  'error.cannotDeleteDefaultTemplate': 'Cannot delete default template',
 };

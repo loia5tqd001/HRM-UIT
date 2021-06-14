@@ -34,6 +34,7 @@ export const Payroll: React.FC = () => {
   const [templates, setTemplates] = useState<API.PayrollTemplate[]>();
   const [periods, setPeriods] = useState<API.Period[]>();
   const access = useAccess();
+  const localeFeature = intl.formatMessage({ id: 'property.payrolls' });
 
   useEffect(() => {
     allPayrollTemplates().then((fetchData) => setTemplates(fetchData));
@@ -56,21 +57,17 @@ export const Payroll: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Name',
+      title: intl.formatMessage({ id: 'property.payrolls' }),
       dataIndex: 'name',
       renderText: (it, record) =>
-        access['view_payslip'] ? (
-          <Link to={`/payroll/payrolls/${record.id}`}>{it}</Link>
-        ) : (
-          it
-        ),
+        access['view_payslip'] ? <Link to={`/payroll/payrolls/${record.id}`}>{it}</Link> : it,
     },
     {
-      title: 'Template',
+      title: intl.formatMessage({ id: 'property.template' }),
       dataIndex: 'template',
     },
     {
-      title: 'Cycle',
+      title: intl.formatMessage({ id: 'property.period' }),
       dataIndex: 'period',
       renderText: (it) =>
         `${moment(it.start_date).format('DD MMM YYYY')} → ${moment(it.end_date).format(
@@ -78,14 +75,12 @@ export const Payroll: React.FC = () => {
         )}`,
     },
     {
-      title: 'Created At',
+      title: intl.formatMessage({ id: 'property.created_at' }),
       dataIndex: 'created_at',
       renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
     },
     {
-      title: (
-      <FormattedMessage id="property.status" defaultMessage="Status" />
-    ),
+      title: <FormattedMessage id="property.status" defaultMessage="Status" />,
       dataIndex: 'status',
       key: 'status',
       width: 'max-content',
@@ -94,13 +89,13 @@ export const Payroll: React.FC = () => {
           Confirmed: (
             <Tooltip title={`Confirmed by ${record.confirmed_by}`}>
               <Tag icon={<LockOutlined />} color="success">
-                Confirmed
+                {intl.formatMessage({ id: 'property.status.Confirmed' })}
               </Tag>
             </Tooltip>
           ),
           Temporary: (
             <Tag icon={<SyncOutlined spin />} color="processing">
-              Temporary
+              {intl.formatMessage({ id: 'property.status.Temporary' })}
             </Tag>
           ),
         };
@@ -122,7 +117,12 @@ export const Payroll: React.FC = () => {
         <Space size="small">
           <Access accessible={access['view_payslip']}>
             <Link to={`/payroll/payrolls/${record.id}`}>
-              <Button title="View detail this payroll" size="small">
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.viewDetail',
+                })} ${localeFeature}`}
+                size="small"
+              >
                 <EyeOutlined />
               </Button>
             </Link>
@@ -130,7 +130,7 @@ export const Payroll: React.FC = () => {
           <Access accessible={access['delete_payroll']}>
             <Popconfirm
               placement="right"
-                            title={`${intl.formatMessage({
+              title={`${intl.formatMessage({
                 id: 'property.actions.delete',
                 defaultMessage: 'Delete',
               })} ${localeFeature}?`}
@@ -167,8 +167,14 @@ export const Payroll: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create payroll',
-      update: 'Update payroll',
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
     },
   };
 
@@ -176,10 +182,10 @@ export const Payroll: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.jobTitle.list.title',
-          defaultMessage: 'Payrolls',
-        })}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -192,7 +198,8 @@ export const Payroll: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -268,17 +275,17 @@ export const Payroll: React.FC = () => {
           },
         }}
       >
-        <ProFormText rules={[{ required: true }]} name="name" label="Name" />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
         <ProFormSelect
           name="template"
-          label="Template"
+          label={intl.formatMessage({ id: 'property.template' })}
           rules={[{ required: true }]}
           options={templates?.map((it) => ({ value: it.name, label: it.name }))}
           hasFeedback={!templates}
         />
         <ProFormSelect
           name="period"
-          label="Period"
+          label={intl.formatMessage({ id: 'property.period' })}
           rules={[{ required: true }]}
           options={periods?.map((it) => ({
             value: it.id,

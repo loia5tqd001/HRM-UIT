@@ -34,10 +34,7 @@ export const TimeOffType: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const access = useAccess();
-  const localeFeature = intl.formatMessage({
-    id: 'property.jobTitle',
-    defaultMessage: 'job title',
-  });
+  const localeFeature = intl.formatMessage({ id: 'property.timeoff_type' });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -103,7 +100,7 @@ export const TimeOffType: React.FC = () => {
           <Access accessible={access['delete_timeofftype']}>
             <Popconfirm
               placement="right"
-                            title={`${intl.formatMessage({
+              title={`${intl.formatMessage({
                 id: 'property.actions.delete',
                 defaultMessage: 'Delete',
               })} ${localeFeature}?`}
@@ -168,7 +165,8 @@ export const TimeOffType: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}

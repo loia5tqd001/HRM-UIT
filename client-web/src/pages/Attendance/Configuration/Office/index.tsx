@@ -16,38 +16,33 @@ export const Office: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: (
-        <FormattedMessage
-          id="pages.admin.organization.office.column.name"
-          defaultMessage="Office"
-        />
-      ),
+      title: intl.formatMessage({ id: 'property.office' }),
       dataIndex: 'name',
       renderText: (text, record) => (
         <Link to={`/attendance/configuration/office/${record.id}`}>{text}</Link>
       ),
     },
     {
-      title: 'Accurate address',
+      title: intl.formatMessage({ id: 'property.accurate_address' }),
       dataIndex: 'accurate_address',
     },
     {
-      title: 'Radius',
+      title: intl.formatMessage({ id: 'property.radius' }),
       dataIndex: 'radius',
       renderText: (text) => `${text}m`,
     },
     {
-      title: 'Allow outside',
+      title: intl.formatMessage({ id: 'property.allow_outside' }),
       dataIndex: 'allow_outside',
       align: 'center',
       renderText: (it) =>
         it ? (
-          <Tooltip title="Allowed">
-            <CheckOutlined />
+          <Tooltip title={intl.formatMessage({ id: 'property.allow_outside.allowed' })}>
+            <CheckOutlined style={{ color: '#52c41a' }} />
           </Tooltip>
         ) : (
-          <Tooltip title="Now allowed">
-            <CloseOutlined />
+          <Tooltip title={intl.formatMessage({ id: 'property.allow_outside.not_allowed' })}>
+            <CloseOutlined style={{ color: '#ff4d4f' }} />
           </Tooltip>
         ),
     },
@@ -57,10 +52,9 @@ export const Office: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.organization.office.list.title',
-          defaultMessage: 'Offices',
-        })}
+        headerTitle={`${intl.formatMessage({ id: 'property.actions.list' })} ${intl.formatMessage({
+          id: 'property.office',
+        })}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}

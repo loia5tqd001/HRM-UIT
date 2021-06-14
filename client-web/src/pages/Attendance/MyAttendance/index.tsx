@@ -40,7 +40,7 @@ import Avatar from 'antd/lib/avatar/avatar';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { history, useIntl, useModel } from 'umi';
+import { FormattedMessage, history, useIntl, useModel } from 'umi';
 
 type RecordType = API.AttendanceRecord;
 
@@ -73,6 +73,12 @@ const MyAttendance: React.FC = () => {
   const [faceDenied, setFaceDenied] = useState(false);
   const [periods, setPeriods] = useState<API.Period[]>();
   const [selectedPeriod, setSelectedPeriod] = useState<any>();
+  const localeFeature = intl.formatMessage({ id: 'property.attendanceRequest' });
+
+  const nextStepTranslate = {
+    'Clock in': intl.formatMessage({ id: 'property.check_in' }),
+    'Clock out': intl.formatMessage({ id: 'property.check_out' }),
+  };
 
   useEffect(() => {
     allPeriods()
@@ -192,20 +198,20 @@ const MyAttendance: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Date',
-      key: 'date',
+      title: intl.formatMessage({ id: 'property.date' }),
       dataIndex: 'date',
       renderText: (date) => (date ? moment(date).format('ddd - DD MMM yyyy') : ' '),
     },
     {
-      title: 'Clock in',
-      key: 'check_in',
+      title: intl.formatMessage({ id: 'property.check_in' }),
       dataIndex: 'check_in',
       renderText: (check_in, record) => {
         if (!check_in) return '-';
 
         return record.check_in_note ? (
-          <Tooltip title={`Note: ${record.check_in_note}`}>
+          <Tooltip
+            title={`${intl.formatMessage({ id: 'property.note' })}: ${record.check_in_note}`}
+          >
             <Tag icon={<MessageOutlined />}>{moment(record.check_in).format('HH:mm')}</Tag>
           </Tooltip>
         ) : (
@@ -214,17 +220,16 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Clock in location',
-      key: 'check_in_location',
+      title: intl.formatMessage({ id: 'property.check_in_location' }),
       dataIndex: 'check_in_location',
       renderText: (check_in_location) => {
         if (!check_in_location) return '-';
 
         if (check_in_location === 'Outside')
           return (
-            <Tooltip title="Clock in outside of office">
+            <Tooltip title={intl.formatMessage({ id: 'property.attendance.outside.long' })}>
               <Tag icon={<EnvironmentOutlined />} color="error">
-                {check_in_location}
+                {intl.formatMessage({ id: 'property.attendance.outside.short' })}
               </Tag>
             </Tooltip>
           );
@@ -238,8 +243,7 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Clock in image',
-      key: 'check_in_image',
+      title: intl.formatMessage({ id: 'property.check_in_image' }),
       dataIndex: 'check_in_image',
       valueType: 'avatar',
       renderText: (text) =>
@@ -250,14 +254,15 @@ const MyAttendance: React.FC = () => {
         ),
     },
     {
-      title: 'Clock out',
-      key: 'check_out',
+      title: intl.formatMessage({ id: 'property.check_out' }),
       dataIndex: 'check_out',
       renderText: (check_out, record) => {
         if (!check_out) return '-';
 
         return record.check_out_note ? (
-          <Tooltip title={`Note: ${record.check_out_note}`}>
+          <Tooltip
+            title={`${intl.formatMessage({ id: 'property.note' })}: ${record.check_out_note}`}
+          >
             <Tag icon={<MessageOutlined />}>{moment(record.check_out).format('HH:mm')}</Tag>
           </Tooltip>
         ) : (
@@ -266,17 +271,16 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Clock out location',
-      key: 'check_out_location',
+      title: intl.formatMessage({ id: 'property.check_out_location' }),
       dataIndex: 'check_out_location',
       renderText: (check_out_location) => {
         if (!check_out_location) return '-';
 
         if (check_out_location === 'Outside')
           return (
-            <Tooltip title="Clock in outside of office">
+            <Tooltip title={intl.formatMessage({ id: 'property.attendance.outside.long' })}>
               <Tag icon={<EnvironmentOutlined />} color="error">
-                {check_out_location}
+                {intl.formatMessage({ id: 'property.attendance.outside.short' })}
               </Tag>
             </Tooltip>
           );
@@ -290,8 +294,7 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Clock out image',
-      key: 'check_out_image',
+      title: intl.formatMessage({ id: 'property.check_out_image' }),
       dataIndex: 'check_out_image',
       valueType: 'avatar',
       renderText: (text) =>
@@ -302,8 +305,7 @@ const MyAttendance: React.FC = () => {
         ),
     },
     {
-      title: 'Work schedule',
-      key: 'hours_work_by_schedule',
+      title: intl.formatMessage({ id: 'property.hours_work_by_schedule' }),
       dataIndex: 'hours_work_by_schedule',
       renderText: (hours_work_by_schedule) => {
         if (hours_work_by_schedule === undefined || hours_work_by_schedule === null) return ' ';
@@ -311,8 +313,7 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Actual',
-      key: 'actual',
+      title: intl.formatMessage({ id: 'property.actual_work_hours' }),
       dataIndex: 'actual_work_hours',
       renderText: (_, record) => {
         if (record.actual_hours_modified) {
@@ -329,8 +330,7 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Overtime',
-      key: 'overtime',
+      title: intl.formatMessage({ id: 'property.ot_work_hours' }),
       dataIndex: 'ot_work_hours',
       renderText: (_, record) => {
         if (record.ot_hours_modified) {
@@ -347,8 +347,7 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: 'Decifit',
-      key: 'deficit',
+      title: intl.formatMessage({ id: 'property.decifit' }),
       dataIndex: 'decifit',
       renderText: (decifit, record) => {
         if (record.hours_work_by_schedule === undefined || record.hours_work_by_schedule === null)
@@ -360,22 +359,54 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: (
-      <FormattedMessage id="property.status" defaultMessage="Status" />
-    ),
+      title: <FormattedMessage id="property.status" defaultMessage="Status" />,
       dataIndex: 'status',
       hideInForm: true,
       renderText: (it) => {
-        const symbols = {
-          Pending: <Badge status="warning" />,
-          Approved: <Badge status="success" />,
-          Rejected: <Badge status="error" />,
-          Confirmed: <LockOutlined style={{ color: '#52c41a', marginRight: 3 }} />,
-        };
+        // const mapStatus = {
+        //   Approved: {
+        //     text: intl.formatMessage({ id: 'property.status.Approved' }),
+        //     status: 'Success',
+        //   },
+        //   Pending: {
+        //     text: intl.formatMessage({ id: 'property.status.Pending' }),
+        //     status: 'Warning',
+        //   },
+        //   Cancelled: {
+        //     text: intl.formatMessage({ id: 'property.status.Cancelled' }),
+        //     status: 'Default',
+        //   },
+        //   Canceled: {
+        //     text: intl.formatMessage({ id: 'property.status.Canceled' }),
+        //     status: 'Default',
+        //   },
+        //   Rejected: {
+        //     text: intl.formatMessage({ id: 'property.status.Rejected' }),
+        //     status: 'Error',
+        //   },
+        // };
+        const mapStatus = {
+          Pending: {
+            icon: <Badge status="warning" />,
+            text: intl.formatMessage({ id: 'property.status.Pending' }),
+          },
+          Approved: {
+            icon: <Badge status="success" />,
+            text: intl.formatMessage({ id: 'property.status.Approved' }),
+          },
+          Rejected: {
+            icon: <Badge status="error" />,
+            text: intl.formatMessage({ id: 'property.status.Rejected' }),
+          },
+          Confirmed: {
+            icon: <LockOutlined style={{ color: '#52c41a', marginRight: 3 }} />,
+            text: intl.formatMessage({ id: 'property.status.Confirmed' }),
+          },
+        } as const;
         return (
           <>
-            {symbols[it]}
-            {it}
+            {mapStatus[it]?.icon}
+            {mapStatus[it]?.text || it}
           </>
         );
       },
@@ -456,7 +487,7 @@ const MyAttendance: React.FC = () => {
       )}
       <ProTable<RecordType, API.PageParams>
         className="card-shadow"
-        headerTitle="My attendance"
+        headerTitle={intl.formatMessage({ id: 'property.myAttendance' })}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -467,18 +498,23 @@ const MyAttendance: React.FC = () => {
             {lastAction ? (
               <>
                 <Tag>
-                  First clock in: <span className="emphasize-tag">{firstClockIn}</span>
+                  {intl.formatMessage({ id: 'property.firstCheckIn' })}:{' '}
+                  <span className="emphasize-tag">{firstClockIn}</span>
                 </Tag>
                 <Tag>
-                  Last clock out: <span className="emphasize-tag">{lastClockOut}</span>
+                  {intl.formatMessage({ id: 'property.lastCheckOut' })}:{' '}
+                  <span className="emphasize-tag">{lastClockOut}</span>
                 </Tag>
                 <Tag>
-                  Last action: <span className="emphasize-tag">{lastAction}</span>
+                  {intl.formatMessage({ id: 'property.lastAction' })}:{' '}
+                  <span className="emphasize-tag">{lastAction}</span>
                 </Tag>
               </>
             ) : (
               <Tag>
-                <span className="emphasize-tag">No activities today yet</span>
+                <span className="emphasize-tag">
+                  {intl.formatMessage({ id: 'error.noActivities' })}
+                </span>
               </Tag>
             )}
           </div>,
@@ -517,7 +553,7 @@ const MyAttendance: React.FC = () => {
           >
             <Space>
               <HistoryOutlined />
-              {nextStep}
+              {nextStepTranslate[nextStep]}
               {/* <FormattedMessage
                 id="pages.attendance.myAttendance.list.table.clockIn"
                 defaultMessage="Clock in"
@@ -554,8 +590,12 @@ const MyAttendance: React.FC = () => {
               const lastRecord = todayData.tracking_data[todayData.tracking_data.length - 1];
               setLastAction(
                 lastRecord.check_out_time
-                  ? `Clocked out at ${moment(lastRecord.check_out_time).format('HH:mm')}`
-                  : `Clocked in at ${moment(lastRecord.check_in_time).format('HH:mm')}`,
+                  ? `${nextStepTranslate['Clock out']} at ${moment(
+                      lastRecord.check_out_time,
+                    ).format('HH:mm')}`
+                  : `${nextStepTranslate['Clock in']} at ${moment(lastRecord.check_in_time).format(
+                      'HH:mm',
+                    )}`,
               );
             }
           }
@@ -610,7 +650,7 @@ const MyAttendance: React.FC = () => {
       />
       <ModalForm
         visible={clockModalVisible}
-        title={`${nextStep} at ${moment().format('HH:mm')}`}
+        title={`${nextStepTranslate[nextStep]} at ${moment().format('HH:mm')}`}
         width="398px"
         onFinish={async (values) => {
           try {
@@ -624,7 +664,7 @@ const MyAttendance: React.FC = () => {
             canvas.height = height;
             context?.drawImage(videoRef.current, 0, 0, width, height);
             const datauri = canvas.toDataURL('image/png');
-            const blob = await fetch(datauri).then(it => it.blob())
+            const blob = await fetch(datauri).then((it) => it.blob());
             if (!blob) {
               throw new Error();
             }
@@ -714,18 +754,18 @@ const MyAttendance: React.FC = () => {
         <Space style={{ marginBottom: 20 }}>
           <EnvironmentOutlined />
           {currentLocation?.office === 'Outside'
-            ? 'Outside the designated area'
+            ? intl.formatMessage({ id: 'property.attendance.outside.long' })
             : currentLocation?.office}
         </Space>
         <ProFormTextArea
           width="md"
           rules={currentLocation?.office === 'Outside' ? [{ required: true }] : undefined}
           name="note"
-          label="Note"
+          label={intl.formatMessage({ id: 'property.note' })}
         />
         <video ref={videoRef} width="350px" height="260px" />
       </ModalForm>
-      <ModalForm
+      {/* <ModalForm
         visible={editModalVisible !== 'hidden'}
         title={`Edit ${editModalVisible} attendance`}
         width="400px"
@@ -767,7 +807,7 @@ const MyAttendance: React.FC = () => {
           </Form.Item>
         </ProForm.Group>
         <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
-      </ModalForm>
+      </ModalForm> */}
     </PageContainer>
   );
 };

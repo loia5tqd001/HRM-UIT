@@ -11,7 +11,7 @@ import GooglePlacesAutocomplete, {
   geocodeByPlaceId,
   getLatLng,
 } from 'react-google-places-autocomplete';
-import { Access, useParams, useAccess } from 'umi';
+import { Access, useParams, useAccess, useIntl } from 'umi';
 
 const googleApiKey = 'AIzaSyA7EpBEIp80TiSD15D85_Kra8TLtbdsr1c';
 
@@ -28,6 +28,7 @@ export const OfficeEdit: React.FC = () => {
   const markerRef = useRef<google.maps.Marker>();
   const circleRef = useRef<google.maps.Circle>();
   const access = useAccess();
+  const intl = useIntl();
 
   useEffect(() => {
     setOfficeReady(false);
@@ -142,26 +143,36 @@ export const OfficeEdit: React.FC = () => {
                     enable_geofencing: true,
                   };
                   await updateLocation(record.id!, record);
-                  message.success('Update successfully');
+                  message.success(
+                    intl.formatMessage({
+                      id: 'error.updateSuccessfully',
+                      defaultMessage: 'Update successfully!',
+                    }),
+                  );
                 } catch {
-                  message.error('Update unsuccessfully');
+                  message.error(
+                    intl.formatMessage({
+                      id: 'error.updateUnsuccessfully',
+                      defaultMessage: 'Update unsuccessfully!',
+                    }),
+                  );
                 }
               }}
             >
-              <SaveOutlined /> Save
+              <SaveOutlined /> {intl.formatMessage({ id: 'component.button.save' })}
             </Button>
           </Access>
         }
       >
         <ProForm form={form} initialValues={office} submitter={false}>
           <Form.Item name="allow_outside" valuePropName="checked">
-            <Checkbox>Allow clock in/out outside the office</Checkbox>
+            <Checkbox>{intl.formatMessage({ id: 'property.allow_outside' })}</Checkbox>
           </Form.Item>
           <Row gutter={12} style={{ marginTop: -16 }}>
             <Col span="16">
               <Form.Item
                 name="accurate_address"
-                label="Accurate address"
+                label={intl.formatMessage({ id: 'property.accurate_address' })}
                 rules={[{ required: true }]}
               >
                 <GooglePlacesAutocomplete
@@ -211,11 +222,15 @@ export const OfficeEdit: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span="4">
-              <Form.Item name="radius" label="Radius" rules={[{ required: true }]}>
+              <Form.Item
+                name="radius"
+                label={intl.formatMessage({ id: 'property.radius' })}
+                rules={[{ required: true }]}
+              >
                 <Select
                   options={[10, 25, 50, 100, 200, 500].map((it) => ({
                     value: it,
-                    label: `${it} (meters)`,
+                    label: `${it} (${intl.formatMessage({ id: 'property.office.meters' })})`,
                   }))}
                   onChange={(value: any) => setCircle(value)}
                 />

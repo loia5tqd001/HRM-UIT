@@ -33,10 +33,7 @@ export const PayrollTemplate: React.FC = () => {
   const [form] = useForm<RecordType>();
   const intl = useIntl();
   const access = useAccess();
-  const localeFeature = intl.formatMessage({
-    id: 'property.jobTitle',
-    defaultMessage: 'job title',
-  });
+  const localeFeature = intl.formatMessage({ id: 'property.template' });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -54,23 +51,23 @@ export const PayrollTemplate: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Name',
+      title: localeFeature,
       dataIndex: 'name',
       renderText: (it, record) => (
         <Link to={`/payroll/template/${record.id}?tab=columns`}>{it}</Link>
       ),
     },
     {
-      title: 'Can be modified',
+      title: intl.formatMessage({ id: 'property.can_be_modified' }),
       dataIndex: 'can_be_modified',
       align: 'center',
       renderText: (it) =>
         it ? (
-          <Tooltip title="Modifiable">
+          <Tooltip title={intl.formatMessage({ id: 'property.can_be_modified' })}>
             <CheckOutlined style={{ color: '#52c41a' }} />
           </Tooltip>
         ) : (
-          <Tooltip title="Cannot modify this template because it will affect existent payrolls">
+          <Tooltip title={intl.formatMessage({ id: 'property.can_be_modified.no' })}>
             <CloseOutlined style={{ color: '#ff4d4f' }} />
           </Tooltip>
         ),
@@ -84,7 +81,9 @@ export const PayrollTemplate: React.FC = () => {
       render: (dom, record) => (
         <Space size="small">
           <Button
-            title="Duplicate this template"
+            title={`${intl.formatMessage({
+              id: 'property.actions.duplicate',
+            })} ${localeFeature}`}
             size="small"
             onClick={() => {
               setCrudModalVisible('duplicate');
@@ -94,7 +93,12 @@ export const PayrollTemplate: React.FC = () => {
             <DiffOutlined />
           </Button>
           <Link to={`/payroll/template/${record.id}?tab=columns`}>
-            <Button title="Config this template" size="small">
+            <Button
+              title={`${intl.formatMessage({
+                id: 'property.actions.viewDetail',
+              })} ${localeFeature}`}
+              size="small"
+            >
               <EyeOutlined />
             </Button>
           </Link>
@@ -102,7 +106,14 @@ export const PayrollTemplate: React.FC = () => {
             <Popconfirm
               placement="right"
               title={
-                record.is_default ? 'Cannot delete default template!' : 'Delete this template?'
+                record.is_default
+                  ? intl.formatMessage({
+                      id: 'error.cannotDeleteDefaultTemplate',
+                    })
+                  : `${intl.formatMessage({
+                      id: 'property.actions.delete',
+                      defaultMessage: 'Delete',
+                    })} ${localeFeature}?`
               }
               onConfirm={async () => {
                 if (record.is_default) return;
@@ -119,7 +130,15 @@ export const PayrollTemplate: React.FC = () => {
                 );
               }}
             >
-              <Button title="Delete this template" size="small" danger disabled={record.is_default}>
+              <Button
+                title={`${intl.formatMessage({
+                  id: 'property.actions.delete',
+                  defaultMessage: 'Delete',
+                })} ${localeFeature}`}
+                size="small"
+                danger
+                disabled={record.is_default}
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>
@@ -131,9 +150,18 @@ export const PayrollTemplate: React.FC = () => {
 
   const dict = {
     title: {
-      create: 'Create template',
-      update: 'Update template',
-      duplicate: `Duplicate template ${selectedRecord?.name}`,
+      create: `${intl.formatMessage({
+        id: 'property.actions.create',
+        defaultMessage: 'Create',
+      })} ${localeFeature}`,
+      update: `${intl.formatMessage({
+        id: 'property.actions.update',
+        defaultMessage: 'Update',
+      })} ${localeFeature}`,
+      duplicate: `${intl.formatMessage({
+        id: 'property.actions.duplicate',
+        defaultMessage: 'Duplicate',
+      })} ${localeFeature} ${selectedRecord?.name}`,
     },
   };
 
@@ -141,10 +169,10 @@ export const PayrollTemplate: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle={intl.formatMessage({
-          id: 'pages.admin.job.jobTitle.list.title',
-          defaultMessage: 'Templates',
-        })}
+        headerTitle={`${intl.formatMessage({
+          id: 'property.actions.list',
+          defaultMessage: ' ',
+        })} ${localeFeature}`}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -157,7 +185,8 @@ export const PayrollTemplate: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}
@@ -209,8 +238,18 @@ export const PayrollTemplate: React.FC = () => {
           } else if (crudModalVisible === 'duplicate') {
             await onCrudOperation(
               () => duplicatePayrollTemplate(record.id, { name: value.name }),
-              'Duplicate successfully!',
-              'Duplicate unsuccessfully!',
+              `${intl.formatMessage({
+                id: 'property.actions.duplicate',
+                defaultMessage: 'Duplicate',
+              })} ${localeFeature} ${selectedRecord?.name} ${intl.formatMessage({
+                id: 'property.actions.successfully',
+              })}`,
+              `${intl.formatMessage({
+                id: 'property.actions.duplicate',
+                defaultMessage: 'Duplicate',
+              })} ${localeFeature} ${selectedRecord?.name} ${intl.formatMessage({
+                id: 'property.actions.unsuccessfully',
+              })}`,
             );
           }
           setCrudModalVisible('hidden');
@@ -236,7 +275,7 @@ export const PayrollTemplate: React.FC = () => {
           },
         }}
       >
-        <ProFormText rules={[{ required: true }]} name="name" label="Name" />
+        <ProFormText rules={[{ required: true }]} name="name" label={localeFeature} />
       </ModalForm>
     </PageContainer>
   );

@@ -12,7 +12,7 @@ import ProTable from '@ant-design/pro-table';
 import { Avatar, Button, message, Popconfirm, Space } from 'antd';
 import moment from 'moment';
 import React, { useCallback, useRef, useState } from 'react';
-import { useIntl, useAccess, Access } from 'umi';
+import { useIntl, useAccess, Access, FormattedMessage } from 'umi';
 
 type RecordType = API.TimeoffRequest & {
   off_days?: [moment.Moment, moment.Moment];
@@ -24,6 +24,9 @@ export const Timeoff: React.FC = () => {
   const intl = useIntl();
   const [dataNek, setData] = useState<RecordType[]>();
   const access = useAccess();
+  const localeFeature = intl.formatMessage({
+    id: 'property.timeoffRequest',
+  });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -39,9 +42,32 @@ export const Timeoff: React.FC = () => {
     [],
   );
 
+  const mapStatus = {
+    Approved: {
+      text: intl.formatMessage({ id: 'property.status.Approved' }),
+      status: 'Success',
+    },
+    Pending: {
+      text: intl.formatMessage({ id: 'property.status.Pending' }),
+      status: 'Warning',
+    },
+    Cancelled: {
+      text: intl.formatMessage({ id: 'property.status.Cancelled' }),
+      status: 'Default',
+    },
+    Canceled: {
+      text: intl.formatMessage({ id: 'property.status.Canceled' }),
+      status: 'Default',
+    },
+    Rejected: {
+      text: intl.formatMessage({ id: 'property.status.Rejected' }),
+      status: 'Error',
+    },
+  };
+
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Employee',
+      title: intl.formatMessage({ id: 'property.employee' }),
       dataIndex: ['owner', 'id'],
       render: (avatar, record) => (
         <Space>
@@ -60,66 +86,45 @@ export const Timeoff: React.FC = () => {
       ),
     },
     {
-      title: 'Timeoff type',
+      title: intl.formatMessage({ id: 'property.timeoffType' }),
       dataIndex: 'time_off_type',
       onFilter: true,
       filters: filterData(dataNek || [])((it) => it.time_off_type),
     },
     {
-      title: 'Start date',
+      title: intl.formatMessage({ id: 'property.start_date' }),
       dataIndex: 'start_date',
       valueType: 'date',
       sorter: (a, b) => (moment(a.start_date).isSameOrAfter(b.start_date) ? 1 : -1),
     },
     {
-      title: 'End date',
+      title: intl.formatMessage({ id: 'property.end_date' }),
       dataIndex: 'end_date',
       valueType: 'date',
     },
     {
-      title: 'Number of days',
+      title: intl.formatMessage({ id: 'property.numberOfDays' }),
       dataIndex: 'days',
       renderText: (_, record) =>
         moment(record.end_date).diff(moment(record.start_date), 'days') + 1,
     },
     {
-      title: 'Note',
+      title: intl.formatMessage({ id: 'property.note' }),
       dataIndex: 'note',
       hideInForm: true,
     },
     {
-      title: (
-      <FormattedMessage id="property.status" defaultMessage="Status" />
-    ),
+      title: intl.formatMessage({ id: 'property.status' }),
       dataIndex: 'status',
       hideInForm: true,
       onFilter: true,
-      filters: filterData(dataNek || [])((it) => it.status),
-      valueEnum: {
-        Approved: {
-          text: 'Approved',
-          status: 'Success',
-        },
-        Pending: {
-          text: 'Pending',
-          status: 'Warning',
-        },
-        Cancelled: {
-          text: 'Cancelled',
-          status: 'Default',
-        },
-        Canceled: {
-          text: 'Canceled',
-          status: 'Default',
-        },
-        Rejected: {
-          text: 'Rejected',
-          status: 'Error',
-        },
-      },
+      filters: filterData(dataNek || [])(
+        (it) => it.status,
+        (it) => mapStatus[it.status].text,
+      ),
+      valueEnum: mapStatus,
     },
-    (access['can_approve_timeoff'] ||
-      access['can_reject_timeoff']) && {
+    (access['can_approve_timeoff'] || access['can_reject_timeoff']) && {
       title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
@@ -130,18 +135,26 @@ export const Timeoff: React.FC = () => {
           <Access accessible={access['can_approve_timeoff']}>
             <Popconfirm
               placement="right"
-              title={'Approve this request?'}
+              title={`${intl.formatMessage({ id: 'property.actions.approve' })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => approveEmployeeTimeoff(record.owner.id, record.id),
-                  'Approved successfully!',
-                  'Cannot approve this request!',
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
                 );
               }}
               disabled={record.status !== 'Pending'}
             >
               <Button
-                title="Approve this request"
+                title={`${intl.formatMessage({
+                  id: 'property.actions.approve',
+                })} ${localeFeature}?`}
                 size="small"
                 type="default"
                 disabled={record.status !== 'Pending'}
@@ -153,18 +166,24 @@ export const Timeoff: React.FC = () => {
           <Access accessible={access['can_reject_timeoff']}>
             <Popconfirm
               placement="right"
-              title={'Reject this request?'}
+              title={`${intl.formatMessage({ id: 'property.actions.reject' })} ${localeFeature}?`}
               onConfirm={async () => {
                 await onCrudOperation(
                   () => rejectEmployeeTimeoff(record.owner.id, record.id),
-                  'Rejected successfully!',
-                  'Cannot reject this request!',
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
                 );
               }}
               disabled={record.status !== 'Pending'}
             >
               <Button
-                title="Reject this request"
+                title={`${intl.formatMessage({ id: 'property.actions.reject' })} ${localeFeature}?`}
                 size="small"
                 danger
                 disabled={record.status !== 'Pending'}
@@ -182,7 +201,7 @@ export const Timeoff: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         className="card-shadow"
-        headerTitle="Timeoff Requests"
+        headerTitle={intl.formatMessage({ id: 'property.employeeRequests' })}
         actionRef={actionRef}
         rowKey="id"
         search={false}

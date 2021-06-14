@@ -36,7 +36,7 @@ import {
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Access, history, useAccess, useIntl, useParams } from 'umi';
+import { Access, FormattedMessage, history, useAccess, useIntl, useParams } from 'umi';
 import { toolbarButtons } from '../EmployeeAttendance';
 
 type RecordType = API.AttendanceRecord;
@@ -124,13 +124,13 @@ const EmployeeAttendanceDetail: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Date',
+      title: intl.formatMessage({ id: 'property.date' }),
       key: 'date',
       dataIndex: 'date',
       renderText: (date) => (date ? moment(date).format('ddd - DD MMM yyyy') : ' '),
     },
     {
-      title: 'Clock in',
+      title: intl.formatMessage({ id: 'property.check_in' }),
       key: 'check_in',
       dataIndex: 'check_in',
       renderText: (check_in, record) => {
@@ -146,7 +146,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
-      title: 'Clock in location',
+      title: intl.formatMessage({ id: 'property.check_in_location' }),
       key: 'check_in_location',
       dataIndex: 'check_in_location',
       renderText: (check_in_location) => {
@@ -154,9 +154,9 @@ const EmployeeAttendanceDetail: React.FC = () => {
 
         if (check_in_location === 'Outside')
           return (
-            <Tooltip title="Clock in outside of office">
+            <Tooltip title={intl.formatMessage({ id: 'property.attendance.outside.long' })}>
               <Tag icon={<EnvironmentOutlined />} color="error">
-                {check_in_location}
+                {intl.formatMessage({ id: 'property.attendance.outside.short' })}
               </Tag>
             </Tooltip>
           );
@@ -170,7 +170,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
-      title: 'Clock in image',
+      title: intl.formatMessage({ id: 'property.check_in_image' }),
       key: 'check_in_image',
       dataIndex: 'check_in_image',
       valueType: 'avatar',
@@ -182,14 +182,16 @@ const EmployeeAttendanceDetail: React.FC = () => {
         ),
     },
     {
-      title: 'Clock out',
+      title: intl.formatMessage({ id: 'property.check_out' }),
       key: 'check_out',
       dataIndex: 'check_out',
       renderText: (check_out, record) => {
         if (!check_out) return '-';
 
         return record.check_out_note ? (
-          <Tooltip title={`Note: ${record.check_out_note}`}>
+          <Tooltip
+            title={`${intl.formatMessage({ id: 'property.note' })}: ${record.check_out_note}`}
+          >
             <Tag icon={<MessageOutlined />}>{moment(record.check_out).format('HH:mm')}</Tag>
           </Tooltip>
         ) : (
@@ -198,7 +200,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
-      title: 'Clock out location',
+      title: intl.formatMessage({ id: 'property.check_out_location' }),
       key: 'check_out_location',
       dataIndex: 'check_out_location',
       renderText: (check_out_location) => {
@@ -206,9 +208,9 @@ const EmployeeAttendanceDetail: React.FC = () => {
 
         if (check_out_location === 'Outside')
           return (
-            <Tooltip title="Clock in outside of office">
+            <Tooltip title={intl.formatMessage({ id: 'property.attendance.outside.long' })}>
               <Tag icon={<EnvironmentOutlined />} color="error">
-                {check_out_location}
+                {intl.formatMessage({ id: 'property.attendance.outside.short' })}
               </Tag>
             </Tooltip>
           );
@@ -222,7 +224,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
-      title: 'Clock out image',
+      title: intl.formatMessage({ id: 'property.check_out_image' }),
       key: 'check_out_image',
       dataIndex: 'check_out_image',
       valueType: 'avatar',
@@ -234,7 +236,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
         ),
     },
     {
-      title: 'Work schedule',
+      title: intl.formatMessage({ id: 'property.hours_work_by_schedule' }),
       key: 'hours_work_by_schedule',
       dataIndex: 'hours_work_by_schedule',
       renderText: (hours_work_by_schedule) => {
@@ -243,7 +245,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
-      title: 'Actual',
+      title: intl.formatMessage({ id: 'property.actual_work_hours' }),
       key: 'actual',
       dataIndex: 'actual_work_hours',
       renderText: (_, record) => {
@@ -261,7 +263,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
-      title: 'Overtime',
+      title: intl.formatMessage({ id: 'property.ot_work_hours' }),
       key: 'overtime',
       dataIndex: 'ot_work_hours',
       renderText: (_, record) => {
@@ -279,7 +281,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
-      title: 'Decifit',
+      title: intl.formatMessage({ id: 'property.decifit' }),
       key: 'deficit',
       dataIndex: 'decifit',
       renderText: (decifit, record) => {
@@ -292,22 +294,32 @@ const EmployeeAttendanceDetail: React.FC = () => {
       },
     },
     {
-      title: (
-      <FormattedMessage id="property.status" defaultMessage="Status" />
-    ),
+      title: <FormattedMessage id="property.status" defaultMessage="Status" />,
       dataIndex: 'status',
       hideInForm: true,
       renderText: (it) => {
-        const symbols = {
-          Pending: <Badge status="warning" />,
-          Approved: <Badge status="success" />,
-          Rejected: <Badge status="error" />,
-          Confirmed: <LockOutlined style={{ color: '#52c41a', marginRight: 3 }} />,
-        };
+        const mapStatus = {
+          Pending: {
+            icon: <Badge status="warning" />,
+            text: intl.formatMessage({ id: 'property.status.Pending' }),
+          },
+          Approved: {
+            icon: <Badge status="success" />,
+            text: intl.formatMessage({ id: 'property.status.Approved' }),
+          },
+          Rejected: {
+            icon: <Badge status="error" />,
+            text: intl.formatMessage({ id: 'property.status.Rejected' }),
+          },
+          Confirmed: {
+            icon: <LockOutlined style={{ color: '#52c41a', marginRight: 3 }} />,
+            text: intl.formatMessage({ id: 'property.status.Confirmed' }),
+          },
+        } as const;
         return (
           <>
-            {symbols[it]}
-            {it}
+            {mapStatus[it]?.icon}
+            {mapStatus[it]?.text || it}
           </>
         );
       },
@@ -346,7 +358,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
                         });
                       }}
                     >
-                      Edit actual
+                      {intl.formatMessage({ id: 'property.actions.editActual' })}
                     </Menu.Item>
                   )}
                   {access['can_edit_overtime_hours_attendance'] && (
@@ -363,7 +375,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
                         });
                       }}
                     >
-                      Edit overtime
+                      {intl.formatMessage({ id: 'property.actions.editOvertime' })}
                     </Menu.Item>
                   )}
                 </Menu>
@@ -378,11 +390,21 @@ const EmployeeAttendanceDetail: React.FC = () => {
     },
   ];
 
+  const dict = {
+    overtime: intl.formatMessage({ id: 'property.actions.editOvertime' }),
+    actual: intl.formatMessage({ id: 'property.actions.editActual' }),
+  };
+
   return (
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
         className="card-shadow header-capitalize"
-        headerTitle={employee && `Attendance of ${employee.first_name} ${employee.last_name}`}
+        headerTitle={
+          employee &&
+          `${intl.formatMessage({ id: 'property.attendanceOf' })} ${employee.first_name} ${
+            employee.last_name
+          }`
+        }
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -421,7 +443,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
                   );
                   try {
                     await bulkAction;
-                    message.success(`${toolbar.action} successfully!`);
+                    message.success(`${toolbar.action} ${intl.formatMessage({ id: 'property.actions.successfully'})}`);
                     actionRef.current?.reloadAndRest?.();
                   } catch (err) {
                     message.error('Some error occurred!');
@@ -495,7 +517,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       />
       <ModalForm
         visible={editModalVisible !== 'hidden'}
-        title={`Edit ${editModalVisible} attendance`}
+        title={dict[editModalVisible]}
         width="400px"
         onFinish={async (values) => {
           try {
@@ -513,12 +535,22 @@ const EmployeeAttendanceDetail: React.FC = () => {
                 ot_hours_modification_note: values.note,
               });
             }
-            message.success('Edit succesfully');
+            message.success(
+              intl.formatMessage({
+                id: 'error.updateSuccessfully',
+                defaultMessage: 'Update successfully!',
+              }),
+            );
             setEditModalVisible('hidden');
             editModalForm.setFieldsValue({ note: '' });
             actionRef.current?.reload();
           } catch {
-            message.error('Edit unsuccesfully');
+            message.error(
+              intl.formatMessage({
+                id: 'error.updateUnsuccessfully',
+                defaultMessage: 'Update unsuccessfully!',
+              }),
+            );
           }
         }}
         onVisibleChange={(visible) => {
@@ -529,12 +561,26 @@ const EmployeeAttendanceDetail: React.FC = () => {
         form={editModalForm}
       >
         <ProForm.Group>
-          <ProFormDatePicker name="date" label="Date" disabled rules={[{ required: true }]} />
-          <Form.Item name="edited_time" label="Edited time" rules={[{ required: true }]}>
+          <ProFormDatePicker
+            name="date"
+            label={intl.formatMessage({ id: 'property.date' })}
+            disabled
+            rules={[{ required: true }]}
+          />
+          <Form.Item
+            name="edited_time"
+            label={intl.formatMessage({ id: 'property.edited_time' })}
+            rules={[{ required: true }]}
+          >
             <TimePicker format="HH:mm" minuteStep={5} />
           </Form.Item>
         </ProForm.Group>
-        <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
+        <ProFormTextArea
+          width="md"
+          rules={[{ required: true }]}
+          name="note"
+          label={intl.formatMessage({ id: 'property.note' })}
+        />
       </ModalForm>
     </PageContainer>
   );

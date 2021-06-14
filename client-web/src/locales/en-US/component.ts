@@ -8,4 +8,7 @@ export default {
   'component.button.changeAvatar': 'Change Avatar',
   'component.button.terminateEmployment': 'Terminate Employment',
   'component.button.print': 'Print',
+  'component.button.save': 'Save',
+  'component.button.exportExcel': 'Export excel',
+  'component.button.sendPayslipsViaEmail': 'Send payslips via email',
 };

@@ -7,4 +7,7 @@ export default {
   'component.button.changePassword': 'Đổi mật khẩu',
   'component.button.terminateEmployment': 'Thôi việc',
   'component.button.print': 'In',
+  'component.button.save': 'Lưu',
+  'component.button.exportExcel': 'Export excel',
+  'component.button.sendPayslipsViaEmail': 'Gửi phiếu lương qua email',
 };

@@ -46,6 +46,7 @@ export const Holiday: React.FC = () => {
     return data;
   });
   const access = useAccess();
+  const localeFeature = intl.formatMessage({ id: 'property.holiday' });
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -122,7 +123,7 @@ export const Holiday: React.FC = () => {
           <Access accessible={access['delete_holiday']}>
             <Popconfirm
               placement="right"
-                            title={`${intl.formatMessage({
+              title={`${intl.formatMessage({
                 id: 'property.actions.delete',
                 defaultMessage: 'Delete',
               })} ${localeFeature}?`}
@@ -187,7 +188,8 @@ export const Holiday: React.FC = () => {
                 setCrudModalVisible('create');
               }}
             >
-              <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
             </Button>
           </Access>,
         ]}

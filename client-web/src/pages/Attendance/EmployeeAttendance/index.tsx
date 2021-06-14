@@ -19,7 +19,7 @@ import { Badge, Button, message, Progress, Select, Space, Tooltip } from 'antd';
 import { countBy, groupBy, mapValues, sumBy, uniq } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import { Access, FormattedMessage, Link, useAccess, useIntl } from 'umi';
+import { Access, FormattedMessage, Link, useAccess, useIntl, getIntl } from 'umi';
 
 type RecordType = API.AttendanceEmployee & {
   status?: {
@@ -35,7 +35,8 @@ type RecordType = API.AttendanceEmployee & {
 
 export const toolbarButtons = [
   {
-    action: 'Approve',
+    // action: 'Approve',
+    action: getIntl().formatMessage({ id: 'property.actions.approve' }),
     icon: <CheckOutlined />,
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Pending',
     api: approveEmployeeAttendance,
@@ -43,7 +44,8 @@ export const toolbarButtons = [
     access: 'can_approve_attendance',
   },
   {
-    action: 'Reject',
+    // action: 'Reject',
+    action: getIntl().formatMessage({ id: 'property.actions.reject' }),
     icon: <CloseOutlined />,
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Pending',
     api: rejectEmployeeAttendance,
@@ -51,7 +53,8 @@ export const toolbarButtons = [
     access: 'can_reject_attendance',
   },
   {
-    action: 'Revert',
+    // action: 'Revert',
+    action: getIntl().formatMessage({ id: 'property.actions.revert' }),
     icon: <RollbackOutlined />,
     filter: (it: API.AttendanceEmployee['attendance'][0]) =>
       it.status === 'Approved' || it.status === 'Rejected',
@@ -60,7 +63,8 @@ export const toolbarButtons = [
     access: 'can_revert_attendance',
   },
   {
-    action: 'Confirm',
+    // action: 'Confirm',
+    action: getIntl().formatMessage({ id: 'property.actions.confirm' }),
     icon: <CheckCircleOutlined />,
     filter: (it: API.AttendanceEmployee['attendance'][0]) => it.status === 'Approved',
     api: confirmEmployeeAttendance,
@@ -121,7 +125,7 @@ const EmployeeAttendance: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Employee',
+      title: intl.formatMessage({ id: 'property.employee' }),
       fixed: 'left',
       key: 'employee',
       dataIndex: 'avatar',
@@ -136,7 +140,7 @@ const EmployeeAttendance: React.FC = () => {
       ),
     },
     {
-      title: 'Actual/work schedule',
+      title: intl.formatMessage({ id: 'property.actualWorkSchedule' }),
       fixed: 'left',
       key: 'actual',
       dataIndex: 'actual',
@@ -212,7 +216,7 @@ const EmployeeAttendance: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
         className="card-shadow"
-        headerTitle="Employee attendance"
+        headerTitle={intl.formatMessage({ id: 'property.employeeAttendance' })}
         actionRef={actionRef}
         rowKey="id"
         search={false}
@@ -254,10 +258,20 @@ const EmployeeAttendance: React.FC = () => {
                   );
                   try {
                     await bulkAction;
-                    message.success(`${toolbar.action} successfully!`);
+                    message.success(
+                      intl.formatMessage({
+                        id: 'error.updateSuccessfully',
+                        defaultMessage: 'Update successfully!',
+                      }),
+                    );
                     actionRef.current?.reloadAndRest?.();
                   } catch (err) {
-                    message.error('Some error occurred!');
+                    message.error(
+                      intl.formatMessage({
+                        id: 'error.updateUnsuccessfully',
+                        defaultMessage: 'Update unsuccessfully!',
+                      }),
+                    );
                   }
                 }}
                 disabled={
