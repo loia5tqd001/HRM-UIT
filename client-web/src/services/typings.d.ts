@@ -323,6 +323,7 @@ declare namespace API {
     reviewed_by: Employee['id'];
     confirmed_by: Employee['id'];
     status: 'Pending' | 'Approved' | 'Confirmed';
+    schedule_hours: number;
     tracking_data: {
       check_in_time: moment.Moment | string;
       check_in_outside: boolean;
@@ -388,9 +389,9 @@ declare namespace API {
     next_step: 'clock in' | 'clock out';
     first_clock_in: moment.Moment | string | null;
     last_clock_out: moment.Moment | string | null;
-    last_action: 'clock in' | 'clock out';
+    last_action: 'clock in' | 'clock out' | null;
     last_action_at: moment.Moment | string | null;
-    location: Location;
+    location: Location | null;
   }
 
   interface TimeOffHelper {

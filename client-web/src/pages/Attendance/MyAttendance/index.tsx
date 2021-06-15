@@ -1,15 +1,8 @@
-import { allLocations } from '@/services/admin.organization.location';
+import { getAppConfig } from '@/services/appConfig';
 import { allPeriods, attendanceHelper } from '@/services/attendance';
-import {
-  allJobs,
-  checkIn,
-  checkOut,
-  editActual,
-  editOvertime,
-  getSchedule,
-  readAttendances,
-} from '@/services/employee';
+import { checkIn, checkOut, getSchedule, readAttendances } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
+import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { formatDurationHm } from '@/utils/utils';
 import {
@@ -19,7 +12,7 @@ import {
   LockOutlined,
   MessageOutlined,
 } from '@ant-design/icons';
-import ProForm, { ModalForm, ProFormDatePicker, ProFormTextArea } from '@ant-design/pro-form';
+import { ModalForm, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -27,14 +20,12 @@ import {
   Alert,
   Badge,
   Button,
-  Form,
   message,
   notification,
   Popover,
   Select,
   Space,
   Tag,
-  TimePicker,
   Tooltip,
 } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
@@ -48,24 +39,13 @@ type RecordType = API.AttendanceRecord;
 type CurrentLocation = {
   lat: number;
   lng: number;
-  office: 'Outside' | string;
-  allow_outside: boolean;
 };
 
 const MyAttendance: React.FC = () => {
   const intl = useIntl();
   const actionRef = useRef<ActionType>();
   const [clockModalVisible, setClockModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState<'hidden' | 'actual' | 'overtime'>(
-    'hidden',
-  );
-  const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
   const [currentLocation, setCurrentLocation] = useState<CurrentLocation>();
-  const [nextStep, setNextStep] = useState<'Clock in' | 'Clock out'>('Clock in');
-  const [firstClockIn, setFirstClockIn] = useState<string>('--:--');
-  const [lastClockOut, setLastClockOut] = useState<string>('--:--');
-  const [lastAction, setLastAction] = useState<string>();
-  const [editModalForm] = useForm();
   const [clockModalForm] = useForm();
   const [holidays, setHolidays] = useState<API.Holiday[]>();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -74,17 +54,18 @@ const MyAttendance: React.FC = () => {
   const [faceDenied, setFaceDenied] = useState(false);
   const [periods, setPeriods] = useState<API.Period[]>();
   const [selectedPeriod, setSelectedPeriod] = useState<any>();
-  const localeFeature = intl.formatMessage({ id: 'property.attendanceRequest' });
   const tableSettings = useTableSettings();
+  const attendanceState = useAsyncData<API.AttendanceHelper>(attendanceHelper);
+  const [distance, setDistance] = useState<number>();
+  const appConfig = useAsyncData<API.AppConfig>(getAppConfig);
 
   const nextStepTranslate = {
     'Clock in': intl.formatMessage({ id: 'property.check_in' }),
+    'clock in': intl.formatMessage({ id: 'property.check_in' }),
     'Clock out': intl.formatMessage({ id: 'property.check_out' }),
+    'clock out': intl.formatMessage({ id: 'property.check_out' }),
+    undefined: null,
   };
-
-  useEffect(() => {
-    attendanceHelper();
-  }, []);
 
   useEffect(() => {
     allPeriods()
@@ -98,14 +79,6 @@ const MyAttendance: React.FC = () => {
 
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
-
-  useEffect(() => {
-    const { action } = history.location.query as any;
-    if (action === 'nextStep' && currentLocation) {
-      setClockModalVisible(true);
-      history.replace('/attendance/me');
-    }
-  }, [nextStep, currentLocation]);
 
   useEffect(() => {
     allHolidays().then((fetchData) => setHolidays(fetchData));
@@ -167,31 +140,19 @@ const MyAttendance: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (navigator.geolocation) {
+    if (navigator.geolocation && attendanceState.data?.location) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
 
-          const [location, locations] = await Promise.all([
-            allJobs(id).then((it) => it?.[0]?.location),
-            allLocations(),
-          ]);
-          const matchedLocation = locations.find((it) => it.name === location);
-          if (!matchedLocation || !window.google) {
-            message.error('Cannot find location');
-            return;
-          }
-          const { lat, lng, radius, name, allow_outside } = matchedLocation;
-          const distance = window.google.maps.geometry.spherical.computeDistanceBetween(
-            new window.google.maps.LatLng(lat, lng),
-            new window.google.maps.LatLng(latitude, longitude),
+          const { lat, lng } = attendanceState.data!.location!;
+          setDistance(
+            window.google.maps.geometry.spherical.computeDistanceBetween(
+              new window.google.maps.LatLng(lat, lng),
+              new window.google.maps.LatLng(latitude, longitude),
+            ),
           );
-          setCurrentLocation({
-            lat: latitude,
-            lng: longitude,
-            office: distance > radius ? 'Outside' : name,
-            allow_outside,
-          });
+          setCurrentLocation({ lat: latitude, lng: longitude });
         },
         (err) => {
           if (err.PERMISSION_DENIED) {
@@ -200,7 +161,26 @@ const MyAttendance: React.FC = () => {
         },
       );
     }
-  }, [id]);
+  }, [id, attendanceState.data, attendanceState.data?.location]);
+
+  const isOutside =
+    attendanceState.isLoading ||
+    attendanceState.isError ||
+    !!(
+      distance &&
+      attendanceState.data?.location &&
+      distance > attendanceState.data.location.radius
+    );
+  const errorMustWorkInOffice = isOutside && !attendanceState.data?.location?.allow_outside;
+  const clockButtonDisabled = errorMustWorkInOffice || attendanceState.data?.location === null;
+
+  useEffect(() => {
+    const { action } = history.location.query as any;
+    if (action === 'nextStep' && appConfig.data && !clockButtonDisabled) {
+      setClockModalVisible(true);
+      history.replace('/attendance/me');
+    }
+  }, [clockButtonDisabled, appConfig.data]);
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -493,7 +473,6 @@ const MyAttendance: React.FC = () => {
       )}
       <ProTable<RecordType, API.PageParams>
         {...tableSettings}
-        {...tableSettings}
         className="card-shadow"
         headerTitle={intl.formatMessage({ id: 'property.myAttendance' })}
         actionRef={actionRef}
@@ -503,23 +482,34 @@ const MyAttendance: React.FC = () => {
         tableAlertRender={false}
         toolBarRender={() => [
           <div key="tags">
-            {lastAction ? (
+            {attendanceState.data?.last_action ? (
               <>
                 <Tag>
                   {intl.formatMessage({ id: 'property.firstCheckIn' })}:{' '}
-                  <span className="emphasize-tag">{firstClockIn}</span>
+                  <span className="emphasize-tag">
+                    {attendanceState.data.first_clock_in
+                      ? moment(attendanceState.data.first_clock_in).format('HH:mm')
+                      : '--:--'}
+                  </span>
                 </Tag>
                 <Tag>
                   {intl.formatMessage({ id: 'property.lastCheckOut' })}:{' '}
-                  <span className="emphasize-tag">{lastClockOut}</span>
+                  <span className="emphasize-tag">
+                    {attendanceState.data.last_clock_out
+                      ? moment(attendanceState.data.last_clock_out).format('HH:mm')
+                      : '--:--'}
+                  </span>
                 </Tag>
-                <Tag>
+                <Tag color="processing">
                   {intl.formatMessage({ id: 'property.lastAction' })}:{' '}
-                  <span className="emphasize-tag">{lastAction}</span>
+                  <span className="emphasize-tag">
+                    {nextStepTranslate[attendanceState.data.last_action]}{' '}
+                    {moment(attendanceState.data.last_action_at).format('HH:mm')}
+                  </span>
                 </Tag>
               </>
             ) : (
-              <Tag>
+              <Tag color="processing">
                 <span className="emphasize-tag">
                   {intl.formatMessage({ id: 'error.noActivities' })}
                 </span>
@@ -543,77 +533,47 @@ const MyAttendance: React.FC = () => {
               </Select.Option>
             ))}
           </Select>,
-          <Button
-            type="primary"
-            key="primary"
+          <Tooltip
             title={
-              (currentLocation?.office === 'Outside' &&
-                !currentLocation?.allow_outside &&
-                'Your office does not allow clock in / clock out outside of the designated area.') ||
-              ''
+              // eslint-disable-next-line no-nested-ternary
+              attendanceState.data?.location === null
+                ? 'Must setup location for this employee first'
+                : errorMustWorkInOffice
+                ? intl.formatMessage({ id: 'error.yourOfficeNotAllowAttendance' })
+                : ''
             }
-            disabled={currentLocation?.office === 'Outside' && !currentLocation?.allow_outside}
-            onClick={async () => {
-              setClockModalVisible(true);
-            }}
-            style={{ textTransform: 'capitalize', fontWeight: 'bold' }}
-            loading={!nextStep || !currentLocation}
           >
-            <Space>
-              <HistoryOutlined />
-              {nextStepTranslate[nextStep]}
-              {/* <FormattedMessage
-                id="pages.attendance.myAttendance.list.table.clockIn"
-                defaultMessage="Clock in"
-              /> */}
-            </Space>
-          </Button>,
+            <Button
+              type="primary"
+              key="primary"
+              disabled={clockButtonDisabled}
+              onClick={() => {
+                setClockModalVisible(true);
+              }}
+              style={{ textTransform: 'capitalize', fontWeight: 'bold' }}
+              loading={
+                attendanceState.isLoading || (attendanceState.data?.location !== null && !distance)
+              }
+            >
+              <Space>
+                <HistoryOutlined />
+                {attendanceState.data && nextStepTranslate[attendanceState.data?.next_step]}
+              </Space>
+            </Button>
+          </Tooltip>,
         ]}
         loading={periods === undefined ? true : undefined}
         request={async () => {
           const fetchData = await readAttendances(id, {
             params: { period_id: selectedPeriod },
           });
-          // Handle for today data
-          const todayData = fetchData
-            .reverse()
-            .find((it) => moment(it.date).isSame(moment(), 'day'));
-          if (todayData) {
-            if (todayData.tracking_data.length) {
-              // Handle for: firstClock, lastClockOut, lastAction, nextStep
-              setFirstClockIn(moment(todayData.tracking_data[0]?.check_in_time).format('HH:mm'));
-              const continueStep = todayData.tracking_data[todayData.tracking_data.length - 1]
-                .check_out_time
-                ? 'Clock in'
-                : 'Clock out';
-              setNextStep(continueStep);
-              const lastClockOutRecord =
-                todayData.tracking_data[
-                  todayData.tracking_data.length - (continueStep === 'Clock in' ? 1 : 2)
-                ];
-              if (lastClockOutRecord) {
-                setLastClockOut(moment(lastClockOutRecord.check_out_time).format('HH:mm'));
-              }
-
-              const lastRecord = todayData.tracking_data[todayData.tracking_data.length - 1];
-              setLastAction(
-                lastRecord.check_out_time
-                  ? `${nextStepTranslate['Clock out']} ${moment(lastRecord.check_out_time).format(
-                      'HH:mm',
-                    )}`
-                  : `${nextStepTranslate['Clock in']} ${moment(lastRecord.check_in_time).format(
-                      'HH:mm',
-                    )}`,
-              );
-            }
-          }
+          fetchData.reverse();
 
           const schedule = await getSchedule(id).then((it) => it.schedule as API.Schedule);
           // manipulate backend data
           const data = fetchData.map((it) => {
             const first_check_in = it.tracking_data[0];
             const last_check_out = it.tracking_data[it.tracking_data.length - 1];
-
             return {
               ...it,
               type: 'AttendanceDay',
@@ -630,7 +590,8 @@ const MyAttendance: React.FC = () => {
                 last_check_out?.check_out_time &&
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
               check_out_image: last_check_out?.check_out_image,
-              hours_work_by_schedule: getHourWorkDay(moment(it.date), schedule),
+              hours_work_by_schedule:
+                it.schedule_hours || getHourWorkDay(moment(it.date), schedule),
               children: it.tracking_data?.map((x) => {
                 return {
                   ...x,
@@ -658,85 +619,76 @@ const MyAttendance: React.FC = () => {
       />
       <ModalForm
         visible={clockModalVisible}
-        title={`${nextStepTranslate[nextStep]} at ${moment().format('HH:mm')}`}
+        title={`${
+          attendanceState.data && nextStepTranslate[attendanceState.data?.next_step]
+        } ${moment().format('HH:mm')}`}
         width="398px"
         onFinish={async (values) => {
           try {
+            if (!currentLocation) return false;
             const { lat, lng } = currentLocation!;
-            const canvas = document.createElement('canvas');
-            const width = 350;
-            const height = 260;
-            if (!videoRef.current) return false;
-            const context = canvas.getContext('2d');
-            canvas.width = width;
-            canvas.height = height;
-            context?.drawImage(videoRef.current, 0, 0, width, height);
-            const datauri = canvas.toDataURL('image/png');
-            const blob = await fetch(datauri).then((it) => it.blob());
-            if (!blob) {
-              throw new Error();
+            const submitData = new FormData();
+            if (appConfig.data?.require_face_id) {
+              const canvas = document.createElement('canvas');
+              const width = 350;
+              const height = 260;
+              if (!videoRef.current) return false;
+              const context = canvas.getContext('2d');
+              canvas.width = width;
+              canvas.height = height;
+              context?.drawImage(videoRef.current, 0, 0, width, height);
+              const datauri = canvas.toDataURL('image/png');
+              const blob = await fetch(datauri).then((it) => it.blob());
+              if (!blob) {
+                throw new Error();
+              }
+              submitData.append('face_image', blob, 'face_image.png');
             }
 
-            if (nextStep === 'Clock in') {
-              const submitData = new FormData();
-              submitData.append('face_image', blob, 'face_image.png');
+            if (attendanceState.data?.next_step === 'clock in') {
               submitData.append('check_in_lat', String(lat));
               submitData.append('check_in_lng', String(lng));
               submitData.append('check_in_note', values.note);
               await checkIn(id, submitData);
             } else {
-              const submitData = new FormData();
-              submitData.append('face_image', blob, 'face_image.png');
               submitData.append('check_out_lat', String(lat));
               submitData.append('check_out_lng', String(lng));
               submitData.append('check_out_note', values.note);
               await checkOut(id, submitData);
             }
             message.success(
-              `${nextStepTranslate[nextStep]} ${intl.formatMessage({
+              `${
+                attendanceState.data && nextStepTranslate[attendanceState.data?.next_step]
+              } ${intl.formatMessage({
                 id: 'property.actions.successfully',
               })}`,
             );
             setClockModalVisible(false);
             actionRef.current?.reload();
+            attendanceState.fetchData();
             return true;
-            // canvas.toBlob(async (blob) => {
-            //   if (!blob) {
-            //     throw new Error();
-            //   }
-
-            //   if (nextStep === 'Clock in') {
-            //     const submitData = new FormData();
-            //     submitData.append('face_image', blob, 'face_image.png');
-            //     submitData.append('check_in_lat', String(lat));
-            //     submitData.append('check_in_lng', String(lng));
-            //     submitData.append('check_in_note', values.note);
-            //     await checkIn(id, submitData);
-            //     message.success('Clocked in successfully');
-            //   } else {
-            //     const submitData = new FormData();
-            //     submitData.append('face_image', blob, 'face_image.png');
-            //     submitData.append('check_out_lat', String(lat));
-            //     submitData.append('check_out_lng', String(lng));
-            //     submitData.append('check_out_note', values.note);
-            //     await checkOut(id, submitData);
-            //     message.success('Clocked out successfully');
-            //   }
-            //   setClockModalVisible(false);
-            //   actionRef.current?.reload();
-            // });
-          } catch {
-            message.error(
-              `${nextStepTranslate[nextStep]} ${intl.formatMessage({
-                id: 'property.actions.unsuccessfully',
-              })}`,
-            );
+          } catch (error) {
+            if (error.data === 'Face recognition failed') {
+              message.error(intl.formatMessage({ id: 'error.cannotRecognizeFace' }));
+            } else {
+              message.error(
+                `${
+                  attendanceState.data && nextStepTranslate[attendanceState.data?.next_step]
+                } ${intl.formatMessage({
+                  id: 'property.actions.unsuccessfully',
+                })}`,
+              );
+            }
             return false;
           }
         }}
         onVisibleChange={(visible) => {
           if (visible) {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            if (
+              appConfig.data!.require_face_id &&
+              navigator.mediaDevices &&
+              navigator.mediaDevices.getUserMedia
+            ) {
               navigator.mediaDevices
                 .getUserMedia({ video: true })
                 .then((stream) => {
@@ -768,61 +720,18 @@ const MyAttendance: React.FC = () => {
       >
         <Space style={{ marginBottom: 20 }}>
           <EnvironmentOutlined />
-          {currentLocation?.office === 'Outside'
+          {isOutside
             ? intl.formatMessage({ id: 'property.attendance.outside.long' })
-            : currentLocation?.office}
+            : attendanceState.data?.location?.name}
         </Space>
         <ProFormTextArea
           width="md"
-          rules={currentLocation?.office === 'Outside' ? [{ required: true }] : undefined}
+          rules={isOutside ? [{ required: true }] : undefined}
           name="note"
           label={intl.formatMessage({ id: 'property.note' })}
         />
-        <video ref={videoRef} width="350px" height="260px" />
+        {appConfig.data?.require_face_id && <video ref={videoRef} width="350px" height="260px" />}
       </ModalForm>
-      {/* <ModalForm
-        visible={editModalVisible !== 'hidden'}
-        title={`Edit ${editModalVisible} attendance`}
-        width="400px"
-        onFinish={async (values) => {
-          try {
-            const edited_to = moment(values.edited_time);
-            const work_hours = edited_to.hour() + edited_to.minute() / 60;
-            if (editModalVisible === 'actual') {
-              await editActual(id, seletectedRecord!.id, {
-                actual_work_hours: work_hours,
-                actual_hours_modification_note: values.note,
-              });
-            }
-            if (editModalVisible === 'overtime') {
-              await editOvertime(id, seletectedRecord!.id, {
-                ot_work_hours: work_hours,
-                ot_hours_modification_note: values.note,
-              });
-            }
-            message.success('Edit succesfully');
-            setEditModalVisible('hidden');
-            editModalForm.setFieldsValue({ note: '' });
-            actionRef.current?.reload();
-          } catch {
-            message.error('Edit unsuccesfully');
-          }
-        }}
-        onVisibleChange={(visible) => {
-          if (!visible) {
-            setEditModalVisible('hidden');
-          }
-        }}
-        form={editModalForm}
-      >
-        <ProForm.Group>
-          <ProFormDatePicker name="date" label="Date" disabled rules={[{ required: true }]} />
-          <Form.Item name="edited_time" label="Edited time" rules={[{ required: true }]}>
-            <TimePicker format="HH:mm" minuteStep={5} />
-          </Form.Item>
-        </ProForm.Group>
-        <ProFormTextArea width="md" rules={[{ required: true }]} name="note" label="Note" />
-      </ModalForm> */}
     </PageContainer>
   );
 };

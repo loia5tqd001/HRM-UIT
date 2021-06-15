@@ -16,4 +16,7 @@ export default {
   'error.cannotDeleteDefaultTemplate': 'Không thể xoá mẫu lương mặc định',
   'error.alreadyExists': 'đã tồn tại',
   'error.incorrectUsernamePassword': 'Tài khoản hoặc mật khẩu không đúng',
+  'error.yourOfficeNotAllowAttendance':
+    'Địa điểm làm việc của bạn không cho phép chấm công ngoài văn phòng làm việc',
+  'error.cannotRecognizeFace': 'Hệ thống không thể nhận ra khuôn mặt của bạn',
 };

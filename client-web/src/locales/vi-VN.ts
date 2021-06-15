@@ -10,7 +10,7 @@ import property from './vi-VN/property';
 import permission from './vi-VN/permission';
 
 export default {
-  'app.title': 'QLNS',
+  'app.title': 'HRM',
   'navBar.lang': 'Languages',
   'layout.user.link.help': 'Help',
   'layout.user.link.privacy': 'Privacy',

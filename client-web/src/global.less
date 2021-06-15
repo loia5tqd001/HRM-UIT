@@ -48,7 +48,7 @@ body,
 .ant-btn-dangerous {
   box-shadow: 0 1px 8px -4px currentColor;
 }
-.ant-tag:is(.ant-tag-error, .ant-tag-success, .ant-tag-processing) {
+.ant-tag:is(.ant-tag-error, .ant-tag-success, .ant-tag-green, .ant-tag-processing) {
   box-shadow: 0 1px 8px -5px currentColor;
   &:hover {
     box-shadow: 0 1px 5px -4px currentColor;
@@ -238,6 +238,12 @@ body,
   rgba(36, 48, 73, 0.04) 0px 0px 0px 1px;
 @custom-subtle-shadow-lessen: rgba(36, 48, 73, 0.12) 0px 0px 24px 0px,
   rgba(36, 48, 73, 0.04) 0px 0px 0px 1px;
+@custom-subtle-shadow-least: rgba(36, 48, 73, 0.2) 0px 0px 3px -1px;
+
+.ant-table-container {
+  box-shadow: @custom-subtle-shadow-least;
+  border-radius: @border-radius-base;
+}
 
 // the mixin
 .card-shadow() {
@@ -255,6 +261,7 @@ body,
   }
 }
 // breadcrumb should have the shadow as well
+.ant-pro-top-nav-header,
 .ant-pro-global-header {
   box-shadow: @custom-subtle-shadow;
 }

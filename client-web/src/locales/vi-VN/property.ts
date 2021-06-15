@@ -92,7 +92,7 @@ export default {
   'property.employeePercent': 'Phần trăm nhân viên',
   'property.monthlyStartDate': 'Ngày bắt đầu tháng',
   'property.earlyCheckinMinutes': 'Số phút được chấm công trước',
-  'property.otPointRate': 'Tỉ lệ OT',
+  'property.otPointRate': 'Tỉ lệ lương OT',
   'property.requireFaceId': 'Yêu cầu khuôn mặt',
   'property.allowUnrecognisedFace': 'Cho phép khuôn mặt không nhận ra',
 

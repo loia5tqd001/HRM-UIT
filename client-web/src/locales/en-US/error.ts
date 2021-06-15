@@ -18,4 +18,7 @@ export default {
   'error.cannotDeleteDefaultTemplate': 'Cannot delete default template',
   'error.alreadyExists': 'already exists',
   'error.incorrectUsernamePassword': 'Incorrect username/password',
+  'error.yourOfficeNotAllowAttendance':
+    'Your office does not allow clock in / clock out outside of the designated area.',
+  'error.cannotRecognizeFace': 'The system cannot recognise your face',
 };
