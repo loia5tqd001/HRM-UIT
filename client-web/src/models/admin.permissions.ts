@@ -42,10 +42,10 @@ export default function useAdminPermissionsModel() {
     [roles],
   );
 
-  const hasModified = useMemo(() => !isEqual(selectedRole, draftSelectedRole), [
-    selectedRole,
-    draftSelectedRole,
-  ]);
+  const hasModified = useMemo(
+    () => !isEqual(selectedRole, draftSelectedRole),
+    [selectedRole, draftSelectedRole],
+  );
 
   const setAccess = useCallback(
     async (access: API.RoleItem['permissions']['access']) => {

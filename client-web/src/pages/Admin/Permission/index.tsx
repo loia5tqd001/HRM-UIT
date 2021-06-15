@@ -1,4 +1,5 @@
 import { FormattedMessage } from '@/.umi/plugin-locale/localeExports';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import { allRoles, createRole, deleteRole, updateRole } from '@/services/auth';
 import {
@@ -64,6 +65,7 @@ const Permission: React.FC = () => {
     [],
   );
 
+  const tableSettings = useTableSettings();
   const dict = {
     title: {
       create: `${intl.formatMessage({
@@ -220,6 +222,7 @@ const Permission: React.FC = () => {
           title={intl.formatMessage({ id: 'property.roles' })}
         >
           <ProTable<RecordType>
+            {...tableSettings}
             columns={[
               {
                 title: 'Name',

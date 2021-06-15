@@ -1,4 +1,5 @@
 import { FormattedMessage, useIntl } from '@/.umi/plugin-locale/localeExports';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import { calcHours, convertFromBackend } from '@/pages/Admin/Job/WorkSchedule';
 import { allEmploymentStatuses } from '@/services/admin.job.employmentStatus';
@@ -196,6 +197,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
   const scheduleDays = convertFromBackend(
     (schedule.data?.schedule as API.Schedule)?.workdays || [],
   );
+  const tableSettings = useTableSettings();
 
   return (
     <>
@@ -588,6 +590,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
 
       <Access accessible={canViewJob}>
         <ProTable<API.EmployeeJob>
+          {...tableSettings}
           headerTitle={intl.formatMessage({ id: 'property.jobHistory' })}
           rowKey="id"
           columns={columns}

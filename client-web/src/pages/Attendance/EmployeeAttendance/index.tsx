@@ -5,6 +5,7 @@ import {
   rejectEmployeeAttendance,
   revertEmployeeAttendance,
 } from '@/services/employee';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import {
   CheckCircleOutlined,
   CheckOutlined,
@@ -15,7 +16,16 @@ import {
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Badge, Button, message, Progress, Select, Space, Tooltip } from 'antd';
+import {
+  Badge,
+  Button,
+  message,
+  Progress,
+  Select,
+  Space,
+  TablePaginationConfig,
+  Tooltip,
+} from 'antd';
 import { countBy, groupBy, mapValues, sumBy, uniq } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
@@ -212,9 +222,13 @@ const EmployeeAttendance: React.FC = () => {
     })),
   ];
 
+  const tableSettings = useTableSettings();
+
   return (
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
+        {...tableSettings}
+        {...tableSettings}
         className="card-shadow"
         headerTitle={intl.formatMessage({ id: 'property.employeeAttendance' })}
         actionRef={actionRef}

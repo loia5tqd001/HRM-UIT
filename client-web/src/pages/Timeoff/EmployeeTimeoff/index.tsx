@@ -4,6 +4,7 @@ import {
   rejectEmployeeTimeoff,
 } from '@/services/employee';
 import { allTimeoffs } from '@/services/timeOff';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { filterData } from '@/utils/utils';
 import { CheckOutlined, CloseOutlined, EnterOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -27,6 +28,7 @@ export const Timeoff: React.FC = () => {
   const localeFeature = intl.formatMessage({
     id: 'property.timeoffRequest',
   });
+  const tableSettings = useTableSettings();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -200,6 +202,7 @@ export const Timeoff: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        {...tableSettings}
         className="card-shadow"
         headerTitle={intl.formatMessage({ id: 'property.employeeRequests' })}
         actionRef={actionRef}

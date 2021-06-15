@@ -398,6 +398,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
+        {...tableSettings}
         className="card-shadow header-capitalize"
         headerTitle={
           employee &&
@@ -443,7 +444,11 @@ const EmployeeAttendanceDetail: React.FC = () => {
                   );
                   try {
                     await bulkAction;
-                    message.success(`${toolbar.action} ${intl.formatMessage({ id: 'property.actions.successfully'})}`);
+                    message.success(
+                      `${toolbar.action} ${intl.formatMessage({
+                        id: 'property.actions.successfully',
+                      })}`,
+                    );
                     actionRef.current?.reloadAndRest?.();
                   } catch (err) {
                     message.error('Some error occurred!');

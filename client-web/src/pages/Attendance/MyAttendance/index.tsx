@@ -10,6 +10,7 @@ import {
   readAttendances,
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { formatDurationHm } from '@/utils/utils';
 import {
   EditOutlined,
@@ -74,6 +75,7 @@ const MyAttendance: React.FC = () => {
   const [periods, setPeriods] = useState<API.Period[]>();
   const [selectedPeriod, setSelectedPeriod] = useState<any>();
   const localeFeature = intl.formatMessage({ id: 'property.attendanceRequest' });
+  const tableSettings = useTableSettings();
 
   const nextStepTranslate = {
     'Clock in': intl.formatMessage({ id: 'property.check_in' }),
@@ -81,7 +83,7 @@ const MyAttendance: React.FC = () => {
   };
 
   useEffect(() => {
-    attendanceHelper()
+    attendanceHelper();
   }, []);
 
   useEffect(() => {
@@ -490,6 +492,8 @@ const MyAttendance: React.FC = () => {
         />
       )}
       <ProTable<RecordType, API.PageParams>
+        {...tableSettings}
+        {...tableSettings}
         className="card-shadow"
         headerTitle={intl.formatMessage({ id: 'property.myAttendance' })}
         actionRef={actionRef}
@@ -594,9 +598,9 @@ const MyAttendance: React.FC = () => {
               const lastRecord = todayData.tracking_data[todayData.tracking_data.length - 1];
               setLastAction(
                 lastRecord.check_out_time
-                  ? `${nextStepTranslate['Clock out']} ${moment(
-                      lastRecord.check_out_time,
-                    ).format('HH:mm')}`
+                  ? `${nextStepTranslate['Clock out']} ${moment(lastRecord.check_out_time).format(
+                      'HH:mm',
+                    )}`
                   : `${nextStepTranslate['Clock in']} ${moment(lastRecord.check_in_time).format(
                       'HH:mm',
                     )}`,

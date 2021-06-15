@@ -1,4 +1,5 @@
 import { allLocations } from '@/services/admin.organization.location';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
@@ -11,6 +12,7 @@ type RecordType = API.Location;
 
 export const Office: React.FC = () => {
   const actionRef = useRef<ActionType>();
+  const tableSettings = useTableSettings();
 
   const intl = useIntl();
 
@@ -51,6 +53,7 @@ export const Office: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        {...tableSettings}
         className="card-shadow"
         headerTitle={`${intl.formatMessage({ id: 'property.actions.list' })} ${intl.formatMessage({
           id: 'property.office',

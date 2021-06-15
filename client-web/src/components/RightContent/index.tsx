@@ -76,10 +76,7 @@ const GlobalHeaderRight: React.FC = () => {
       /> */}
       {/* <NoticeIcon /> */}
       <Badge count={amountOfUnreads}>
-        <Favicon
-          url="/favicon.ico"
-          alertCount={amountOfUnreads}
-        />
+        <Favicon url="/favicon.ico" alertCount={amountOfUnreads} />
         <Link to="/message">
           <NotificationOutlined />
         </Link>

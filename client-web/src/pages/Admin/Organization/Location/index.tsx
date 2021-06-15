@@ -1,3 +1,4 @@
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import {
   allLocations,
@@ -159,6 +160,7 @@ export const Location: React.FC = () => {
     },
   ];
 
+  const tableSettings = useTableSettings();
   const dict = {
     title: {
       create: `${intl.formatMessage({
@@ -175,6 +177,7 @@ export const Location: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        {...tableSettings}
         className="card-shadow"
         headerTitle={`${intl.formatMessage({
           id: 'property.actions.list',
@@ -287,12 +290,7 @@ export const Location: React.FC = () => {
         }}
       >
         <ProForm.Group>
-          <ProFormText
-            rules={[{ required: true }]}
-            name="name"
-            width="sm"
-            label={localeFeature}
-          />
+          <ProFormText rules={[{ required: true }]} name="name" width="sm" label={localeFeature} />
           {/* <ProFormText
             rules={[{ required: true }]}
             name="country"

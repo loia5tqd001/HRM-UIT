@@ -124,20 +124,6 @@ const attendanceColumns: ProColumns<any>[] = [
   },
 ];
 
-const calcHours = ({
-  morning_from,
-  morning_to,
-  afternoon_from,
-  afternoon_to,
-}: API.Schedule['workdays'][0]) => {
-  let hours = 0;
-  if (morning_from && morning_to)
-    hours += moment.duration(moment(morning_to).diff(moment(morning_from))).asHours() % 24;
-  if (afternoon_from && afternoon_to)
-    hours += moment.duration(moment(afternoon_to).diff(moment(afternoon_from))).asHours() % 24;
-  return Number(hours.toFixed(1));
-};
-
 const empColumns: ProColumns<any>[] = [
   {
     title: <FormattedMessage id="property.full_name" defaultMessage="Full name" />,

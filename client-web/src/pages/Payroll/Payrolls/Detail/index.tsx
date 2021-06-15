@@ -148,7 +148,9 @@ export const PayrollDetail: React.FC = () => {
                         await exportExcel(id);
                       } catch {
                         message.error(
-                          `Export ${intl.formatMessage({ id: 'property.actions.unsuccessfully' })}!`,
+                          `Export ${intl.formatMessage({
+                            id: 'property.actions.unsuccessfully',
+                          })}!`,
                         );
                       } finally {
                         setIsExporting(false);

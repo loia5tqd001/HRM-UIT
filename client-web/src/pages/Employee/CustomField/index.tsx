@@ -106,10 +106,10 @@ export const CustomField: React.FC = () => {
           </Button>
           <Popconfirm
             placement="right"
-                          title={`${intl.formatMessage({
-                id: 'property.actions.delete',
-                defaultMessage: 'Delete',
-              })} ${localeFeature}?`}
+            title={`${intl.formatMessage({
+              id: 'property.actions.delete',
+              defaultMessage: 'Delete',
+            })} ${localeFeature}?`}
             onConfirm={async () => {
               await onCrudOperation(
                 () => deleteCustomField(record.id),
@@ -127,6 +127,7 @@ export const CustomField: React.FC = () => {
     },
   ];
 
+  const tableSettings = useTableSettings();
   const dict = {
     title: {
       create: 'Create custom field',
@@ -137,6 +138,7 @@ export const CustomField: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        {...tableSettings}
         className="card-shadow"
         headerTitle={intl.formatMessage({
           id: 'pages.admin.customField.list.title',
@@ -146,8 +148,7 @@ export const CustomField: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-
-<Button
+          <Button
             type="primary"
             key="primary"
             onClick={() => {
@@ -155,8 +156,7 @@ export const CustomField: React.FC = () => {
             }}
           >
             <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
-          </Button>
-,
+          </Button>,
         ]}
         request={async () => {
           const data = await allCustomFields();

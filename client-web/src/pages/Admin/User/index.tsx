@@ -206,6 +206,7 @@ const TableList: React.FC = () => {
   return (
     <div>
       <ProTable<API.RuleListItem, API.PageParams>
+        {...tableSettings}
         headerTitle={intl.formatMessage({
           id: 'pages.admin.user.listForm.title',
           defaultMessage: '查询表格',

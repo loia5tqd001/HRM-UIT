@@ -1,3 +1,4 @@
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import {
   allOvertimeTypes,
@@ -71,10 +72,10 @@ export const OvertimeType: React.FC = () => {
           </Button>
           <Popconfirm
             placement="right"
-                          title={`${intl.formatMessage({
-                id: 'property.actions.delete',
-                defaultMessage: 'Delete',
-              })} ${localeFeature}?`}
+            title={`${intl.formatMessage({
+              id: 'property.actions.delete',
+              defaultMessage: 'Delete',
+            })} ${localeFeature}?`}
             onConfirm={async () => {
               await onCrudOperation(
                 () => deleteOvertimeType(record.id),
@@ -92,6 +93,7 @@ export const OvertimeType: React.FC = () => {
     },
   ];
 
+  const tableSettings = useTableSettings();
   const dict = {
     title: {
       create: `${intl.formatMessage({
@@ -108,14 +110,14 @@ export const OvertimeType: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        {...tableSettings}
         className="card-shadow"
         headerTitle="Overtime types"
         actionRef={actionRef}
         rowKey="id"
         search={false}
         toolBarRender={() => [
-
-<Button
+          <Button
             type="primary"
             key="primary"
             onClick={() => {
@@ -123,8 +125,7 @@ export const OvertimeType: React.FC = () => {
             }}
           >
             <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
-          </Button>
-,
+          </Button>,
         ]}
         request={async () => {
           const data = await allOvertimeTypes();

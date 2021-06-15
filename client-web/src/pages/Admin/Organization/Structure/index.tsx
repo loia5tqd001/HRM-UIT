@@ -1,4 +1,5 @@
 import { allDepartments, deleteDepartment } from '@/services/admin.organization.structure';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns } from '@ant-design/pro-table';
@@ -40,6 +41,7 @@ export const OrganziationStructure: React.FC = () => {
         setDepartmentsPending(false);
       });
   }, [setDepartments, setDepartmentsPending]);
+  const tableSettings = useTableSettings();
 
   const columns: ProColumns<API.DepartmentUnit>[] = [
     {
@@ -128,7 +130,7 @@ export const OrganziationStructure: React.FC = () => {
             <Popconfirm
               placement="right"
               title={
-              record.employee_no > 0
+                record.employee_no > 0
                   ? intl.formatMessage({
                       id: 'error.mustRemoveMemberFromThisDepartmentFirst',
                       defaultMessage: 'Must remove members from this department first!',
@@ -226,6 +228,7 @@ export const OrganziationStructure: React.FC = () => {
     <PageContainer title={false}>
       <div className={styles['padding-card']}>
         <ProTable<API.DepartmentUnit>
+          {...tableSettings}
           headerTitle={`${intl.formatMessage({
             id: 'property.actions.list',
             defaultMessage: ' ',

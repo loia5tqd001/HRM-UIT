@@ -4,7 +4,7 @@ html,
 body,
 #root {
   height: 100%;
-  font-family: "Open Sans", Roboto, Quicksand, @font-family;
+  font-family: 'Open Sans', Roboto, Quicksand, @font-family;
 }
 
 #logo h1 {
@@ -13,9 +13,9 @@ body,
 }
 
 @track-color: transparent;
-@thumb-color: rgba(0,0,0,0.2);
+@thumb-color: rgba(0, 0, 0, 0.2);
 @scrollbar-size: 7px;
-	/* Currently there is no cross-platform support for custom css scrollbar */
+/* Currently there is no cross-platform support for custom css scrollbar */
 * {
   /* Firefox */
   /* https://stackoverflow.com/a/54101063/9449426 */
@@ -27,7 +27,7 @@ body,
     width: @scrollbar-size;
     height: @scrollbar-size;
   }
-  ::-webkit-scrollbar-track-piece  {
+  ::-webkit-scrollbar-track-piece {
     background-color: @track-color;
   }
   ::-webkit-scrollbar-thumb:vertical,
@@ -65,21 +65,21 @@ body,
   .ant-menu-overflow-item {
     position: relative;
     &::after {
-      content: '';
       position: absolute;
       bottom: 0;
-      height: 5px;
       left: 0;
       width: 0;
+      height: 5px;
       background: @primary-color;
-      transition: 0s;
       visibility: hidden;
+      transition: 0s;
+      content: '';
     }
     &.ant-menu-submenu-selected,
     &.ant-menu-item-selected {
       &::after {
-        visibility: visible;
         width: 100%;
+        visibility: visible;
         transition: width 1s cubic-bezier(0.08, 1.12, 0.4, 0.99);
       }
     }
@@ -87,8 +87,8 @@ body,
       background: transparent !important;
     }
     &:hover {
-      background: transparent !important;
       color: @white;
+      background: transparent !important;
     }
   }
   .ant-menu-submenu-open,
@@ -98,28 +98,32 @@ body,
 }
 
 @media print {
-  html, body {
-    height: auto;    
+  html,
+  body {
+    height: auto;
   }
 }
 .print-table {
   display: none;
   @media print {
     display: unset;
-    table, table& {
+    table,
+    table& {
       width: 80%;
-      border-collapse: collapse;
       margin: 10%;
-      
-      &, td, th {
-        border: 1px solid black;
+      border-collapse: collapse;
+
+      &,
+      td,
+      th {
         padding: 5px 10px;
         background: #f6f6f6;
+        border: 1px solid black;
       }
       th {
         color: @primary-color;
-        background: #faf5f1;
         font-size: 1.5em;
+        background: #faf5f1;
       }
     }
     .copy-right {
@@ -128,7 +132,6 @@ body,
     }
   }
 }
-
 
 // layout:top, theme:dark, the current menu color stuff only applys for text BUT NOT THE ICONS, we apply it for the icon as well
 .ant-pro-top-nav-header .ant-menu .anticon {
@@ -139,9 +142,9 @@ body,
 .ant-pro-card-title,
 .ant-card-head-title,
 .ant-pro-table-list-toolbar-title {
+  color: @primary-color !important;
   font-weight: bold !important;
   text-transform: uppercase;
-  color: @primary-color !important;
 }
 .header-capitalize {
   .ant-modal-title,
@@ -183,7 +186,8 @@ body,
     color: @color;
     border-color: @color;
   }
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     color: fade(@color, 70);
     border-color: fade(@color, 70);
   }
@@ -195,28 +199,31 @@ body,
   .outlined-button(@primary-color);
 }
 .primary-hover-button {
-  &:hover, &:focus {
-    border-color: fade(@primary-color, 70) !important;
+  &:hover,
+  &:focus {
     color: @white !important;
     background: @primary-color !important;
+    border-color: fade(@primary-color, 70) !important;
   }
 }
 
 .emphasize-tag {
-  font-size: 1.2em;
   font-weight: 600;
+  font-size: 1.2em;
 }
 
 // Custom shadow for Cards
 // source: https://getcssscan.com/css-box-shadow-examples #7
-@custom-subtle-shadow: rgba(36, 48, 73, 0.12) 0px 6px 48px 0px, rgba(36, 48, 73, 0.04) 0px 0px 0px 1px;
-@custom-subtle-shadow-lessen: rgba(36, 48, 73, 0.12) 0px 0px 24px 0px, rgba(36, 48, 73, 0.04) 0px 0px 0px 1px;
+@custom-subtle-shadow: rgba(36, 48, 73, 0.12) 0px 6px 48px 0px,
+  rgba(36, 48, 73, 0.04) 0px 0px 0px 1px;
+@custom-subtle-shadow-lessen: rgba(36, 48, 73, 0.12) 0px 0px 24px 0px,
+  rgba(36, 48, 73, 0.04) 0px 0px 0px 1px;
 
 // the mixin
 .card-shadow() {
+  overflow: hidden;
   border-radius: @border-radius-base;
   box-shadow: @custom-subtle-shadow;
-  overflow: hidden;
 }
 // Every card with the shadow should have class .card-shadow
 .card-shadow {

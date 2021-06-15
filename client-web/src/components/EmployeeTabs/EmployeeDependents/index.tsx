@@ -1,3 +1,4 @@
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import { allCountries } from '@/services';
 import {
@@ -199,6 +200,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
     },
   ];
 
+  const tableSettings = useTableSettings();
   const dict = {
     title: {
       create: `${intl.formatMessage({
@@ -215,6 +217,7 @@ export const EmployeeDependent: React.FC<EmployeeTabProps> = (props) => {
   return (
     <Access accessible={canViewDependent}>
       <ProTable<RecordType>
+        {...tableSettings}
         headerTitle={`${intl.formatMessage({
           id: 'property.actions.list',
           defaultMessage: ' ',

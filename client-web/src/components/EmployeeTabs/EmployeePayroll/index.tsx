@@ -1,3 +1,4 @@
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import { allInsurancePlans } from '@/services/admin.payroll.insurancePlan';
 import { allTaxPlans } from '@/services/admin.payroll.taxPlan';
@@ -75,6 +76,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
       renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
     },
   ];
+  const tableSettings = useTableSettings();
 
   return (
     <>
@@ -210,6 +212,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
       </div>
       <Access accessible={canViewPayslips}>
         <ProTable<API.Payslip>
+          {...tableSettings}
           headerTitle={intl.formatMessage({ id: 'property.payslips' })}
           rowKey="id"
           columns={columns}
@@ -234,7 +237,11 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
               return [
                 <ReactToPrint
                   // documentTitle={selectedPayslip?.payrollDetail?.name}
-                  trigger={() => <Button icon={<FilePdfOutlined />}>{intl.formatMessage({ id: 'component.button.print'})}</Button>}
+                  trigger={() => (
+                    <Button icon={<FilePdfOutlined />}>
+                      {intl.formatMessage({ id: 'component.button.print' })}
+                    </Button>
+                  )}
                   content={() => toPrintRef.current}
                   // print={() => { console.log('custom print')}}
                   // This library sucks, no download will appear: https://github.com/gregnb/react-to-print/issues/337

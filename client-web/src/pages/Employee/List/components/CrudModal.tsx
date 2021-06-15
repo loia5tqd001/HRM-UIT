@@ -1,3 +1,4 @@
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import type { RecordType } from '@/models/employee';
 import { createEmployee, updateEmployee } from '@/services/employee';
@@ -17,11 +18,11 @@ import { useIntl } from 'umi';
 
 export const CrudModal: React.FC = () => {
   const [form] = useForm<RecordType>();
-  const { crudModalVisible, setCrudModalVisible, onCrudOperation, seletectedRecord } = useModel(
-    'employee',
-  );
+  const { crudModalVisible, setCrudModalVisible, onCrudOperation, seletectedRecord } =
+    useModel('employee');
   const intl = useIntl();
 
+  const tableSettings = useTableSettings();
   const dict = {
     title: {
       create: intl.formatMessage({

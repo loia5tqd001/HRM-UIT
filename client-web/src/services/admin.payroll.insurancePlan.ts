@@ -25,7 +25,11 @@ export async function readInsurancePlan(id: number, options?: { [key: string]: a
   });
 }
 
-export async function updateInsurancePlan(id: number, body: Item, options?: { [key: string]: any }) {
+export async function updateInsurancePlan(
+  id: number,
+  body: Item,
+  options?: { [key: string]: any },
+) {
   return request<Item>(`${endpoint}${id}/`, {
     method: 'PUT',
     headers: {

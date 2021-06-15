@@ -43,8 +43,7 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
 
   // GENERAL
   const canViewBasicInfo = isCurrentUser(employeeId) || access['view_employee'];
-  const canChangeBasicInfo =
-    isActive && (isCurrentUser(employeeId) || access['change_employee']);
+  const canChangeBasicInfo = isActive && (isCurrentUser(employeeId) || access['change_employee']);
   const canViewHomeAddress = isCurrentUser(employeeId) || access['view_contactinfo'];
   const canChangeHomeAddress =
     isActive && (isCurrentUser(employeeId) || access['change_contactinfo']);
@@ -52,8 +51,7 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
   const canChangeEmergencyContact =
     isActive && (isCurrentUser(employeeId) || access['change_emergencycontact']);
   const canViewBankInfo = isCurrentUser(employeeId) || access['view_bankinfo'];
-  const canChangeBankInfo =
-    isActive && (isCurrentUser(employeeId) || access['change_bankinfo']);
+  const canChangeBankInfo = isActive && (isCurrentUser(employeeId) || access['change_bankinfo']);
   const canViewGeneralTab =
     canViewBasicInfo || canViewHomeAddress || canViewEmergencyContact || canViewBankInfo;
 
@@ -66,20 +64,17 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
   const canViewJobTab = canViewJob || canViewSchedule;
 
   // PAYROLL
-  const canViewSalaryInfo =
-    (isCurrentUser(employeeId) || access['view_employeesalary']);
+  const canViewSalaryInfo = isCurrentUser(employeeId) || access['view_employeesalary'];
   const canChangeSalaryInfo =
     isActive && (isCurrentUser(employeeId) || access['change_employeesalary']);
-  const canViewPayslips = (isCurrentUser(employeeId) || access['view_payslip']);
+  const canViewPayslips = isCurrentUser(employeeId) || access['view_payslip'];
   const canViewPayrollTab = canViewSalaryInfo || canViewPayslips;
 
   // DEPENDENT
-  const canViewDependent = (isCurrentUser(employeeId) || access['view_dependent']);
+  const canViewDependent = isCurrentUser(employeeId) || access['view_dependent'];
   const canAddDependent = isActive && (isCurrentUser(employeeId) || access['add_dependent']);
-  const canChangeDependent =
-    isActive && (isCurrentUser(employeeId) || access['change_dependent']);
-  const canDeleteDependent =
-    isActive && (isCurrentUser(employeeId) || access['delete_dependent']);
+  const canChangeDependent = isActive && (isCurrentUser(employeeId) || access['change_dependent']);
+  const canDeleteDependent = isActive && (isCurrentUser(employeeId) || access['delete_dependent']);
   const canViewDependentTab = canViewDependent;
 
   return {

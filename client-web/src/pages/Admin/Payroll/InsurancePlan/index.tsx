@@ -1,3 +1,4 @@
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import {
   allInsurancePlans,
@@ -143,6 +144,7 @@ export const InsurancePlan: React.FC = () => {
     },
   ];
 
+  const tableSettings = useTableSettings();
   const dict = {
     title: {
       create: `${intl.formatMessage({
@@ -159,6 +161,7 @@ export const InsurancePlan: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        {...tableSettings}
         className="card-shadow"
         headerTitle={`${intl.formatMessage({
           id: 'property.actions.list',

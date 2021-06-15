@@ -7,6 +7,7 @@ import React from 'react';
 import { Access, FormattedMessage, history, Link, useAccess, useIntl, useModel } from 'umi';
 import { CrudModal } from './components/CrudModal';
 import { PageContainer } from '@ant-design/pro-layout';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 
 type RecordType = API.Employee;
 
@@ -18,6 +19,7 @@ const EmployeeList: React.FC = () => {
     setCrudModalVisible('create');
     history.replace('/employee/list');
   }
+  const tableSettings = useTableSettings();
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -208,6 +210,7 @@ const EmployeeList: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
+        {...tableSettings}
         className="card-shadow"
         headerTitle={intl.formatMessage({
           id: 'pages.employee.list.table.title',

@@ -1,3 +1,4 @@
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import { createDepartment, updateDepartment } from '@/services/admin.organization.structure';
 import { allEmployees } from '@/services/employee';
@@ -27,6 +28,7 @@ export const CrudModal: React.FC = () => {
     defaultMessage: 'Department',
   });
 
+  const tableSettings = useTableSettings();
   const dict = {
     title: {
       create: `${intl.formatMessage({

@@ -1,3 +1,4 @@
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
 import { allPeriods } from '@/services/attendance';
 import { allPayrolls, createPayroll, deletePayroll } from '@/services/payroll.payrolls';
@@ -165,6 +166,7 @@ export const Payroll: React.FC = () => {
     },
   ];
 
+  const tableSettings = useTableSettings();
   const dict = {
     title: {
       create: `${intl.formatMessage({
@@ -181,6 +183,7 @@ export const Payroll: React.FC = () => {
   return (
     <PageContainer title={false}>
       <ProTable<RecordType>
+        {...tableSettings}
         className="card-shadow"
         headerTitle={`${intl.formatMessage({
           id: 'property.actions.list',

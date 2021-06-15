@@ -25,7 +25,11 @@ export async function readTerminationReason(id: number, options?: { [key: string
   });
 }
 
-export async function updateTerminationReason(id: number, body: Item, options?: { [key: string]: any }) {
+export async function updateTerminationReason(
+  id: number,
+  body: Item,
+  options?: { [key: string]: any },
+) {
   return request<Item>(`${endpoint}${id}/`, {
     method: 'PUT',
     headers: {
