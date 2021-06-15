@@ -36,6 +36,25 @@ body,
   }
 }
 
+// .ant-btn {
+//   box-shadow: 0 1px 6px -4px currentColor;
+//   &:hover {
+//     box-shadow: 0 0 6px -4px currentColor;
+//   }
+// }
+.ant-btn-primary {
+  box-shadow: 0 2px 8px -2px @primary-color;
+}
+.ant-btn-dangerous {
+  box-shadow: 0 1px 8px -4px currentColor;
+}
+.ant-tag:is(.ant-tag-error, .ant-tag-success, .ant-tag-processing) {
+  box-shadow: 0 1px 8px -5px currentColor;
+  &:hover {
+    box-shadow: 0 1px 5px -4px currentColor;
+  }
+}
+
 .ant-pro-top-nav-header-menu .ant-menu.ant-menu-horizontal {
   font-weight: 600;
 }
@@ -145,6 +164,7 @@ body,
   color: @primary-color !important;
   font-weight: bold !important;
   text-transform: uppercase;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
 }
 .header-capitalize {
   .ant-modal-title,

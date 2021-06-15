@@ -684,7 +684,6 @@ const MyAttendance: React.FC = () => {
               submitData.append('check_in_lng', String(lng));
               submitData.append('check_in_note', values.note);
               await checkIn(id, submitData);
-              message.success('Clocked in successfully');
             } else {
               const submitData = new FormData();
               submitData.append('face_image', blob, 'face_image.png');
@@ -692,8 +691,12 @@ const MyAttendance: React.FC = () => {
               submitData.append('check_out_lng', String(lng));
               submitData.append('check_out_note', values.note);
               await checkOut(id, submitData);
-              message.success('Clocked out successfully');
             }
+            message.success(
+              `${nextStepTranslate[nextStep]} ${intl.formatMessage({
+                id: 'property.actions.successfully',
+              })}`,
+            );
             setClockModalVisible(false);
             actionRef.current?.reload();
             return true;
@@ -723,7 +726,11 @@ const MyAttendance: React.FC = () => {
             //   actionRef.current?.reload();
             // });
           } catch {
-            message.error(`${nextStep} unsuccessfully`);
+            message.error(
+              `${nextStepTranslate[nextStep]} ${intl.formatMessage({
+                id: 'property.actions.unsuccessfully',
+              })}`,
+            );
             return false;
           }
         }}
