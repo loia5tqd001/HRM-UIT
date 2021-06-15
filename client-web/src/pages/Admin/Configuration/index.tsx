@@ -31,9 +31,19 @@ export const Office: React.FC = () => {
           onFinish={async (values) => {
             try {
               await updateAppConfig({ ...config, ...values });
-              message.success('Update succesffully');
+              message.success(
+                intl.formatMessage({
+                  id: 'error.updateSuccessfully',
+                  defaultMessage: 'Update successfully!',
+                }),
+              );
             } catch {
-              message.error('Update unsuccesffully');
+              message.error(
+                intl.formatMessage({
+                  id: 'error.updateUnsuccessfully',
+                  defaultMessage: 'Update unsuccessfully!',
+                }),
+              );
             }
           }}
           submitter={access['change_applicationconfig'] ? undefined : false}

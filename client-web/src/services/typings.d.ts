@@ -541,6 +541,7 @@ declare namespace API {
     early_check_in_minutes: number;
     ot_point_rate: number;
     require_face_id: boolean;
+    allow_unrecognised_face: boolean;
   }
 
   interface CustomField {

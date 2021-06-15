@@ -7,6 +7,7 @@ import {
   readEmployee,
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { formatDurationHm } from '@/utils/utils';
 import {
   EditOutlined,
@@ -394,6 +395,8 @@ const EmployeeAttendanceDetail: React.FC = () => {
     overtime: intl.formatMessage({ id: 'property.actions.editOvertime' }),
     actual: intl.formatMessage({ id: 'property.actions.editActual' }),
   };
+
+  const tableSettings = useTableSettings();
 
   return (
     <PageContainer title={false}>

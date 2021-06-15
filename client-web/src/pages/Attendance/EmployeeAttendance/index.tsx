@@ -228,7 +228,6 @@ const EmployeeAttendance: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType, API.PageParams>
         {...tableSettings}
-        {...tableSettings}
         className="card-shadow"
         headerTitle={intl.formatMessage({ id: 'property.employeeAttendance' })}
         actionRef={actionRef}
