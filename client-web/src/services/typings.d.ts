@@ -391,7 +391,6 @@ declare namespace API {
     last_action: 'clock in' | 'clock out';
     last_action_at: moment.Moment | string | null;
     location: Location;
-    is_outside: boolean;
   }
 
   interface TimeOffHelper {

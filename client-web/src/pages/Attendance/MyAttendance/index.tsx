@@ -1,5 +1,5 @@
 import { allLocations } from '@/services/admin.organization.location';
-import { allPeriods } from '@/services/attendance';
+import { allPeriods, attendanceHelper } from '@/services/attendance';
 import {
   allJobs,
   checkIn,
@@ -79,6 +79,10 @@ const MyAttendance: React.FC = () => {
     'Clock in': intl.formatMessage({ id: 'property.check_in' }),
     'Clock out': intl.formatMessage({ id: 'property.check_out' }),
   };
+
+  useEffect(() => {
+    attendanceHelper()
+  }, []);
 
   useEffect(() => {
     allPeriods()

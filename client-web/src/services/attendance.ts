@@ -17,7 +17,7 @@ export async function allPeriods() {
 }
 
 export async function attendanceHelper() {
-  return request<API.AttendanceHelper>(`attendance_helper`, {
+  return request<API.AttendanceHelper>(`/api/attendance_helper/`, {
     method: 'GET',
   });
 }

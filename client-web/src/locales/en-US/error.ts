@@ -17,4 +17,5 @@ export default {
   'error.actionIrreversible': 'This action is irreversible. Are you sure?',
   'error.cannotDeleteDefaultTemplate': 'Cannot delete default template',
   'error.alreadyExists': 'already exists',
+  'error.incorrectUsernamePassword': 'Incorrect username/password',
 };

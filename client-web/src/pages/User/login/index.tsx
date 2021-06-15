@@ -121,8 +121,7 @@ const Login: React.FC = () => {
               />
             </div>
           </div>
-          <div className={styles.main}>
-        </div>
+          <div className={styles.main}></div>
           <ProForm
             initialValues={{
               autoLogin: true,
@@ -150,7 +149,7 @@ const Login: React.FC = () => {
             {loginState === 'error' && errorMessage && (
               <LoginMessage
                 content={intl.formatMessage({
-                  id: errorMessage,
+                  id: 'error.incorrectUsernamePassword',
                   defaultMessage: 'Incorrect username/password',
                 })}
               />
