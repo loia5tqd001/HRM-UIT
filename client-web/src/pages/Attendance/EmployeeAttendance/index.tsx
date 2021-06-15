@@ -196,7 +196,7 @@ const EmployeeAttendance: React.FC = () => {
             {Object.entries(status)
               .filter((it) => it[1])
               .map(([key, val]) => (
-                <Tooltip title={`${val} ${key}`}>
+                <Tooltip title={`${val} ${key}`} key={key}>
                   <span style={{ display: 'inline-flex' }}>
                     {val}
                     <span style={{ marginLeft: 2 }}>{symbols[key]}</span>
@@ -254,14 +254,14 @@ const EmployeeAttendance: React.FC = () => {
             }}
           >
             {periods?.map((it) => (
-              <Select.Option value={it.id}>
+              <Select.Option value={it.id} key={it.id}>
                 {moment(it.start_date).format('DD MMM YYYY')} →{' '}
                 {moment(it.end_date).format('DD MMM YYYY')}
               </Select.Option>
             ))}
           </Select>,
           ...toolbarButtons.map((toolbar) => (
-            <Access accessible={access[toolbar.access]}>
+            <Access accessible={access[toolbar.access]} key={toolbar.access}>
               <Button
                 onClick={async () => {
                   const bulkAction = Promise.all(

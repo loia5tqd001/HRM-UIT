@@ -470,7 +470,7 @@ export const WorkSchedule: React.FC = () => {
         }}
       >
         <ProFormText rules={[{ required: true }]} name="name" width="xl" label={localeFeature} />
-        {days.map((it) => (
+        {days.map((it, index) => (
           <Form.Item
             name={it.day}
             label={`${intl.formatMessage({
@@ -480,6 +480,7 @@ export const WorkSchedule: React.FC = () => {
             labelCol={{ flex: 1 }}
             wrapperCol={{ span: 20 }}
             style={{ flexDirection: 'row' }}
+            key={index}
           >
             <Space>
               <Checkbox

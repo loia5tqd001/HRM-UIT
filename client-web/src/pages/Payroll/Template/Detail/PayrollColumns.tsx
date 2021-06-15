@@ -144,7 +144,7 @@ const EditableCell = ({
 };
 
 const DragHandle = SortableHandle(({ index }) => (
-  <Space>
+  <Space key={index}>
     <Typography.Title level={5} style={{ marginTop: 5 }}>
       {index + 1}
     </Typography.Title>
@@ -165,7 +165,7 @@ const DraggableBodyRow = ({ className, style, ...restProps }) => {
   // function findIndex base on Table rowKey props and should always be a right array index
   const index = tableData?.findIndex((x) => x.index === restProps['data-row-key']);
   return (
-    <Form form={form} component={false} name={`${record?.name}_${record?.index}`}>
+    <Form form={form} component={false} name={`${record?.name}_${record?.index}`} key={record?.index}>
       <EditableContext.Provider value={form}>
         <SortableItem index={index} {...restProps} />
       </EditableContext.Provider>

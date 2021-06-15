@@ -102,7 +102,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
             }}
           >
             <Tooltip
-              title={canChangeAvatar && intl.formatMessage({ id: 'button.changeAvatar' })}
+              title={canChangeAvatar && intl.formatMessage({ id: 'component.button.changeAvatar' })}
               placement="top"
             >
               <div className={styles.avatar}>

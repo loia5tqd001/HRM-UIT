@@ -75,7 +75,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
     pId: it.parent,
     value: it.name,
     title: it.name,
-    key: it.id,
+    key: it.name,
     isLeaf: !departments.some((x) => x.parent === it.id),
   }));
 
@@ -549,7 +549,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                     </i>
                   </small>
                 </Typography>
-                {scheduleDays.map((it) => (
+                {scheduleDays.map((it, index) => (
                   <Form.Item
                     name={it.day}
                     label={`${intl.formatMessage({
@@ -558,6 +558,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                     labelCol={{ span: 2 }}
                     wrapperCol={{ span: 20 }}
                     style={{ flexDirection: 'row' }}
+                    key={index}
                   >
                     <Space>
                       <TimePicker.RangePicker
