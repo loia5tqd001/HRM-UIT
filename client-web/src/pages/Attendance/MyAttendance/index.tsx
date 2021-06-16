@@ -172,15 +172,20 @@ const MyAttendance: React.FC = () => {
       distance > attendanceState.data.location.radius
     );
   const errorMustWorkInOffice = isOutside && !attendanceState.data?.location?.allow_outside;
-  const clockButtonDisabled = errorMustWorkInOffice || attendanceState.data?.location === null;
+  const clockButtonDisabled =
+    errorMustWorkInOffice ||
+    attendanceState.data?.location === null ||
+    initialState?.currentUser?.status !== 'Working';
+  const clockButtonLoading =
+    attendanceState.isLoading || (attendanceState.data?.location !== null && !distance);
 
   useEffect(() => {
     const { action } = history.location.query as any;
-    if (action === 'nextStep' && appConfig.data && !clockButtonDisabled) {
+    if (action === 'nextStep' && appConfig.data && !clockButtonDisabled && !clockButtonLoading) {
       setClockModalVisible(true);
       history.replace('/attendance/me');
     }
-  }, [clockButtonDisabled, appConfig.data]);
+  }, [clockButtonDisabled, clockButtonLoading, appConfig.data]);
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -534,14 +539,15 @@ const MyAttendance: React.FC = () => {
             ))}
           </Select>,
           <Tooltip
-            title={
-              // eslint-disable-next-line no-nested-ternary
-              attendanceState.data?.location === null
-                ? 'Must setup location for this employee first'
-                : errorMustWorkInOffice
-                ? intl.formatMessage({ id: 'error.yourOfficeNotAllowAttendance' })
-                : ''
-            }
+            title={(() => {
+              if (initialState?.currentUser?.status !== 'Working')
+                return intl.formatMessage({ id: 'error.youAreNotWorking' });
+              if (attendanceState.data?.location === null)
+                return intl.formatMessage({ id: 'error.mustSetupLocationFirst' });
+              if (errorMustWorkInOffice)
+                return intl.formatMessage({ id: 'error.yourOfficeNotAllowAttendance' });
+              return '';
+            })()}
           >
             <Button
               type="primary"
@@ -551,9 +557,7 @@ const MyAttendance: React.FC = () => {
                 setClockModalVisible(true);
               }}
               style={{ textTransform: 'capitalize', fontWeight: 'bold' }}
-              loading={
-                attendanceState.isLoading || (attendanceState.data?.location !== null && !distance)
-              }
+              loading={clockButtonLoading}
             >
               <Space>
                 <HistoryOutlined />

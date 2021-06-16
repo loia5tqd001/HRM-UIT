@@ -19,4 +19,6 @@ export default {
   'error.yourOfficeNotAllowAttendance':
     'Địa điểm làm việc của bạn không cho phép chấm công ngoài văn phòng làm việc',
   'error.cannotRecognizeFace': 'Hệ thống không thể nhận ra khuôn mặt của bạn',
+  'error.mustSetupLocationFirst': 'Cần phải thiết lập địa điểm làm việc trước',
+  'error.youAreNotWorking': 'Bạn không còn làm việc',
 };

@@ -15,7 +15,7 @@ import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-des
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, DatePicker, Form, message, Popconfirm, Space } from 'antd';
+import { Button, DatePicker, Form, message, Popconfirm, Space, Tooltip } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
@@ -52,10 +52,15 @@ export const Timeoff: React.FC = () => {
     getSchedule(id).then((fetchData) => setSchedule(fetchData.schedule as API.Schedule));
   }, [id]);
 
+  const buttonAddDisabled = initialState?.currentUser?.status !== 'Working';
+
   useEffect(() => {
     const { action } = history.location.query as any;
-    if (action === 'new') setCrudModalVisible('create');
-  }, []);
+    if (action === 'new' && !buttonAddDisabled) {
+      setCrudModalVisible('create');
+      history.replace('/timeOff/me');
+    }
+  }, [buttonAddDisabled]);
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -222,15 +227,25 @@ export const Timeoff: React.FC = () => {
         rowKey="id"
         search={false}
         toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCrudModalVisible('create');
-            }}
+          <Tooltip
+            title={
+              initialState?.currentUser?.status !== 'Working'
+                ? intl.formatMessage({ id: 'error.youAreNotWorking' })
+                : ''
+            }
           >
-            <PlusOutlined /> <FormattedMessage id="property.actions.create" defaultMessage="New" />
-          </Button>,
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                setCrudModalVisible('create');
+              }}
+              disabled={buttonAddDisabled}
+            >
+              <PlusOutlined />{' '}
+              <FormattedMessage id="property.actions.create" defaultMessage="New" />
+            </Button>
+          </Tooltip>,
         ]}
         request={async () => {
           const data = await allEmployeeTimeoffs(id);

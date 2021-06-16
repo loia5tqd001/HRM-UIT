@@ -51,6 +51,35 @@
     icon: 'control',
     routes: [
       {
+        path: '/admin/organization',
+        access: '/admin/organization',
+        name: 'organization',
+        icon: 'apartment',
+        routes: [
+          // {
+          //   path: '/admin/organization/information',
+          //   name: '__information',
+          //   component: './Admin/Organization/Information',
+          // },
+          {
+            path: '/admin/organization/structure',
+            name: 'structure',
+            access: 'view_department',
+            component: './Admin/Organization/Structure',
+          },
+          {
+            path: '/admin/organization/location',
+            name: 'location',
+            access: 'view_location',
+            component: './Admin/Organization/Location',
+          },
+          // {
+          //   path: '/admin/organization',
+          //   redirect: '/admin/organization/structure',
+          // },
+        ],
+      },
+      {
         path: '/admin/job',
         access: '/admin/job',
         name: 'job',
@@ -86,35 +115,7 @@
           // },
         ],
       },
-      {
-        path: '/admin/organization',
-        access: '/admin/organization',
-        name: 'organization',
-        icon: 'apartment',
-        routes: [
-          // {
-          //   path: '/admin/organization/information',
-          //   name: '__information',
-          //   component: './Admin/Organization/Information',
-          // },
-          {
-            path: '/admin/organization/structure',
-            name: 'structure',
-            access: 'view_department',
-            component: './Admin/Organization/Structure',
-          },
-          {
-            path: '/admin/organization/location',
-            name: 'location',
-            access: 'view_location',
-            component: './Admin/Organization/Location',
-          },
-          // {
-          //   path: '/admin/organization',
-          //   redirect: '/admin/organization/structure',
-          // },
-        ],
-      },
+
       // {
       //   path: '/admin/qualification',
       //   name: 'qualification',

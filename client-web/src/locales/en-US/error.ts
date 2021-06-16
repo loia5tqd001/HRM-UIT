@@ -21,4 +21,6 @@ export default {
   'error.yourOfficeNotAllowAttendance':
     'Your office does not allow clock in / clock out outside of the designated area.',
   'error.cannotRecognizeFace': 'The system cannot recognise your face',
+  'error.mustSetupLocationFirst': 'Must setup location for this employee first',
+  'error.youAreNotWorking': 'You are not currently working',
 };
