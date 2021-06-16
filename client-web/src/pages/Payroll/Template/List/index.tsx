@@ -171,7 +171,6 @@ export const PayrollTemplate: React.FC = () => {
     <PageContainer title={false}>
       <ProTable<RecordType>
         {...tableSettings}
-        {...tableSettings}
         className="card-shadow"
         headerTitle={`${intl.formatMessage({
           id: 'property.actions.list',
