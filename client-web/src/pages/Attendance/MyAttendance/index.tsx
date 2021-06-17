@@ -6,6 +6,7 @@ import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { formatDurationHm } from '@/utils/utils';
 import {
+  CommentOutlined,
   EditOutlined,
   EnvironmentOutlined,
   HistoryOutlined,
@@ -32,7 +33,7 @@ import Avatar from 'antd/lib/avatar/avatar';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FormattedMessage, history, useIntl, useModel } from 'umi';
+import { FormattedMessage, history, Link, useIntl, useModel } from 'umi';
 
 type RecordType = API.AttendanceRecord;
 
@@ -401,6 +402,20 @@ const MyAttendance: React.FC = () => {
           </>
         );
       },
+    },
+    {
+      title: intl.formatMessage({ id: 'property.actions' }),
+      fixed: 'right',
+      align: 'center',
+      width: 'min-content',
+      search: false,
+      render: (dom, record) => (
+        <Link to={'/message'}>
+          <Button title={`Khieu nai`} size="small">
+            <CommentOutlined />
+          </Button>
+        </Link>
+      ),
     },
     // {
     //   title: 'Note',

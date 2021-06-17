@@ -10,6 +10,7 @@ import { allHolidays } from '@/services/timeOff.holiday';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { formatDurationHm } from '@/utils/utils';
 import {
+  CommentOutlined,
   EditOutlined,
   EnvironmentOutlined,
   LockOutlined,
@@ -37,7 +38,7 @@ import {
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Access, FormattedMessage, history, useAccess, useIntl, useParams } from 'umi';
+import { Access, FormattedMessage, history, Link, useAccess, useIntl, useParams } from 'umi';
 import { toolbarButtons } from '../EmployeeAttendance';
 
 type RecordType = API.AttendanceRecord;
@@ -386,6 +387,13 @@ const EmployeeAttendanceDetail: React.FC = () => {
                 <EditOutlined />
               </Button>
             </Dropdown>
+            <Link to={'/message'}>
+              <Badge count={Math.round(Math.random())}>
+                <Button title={`Khieu nai`} size="small">
+                  <CommentOutlined />
+                </Button>
+              </Badge>
+            </Link>
           </Space>
         ) : null,
     },

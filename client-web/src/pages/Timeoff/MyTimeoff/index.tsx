@@ -10,7 +10,7 @@ import {
 import { allHolidays } from '@/services/timeOff.holiday';
 import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
 import { filterData } from '@/utils/utils';
-import { EnterOutlined, PlusOutlined } from '@ant-design/icons';
+import { CommentOutlined, EnterOutlined, PlusOutlined } from '@ant-design/icons';
 import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
@@ -20,7 +20,7 @@ import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FormattedMessage, history, useIntl, useModel } from 'umi';
+import { FormattedMessage, history, Link, useIntl, useModel } from 'umi';
 
 type RecordType = API.TimeoffRequest & {
   off_days?: [moment.Moment, moment.Moment];
@@ -172,6 +172,11 @@ export const Timeoff: React.FC = () => {
       search: false,
       render: (dom, record) => (
         <Space size="small">
+          <Link to={'/message'}>
+            <Button title={`Chua bi tu choi`} size="small" disabled={record.status === 'Pending'}>
+              <CommentOutlined />
+            </Button>
+          </Link>
           <Popconfirm
             placement="right"
             title={`${intl.formatMessage({ id: 'property.actions.cancel' })} ${localeFeature}?`}

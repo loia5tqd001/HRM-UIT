@@ -10,7 +10,7 @@ import {
 import { allPayrolls } from '@/services/payroll.payrolls';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useEmployeeDetailAccess } from '@/utils/hooks/useEmployeeDetailType';
-import { FilePdfOutlined } from '@ant-design/icons';
+import { CommentOutlined, FilePdfOutlined, MessageOutlined } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormSelect } from '@ant-design/pro-form';
 import type { ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -19,7 +19,7 @@ import faker from 'faker';
 import moment from 'moment';
 import React, { useRef, useState } from 'react';
 import ReactToPrint from 'react-to-print';
-import { Access, useIntl } from 'umi';
+import { Access, Link, useIntl } from 'umi';
 import type { EmployeeTabProps } from '..';
 
 export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
@@ -74,6 +74,20 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
       title: intl.formatMessage({ id: 'property.created_at' }),
       dataIndex: ['payrollDetail', 'created_at'],
       renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
+    },
+    {
+      title: intl.formatMessage({ id: 'property.actions' }),
+      fixed: 'right',
+      align: 'center',
+      width: 'min-content',
+      search: false,
+      render: (dom, record) => (
+        <Link to={'/message'}>
+          <Button title={`Khieu nai`} size="small">
+            <CommentOutlined />
+          </Button>
+        </Link>
+      ),
     },
   ];
   const tableSettings = useTableSettings();
@@ -235,6 +249,11 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
           submitter={{
             render: () => {
               return [
+                <Link to={'/message'}>
+                  <Button title={`Khieu nai`} icon={<CommentOutlined />}>
+                    Khieu nai
+                  </Button>
+                </Link>,
                 <ReactToPrint
                   // documentTitle={selectedPayslip?.payrollDetail?.name}
                   trigger={() => (

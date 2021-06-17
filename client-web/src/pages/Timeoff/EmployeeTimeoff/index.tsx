@@ -6,14 +6,14 @@ import {
 import { allTimeoffs } from '@/services/timeOff';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { filterData } from '@/utils/utils';
-import { CheckOutlined, CloseOutlined, EnterOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, CommentOutlined, EnterOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Avatar, Button, message, Popconfirm, Space } from 'antd';
+import { Avatar, Badge, Button, message, Popconfirm, Space } from 'antd';
 import moment from 'moment';
 import React, { useCallback, useRef, useState } from 'react';
-import { useIntl, useAccess, Access, FormattedMessage } from 'umi';
+import { useIntl, useAccess, Access, FormattedMessage, Link } from 'umi';
 
 type RecordType = API.TimeoffRequest & {
   off_days?: [moment.Moment, moment.Moment];
@@ -194,6 +194,13 @@ export const Timeoff: React.FC = () => {
               </Button>
             </Popconfirm>
           </Access>
+          <Link to={'/message'}>
+            <Badge count={Math.round(Math.random())}>
+              <Button title={`Xem Khieu nai`} size="small">
+                <CommentOutlined />
+              </Button>
+            </Badge>
+          </Link>
         </Space>
       ),
     },

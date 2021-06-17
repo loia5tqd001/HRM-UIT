@@ -7,17 +7,18 @@ import {
 } from '@/services/payroll.payrolls';
 import {
   CheckCircleOutlined,
+  CommentOutlined,
   FileExcelOutlined,
   LockOutlined,
   SendOutlined,
   SyncOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Affix, Button, Card, message, Popconfirm, Space, Table, Tag } from 'antd';
+import { Affix, Badge, Button, Card, message, Popconfirm, Space, Table, Tag } from 'antd';
 import type { ColumnType } from 'antd/lib/table';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Access, useAccess, useIntl, useParams } from 'umi';
+import { Access, Link, useAccess, useIntl, useParams } from 'umi';
 import styles from './index.less';
 
 export const PayrollDetail: React.FC = () => {
@@ -74,6 +75,22 @@ export const PayrollDetail: React.FC = () => {
       render: (_, __, index) => index + 1,
     },
     ...(dynamicColumns || []),
+    {
+      title: intl.formatMessage({ id: 'property.actions' }),
+      fixed: 'right',
+      align: 'center',
+      width: 'min-content',
+      search: false,
+      render: (dom, record) => (
+        <Link to={'/message'}>
+          <Badge count={1}>
+            <Button title={`Xem khieu nai`} size="small">
+              <CommentOutlined />
+            </Button>
+          </Badge>
+        </Link>
+      ),
+    },
   ];
 
   return (

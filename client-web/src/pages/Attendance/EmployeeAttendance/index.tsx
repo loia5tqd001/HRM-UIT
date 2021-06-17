@@ -142,7 +142,9 @@ const EmployeeAttendance: React.FC = () => {
       valueType: 'avatar',
       render: (avatar, record) => (
         <Space>
-          <span>{avatar}</span>
+          <Badge count={Math.round(Math.random())}>
+            <span>{avatar}</span>
+          </Badge>
           <Link to={`/attendance/list/${record.id}?period=${selectedPeriod}`}>
             {record.first_name} {record.last_name}
           </Link>
