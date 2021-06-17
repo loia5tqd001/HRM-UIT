@@ -62,84 +62,77 @@ interface Location {
   lat: number;
 }
 
+interface AttendanceHelper {
+  next_step: 'clock in' | 'clock out';
+  first_clock_in: moment.Moment | string | null;
+  last_clock_out: moment.Moment | string | null;
+  last_action: 'clock in' | 'clock out' | null;
+  last_action_at: moment.Moment | string | null;
+  location: Location | null;
+}
+
+interface AppConfig {
+  monthly_start_date: number;
+  early_check_in_minutes: number;
+  ot_point_rate: number;
+  require_face_id: boolean;
+  allow_unrecognised_face: boolean;
+}
+
 // Declare typescript with useImperativeHandle: https://gist.github.com/Venryx/7cff24b17867da305fff12c6f8ef6f96
 type Handle<T> = T extends ForwardRefExoticComponent<RefAttributes<infer T2>> ? T2 : never;
 
 export default function AttendanceScreen({ navigation }: { navigation: any }) {
   const [permission, askForPermission] = usePermissions(Permissions.LOCATION, { ask: true });
-  const { user } = React.useContext(AuthContext)!;
   const [outside, setOutside] = React.useState(true);
-  const [nextStep, setNextStep] = React.useState<'clock in' | 'clock out'>('clock in');
-  const [lastAction, setLastAction] = React.useState<string>('No activities today yet...');
   const [currentLocation, setCurrentLocation] = React.useState<Location.LocationObject['coords']>();
   const [isReady, setIsReady] = React.useState(false);
-
-  const [employeeLocation, setEmployeeLocation] = React.useState<Location>();
+  const [appConfig, setAppConfig] = React.useState<AppConfig>();
   const modalClockInRef = React.useRef<Handle<typeof ModalClockIn>>();
+  const [attendanceState, setAttendanceState] = React.useState<AttendanceHelper>();
 
-  React.useEffect(() => {
+  const refreshAttendanceState = React.useCallback(async () => {
     setIsReady(false);
-    Promise.all([
-      axios.get(`/employees/${user?.id}/jobs/`).then((it) => it.data?.[0].location),
-      axios.get<Location[]>('/locations/').then((it) => it.data),
-    ])
-      .then(([location, locations]) => {
-        const matchedLocation = locations.find((it) => it.name === location);
-        if (!matchedLocation) {
-          Alert.alert('Cannot find location for this employee');
-        }
-        setEmployeeLocation(matchedLocation);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  const fetchAttendanceStatus = React.useCallback(() => {
-    return axios
-      .get<EmployeeAttendance[]>(`/employees/${user?.id}/attendance/`)
-      .then((fetchData) => {
-        const todayData = fetchData.data
-          .reverse()
-          .find((it) => moment(it.date).isSame(moment(), 'day'));
-        if (todayData?.tracking_data.length) {
-          // Handle for: firstClock, lastClockOut, lastAction, nextStep
-          setNextStep(
-            todayData.tracking_data[todayData.tracking_data.length - 1].check_out_time
-              ? 'clock in'
-              : 'clock out',
-          );
-
-          const lastRecord = todayData.tracking_data[todayData.tracking_data.length - 1];
-          setLastAction(
-            lastRecord.check_out_time
-              ? `Clocked out at ${moment(lastRecord.check_out_time).format('HH:mm')}`
-              : `Clocked in at ${moment(lastRecord.check_in_time).format('HH:mm')}`,
-          );
-        }
-      });
+    try {
+      await Promise.all([
+        axios.get<AttendanceHelper>(`/attendance_helper/`).then((it) => {
+          setAttendanceState(it.data);
+        }),
+        axios.get<AppConfig>('/app_config/').then((it) => {
+          setAppConfig(it.data);
+        }),
+      ]);
+    } finally {
+      setIsReady(true);
+    }
   }, []);
 
   React.useEffect(() => {
-    fetchAttendanceStatus();
+    refreshAttendanceState();
   }, []);
 
+  const setNextStep = (next_step: AttendanceHelper['next_step']) => {
+    setAttendanceState({ ...attendanceState, next_step });
+  };
+
   React.useEffect(() => {
-    if (!employeeLocation) return;
+    if (!attendanceState?.location) return;
 
     const setupLocation = async () => {
       try {
         await Location.getCurrentPositionAsync({}).then((location) => {
           setCurrentLocation(location.coords);
-          const distance = getPreciseDistance(location.coords, employeeLocation!);
-          if (distance < employeeLocation!.radius) setOutside(false);
+          const distance = getPreciseDistance(location.coords, attendanceState.location!);
+          if (distance < attendanceState.location!.radius) setOutside(false);
         });
 
         const TASK_NAME = 'GEOFENCING';
 
         await Location.startGeofencingAsync(TASK_NAME, [
           {
-            latitude: employeeLocation?.lat,
-            longitude: employeeLocation?.lng,
-            radius: employeeLocation?.radius,
+            latitude: attendanceState.location?.lat,
+            longitude: attendanceState.location?.lng,
+            radius: attendanceState.location?.radius,
           },
         ]);
 
@@ -165,7 +158,7 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
     } else {
       setupLocation();
     }
-  }, [employeeLocation]);
+  }, [attendanceState?.location]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -186,21 +179,29 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
         <View style={styles.container}>
           <Text style={{ color: '#ff4d4f' }}>
             <FontAwesome name="map-marker" />{' '}
-            {outside ? 'Outside working area' : employeeLocation!.name}
+            {outside ? 'Outside working area' : attendanceState.location!.name}
           </Text>
           <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: '400', marginTop: SPACING * 2 }}>
-              {lastAction}
+              {attendanceState.last_action
+                ? `Last activity: ${attendanceState.last_action} at ${moment(
+                    attendanceState.last_action_at,
+                  ).format('HH:mm')}`
+                : 'No activities to day yet...'}
             </Text>
             <Text style={{ fontSize: 18, fontWeight: '500' }}>
-              Tap on camera <Text style={{ fontSize: 13, fontWeight: '400' }}>to {nextStep}</Text>
+              Tap on camera{' '}
+              <Text style={{ fontSize: 13, fontWeight: '400' }}>
+                to {attendanceState.next_step}
+              </Text>
             </Text>
             <Text></Text>
             {/* Body */}
 
             <CameraComponents
-              nextStep={nextStep}
+              nextStep={attendanceState.next_step}
               setNextStep={setNextStep}
+              onSuccess={refreshAttendanceState}
               location={{
                 lat: currentLocation?.latitude,
                 lng: currentLocation?.longitude,
@@ -208,37 +209,39 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
             />
             {/* Modal Clock */}
 
-            <TouchableOpacity
-              onPress={() => {
-                if (outside && !employeeLocation?.allow_outside) {
-                  Alert.alert('Your office does not allow to work outside designated area!');
-                  return;
-                }
-                modalClockInRef.current?.openModal();
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: '500',
-                  color: primaryColor,
-                  marginTop: SPACING,
-                  padding: SPACING,
+            {!appConfig?.require_face_id && (
+              <TouchableOpacity
+                onPress={() => {
+                  if (outside && !attendanceState.location?.allow_outside) {
+                    Alert.alert('Your office does not allow to work outside designated area!');
+                    return;
+                  }
+                  modalClockInRef.current?.openModal();
                 }}
               >
-                Or, {nextStep} manually?
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: '500',
+                    color: primaryColor,
+                    marginTop: SPACING,
+                    padding: SPACING,
+                  }}
+                >
+                  Or, {attendanceState.next_step} manually?
+                </Text>
+              </TouchableOpacity>
+            )}
           </ScrollView>
           <ModalClockIn
             ref={modalClockInRef}
             outside={outside}
-            nextStep={nextStep}
+            nextStep={attendanceState.next_step}
             location={{
               lat: currentLocation?.latitude,
               lng: currentLocation?.longitude,
             }}
-            fetchAttendanceStatus={fetchAttendanceStatus}
+            onSuccess={refreshAttendanceState}
           />
         </View>
       )}

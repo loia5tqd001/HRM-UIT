@@ -29,7 +29,18 @@ const onResponse = (response: AxiosResponse): AxiosResponse => {
 
 let refreshTokenRequest: Promise<AxiosResponse<ResponseData>> | null = null;
 const onResponseError = async (error: AxiosError): Promise<AxiosError> => {
-  if (!error.response) return Promise.reject('Network Error');
+  if (!error.response) {
+    console.log('Network Error');
+    console.log(
+      `${'='.repeat(10)}REQUEST${'='.repeat(10)}\n`,
+      JSON.stringify(error.config, null, 2),
+    );
+    console.log(
+      `${'='.repeat(10)}RESPONSE${'='.repeat(10)}\n`,
+      JSON.stringify(error.response, null, 2),
+    );
+    return Promise.reject('Network Error');
+  }
   console.log(`${'='.repeat(10)}REQUEST${'='.repeat(10)}\n`, JSON.stringify(error.config, null, 2));
   console.log(
     `${'='.repeat(10)}RESPONSE${'='.repeat(10)}\n`,

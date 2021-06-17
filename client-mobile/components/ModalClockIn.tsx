@@ -24,7 +24,7 @@ type TypeModal = {
   outside: boolean;
   nextStep: 'clock in' | 'clock out';
   location: { lat: number | undefined; lng: number | undefined };
-  fetchAttendanceStatus: () => any;
+  onSuccess: () => any;
 };
 
 type RefModal = React.Ref<{
@@ -37,7 +37,7 @@ const widthDefault = GET_WIDTH - 110;
 
 const ModalClockIn = React.forwardRef((props: TypeModal, ref: RefModal) => {
   const [visible, setVisible] = React.useState(false);
-  const { show, outside, nextStep, location, fetchAttendanceStatus } = props;
+  const { show, outside, nextStep, location, onSuccess } = props;
 
   const { user } = useContext(AuthContext)!;
   const [noteValue, setNoteValue] = useState<string>('');
@@ -83,10 +83,8 @@ const ModalClockIn = React.forwardRef((props: TypeModal, ref: RefModal) => {
         dataSubmit,
       )
       .then((res) => {
-        return fetchAttendanceStatus();
-      })
-      .then(() => {
         Alert.alert(`${nextStep === 'clock in' ? 'Clocked in' : 'Clocked out'} successfully`);
+        return onSuccess();
       })
       .then(closeModal)
       .catch((error) => {
