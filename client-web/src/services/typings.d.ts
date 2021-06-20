@@ -329,12 +329,14 @@ declare namespace API {
       check_in_outside: boolean;
       check_in_note: string | null;
       check_in_image: string | null;
+      check_in_face_authorized: boolean | null;
       check_in_lat: number;
       check_in_lng: number;
       check_out_time: moment.Moment | string | null;
       check_out_outside: boolean | null;
       check_out_note: string | null;
       check_out_image: string | null;
+      check_out_face_authorized: boolean | null;
       check_out_lat: number | null;
       check_out_lng: number | null;
       location: string | null;
@@ -494,10 +496,12 @@ declare namespace API {
     check_in_note: string | undefined;
     check_in_location: 'Outside' | Location['name'] | undefined;
     check_in_image: string;
+    check_in_face_authorized: null | boolean;
     check_out: moment.Moment | undefined;
     check_out_note: string | undefined;
     check_out_location: 'Outside' | Location['name'] | undefined;
     check_out_image: string;
+    check_out_face_authorized: string;
     hours_work_by_schedule: number;
     actual_work_hours: number;
     actual_hours_modified: boolean;

@@ -43,10 +43,12 @@ export const PayrollDetail: React.FC = () => {
             title: it.display_name,
             render: (text: string) => {
               if (it.datatype === 'Currency') {
-                return <span style={{ color: '#ad8b00', whiteSpace: 'nowrap' }}>{text}</span>;
+                return <span style={{ color: '#ad8b00', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{text}</span>;
               }
               if (it.datatype === 'Number')
-                return <span style={{ textDecoration: 'underline' }}>{text}</span>;
+                return (
+                  <span style={{ textDecoration: 'underline', fontWeight: 'bold' }}>{text}</span>
+                );
               return text;
             },
           })),

@@ -22,6 +22,8 @@ export default {
   'property.actions.sureToDelete': 'Chắc chắn xoá',
   'property.actions.hideSystemFields': 'Ẩn danh sách biến hệ thống',
   'property.actions.showSystemFields': 'Hiện danh sách biến hệ thống',
+  'property.actions.capture': 'Chụp ảnh',
+  'property.actions.retake': 'Chụp lại',
 
   'property.username': 'Tên đăng nhập',
   'property.password': 'Mật khẩu',

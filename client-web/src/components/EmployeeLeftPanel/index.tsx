@@ -93,9 +93,17 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                     setRecord(newRecord);
                   }
                 });
-                message.success('Update avatar successfully!');
+                message.success(
+                  `${intl.formatMessage({
+                    id: 'component.button.changeAvatar',
+                  })} ${intl.formatMessage({ id: 'property.actions.successfully' })}`,
+                );
               } catch (err) {
-                message.error('Update avatar failed!');
+                message.error(
+                  `${intl.formatMessage({
+                    id: 'component.button.changeAvatar',
+                  })} ${intl.formatMessage({ id: 'property.actions.unsuccessfully' })}`,
+                );
               } finally {
                 hide?.();
               }

@@ -22,6 +22,8 @@ export default {
   'property.actions.sureToDelete': 'Sure to delete',
   'property.actions.hideSystemFields': 'Hide System Fields',
   'property.actions.showSystemFields': 'Show System Fields',
+  'property.actions.capture': 'Capture',
+  'property.actions.retake': 'Retake',
 
   'property.username': 'Username',
   'property.password': 'Password',

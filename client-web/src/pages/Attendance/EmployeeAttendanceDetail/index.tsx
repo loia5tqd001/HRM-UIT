@@ -21,14 +21,12 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import {
-  Avatar,
   Badge,
   Button,
   Dropdown,
   Form,
   Menu,
   message,
-  Popover,
   Select,
   Space,
   Tag,
@@ -40,6 +38,7 @@ import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Access, FormattedMessage, history, Link, useAccess, useIntl, useParams } from 'umi';
 import { toolbarButtons } from '../EmployeeAttendance';
+import { renderCheckInImage } from '../MyAttendance';
 
 type RecordType = API.AttendanceRecord;
 
@@ -176,12 +175,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       key: 'check_in_image',
       dataIndex: 'check_in_image',
       valueType: 'avatar',
-      renderText: (text) =>
-        text && (
-          <Popover content={<img style={{ width: 500 }} src={text} />}>
-            <Avatar src={text}></Avatar>
-          </Popover>
-        ),
+      renderText: (text, record) => renderCheckInImage(text, record, 'check_in_face_authorized'),
     },
     {
       title: intl.formatMessage({ id: 'property.check_out' }),
@@ -230,12 +224,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       key: 'check_out_image',
       dataIndex: 'check_out_image',
       valueType: 'avatar',
-      renderText: (text) =>
-        text && (
-          <Popover content={<img style={{ width: 500 }} src={text} />}>
-            <Avatar src={text}></Avatar>
-          </Popover>
-        ),
+      renderText: (text, record) => renderCheckInImage(text, record, 'check_out_face_authorized'),
     },
     {
       title: intl.formatMessage({ id: 'property.hours_work_by_schedule' }),
@@ -339,6 +328,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
       fixed: 'right',
       align: 'center',
       search: false,
+      width: 'min-content',
       render: (dom, record) =>
         record.type === 'AttendanceDay' ? (
           <Space size="small">
@@ -499,12 +489,14 @@ const EmployeeAttendanceDetail: React.FC = () => {
                 first_check_in?.check_in_time &&
                 (first_check_in?.check_in_outside ? 'Outside' : first_check_in?.location),
               check_in_image: first_check_in?.check_in_image,
+              check_in_face_authorized: first_check_in?.check_in_face_authorized,
               check_out: last_check_out?.check_out_time,
               check_out_note: last_check_out?.check_out_time && last_check_out?.check_out_note,
               check_out_location:
                 last_check_out?.check_out_time &&
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
               check_out_image: last_check_out?.check_out_image,
+              check_out_face_authorized: last_check_out?.check_out_face_authorized,
               hours_work_by_schedule: getHourWorkDay(moment(it.date), schedule),
               children: it.tracking_data?.map((x) => {
                 return {
