@@ -1,12 +1,5 @@
 import { allPeriods } from '@/services/attendance';
-import {
-  editActual,
-  editOvertime,
-  getSchedule,
-  readAttendances,
-  readEmployee,
-} from '@/services/employee';
-import { allHolidays } from '@/services/timeOff.holiday';
+import { editActual, editOvertime, readAttendances, readEmployee } from '@/services/employee';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { formatDurationHm } from '@/utils/utils';
 import {
@@ -35,7 +28,7 @@ import {
 } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Access, FormattedMessage, history, Link, useAccess, useIntl, useParams } from 'umi';
 import { toolbarButtons } from '../EmployeeAttendance';
 import { renderCheckInImage } from '../MyAttendance';
@@ -50,7 +43,6 @@ const EmployeeAttendanceDetail: React.FC = () => {
   );
   const [seletectedRecord, setSelectedRecord] = useState<RecordType | undefined>();
   const [editModalForm] = useForm();
-  const [holidays, setHolidays] = useState<API.Holiday[]>();
   const [selectedRows, setSelectedRows] = useState<RecordType[]>([]);
 
   const [employee, setEmployee] = useState<API.Employee>();
@@ -71,57 +63,8 @@ const EmployeeAttendanceDetail: React.FC = () => {
   }, [period]);
 
   useEffect(() => {
-    allHolidays().then((fetchData) => setHolidays(fetchData));
     readEmployee(id).then((fetchData) => setEmployee(fetchData));
   }, [id]);
-
-  const isHoliday = useCallback(
-    (date: moment.Moment) =>
-      !!holidays?.some(
-        (it) =>
-          moment(it.start_date).isSameOrBefore(date, 'days') &&
-          moment(it.end_date).isSameOrAfter(date, 'days'),
-      ),
-    [holidays],
-  );
-
-  const getHourWorkDay = useCallback(
-    (date: moment.Moment, schedule: API.Schedule) => {
-      if (!schedule) throw Error('Schedule needs to be defined first');
-      if (isHoliday(date)) return 0;
-      const mapWeekdayToValue = {
-        Sun: 0,
-        Mon: 1,
-        Tue: 2,
-        Wed: 3,
-        Thu: 4,
-        Fri: 5,
-        Sat: 6,
-      };
-
-      const calcHours = ({
-        morning_from,
-        morning_to,
-        afternoon_from,
-        afternoon_to,
-      }: typeof schedule.workdays[0]) => {
-        let hours = 0;
-        if (morning_from && morning_to)
-          hours += moment.duration(moment(morning_to).diff(moment(morning_from))).asHours() % 24;
-        if (afternoon_from && afternoon_to)
-          hours +=
-            moment.duration(moment(afternoon_to).diff(moment(afternoon_from))).asHours() % 24;
-        return Number(hours.toFixed(1));
-      };
-
-      const workDay = schedule.workdays.find((it) => mapWeekdayToValue[it.day] === date.day());
-      // In schedule, find one has weekday (Mon, Tue,..) equals to "date"
-      if (!workDay) return 0;
-      // Then calculate work hours based on schdule item has been found
-      return calcHours(workDay);
-    },
-    [isHoliday],
-  );
 
   const columns: ProColumns<RecordType>[] = [
     {
@@ -473,7 +416,6 @@ const EmployeeAttendanceDetail: React.FC = () => {
           });
           fetchData.reverse(); // most recent comes first
 
-          const schedule = await getSchedule(id).then((it) => it.schedule as API.Schedule);
           // manipulate backend data
           const data = fetchData.map((it) => {
             const first_check_in = it.tracking_data[0];
@@ -497,7 +439,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
               check_out_image: last_check_out?.check_out_image,
               check_out_face_authorized: last_check_out?.check_out_face_authorized,
-              hours_work_by_schedule: getHourWorkDay(moment(it.date), schedule),
+              hours_work_by_schedule: it.schedule_hours,
               children: it.tracking_data?.map((x) => {
                 return {
                   ...x,

@@ -1,11 +1,14 @@
 import { getAppConfig } from '@/services/appConfig';
 import { allPeriods, attendanceHelper } from '@/services/attendance';
-import { checkIn, checkOut, getSchedule, readAttendances } from '@/services/employee';
-import { allHolidays } from '@/services/timeOff.holiday';
+import { detectFaces } from '@/services/auth';
+import { checkIn, checkOut, readAttendances } from '@/services/employee';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { formatDurationHm } from '@/utils/utils';
 import {
+  CameraOutlined,
+  CheckCircleFilled,
+  CloseCircleFilled,
   CommentOutlined,
   EditOutlined,
   EnvironmentOutlined,
@@ -42,13 +45,53 @@ type CurrentLocation = {
   lng: number;
 };
 
+export const renderCheckInImage = (text: any, record: RecordType, checkKey: keyof RecordType) => {
+  return (
+    text && (
+      <Popover content={<img style={{ width: 500 }} src={text} />}>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <Avatar src={text}></Avatar>
+          {record[checkKey] ? (
+            <CheckCircleFilled
+              style={{
+                color: 'rgb(82, 196, 26)',
+                position: 'absolute',
+                top: -8,
+                right: -8,
+                background: 'white',
+                borderRadius: '50%',
+                fontSize: 16,
+              }}
+            />
+          ) : (
+            <CloseCircleFilled
+              style={{
+                color: 'rgb(255, 77, 79)',
+                position: 'absolute',
+                top: -8,
+                right: -8,
+                background: 'white',
+                borderRadius: '50%',
+                fontSize: 16,
+              }}
+            />
+          )}
+        </div>
+      </Popover>
+    )
+  );
+};
+
+const CAMERA_WIDTH = 350;
+const CAMERA_HEIGHT = 260;
+
 const MyAttendance: React.FC = () => {
   const intl = useIntl();
+  // const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const actionRef = useRef<ActionType>();
   const [clockModalVisible, setClockModalVisible] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<CurrentLocation>();
   const [clockModalForm] = useForm();
-  const [holidays, setHolidays] = useState<API.Holiday[]>();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream>();
   const [locationDenied, setLocationDenied] = useState(false);
@@ -59,6 +102,10 @@ const MyAttendance: React.FC = () => {
   const attendanceState = useAsyncData<API.AttendanceHelper>(attendanceHelper);
   const [distance, setDistance] = useState<number>();
   const appConfig = useAsyncData<API.AppConfig>(getAppConfig);
+  const [isPaused, setIsPaused] = useState(false);
+  const capturedFaceBlobRef = useRef<Blob>();
+  const [capturing, setCapturing] = useState(false);
+  const [captureValid, setCaptureValid] = useState(false);
 
   const nextStepTranslate = {
     'Clock in': intl.formatMessage({ id: 'property.check_in' }),
@@ -81,64 +128,16 @@ const MyAttendance: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const { id } = initialState!.currentUser!;
 
-  useEffect(() => {
-    allHolidays().then((fetchData) => setHolidays(fetchData));
-  }, []);
-
-  useEffect(() => {
+  const clearUpCamera = useCallback(() => {
     if (clockModalVisible === false) {
       videoRef.current?.pause();
       streamRef.current?.getTracks().forEach((it) => it.stop());
     }
   }, [clockModalVisible]);
 
-  const isHoliday = useCallback(
-    (date: moment.Moment) =>
-      !!holidays?.some(
-        (it) =>
-          moment(it.start_date).isSameOrBefore(date, 'days') &&
-          moment(it.end_date).isSameOrAfter(date, 'days'),
-      ),
-    [holidays],
-  );
-
-  const getHourWorkDay = useCallback(
-    (date: moment.Moment, schedule: API.Schedule) => {
-      if (!schedule) throw Error('Schedule needs to be defined first');
-      if (isHoliday(date)) return 0;
-      const mapWeekdayToValue = {
-        Sun: 0,
-        Mon: 1,
-        Tue: 2,
-        Wed: 3,
-        Thu: 4,
-        Fri: 5,
-        Sat: 6,
-      };
-
-      const calcHours = ({
-        morning_from,
-        morning_to,
-        afternoon_from,
-        afternoon_to,
-      }: typeof schedule.workdays[0]) => {
-        let hours = 0;
-        if (morning_from && morning_to)
-          hours += moment.duration(moment(morning_to).diff(moment(morning_from))).asHours() % 24;
-        if (afternoon_from && afternoon_to)
-          hours +=
-            moment.duration(moment(afternoon_to).diff(moment(afternoon_from))).asHours() % 24;
-        return Number(hours.toFixed(1));
-      };
-
-      const workDay = schedule.workdays.find((it) => mapWeekdayToValue[it.day] === date.day());
-      // In schedule, find one has weekday (Mon, Tue,..) equals to "date"
-      if (!workDay) return 0;
-      // Then calculate work hours based on schdule item has been found
-      return calcHours(workDay);
-    },
-    [isHoliday],
-  );
+  useEffect(() => {
+    clearUpCamera();
+  });
 
   React.useEffect(() => {
     if (navigator.geolocation && attendanceState.data?.location) {
@@ -148,7 +147,7 @@ const MyAttendance: React.FC = () => {
 
           const { lat, lng } = attendanceState.data!.location!;
           setDistance(
-            window.google.maps.geometry.spherical.computeDistanceBetween(
+            window.google?.maps.geometry.spherical.computeDistanceBetween(
               new window.google.maps.LatLng(lat, lng),
               new window.google.maps.LatLng(latitude, longitude),
             ),
@@ -238,12 +237,7 @@ const MyAttendance: React.FC = () => {
       title: intl.formatMessage({ id: 'property.check_in_image' }),
       dataIndex: 'check_in_image',
       valueType: 'avatar',
-      renderText: (text) =>
-        text && (
-          <Popover content={<img style={{ width: 500 }} src={text} />}>
-            <Avatar src={text}></Avatar>
-          </Popover>
-        ),
+      renderText: (text, record) => renderCheckInImage(text, record, 'check_in_face_authorized'),
     },
     {
       title: intl.formatMessage({ id: 'property.check_out' }),
@@ -289,12 +283,7 @@ const MyAttendance: React.FC = () => {
       title: intl.formatMessage({ id: 'property.check_out_image' }),
       dataIndex: 'check_out_image',
       valueType: 'avatar',
-      renderText: (text) =>
-        text && (
-          <Popover content={<img style={{ width: 500 }} src={text} />}>
-            <Avatar src={text}></Avatar>
-          </Popover>
-        ),
+      renderText: (text, record) => renderCheckInImage(text, record, 'check_out_face_authorized'),
     },
     {
       title: intl.formatMessage({ id: 'property.hours_work_by_schedule' }),
@@ -355,28 +344,6 @@ const MyAttendance: React.FC = () => {
       dataIndex: 'status',
       hideInForm: true,
       renderText: (it) => {
-        // const mapStatus = {
-        //   Approved: {
-        //     text: intl.formatMessage({ id: 'property.status.Approved' }),
-        //     status: 'Success',
-        //   },
-        //   Pending: {
-        //     text: intl.formatMessage({ id: 'property.status.Pending' }),
-        //     status: 'Warning',
-        //   },
-        //   Cancelled: {
-        //     text: intl.formatMessage({ id: 'property.status.Cancelled' }),
-        //     status: 'Default',
-        //   },
-        //   Canceled: {
-        //     text: intl.formatMessage({ id: 'property.status.Canceled' }),
-        //     status: 'Default',
-        //   },
-        //   Rejected: {
-        //     text: intl.formatMessage({ id: 'property.status.Rejected' }),
-        //     status: 'Error',
-        //   },
-        // };
         const mapStatus = {
           Pending: {
             icon: <Badge status="warning" />,
@@ -408,6 +375,7 @@ const MyAttendance: React.FC = () => {
       fixed: 'right',
       align: 'center',
       width: 'min-content',
+      key: 'id',
       search: false,
       render: (dom, record) => (
         <Link to={'/message'}>
@@ -588,7 +556,6 @@ const MyAttendance: React.FC = () => {
           });
           fetchData.reverse();
 
-          const schedule = await getSchedule(id).then((it) => it.schedule as API.Schedule);
           // manipulate backend data
           const data = fetchData.map((it) => {
             const first_check_in = it.tracking_data[0];
@@ -603,14 +570,15 @@ const MyAttendance: React.FC = () => {
                 first_check_in?.check_in_time &&
                 (first_check_in?.check_in_outside ? 'Outside' : first_check_in?.location),
               check_in_image: first_check_in?.check_in_image,
+              check_in_face_authorized: first_check_in?.check_in_face_authorized,
               check_out: last_check_out?.check_out_time,
               check_out_note: last_check_out?.check_out_time && last_check_out?.check_out_note,
               check_out_location:
                 last_check_out?.check_out_time &&
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
               check_out_image: last_check_out?.check_out_image,
-              hours_work_by_schedule:
-                it.schedule_hours || getHourWorkDay(moment(it.date), schedule),
+              check_out_face_authorized: last_check_out?.check_out_face_authorized,
+              hours_work_by_schedule: it.schedule_hours,
               children: it.tracking_data?.map((x) => {
                 return {
                   ...x,
@@ -642,28 +610,74 @@ const MyAttendance: React.FC = () => {
           attendanceState.data && nextStepTranslate[attendanceState.data?.next_step]
         } ${moment().format('HH:mm')}`}
         width="398px"
+        submitter={{
+          submitButtonProps: {
+            disabled: appConfig.data?.require_face_id && (!isPaused || !captureValid || capturing),
+          },
+          render: (_, defaultDoms) => {
+            return [
+              appConfig.data?.require_face_id && (
+                <Button
+                  key="capture-button"
+                  icon={<CameraOutlined />}
+                  {...(isPaused && !capturing && !captureValid
+                    ? { type: 'primary' }
+                    : { className: 'primary-outlined-button' })}
+                  loading={capturing}
+                  onClick={async () => {
+                    try {
+                      setCapturing(true);
+                      if (isPaused) {
+                        videoRef.current?.play();
+                        setIsPaused(false);
+                      } else {
+                        videoRef.current?.pause();
+                        setIsPaused(true);
+                        const canvas = document.createElement('canvas');
+                        if (!videoRef.current) {
+                          message.error('Video is not ready yet');
+                          return;
+                        }
+                        canvas.width = CAMERA_WIDTH;
+                        canvas.height = CAMERA_HEIGHT;
+                        canvas
+                          .getContext('2d')
+                          ?.drawImage(videoRef.current, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+                        const datauri = canvas.toDataURL('image/png');
+                        capturedFaceBlobRef.current = await fetch(datauri).then((it) => it.blob());
+                        if (!capturedFaceBlobRef.current) {
+                          throw new Error();
+                        }
+                        const submitData = new FormData();
+                        submitData.append('image', capturedFaceBlobRef.current, 'face_image.png');
+                        const faces = await detectFaces(submitData);
+                        setCaptureValid(faces.length === 1);
+                      }
+                    } finally {
+                      setCapturing(false);
+                    }
+                  }}
+                >
+                  {intl.formatMessage({
+                    id:
+                      isPaused && !capturing
+                        ? 'property.actions.retake'
+                        : 'property.actions.capture',
+                  })}
+                </Button>
+              ),
+              ...defaultDoms,
+            ];
+          },
+        }}
         onFinish={async (values) => {
           try {
             if (!currentLocation) return false;
             const { lat, lng } = currentLocation!;
             const submitData = new FormData();
-            if (appConfig.data?.require_face_id) {
-              const canvas = document.createElement('canvas');
-              const width = 350;
-              const height = 260;
-              if (!videoRef.current) return false;
-              const context = canvas.getContext('2d');
-              canvas.width = width;
-              canvas.height = height;
-              context?.drawImage(videoRef.current, 0, 0, width, height);
-              const datauri = canvas.toDataURL('image/png');
-              const blob = await fetch(datauri).then((it) => it.blob());
-              if (!blob) {
-                throw new Error();
-              }
-              submitData.append('face_image', blob, 'face_image.png');
+            if (appConfig.data?.require_face_id && capturedFaceBlobRef.current) {
+              submitData.append('face_image', capturedFaceBlobRef.current, 'face_image.png');
             }
-
             if (attendanceState.data?.next_step === 'clock in') {
               submitData.append('check_in_lat', String(lat));
               submitData.append('check_in_lng', String(lng));
@@ -685,6 +699,7 @@ const MyAttendance: React.FC = () => {
             setClockModalVisible(false);
             actionRef.current?.reload();
             attendanceState.fetchData();
+            clearUpCamera();
             return true;
           } catch (error) {
             if (error.data === 'Face recognition failed') {
@@ -702,7 +717,10 @@ const MyAttendance: React.FC = () => {
           }
         }}
         onVisibleChange={(visible) => {
+          let timeout: any;
           if (visible) {
+            setIsPaused(false);
+            videoRef.current?.play();
             if (
               appConfig.data!.require_face_id &&
               navigator.mediaDevices &&
@@ -711,7 +729,7 @@ const MyAttendance: React.FC = () => {
               navigator.mediaDevices
                 .getUserMedia({ video: true })
                 .then((stream) => {
-                  setTimeout(() => {
+                  timeout = setTimeout(() => {
                     if (!videoRef.current) return;
                     videoRef.current.srcObject = stream;
                     streamRef.current = stream;
@@ -731,13 +749,14 @@ const MyAttendance: React.FC = () => {
                 });
             }
           } else {
+            clearTimeout(timeout);
             clockModalForm.resetFields();
           }
           setClockModalVisible(visible);
         }}
         form={clockModalForm}
       >
-        <Space style={{ marginBottom: 20 }}>
+        <Space style={{ marginBottom: 20, color: isOutside ? '#f5222d' : '#389e0d' }}>
           <EnvironmentOutlined />
           {isOutside
             ? intl.formatMessage({ id: 'property.attendance.outside.long' })
@@ -749,7 +768,28 @@ const MyAttendance: React.FC = () => {
           name="note"
           label={intl.formatMessage({ id: 'property.note' })}
         />
-        {appConfig.data?.require_face_id && <video ref={videoRef} width="350px" height="260px" />}
+        {appConfig.data?.require_face_id && (
+          <div style={{ position: 'relative' }}>
+            <video ref={videoRef} width={CAMERA_WIDTH} height={CAMERA_HEIGHT} />
+            {isPaused &&
+              !capturing &&
+              (!captureValid ? (
+                <Alert
+                  message={intl.formatMessage({ id: 'error.cannotFindYourFace' })}
+                  type="error"
+                  style={{ marginTop: 16 }}
+                />
+              ) : (
+                <Alert
+                  message={`${intl.formatMessage({ id: 'error.readyTo' })} ${
+                    attendanceState.data && nextStepTranslate[attendanceState.data?.next_step]
+                  }`}
+                  type="success"
+                  style={{ marginTop: 16 }}
+                />
+              ))}
+          </div>
+        )}
       </ModalForm>
     </PageContainer>
   );

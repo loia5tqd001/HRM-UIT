@@ -18,7 +18,9 @@ export default {
   'error.incorrectUsernamePassword': 'Tài khoản hoặc mật khẩu không đúng',
   'error.yourOfficeNotAllowAttendance':
     'Địa điểm làm việc của bạn không cho phép chấm công ngoài văn phòng làm việc',
-  'error.cannotRecognizeFace': 'Hệ thống không thể nhận ra khuôn mặt của bạn',
+  'error.cannotRecognizeFace': 'Hệ thống không thể nhận ra khuôn mặt của bạn. Vui lòng thử lại.',
   'error.mustSetupLocationFirst': 'Cần phải thiết lập địa điểm làm việc trước',
   'error.youAreNotWorking': 'Bạn không còn làm việc',
+  'error.cannotFindYourFace': 'Hệ thống không thể tìm thấy khuôn mặt của bạn. Vui lòng thử lại.',
+  'error.readyTo': 'Đã sẵn sàng để',
 };

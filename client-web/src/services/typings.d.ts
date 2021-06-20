@@ -230,6 +230,15 @@ declare namespace API {
     permissions?: AuthenticatedPermission[];
   }
 
+  type DetectFacesResult = {
+    faceId: string;
+    faceRectangle: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+  }[];
   interface TerminateContract {
     reason: string;
     date: string | moment.Moment;

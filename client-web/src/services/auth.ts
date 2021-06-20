@@ -62,6 +62,14 @@ export async function changeAvatar(data: any, options?: { [key: string]: any }) 
   });
 }
 
+export async function detectFaces(data: any, options?: { [key: string]: any }) {
+  return request<API.DetectFacesResult>(`/api/auth/detect_faces/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
 export async function changePassword(
   password: string,
   new_password: string,
