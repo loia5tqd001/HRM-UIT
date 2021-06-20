@@ -116,7 +116,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
           }),
         );
       } catch {
-        message.success(
+        message.error(
           intl.formatMessage({
             id: 'error.updateUnsuccessfully',
             defaultMessage: 'Update unsuccessfully!',
@@ -501,7 +501,7 @@ export const EmployeeJob: React.FC<EmployeeTabProps> = (props) => {
                   }),
                 );
               } catch {
-                message.success(
+                message.error(
                   intl.formatMessage({
                     id: 'error.updateUnsuccessfully',
                     defaultMessage: 'Update unsuccessfully!',

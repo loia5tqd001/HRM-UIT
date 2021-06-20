@@ -103,7 +103,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
           <ProForm<API.EmployeePayroll>
             onFinish={async (value) => {
               try {
-                updateEmployeePayroll(employeeId, value);
+                await updateEmployeePayroll(employeeId, value);
                 payroll.setData(value);
                 // onChange?.();
                 message.success(
@@ -113,7 +113,7 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
                   }),
                 );
               } catch {
-                message.success(
+                message.error(
                   intl.formatMessage({
                     id: 'error.updateUnsuccessfully',
                     defaultMessage: 'Update unsuccessfully!',

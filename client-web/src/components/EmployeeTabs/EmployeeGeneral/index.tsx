@@ -86,7 +86,7 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
                   }),
                 );
               } catch {
-                message.success(
+                message.error(
                   intl.formatMessage({
                     id: 'error.updateUnsuccessfully',
                     defaultMessage: 'Update unsuccessfully!',
@@ -264,7 +264,7 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
                   }),
                 );
               } catch {
-                message.success(
+                message.error(
                   intl.formatMessage({
                     id: 'error.updateUnsuccessfully',
                     defaultMessage: 'Update unsuccessfully!',
@@ -349,7 +349,7 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
                   }),
                 );
               } catch {
-                message.success(
+                message.error(
                   intl.formatMessage({
                     id: 'error.updateUnsuccessfully',
                     defaultMessage: 'Update unsuccessfully!',
@@ -464,7 +464,7 @@ export const EmployeeGeneral: React.FC<EmployeeTabProps> = (props) => {
                 bankInfo.setData(final);
                 // onChange?.();
               } catch {
-                message.success(
+                message.error(
                   intl.formatMessage({
                     id: 'error.updateUnsuccessfully',
                     defaultMessage: 'Update unsuccessfully!',

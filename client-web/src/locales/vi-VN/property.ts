@@ -38,7 +38,7 @@ export default {
   'property.gender.other': 'Khác',
   'property.email': 'Địa chỉ email',
   'property.marital_status': 'Tình trạng hôn nhân',
-  'property.marital_status.single': 'Dộc thân',
+  'property.marital_status.single': 'Độc thân',
   'property.marital_status.married': 'Đã kết hôn',
   'property.marital_status.divorced': 'Ly dị',
   'property.marital_status.seperated': 'Ở riêng',

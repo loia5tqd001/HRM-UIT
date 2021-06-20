@@ -31,7 +31,7 @@ export const Office: React.FC = () => {
     {
       title: intl.formatMessage({ id: 'property.radius' }),
       dataIndex: 'radius',
-      renderText: (text) => `${text}m`,
+      renderText: (text) => text && `${text}m`,
     },
     {
       title: intl.formatMessage({ id: 'property.allow_outside' }),

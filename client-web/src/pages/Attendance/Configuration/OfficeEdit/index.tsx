@@ -101,6 +101,12 @@ export const OfficeEdit: React.FC = () => {
           map: mapRef,
           title: 'Current location',
         });
+        if (!office.lat) {
+          setCenter({
+            lat: latitude,
+            lng: longitude,
+          });
+        }
       });
     }
     return () => {

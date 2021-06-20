@@ -311,6 +311,7 @@ export const Location: React.FC = () => {
             options={countries.map((it) => ({ value: it.id, label: it.name }))}
           />
           <ProFormText
+            rules={[{ required: true }]}
             name="province"
             width="sm"
             label={intl.formatMessage({
@@ -319,6 +320,7 @@ export const Location: React.FC = () => {
             })}
           />
           <ProFormText
+            rules={[{ required: true }]}
             name="city"
             width="sm"
             label={intl.formatMessage({

@@ -33,8 +33,7 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
   const access = useAccess();
 
   // LEFT PANEL
-  const canChangeAvatar =
-    isActive && (isCurrentUser(employeeId) || access['can_change_avatar_employee']);
+  const canChangeAvatar = isActive && access['can_change_avatar_employee'];
   const canSetRole = isActive && !isCurrentUser(employeeId) && access['can_set_role_employee'];
   const canSetPassword =
     isActive && (isCurrentUser(employeeId) || access['can_set_password_employee']);
@@ -57,16 +56,14 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
 
   // JOB
   const canViewJob = isCurrentUser(employeeId) || access['view_job'];
-  const canChangeJob = isActive && (isCurrentUser(employeeId) || access['add_job']);
+  const canChangeJob = isActive && access['add_job'];
   const canViewSchedule = isCurrentUser(employeeId) || access['view_employeeschedule'];
-  const canChangeSchedule =
-    isActive && (isCurrentUser(employeeId) || access['change_employeeschedule']);
+  const canChangeSchedule = isActive && access['change_employeeschedule'];
   const canViewJobTab = canViewJob || canViewSchedule;
 
   // PAYROLL
   const canViewSalaryInfo = isCurrentUser(employeeId) || access['view_employeesalary'];
-  const canChangeSalaryInfo =
-    isActive && (isCurrentUser(employeeId) || access['change_employeesalary']);
+  const canChangeSalaryInfo = isActive && access['change_employeesalary'];
   const canViewPayslips = isCurrentUser(employeeId) || access['view_payslip'];
   const canViewPayrollTab = canViewSalaryInfo || canViewPayslips;
 
