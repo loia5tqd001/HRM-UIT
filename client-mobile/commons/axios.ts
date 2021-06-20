@@ -71,7 +71,14 @@ const onResponseError = async (error: AxiosError): Promise<AxiosError> => {
     }
   }
   if (typeof error.response.data === 'string' && error.response.data.length < 50) {
-    Alert.alert(error.response.data);
+    const convertMessage = {
+      'Face recognition failed': 'The system cannot recognize your face. Please try again.',
+    };
+    if (convertMessage[error.response.data]) {
+      Alert.alert(convertMessage[error.response.data]);
+    } else {
+      Alert.alert(error.response.data);
+    }
     error.response.data = 'HANDLED';
   }
   return Promise.reject(error);

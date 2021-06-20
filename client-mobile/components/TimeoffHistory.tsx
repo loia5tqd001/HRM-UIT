@@ -1,6 +1,6 @@
 import moment from 'moment';
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, Text, View, Alert } from 'react-native';
 import axios from '../commons/axios';
 import {
   ApprovedColor,
@@ -102,7 +102,14 @@ export const ListHistory = ({ show, setShow }) => {
           );
         }}
       />
-      <ModalTimeOff show={show} setShow={setShow} onSuccess={() => setStateList(stateList + 1)} />
+      <ModalTimeOff
+        show={show}
+        setShow={setShow}
+        onSuccess={() => {
+          Alert.alert('Submit request successfully!');
+          setStateList(stateList + 1);
+        }}
+      />
     </React.Fragment>
   );
 };

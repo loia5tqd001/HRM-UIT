@@ -54,12 +54,12 @@ const ModalImage = ({
     dataSubmit.append(`${key}_lat`, String(location?.lat));
     dataSubmit.append(`${key}_lng`, String(location?.lng));
     dataSubmit.append(`${key}_note`, `${nextStep} with face`);
-    dataSubmit.append('face_image', { uri: localUri, name: filename, type }, 'face.jpeg');
+    dataSubmit.append('face_image', { uri: localUri, name: filename, type } as any, 'face.jpeg');
 
     // This shit doesn't work
     // const blob = await fetch(captureImage.uri).then((it) => it.blob());
     // dataSubmit.append('face_image', blob, 'face.jpeg');
-    
+
     await axios
       .post(
         `/employees/${user?.id}/attendance/${nextStep === 'clock in' ? 'check_in' : 'check_out'}/`,
