@@ -112,7 +112,7 @@ export default {
   'permission.insurance policy.change_insurancepolicy': 'Có thể thay đổi chính sách bảo hiểm',
   'permission.insurance policy.delete_insurancepolicy': 'Có thể xóa hợp đồng bảo hiểm',
   'permission.insurance policy.view_insurancepolicy': 'Có thể xem chính sách bảo hiểm',
-  'permission.job': 'công việc',
+  'permission.job': 'Công việc',
   'permission.job title': 'Chức vụ',
   'permission.job title.add_jobtitle': 'Có thể thêm chức vụ',
   'permission.job title.change_jobtitle': 'Có thể thay đổi chức vụ công việc',

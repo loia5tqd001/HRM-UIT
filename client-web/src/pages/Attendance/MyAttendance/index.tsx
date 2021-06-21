@@ -20,23 +20,13 @@ import { ModalForm, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import {
-  Alert,
-  Badge,
-  Button,
-  message,
-  notification,
-  Popover,
-  Select,
-  Space,
-  Tag,
-  Tooltip,
-} from 'antd';
+import { Alert, Badge, Button, message, notification, Select, Space, Tag, Tooltip } from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FormattedMessage, history, Link, useIntl, useModel } from 'umi';
+import styles from './index.less';
 
 type RecordType = API.AttendanceRecord;
 
@@ -48,36 +38,43 @@ type CurrentLocation = {
 export const renderCheckInImage = (text: any, record: RecordType, checkKey: keyof RecordType) => {
   return (
     text && (
-      <Popover content={<img style={{ width: 500 }} src={text} />}>
-        <div style={{ position: 'relative', display: 'inline-block' }}>
-          <Avatar src={text}></Avatar>
-          {record[checkKey] ? (
-            <CheckCircleFilled
-              style={{
-                color: 'rgb(82, 196, 26)',
-                position: 'absolute',
-                top: -8,
-                right: -8,
-                background: 'white',
-                borderRadius: '50%',
-                fontSize: 16,
-              }}
-            />
-          ) : (
-            <CloseCircleFilled
-              style={{
-                color: 'rgb(255, 77, 79)',
-                position: 'absolute',
-                top: -8,
-                right: -8,
-                background: 'white',
-                borderRadius: '50%',
-                fontSize: 16,
-              }}
-            />
-          )}
-        </div>
-      </Popover>
+      <ModalForm
+        className={styles.hideFooter}
+        trigger={
+          <div style={{ position: 'relative', display: 'inline-block', cursor: 'zoom-in' }}>
+            <Avatar src={text}></Avatar>
+            {record[checkKey] ? (
+              <CheckCircleFilled
+                style={{
+                  color: 'rgb(82, 196, 26)',
+                  position: 'absolute',
+                  top: -8,
+                  right: -8,
+                  background: 'white',
+                  borderRadius: '50%',
+                  fontSize: 16,
+                }}
+              />
+            ) : (
+              <CloseCircleFilled
+                style={{
+                  color: 'rgb(255, 77, 79)',
+                  position: 'absolute',
+                  top: -8,
+                  right: -8,
+                  background: 'white',
+                  borderRadius: '50%',
+                  fontSize: 16,
+                }}
+              />
+            )}
+          </div>
+        }
+        width={548}
+        submitter={false}
+      >
+        <img style={{ width: 500 }} src={text} />
+      </ModalForm>
     )
   );
 };
@@ -137,7 +134,7 @@ const MyAttendance: React.FC = () => {
 
   useEffect(() => {
     clearUpCamera();
-  });
+  }, [clockModalVisible, clearUpCamera]);
 
   React.useEffect(() => {
     if (navigator.geolocation && attendanceState.data?.location) {
