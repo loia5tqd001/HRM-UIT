@@ -45,9 +45,9 @@ body,
 .ant-btn-primary {
   box-shadow: 0 2px 8px -2px @primary-color;
 }
-.ant-btn-dangerous {
-  box-shadow: 0 1px 8px -4px currentColor;
-}
+// .ant-btn-dangerous {
+//   box-shadow: 0 1px 8px -4px currentColor;
+// }
 .ant-tag:is(.ant-tag-error, .ant-tag-success, .ant-tag-green, .ant-tag-processing) {
   box-shadow: 0 1px 8px -5px currentColor;
   &:hover {
@@ -202,14 +202,16 @@ body,
 }
 
 .outlined-button(@color) {
-  & {
-    color: @color;
-    border-color: @color;
-  }
-  &:hover,
-  &:focus {
-    color: fade(@color, 70);
-    border-color: fade(@color, 70);
+  button, & {
+    & {
+      color: @color;
+      border-color: @color;
+    }
+    &:hover,
+    &:focus {
+      color: fade(@color, 70);
+      border-color: fade(@color, 70);
+    }
   }
 }
 .success-outlined-button {
@@ -217,6 +219,9 @@ body,
 }
 .primary-outlined-button {
   .outlined-button(@primary-color);
+}
+.warning-outlined-button {
+  .outlined-button(#faad14);
 }
 .primary-hover-button {
   &:hover,

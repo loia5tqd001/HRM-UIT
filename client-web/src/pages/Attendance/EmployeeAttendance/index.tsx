@@ -6,30 +6,15 @@ import {
   revertEmployeeAttendance,
 } from '@/services/employee';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
-import {
-  CheckCircleOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  LockOutlined,
-  RollbackOutlined,
-} from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, LockOutlined, RollbackOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import {
-  Badge,
-  Button,
-  message,
-  Progress,
-  Select,
-  Space,
-  TablePaginationConfig,
-  Tooltip,
-} from 'antd';
-import { countBy, groupBy, mapValues, sumBy, uniq } from 'lodash';
+import { Badge, Button, message, Progress, Select, Space, Tooltip } from 'antd';
+import { countBy, groupBy, mapValues, sumBy } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import { Access, FormattedMessage, Link, useAccess, useIntl, getIntl } from 'umi';
+import { Access, FormattedMessage, getIntl, Link, useAccess, useIntl } from 'umi';
 
 type RecordType = API.AttendanceEmployee & {
   status?: {

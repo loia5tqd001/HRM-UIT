@@ -65,6 +65,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       // If you are not logged in, redirect to login
       if (!initialState?.currentUser && location.pathname !== '/user/login') {
         history.push('/user/login');
+        jwt.removeAccess();
+        jwt.removeRefresh();
       }
     },
     title: getIntl().formatMessage({
@@ -150,7 +152,8 @@ const { cancel } = Reqs.CancelToken.source();
 let refreshTokenRequest: Promise<API.LoginResult> | null = null;
 const responseInterceptors = async (response: Response, options: RequestOptionsInit) => {
   const accessTokenExpired =
-    response.status === 401 && !response.url.includes('/auth/token/refresh');
+    response.status === 401 &&
+    !(response.url.includes('/auth/token/refresh') || response.url.includes('talkjs'));
   if (accessTokenExpired) {
     try {
       if (!refreshTokenRequest) {

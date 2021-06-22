@@ -1,14 +1,16 @@
-import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
+import { getConversationId, getTopicUrl } from '@/models/firebaseTalk';
+import { employeeToUser } from '@/pages/Message';
 import {
   allEmployeeTimeoffs,
   cancelEmployeeTimeoff,
   createEmployeeTimeoff,
   getSchedule,
-  updateEmployeeTimeoff,
+  updateEmployeeTimeoff
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { filterData } from '@/utils/utils';
 import { CommentOutlined, EnterOutlined, PlusOutlined } from '@ant-design/icons';
 import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
@@ -20,7 +22,7 @@ import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FormattedMessage, history, Link, useIntl, useModel } from 'umi';
+import { FormattedMessage, history, useIntl, useModel } from 'umi';
 
 type RecordType = API.TimeoffRequest & {
   off_days?: [moment.Moment, moment.Moment];
@@ -41,10 +43,13 @@ export const Timeoff: React.FC = () => {
   const [dataNek, setData] = useState<RecordType[]>();
 
   const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState!;
   const { id } = initialState!.currentUser!;
   const localeFeature = intl.formatMessage({
     id: 'property.timeoffRequest',
   });
+
+  const { getParticipants, addParticipants } = useModel('firebaseTalk');
 
   useEffect(() => {
     allTimeOffTypes().then((fetchData) => setTimeoffTypes(fetchData));
@@ -125,6 +130,10 @@ export const Timeoff: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
+      title: 'Id',
+      dataIndex: 'id',
+    },
+    {
       title: intl.formatMessage({ id: 'property.timeoffType' }),
       dataIndex: 'time_off_type',
       onFilter: true,
@@ -170,41 +179,79 @@ export const Timeoff: React.FC = () => {
       align: 'center',
       width: 'min-content',
       search: false,
-      render: (dom, record) => (
-        <Space size="small">
-          <Link to={'/message'}>
-            <Button title={`Chua bi tu choi`} size="small" disabled={record.status === 'Pending'}>
-              <CommentOutlined />
-            </Button>
-          </Link>
-          <Popconfirm
-            placement="right"
-            title={`${intl.formatMessage({ id: 'property.actions.cancel' })} ${localeFeature}?`}
-            onConfirm={async () => {
-              await onCrudOperation(
-                () => cancelEmployeeTimeoff(id, record.id),
-                intl.formatMessage({
-                  id: 'error.updateSuccessfully',
-                  defaultMessage: 'Update successfully!',
-                }),
-                intl.formatMessage({
-                  id: 'error.updateUnsuccessfully',
-                  defaultMessage: 'Update unsuccessfully!',
-                }),
-              );
-            }}
-            disabled={!(record.status === 'Approved' || record.status === 'Pending')}
-          >
-            <Button
+      render: (dom, record) => {
+        const conversationId = getConversationId('timeoff', record.id);
+        const participants = getParticipants(conversationId);
+        const conversationStarted = participants.length !== 0;
+
+        return (
+          <Space size="small">
+            <Popconfirm
+              placement="right"
               title={`${intl.formatMessage({ id: 'property.actions.cancel' })} ${localeFeature}?`}
-              size="small"
+              onConfirm={async () => {
+                await onCrudOperation(
+                  () => cancelEmployeeTimeoff(id, record.id),
+                  intl.formatMessage({
+                    id: 'error.updateSuccessfully',
+                    defaultMessage: 'Update successfully!',
+                  }),
+                  intl.formatMessage({
+                    id: 'error.updateUnsuccessfully',
+                    defaultMessage: 'Update unsuccessfully!',
+                  }),
+                );
+              }}
               disabled={!(record.status === 'Approved' || record.status === 'Pending')}
             >
-              <EnterOutlined />
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+              <Button
+                title={`${intl.formatMessage({ id: 'property.actions.cancel' })} ${localeFeature}?`}
+                size="small"
+                disabled={!(record.status === 'Approved' || record.status === 'Pending')}
+              >
+                <EnterOutlined />
+              </Button>
+            </Popconfirm>
+            {conversationStarted ? (
+              <Button
+                title={`Open the conversation`}
+                size="small"
+                onClick={() => {
+                  const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+                  const popup = window.talkSession?.createPopup(conversation, { keepOpen: false });
+                  popup.mount({ show: true });
+                }}
+                className="primary-outlined-button"
+              >
+                <CommentOutlined />
+              </Button>
+            ) : (
+              <Popconfirm
+                title="Do you need support for this request?"
+                onConfirm={async () => {
+                  const me = employeeToUser(currentUser!);
+                  const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+                  conversation.subject = `[Support][Time off][id: ${record.id}][for: ${currentUser?.first_name} ${currentUser?.last_name}]`;
+                  conversation.photoUrl = getTopicUrl('timeoff');
+                  conversation.setParticipant(me);
+                  conversation.welcomeMessages = [
+                    `${currentUser?.first_name} ${currentUser?.last_name} started this conversation`,
+                  ];
+                  const popup = window.talkSession?.createPopup(conversation, {
+                    keepOpen: false,
+                  });
+                  popup.mount({ show: true });
+                  popup.on('sendMessage', () => addParticipants(conversationId, [currentUser!.id]));
+                }}
+              >
+                <Button size="small">
+                  <CommentOutlined />
+                </Button>
+              </Popconfirm>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -254,6 +301,7 @@ export const Timeoff: React.FC = () => {
         ]}
         request={async () => {
           const data = await allEmployeeTimeoffs(id);
+          data.reverse();
           setData(data);
           return {
             data,

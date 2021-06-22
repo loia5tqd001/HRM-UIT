@@ -7,6 +7,7 @@ import { Link, SelectLang, useModel } from 'umi';
 import Avatar from './AvatarDropdown';
 import styles from './index.less';
 import Favicon from 'react-favicon';
+import { TALKJS_APP_ID } from '@/services/talk';
 
 export type SiderTheme = 'light' | 'dark';
 
@@ -27,12 +28,11 @@ const GlobalHeaderRight: React.FC = () => {
     }
     Talk.ready.then(() => {
       const me = employeeToUser(initialState.currentUser!);
-      const appId = 't6rbhbrZ';
-      window.talkSession = new Talk.Session({ appId, me });
-      window.talkSession.setDesktopNotificationEnabled(
+      window.talkSession = new Talk.Session({ appId: TALKJS_APP_ID, me });
+      window.talkSession?.setDesktopNotificationEnabled(
         Boolean(localStorage.getItem('talkjs:desktop_notify')) || true,
       );
-      window.talkSession.unreads.on('change', (unreadConversations) => {
+      window.talkSession?.unreads.on('change', (unreadConversations) => {
         setAmountOfUnreads(unreadConversations.length);
       });
     });

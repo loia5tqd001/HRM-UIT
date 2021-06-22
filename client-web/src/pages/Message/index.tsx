@@ -4,7 +4,7 @@ import { ExportOutlined, MessageFilled } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProList from '@ant-design/pro-list';
 import { Button, Card, message, Popconfirm, Spin } from 'antd';
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Talk from 'talkjs';
 import type { ConversationSelectedEvent } from 'talkjs/all';
 import { FormattedMessage, useModel } from 'umi';
@@ -45,7 +45,7 @@ const ChatBox = React.memo(
           console.log('window.talkSession is not defined', window.talkSession);
           return;
         }
-        inboxRef.current = window.talkSession.createInbox();
+        inboxRef.current = window.talkSession?.createInbox();
         inboxRef.current.mount(talkjsContainerRef.current);
         inboxRef.current.on('conversationSelected', onConversationSelected);
       });
@@ -78,13 +78,16 @@ export const Message: React.FC = () => {
   const inboxRef = useRef<Talk.Inbox>();
   const peopleRef = useRef<API.Employee[]>();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedId, setSelectedId] = useState<number>();
+  const [selectdPartnerId, setSelectedPartnerId] = useState<number>();
   const [selectedConversation, setSelectedConversation] = useState<Talk.ConversationData | null>(
     null,
   );
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
-
-  console.log('>  ~ file: index.tsx ~ line 83 ~ selectedConversation', selectedConversation);
+  const { getParticipants, removeParticipants } = useModel('firebaseTalk');
+  const isSupportConversation = selectedConversation?.subject?.includes('[Support]');
+  const youAreTheOwner =
+    selectedConversation && getParticipants(selectedConversation.id)[0] === currentUser?.id;
+  const youLeftTheConversation =
+    selectedConversation && !getParticipants(selectedConversation.id).includes(currentUser!.id);
 
   const changeConversation = (otherId: number) => {
     setTimeout(() => setIsLoading(true), 0);
@@ -93,82 +96,59 @@ export const Message: React.FC = () => {
     if (!otherProfile) return;
     const me = employeeToUser(currentUser!);
     const other = employeeToUser(otherProfile);
-    const conversation = window.talkSession.getOrCreateConversation(Talk.oneOnOneId(me, other));
+    const conversation = window.talkSession?.getOrCreateConversation(Talk.oneOnOneId(me, other));
     conversation.setParticipant(me);
     conversation.setParticipant(other);
     inboxRef.current?.select(conversation);
   };
-
-  // const toConversation =
-  //   selectedConversation && window.talkSession.getOrCreateConversation(selectedConversation.id);
-  // console.log('>  ~ file: index.tsx ~ line 101 ~ toConversation', toConversation);
 
   return (
     <PageContainer title={false}>
       <Card style={{ fontFamily: 'inherit !important' }} className="card-shadow">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 30vw', gap: '1rem' }}>
           <Spin spinning={isLoading}>
-            {selectedConversation?.subject?.includes('[Support]') &&
-              selectedConversation.custom.support_to !== String(currentUser?.id) &&
-              selectedConversation.custom[`left__${currentUser?.id}`] !== 'true' && (
-                <div
-                  style={{
-                    height: 60,
-                    display: 'flex',
-                    alignItems: 'center',
-                    position: 'absolute',
-                    right: 80,
-                    top: 0,
+            {isSupportConversation && !youAreTheOwner && !youLeftTheConversation && (
+              <div
+                style={{
+                  height: 60,
+                  display: 'flex',
+                  alignItems: 'center',
+                  position: 'absolute',
+                  right: 80,
+                  top: 0,
+                }}
+              >
+                <Popconfirm
+                  title="You will be no longer in this conversation. Are you sure?"
+                  onConfirm={async () => {
+                    try {
+                      if (!selectedConversation) return;
+                      const toDeleteConversation = window.talkSession?.getOrCreateConversation(
+                        selectedConversation.id,
+                      );
+                      await toDeleteConversation.sendMessage(
+                        `${currentUser?.first_name} ${currentUser?.last_name} left the conversation`,
+                        {},
+                      );
+                      await leaveConversation(selectedConversation.id, String(currentUser?.id));
+                      removeParticipants(selectedConversation.id, [currentUser!.id]);
+                      message.success('Leave the conversation successfully!');
+                    } catch (err) {
+                      console.log(err);
+                      message.error('Leave the conversation unsuccessfully!');
+                    }
                   }}
                 >
-                  <Popconfirm
-                    title="You will be no longer in this conversation. Are you sure?"
-                    onConfirm={async () => {
-                      try {
-                        const toDeleteConversation = window.talkSession.getOrCreateConversation(
-                          selectedConversation.id,
-                        );
-                        // if (toDeleteConversation.custom?.left) {
-                        //   toDeleteConversation.setAttributes({
-                        //     custom: {
-                        //       left: JSON.stringify([
-                        //         ...JSON.parse(toDeleteConversation.custom.left),
-                        //         currentUser?.id,
-                        //       ]),
-                        //     },
-                        //   });
-                        // } else {
-                        //   console.log(toDeleteConversation);
-                        //   toDeleteConversation.setAttributes({
-                        //     custom: {
-                        //       left: `[${currentUser?.id}]`,
-                        //     },
-                        //   });
-                        // }
-                        await toDeleteConversation.sendMessage(
-                          `${currentUser?.first_name} ${currentUser?.last_name} left the group`,
-                          {},
-                        );
-                        await leaveConversation(selectedConversation.id, String(currentUser?.id));
-                        forceUpdate();
-                        message.success('Leave the conversation successfully!');
-                      } catch (err) {
-                        console.log(err);
-                        message.error('Leave the conversation unsuccessfully!');
-                      }
-                    }}
-                  >
-                    <Button danger icon={<ExportOutlined />}>
-                      Leave
-                    </Button>
-                  </Popconfirm>
-                </div>
-              )}
+                  <Button danger icon={<ExportOutlined />}>
+                    Leave
+                  </Button>
+                </Popconfirm>
+              </div>
+            )}
             <ChatBox
               inboxRef={inboxRef}
-              onConversationSelected={({ others, conversation, me }) => {
-                // console.log('>  ~ file: index.tsx ~ line 136 ~ me', me);
-                setSelectedId(Number(others?.[0]?.id));
+              onConversationSelected={({ others, conversation }) => {
+                setSelectedPartnerId(Number(others?.[0]?.id));
                 setSelectedConversation(conversation);
               }}
             />
@@ -212,10 +192,11 @@ export const Message: React.FC = () => {
                     <Button
                       type="link"
                       style={{
-                        color: entity.id === selectedId ? undefined : 'inherit',
-                        fontSize: entity.id === selectedId ? '1.4em' : undefined,
-                        fontWeight: entity.id === selectedId ? 'bolder' : undefined,
-                        transform: entity.id === selectedId ? 'translateY(-0.2em)' : undefined,
+                        color: entity.id === selectdPartnerId ? undefined : 'inherit',
+                        fontSize: entity.id === selectdPartnerId ? '1.4em' : undefined,
+                        fontWeight: entity.id === selectdPartnerId ? 'bolder' : undefined,
+                        transform:
+                          entity.id === selectdPartnerId ? 'translateY(-0.2em)' : undefined,
                       }}
                       onClick={() => changeConversation(entity.id)}
                     >
