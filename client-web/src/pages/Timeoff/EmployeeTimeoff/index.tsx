@@ -136,6 +136,88 @@ export const Timeoff: React.FC = () => {
       title: <FormattedMessage id="property.actions" defaultMessage="Actions" />,
       key: 'action',
       fixed: 'right',
+      width: 'min-content',
+      align: 'center',
+      search: false,
+      render: (dom, record) => {
+        return (
+          <Space>
+            <Access accessible={access['can_approve_timeoff']}>
+              <Popconfirm
+                placement="right"
+                title={`${intl.formatMessage({
+                  id: 'property.actions.approve',
+                })} ${localeFeature}?`}
+                onConfirm={async () => {
+                  await onCrudOperation(
+                    () => approveEmployeeTimeoff(record.owner.id, record.id),
+                    intl.formatMessage({
+                      id: 'error.updateSuccessfully',
+                      defaultMessage: 'Update successfully!',
+                    }),
+                    intl.formatMessage({
+                      id: 'error.updateUnsuccessfully',
+                      defaultMessage: 'Update unsuccessfully!',
+                    }),
+                  );
+                }}
+                disabled={record.status !== 'Pending'}
+              >
+                <Button
+                  title={`${intl.formatMessage({
+                    id: 'property.actions.approve',
+                  })} ${localeFeature}?`}
+                  size="small"
+                  type="default"
+                  disabled={record.status !== 'Pending'}
+                >
+                  <CheckOutlined />
+                </Button>
+              </Popconfirm>
+            </Access>
+            <Access accessible={access['can_reject_timeoff']}>
+              <Popconfirm
+                placement="right"
+                title={`${intl.formatMessage({
+                  id: 'property.actions.reject',
+                })} ${localeFeature}?`}
+                onConfirm={async () => {
+                  await onCrudOperation(
+                    () => rejectEmployeeTimeoff(record.owner.id, record.id),
+                    intl.formatMessage({
+                      id: 'error.updateSuccessfully',
+                      defaultMessage: 'Update successfully!',
+                    }),
+                    intl.formatMessage({
+                      id: 'error.updateUnsuccessfully',
+                      defaultMessage: 'Update unsuccessfully!',
+                    }),
+                  );
+                }}
+                disabled={record.status !== 'Pending'}
+              >
+                <Tooltip title="">
+                  <Button
+                    title={`${intl.formatMessage({
+                      id: 'property.actions.reject',
+                    })} ${localeFeature}?`}
+                    size="small"
+                    danger
+                    disabled={record.status !== 'Pending'}
+                  >
+                    <CloseOutlined />
+                  </Button>
+                </Tooltip>
+              </Popconfirm>
+            </Access>
+          </Space>
+        );
+      },
+    },
+    {
+      title: '',
+      fixed: 'right',
+      width: 'min-content',
       align: 'center',
       search: false,
       render: (dom, record) => {
@@ -173,147 +255,79 @@ export const Timeoff: React.FC = () => {
         };
 
         return (
-          <Space size="small">
-            <Access accessible={access['can_approve_timeoff']}>
-              <Popconfirm
-                placement="right"
-                title={`${intl.formatMessage({
-                  id: 'property.actions.approve',
-                })} ${localeFeature}?`}
-                onConfirm={async () => {
-                  await onCrudOperation(
-                    () => approveEmployeeTimeoff(record.owner.id, record.id),
-                    intl.formatMessage({
-                      id: 'error.updateSuccessfully',
-                      defaultMessage: 'Update successfully!',
-                    }),
-                    intl.formatMessage({
-                      id: 'error.updateUnsuccessfully',
-                      defaultMessage: 'Update unsuccessfully!',
-                    }),
-                  );
+          <Tooltip title={getTooltip()}>
+            {conversationState === 'You are in' || conversationState === 'Other supported' ? (
+              <Button
+                size="small"
+                onClick={() => {
+                  // case1: "You are in": because you're already in the conversation, just open it
+                  const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+                  const popup = window.talkSession?.createPopup(conversation);
+                  popup.mount({ show: true });
+                  // case2: "Other supported": the button will be disabled, onClick cannot be called
                 }}
-                disabled={record.status !== 'Pending'}
+                className="success-outlined-button-without-border"
+                disabled={!!disabledReason()}
               >
-                <Button
-                  title={`${intl.formatMessage({
-                    id: 'property.actions.approve',
-                  })} ${localeFeature}?`}
-                  size="small"
-                  type="default"
-                  disabled={record.status !== 'Pending'}
-                >
-                  <CheckOutlined />
-                </Button>
-              </Popconfirm>
-            </Access>
-            <Access accessible={access['can_reject_timeoff']}>
+                <CommentOutlined />
+              </Button>
+            ) : (
               <Popconfirm
-                placement="right"
-                title={`${intl.formatMessage({ id: 'property.actions.reject' })} ${localeFeature}?`}
+                title={
+                  conversationState === 'Not started'
+                    ? `Do you want to start a conversation with ${ownerFullname}?`
+                    : `Do you want to support the request of ${ownerFullname}?`
+                }
                 onConfirm={async () => {
-                  await onCrudOperation(
-                    () => rejectEmployeeTimeoff(record.owner.id, record.id),
-                    intl.formatMessage({
-                      id: 'error.updateSuccessfully',
-                      defaultMessage: 'Update successfully!',
-                    }),
-                    intl.formatMessage({
-                      id: 'error.updateUnsuccessfully',
-                      defaultMessage: 'Update unsuccessfully!',
-                    }),
-                  );
-                }}
-                disabled={record.status !== 'Pending'}
-              >
-                <Button
-                  title={`${intl.formatMessage({
-                    id: 'property.actions.reject',
-                  })} ${localeFeature}?`}
-                  size="small"
-                  danger
-                  disabled={record.status !== 'Pending'}
-                >
-                  <CloseOutlined />
-                </Button>
-              </Popconfirm>
-            </Access>
-            <Tooltip title={getTooltip()}>
-              {conversationState === 'You are in' || conversationState === 'Other supported' ? (
-                <Button
-                  size="small"
-                  onClick={() => {
-                    // case1: "You are in": because you're already in the conversation, just open it
-                    const conversation =
-                      window.talkSession?.getOrCreateConversation(conversationId);
-                    const popup = window.talkSession?.createPopup(conversation);
-                    popup.mount({ show: true });
-                    // case2: "Other supported": the button will be disabled, onClick cannot be called
-                  }}
-                  className="primary-outlined-button"
-                  disabled={!!disabledReason()}
-                >
-                  <CommentOutlined />
-                </Button>
-              ) : (
-                <Popconfirm
-                  title={
-                    conversationState === 'Not started'
-                      ? `Do you want to start a conversation with ${ownerFullname}?`
-                      : `Do you want to support the request of ${ownerFullname}?`
+                  const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+                  const me = employeeToUser(currentUser!);
+                  conversation.setParticipant(me);
+                  if (conversationState === 'Not started') {
+                    // 1. you start the conversation
+                    const another = employeeToUser(record.owner);
+                    conversation.subject = `[Support][Time off][id: ${record.id}][for: ${record.owner?.first_name} ${record.owner?.last_name}]`;
+                    conversation.photoUrl = getTopicUrl('timeoff');
+                    conversation.welcomeMessages = [
+                      `*${currentUser?.first_name} ${currentUser?.last_name}* _started_ this conversation`,
+                      `*${record.owner?.first_name} ${record.owner?.last_name}* _joined_ this conversation`,
+                    ];
+                    conversation.setParticipant(another, { notify: true });
+                    addParticipants(conversationId, [record.owner.id, currentUser!.id]);
+                  } else {
+                    await sendSystemMessage(conversationId, [
+                      `*${currentUser?.first_name} ${currentUser?.last_name}* _joined_ the conversation`,
+                    ]);
+                    // 2. the conversation is already started by the owner, you join
+                    addParticipants(conversationId, [currentUser!.id]);
                   }
-                  onConfirm={async () => {
-                    const conversation =
-                      window.talkSession?.getOrCreateConversation(conversationId);
-                    const me = employeeToUser(currentUser!);
-                    conversation.setParticipant(me);
-                    if (conversationState === 'Not started') {
-                      // 1. you start the conversation
-                      const another = employeeToUser(record.owner);
-                      conversation.subject = `[Support][Time off][id: ${record.id}][for: ${record.owner?.first_name} ${record.owner?.last_name}]`;
-                      conversation.photoUrl = getTopicUrl('timeoff');
-                      conversation.welcomeMessages = [
-                        `*${currentUser?.first_name} ${currentUser?.last_name}* _started_ this conversation`,
-                        `*${record.owner?.first_name} ${record.owner?.last_name}* _joined_ this conversation`,
-                      ];
-                      conversation.setParticipant(another, { notify: true });
-                      addParticipants(conversationId, [record.owner.id, currentUser!.id]);
-                    } else {
-                      await sendSystemMessage(conversationId, [
-                        `*${currentUser?.first_name} ${currentUser?.last_name}* _joined_ the conversation`,
-                      ]);
-                      // 2. the conversation is already started by the owner, you join
-                      addParticipants(conversationId, [currentUser!.id]);
-                    }
-                    const popup = window.talkSession?.createPopup(conversation);
-                    popup.mount({ show: true });
-                  }}
-                  disabled={!!disabledReason()}
+                  const popup = window.talkSession?.createPopup(conversation);
+                  popup.mount({ show: true });
+                }}
+                disabled={!!disabledReason()}
+              >
+                <Badge
+                  count={
+                    (conversationState === 'Need support' && (
+                      <div
+                        style={{
+                          display: 'inline-block',
+                          width: 10,
+                          height: 10,
+                          borderRadius: '50%',
+                          background: 'red',
+                        }}
+                      />
+                    )) ||
+                    0
+                  }
                 >
-                  <Badge
-                    count={
-                      (conversationState === 'Need support' && (
-                        <div
-                          style={{
-                            display: 'inline-block',
-                            width: 10,
-                            height: 10,
-                            borderRadius: '50%',
-                            background: 'red',
-                          }}
-                        />
-                      )) ||
-                      0
-                    }
-                  >
-                    <Button size="small" disabled={!!disabledReason()}>
-                      <CommentOutlined />
-                    </Button>
-                  </Badge>
-                </Popconfirm>
-              )}
-            </Tooltip>
-          </Space>
+                  <Button size="small" disabled={!!disabledReason()}>
+                    <CommentOutlined />
+                  </Button>
+                </Badge>
+              </Popconfirm>
+            )}
+          </Tooltip>
         );
       },
     },

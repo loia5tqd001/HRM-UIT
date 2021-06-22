@@ -201,11 +201,14 @@ body,
   border-bottom-width: 1.5px !important;
 }
 
-.outlined-button(@color) {
+.outlined-button(@color, @with-border: true) {
+  .border-color(@color) when(@with-border) {
+    border-color: @color;
+  }
   button, & {
     & {
       color: @color;
-      border-color: @color;
+      .border-color(@color);
     }
     &:hover,
     &:focus {
@@ -213,6 +216,9 @@ body,
       border-color: fade(@color, 70);
     }
   }
+}
+.success-outlined-button-without-border {
+  .outlined-button(@success-color, false);
 }
 .success-outlined-button {
   .outlined-button(@success-color);

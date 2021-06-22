@@ -180,10 +180,6 @@ export const Timeoff: React.FC = () => {
       width: 'min-content',
       search: false,
       render: (dom, record) => {
-        const conversationId = getConversationId('timeoff', record.id);
-        const participants = getParticipants(conversationId);
-        const conversationStarted = participants.length !== 0;
-
         return (
           <Space size="small">
             <Popconfirm
@@ -212,6 +208,23 @@ export const Timeoff: React.FC = () => {
                 <EnterOutlined />
               </Button>
             </Popconfirm>
+          </Space>
+        );
+      },
+    },
+    {
+      title: '',
+      fixed: 'right',
+      align: 'center',
+      width: 'min-content',
+      search: false,
+      render: (dom, record) => {
+        const conversationId = getConversationId('timeoff', record.id);
+        const participants = getParticipants(conversationId);
+        const conversationStarted = participants.length !== 0;
+
+        return (
+          <Space size="small">
             {conversationStarted ? (
               <Button
                 title={`Open the conversation`}
@@ -221,7 +234,7 @@ export const Timeoff: React.FC = () => {
                   const popup = window.talkSession?.createPopup(conversation);
                   popup.mount({ show: true });
                 }}
-                className="primary-outlined-button"
+                className="success-outlined-button-without-border"
               >
                 <CommentOutlined />
               </Button>
