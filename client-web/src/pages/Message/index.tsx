@@ -45,7 +45,7 @@ const ChatBox = React.memo(
           console.log('window.talkSession is not defined', window.talkSession);
           return;
         }
-        inboxRef.current = window.talkSession?.createInbox();
+        inboxRef.current = window.talkSession?.createInbox({ showFeedHeader: false });
         inboxRef.current.mount(talkjsContainerRef.current);
         inboxRef.current.on('conversationSelected', onConversationSelected);
       });
@@ -78,7 +78,8 @@ export const Message: React.FC = () => {
   const inboxRef = useRef<Talk.Inbox>();
   const peopleRef = useRef<API.Employee[]>();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectdPartnerId, setSelectedPartnerId] = useState<number>();
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [inTheConversation, setInTheConversation] = useState<number[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Talk.ConversationData | null>(
     null,
   );
@@ -123,16 +124,24 @@ export const Message: React.FC = () => {
                   onConfirm={async () => {
                     try {
                       if (!selectedConversation) return;
+                      setIsLeaving(true);
                       await leaveConversation(selectedConversation.id, currentUser!);
                       removeParticipants(selectedConversation.id, [currentUser!.id]);
                       message.success('Leave the conversation successfully!');
                     } catch (err) {
                       console.log(err);
                       message.error('Leave the conversation unsuccessfully!');
+                    } finally {
+                      setIsLeaving(false);
                     }
                   }}
                 >
-                  <Button danger icon={<ExportOutlined />}>
+                  <Button
+                    danger
+                    icon={<ExportOutlined />}
+                    style={{ background: 'transparent' }}
+                    loading={isLeaving}
+                  >
                     Leave
                   </Button>
                 </Popconfirm>
@@ -141,7 +150,7 @@ export const Message: React.FC = () => {
             <ChatBox
               inboxRef={inboxRef}
               onConversationSelected={({ others, conversation }) => {
-                setSelectedPartnerId(Number(others?.[0]?.id));
+                setInTheConversation(others?.map((it) => +it.id) || []);
                 setSelectedConversation(conversation);
               }}
             />
@@ -185,11 +194,12 @@ export const Message: React.FC = () => {
                     <Button
                       type="link"
                       style={{
-                        color: entity.id === selectdPartnerId ? undefined : 'inherit',
-                        fontSize: entity.id === selectdPartnerId ? '1.4em' : undefined,
-                        fontWeight: entity.id === selectdPartnerId ? 'bolder' : undefined,
-                        transform:
-                          entity.id === selectdPartnerId ? 'translateY(-0.2em)' : undefined,
+                        color: inTheConversation.includes(entity.id) ? undefined : 'inherit',
+                        fontSize: inTheConversation.includes(entity.id) ? '1.4em' : undefined,
+                        fontWeight: inTheConversation.includes(entity.id) ? 'bolder' : undefined,
+                        transform: inTheConversation.includes(entity.id)
+                          ? 'translateY(-0.2em)'
+                          : undefined,
                       }}
                       onClick={() => changeConversation(entity.id)}
                     >

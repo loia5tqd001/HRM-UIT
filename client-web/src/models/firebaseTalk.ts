@@ -16,8 +16,10 @@ type ParticipantId = number;
 type Storage = Record<ConversationId, ParticipantId[]>;
 
 export const getTopicUrl = (storageType: StorageType) => {
-  if (storageType === 'timeoff')
-    return 'https://prod.wp.cdn.aws.wfu.edu/sites/82/2017/04/Time-Off-OVER.jpg';
+  if (storageType === 'timeoff') return 'https://image.flaticon.com/icons/png/512/3125/3125800.png';
+  if (storageType === 'attendance')
+    return 'https://image.flaticon.com/icons/png/512/1935/1935453.png';
+  if (storageType === 'payslip') return 'https://image.flaticon.com/icons/png/512/871/871569.png';
   return '';
 };
 

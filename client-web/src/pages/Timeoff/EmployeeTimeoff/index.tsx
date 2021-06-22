@@ -167,7 +167,7 @@ export const Timeoff: React.FC = () => {
             return 'This is your request';
           }
           if (conversationState === 'Other supported') {
-            return 'There is another manager support this request';
+            return 'Other manager is supporting this request';
           }
           return false;
         };

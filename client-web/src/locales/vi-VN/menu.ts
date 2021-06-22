@@ -1,5 +1,6 @@
 export default {
   'menu.message': 'Tin nhắn',
+  'menu.account.message': 'Tin nhắn',
   'menu.message.conversation': 'Hội thoại',
   'menu.message.people': 'Mọi người',
   'menu.admin': 'Quản trị',
