@@ -1,9 +1,10 @@
 import { allEmployees } from '@/services/employee';
-import { MessageFilled } from '@ant-design/icons';
+import { leaveConversation } from '@/services/talk';
+import { ExportOutlined, MessageFilled } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProList from '@ant-design/pro-list';
-import { Button, Card, Spin } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import { Button, Card, message, Popconfirm, Spin } from 'antd';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 import Talk from 'talkjs';
 import type { ConversationSelectedEvent } from 'talkjs/all';
 import { FormattedMessage, useModel } from 'umi';
@@ -78,6 +79,12 @@ export const Message: React.FC = () => {
   const peopleRef = useRef<API.Employee[]>();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<number>();
+  const [selectedConversation, setSelectedConversation] = useState<Talk.ConversationData | null>(
+    null,
+  );
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+
+  console.log('>  ~ file: index.tsx ~ line 83 ~ selectedConversation', selectedConversation);
 
   const changeConversation = (otherId: number) => {
     setTimeout(() => setIsLoading(true), 0);
@@ -92,14 +99,78 @@ export const Message: React.FC = () => {
     inboxRef.current?.select(conversation);
   };
 
+  // const toConversation =
+  //   selectedConversation && window.talkSession.getOrCreateConversation(selectedConversation.id);
+  // console.log('>  ~ file: index.tsx ~ line 101 ~ toConversation', toConversation);
+
   return (
     <PageContainer title={false}>
       <Card style={{ fontFamily: 'inherit !important' }} className="card-shadow">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 30vw', gap: '1rem' }}>
           <Spin spinning={isLoading}>
+            {selectedConversation?.subject?.includes('[Support]') &&
+              selectedConversation.custom.support_to !== String(currentUser?.id) &&
+              selectedConversation.custom[`left__${currentUser?.id}`] !== 'true' && (
+                <div
+                  style={{
+                    height: 60,
+                    display: 'flex',
+                    alignItems: 'center',
+                    position: 'absolute',
+                    right: 80,
+                    top: 0,
+                  }}
+                >
+                  <Popconfirm
+                    title="You will be no longer in this conversation. Are you sure?"
+                    onConfirm={async () => {
+                      try {
+                        const toDeleteConversation = window.talkSession.getOrCreateConversation(
+                          selectedConversation.id,
+                        );
+                        // if (toDeleteConversation.custom?.left) {
+                        //   toDeleteConversation.setAttributes({
+                        //     custom: {
+                        //       left: JSON.stringify([
+                        //         ...JSON.parse(toDeleteConversation.custom.left),
+                        //         currentUser?.id,
+                        //       ]),
+                        //     },
+                        //   });
+                        // } else {
+                        //   console.log(toDeleteConversation);
+                        //   toDeleteConversation.setAttributes({
+                        //     custom: {
+                        //       left: `[${currentUser?.id}]`,
+                        //     },
+                        //   });
+                        // }
+                        await toDeleteConversation.sendMessage(
+                          `${currentUser?.first_name} ${currentUser?.last_name} left the group`,
+                          {},
+                        );
+                        await leaveConversation(selectedConversation.id, String(currentUser?.id));
+                        forceUpdate();
+                        message.success('Leave the conversation successfully!');
+                      } catch (err) {
+                        console.log(err);
+                        message.error('Leave the conversation unsuccessfully!');
+                      }
+                    }}
+                  >
+                    <Button danger icon={<ExportOutlined />}>
+                      Leave
+                    </Button>
+                  </Popconfirm>
+                </div>
+              )}
             <ChatBox
               inboxRef={inboxRef}
-              onConversationSelected={({ others }) => setSelectedId(Number(others?.[0].id))}
+              onConversationSelected={({ others, conversation, me }) => {
+                // console.log('>  ~ file: index.tsx ~ line 136 ~ me', me);
+                setSelectedId(Number(others?.[0]?.id));
+                setSelectedConversation(conversation);
+              }}
             />
           </Spin>
           <div className={styles.scrollableList}>
