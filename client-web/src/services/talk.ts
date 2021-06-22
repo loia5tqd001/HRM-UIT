@@ -40,9 +40,31 @@ export const TALKJS_SECRET_KEY = 'sk_test_qBe8ww5q6CN8mMWKZ8DPesRdp0siOjpq';
 //   });
 // }
 
-export async function leaveConversation(conversationId: string, userId: string) {
+export async function sendSystemMessage(conversationId: string, messages: string[]) {
+  return fetch(
+    `https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${TALKJS_SECRET_KEY}`,
+      },
+      body: JSON.stringify(messages.map((message) => ({ text: message, type: 'SystemMessage' }))),
+    },
+  ).then((res) => {
+    if (!res.ok) {
+      console.log(res)
+      throw new Error(res.statusText);
+    }
+  });
+}
+
+export async function leaveConversation(conversationId: string, user: API.Employee) {
+  await sendSystemMessage(conversationId, [
+    `*${user.first_name} ${user.last_name}* _left_ the conversation`,
+  ]);
   await fetch(
-    `https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}/participants/${userId}`,
+    `https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}/participants/${user.id}`,
     {
       method: 'DELETE',
       headers: {

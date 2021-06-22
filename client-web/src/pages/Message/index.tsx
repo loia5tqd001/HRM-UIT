@@ -123,14 +123,7 @@ export const Message: React.FC = () => {
                   onConfirm={async () => {
                     try {
                       if (!selectedConversation) return;
-                      const toDeleteConversation = window.talkSession?.getOrCreateConversation(
-                        selectedConversation.id,
-                      );
-                      await toDeleteConversation.sendMessage(
-                        `${currentUser?.first_name} ${currentUser?.last_name} left the conversation`,
-                        {},
-                      );
-                      await leaveConversation(selectedConversation.id, String(currentUser?.id));
+                      await leaveConversation(selectedConversation.id, currentUser!);
                       removeParticipants(selectedConversation.id, [currentUser!.id]);
                       message.success('Leave the conversation successfully!');
                     } catch (err) {

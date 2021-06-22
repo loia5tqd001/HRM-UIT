@@ -1,6 +1,7 @@
 import { getConversationId, getTopicUrl } from '@/models/firebaseTalk';
 import { employeeToUser } from '@/pages/Message';
 import { approveEmployeeTimeoff, rejectEmployeeTimeoff } from '@/services/employee';
+import { sendSystemMessage } from '@/services/talk';
 import { allTimeoffs } from '@/services/timeOff';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { filterData } from '@/utils/utils';
@@ -245,9 +246,7 @@ export const Timeoff: React.FC = () => {
                     // case1: "You are in": because you're already in the conversation, just open it
                     const conversation =
                       window.talkSession?.getOrCreateConversation(conversationId);
-                    const popup = window.talkSession?.createPopup(conversation, {
-                      keepOpen: false,
-                    });
+                    const popup = window.talkSession?.createPopup(conversation);
                     popup.mount({ show: true });
                     // case2: "Other supported": the button will be disabled, onClick cannot be called
                   }}
@@ -264,33 +263,30 @@ export const Timeoff: React.FC = () => {
                       : `Do you want to support the request of ${ownerFullname}?`
                   }
                   onConfirm={async () => {
-                    const me = employeeToUser(currentUser!);
                     const conversation =
                       window.talkSession?.getOrCreateConversation(conversationId);
+                    const me = employeeToUser(currentUser!);
+                    conversation.setParticipant(me);
                     if (conversationState === 'Not started') {
                       // 1. you start the conversation
                       const another = employeeToUser(record.owner);
                       conversation.subject = `[Support][Time off][id: ${record.id}][for: ${record.owner?.first_name} ${record.owner?.last_name}]`;
                       conversation.photoUrl = getTopicUrl('timeoff');
                       conversation.welcomeMessages = [
-                        `${currentUser?.first_name} ${currentUser?.last_name} started this conversation`,
+                        `*${currentUser?.first_name} ${currentUser?.last_name}* _started_ this conversation`,
+                        `*${record.owner?.first_name} ${record.owner?.last_name}* _joined_ this conversation`,
                       ];
                       conversation.setParticipant(another, { notify: true });
+                      addParticipants(conversationId, [record.owner.id, currentUser!.id]);
                     } else {
+                      await sendSystemMessage(conversationId, [
+                        `*${currentUser?.first_name} ${currentUser?.last_name}* _joined_ the conversation`,
+                      ]);
                       // 2. the conversation is already started by the owner, you join
+                      addParticipants(conversationId, [currentUser!.id]);
                     }
-                    conversation.setParticipant(me);
-                    const popup = window.talkSession?.createPopup(conversation, {
-                      keepOpen: false,
-                    });
+                    const popup = window.talkSession?.createPopup(conversation);
                     popup.mount({ show: true });
-                    popup.on('sendMessage', () => {
-                      if (conversationState === 'Not started') {
-                        addParticipants(conversationId, [record.owner.id, currentUser!.id]);
-                      } else {
-                        addParticipants(conversationId, [currentUser!.id]);
-                      }
-                    });
                   }}
                   disabled={!!disabledReason()}
                 >

@@ -6,7 +6,7 @@ import {
   cancelEmployeeTimeoff,
   createEmployeeTimeoff,
   getSchedule,
-  updateEmployeeTimeoff
+  updateEmployeeTimeoff,
 } from '@/services/employee';
 import { allHolidays } from '@/services/timeOff.holiday';
 import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
@@ -218,7 +218,7 @@ export const Timeoff: React.FC = () => {
                 size="small"
                 onClick={() => {
                   const conversation = window.talkSession?.getOrCreateConversation(conversationId);
-                  const popup = window.talkSession?.createPopup(conversation, { keepOpen: false });
+                  const popup = window.talkSession?.createPopup(conversation);
                   popup.mount({ show: true });
                 }}
                 className="primary-outlined-button"
@@ -234,14 +234,12 @@ export const Timeoff: React.FC = () => {
                   conversation.subject = `[Support][Time off][id: ${record.id}][for: ${currentUser?.first_name} ${currentUser?.last_name}]`;
                   conversation.photoUrl = getTopicUrl('timeoff');
                   conversation.setParticipant(me);
+                  addParticipants(conversationId, [currentUser!.id]);
                   conversation.welcomeMessages = [
-                    `${currentUser?.first_name} ${currentUser?.last_name} started this conversation`,
+                    `*${currentUser?.first_name} ${currentUser?.last_name}* _started_ this conversation`,
                   ];
-                  const popup = window.talkSession?.createPopup(conversation, {
-                    keepOpen: false,
-                  });
+                  const popup = window.talkSession?.createPopup(conversation);
                   popup.mount({ show: true });
-                  popup.on('sendMessage', () => addParticipants(conversationId, [currentUser!.id]));
                 }}
               >
                 <Button size="small">
