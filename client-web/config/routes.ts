@@ -34,8 +34,9 @@
       },
       {
         path: '/account/message',
-        redirect: '/message',
         name: 'message',
+        icon: 'message',
+        component: './Message',
       },
       {
         path: '/account',
@@ -48,7 +49,7 @@
     name: 'message',
     icon: 'message',
     hideInMenu: true,
-    component: './Message',
+    redirect: '/account/message',
   },
   {
     path: '/admin',

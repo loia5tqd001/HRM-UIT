@@ -11,6 +11,7 @@ import {
 import { allHolidays } from '@/services/timeOff.holiday';
 import { allTimeOffTypes } from '@/services/timeOff.timeOffType';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
+import { useTalkPopup } from '@/utils/talkPopup';
 import { filterData } from '@/utils/utils';
 import { CommentOutlined, EnterOutlined, PlusOutlined } from '@ant-design/icons';
 import { ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
@@ -50,6 +51,7 @@ export const Timeoff: React.FC = () => {
   });
 
   const { getParticipants, addParticipants } = useModel('firebaseTalk');
+  const { mountPopup } = useTalkPopup();
 
   useEffect(() => {
     allTimeOffTypes().then((fetchData) => setTimeoffTypes(fetchData));
@@ -232,8 +234,7 @@ export const Timeoff: React.FC = () => {
                 size="small"
                 onClick={() => {
                   const conversation = window.talkSession?.getOrCreateConversation(conversationId);
-                  const popup = window.talkSession?.createPopup(conversation);
-                  popup.mount({ show: true });
+                  mountPopup(conversation);
                 }}
                 className={
                   conversationSupported
@@ -258,8 +259,7 @@ export const Timeoff: React.FC = () => {
                       id: 'property.actions.started',
                     })}_ ${intl.formatMessage({ id: 'property.actions.thisConversation' })}`,
                   ];
-                  const popup = window.talkSession?.createPopup(conversation);
-                  popup.mount({ show: true });
+                  mountPopup(conversation);
                 }}
               >
                 <Button size="small">

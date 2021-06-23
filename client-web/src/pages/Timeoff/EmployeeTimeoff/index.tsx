@@ -4,6 +4,7 @@ import { approveEmployeeTimeoff, rejectEmployeeTimeoff } from '@/services/employ
 import { sendSystemMessage } from '@/services/talk';
 import { allTimeoffs } from '@/services/timeOff';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
+import { useTalkPopup } from '@/utils/talkPopup';
 import { filterData } from '@/utils/utils';
 import { CheckOutlined, CloseOutlined, CommentOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -31,6 +32,7 @@ export const Timeoff: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState!;
   const { getParticipants, addParticipants } = useModel('firebaseTalk');
+  const { mountPopup } = useTalkPopup();
 
   const onCrudOperation = useCallback(
     async (cb: () => Promise<any>, successMessage: string, errorMessage: string) => {
@@ -266,8 +268,8 @@ export const Timeoff: React.FC = () => {
                 onClick={() => {
                   // case1: "You are in": because you're already in the conversation, just open it
                   const conversation = window.talkSession?.getOrCreateConversation(conversationId);
-                  const popup = window.talkSession?.createPopup(conversation);
-                  popup.mount({ show: true });
+                  mountPopup(conversation);
+
                   // case2: "Other supported": the button will be disabled, onClick cannot be called
                 }}
                 className="success-outlined-button"
@@ -316,8 +318,7 @@ export const Timeoff: React.FC = () => {
                     // 2. the conversation is already started by the owner, you join
                     addParticipants(conversationId, [currentUser!.id]);
                   }
-                  const popup = window.talkSession?.createPopup(conversation);
-                  popup.mount({ show: true });
+                  mountPopup(conversation);
                 }}
                 disabled={!!disabledReason()}
               >
