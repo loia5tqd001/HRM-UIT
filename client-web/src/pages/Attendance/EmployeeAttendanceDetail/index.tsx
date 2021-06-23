@@ -31,7 +31,7 @@ import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { Access, FormattedMessage, history, Link, useAccess, useIntl, useParams } from 'umi';
 import { toolbarButtons } from '../EmployeeAttendance';
-import { renderCheckInImage } from '../MyAttendance';
+import { OpenCoordinatesInNewTab, renderCheckInImage } from '../MyAttendance';
 
 type RecordType = API.AttendanceRecord;
 
@@ -93,22 +93,26 @@ const EmployeeAttendanceDetail: React.FC = () => {
       title: intl.formatMessage({ id: 'property.check_in_location' }),
       key: 'check_in_location',
       dataIndex: 'check_in_location',
-      renderText: (check_in_location) => {
+      renderText: (check_in_location, record) => {
         if (!check_in_location) return '-';
 
         if (check_in_location === 'Outside')
           return (
             <Tooltip title={intl.formatMessage({ id: 'property.attendance.outside.long' })}>
-              <Tag icon={<EnvironmentOutlined />} color="error">
-                {intl.formatMessage({ id: 'property.attendance.outside.short' })}
-              </Tag>
+              <OpenCoordinatesInNewTab lat={record.check_in_lat} lng={record.check_in_lng}>
+                <Tag icon={<EnvironmentOutlined />} color="error">
+                  {intl.formatMessage({ id: 'property.attendance.outside.short' })}
+                </Tag>
+              </OpenCoordinatesInNewTab>
             </Tooltip>
           );
         if (check_in_location)
           return (
-            <Tag icon={<EnvironmentOutlined />} color="green">
-              {check_in_location}
-            </Tag>
+            <OpenCoordinatesInNewTab lat={record.check_in_lat} lng={record.check_in_lng}>
+              <Tag icon={<EnvironmentOutlined />} color="green">
+                {check_in_location}
+              </Tag>
+            </OpenCoordinatesInNewTab>
           );
         return '-';
       },
@@ -142,22 +146,26 @@ const EmployeeAttendanceDetail: React.FC = () => {
       title: intl.formatMessage({ id: 'property.check_out_location' }),
       key: 'check_out_location',
       dataIndex: 'check_out_location',
-      renderText: (check_out_location) => {
+      renderText: (check_out_location, record) => {
         if (!check_out_location) return '-';
 
         if (check_out_location === 'Outside')
           return (
             <Tooltip title={intl.formatMessage({ id: 'property.attendance.outside.long' })}>
-              <Tag icon={<EnvironmentOutlined />} color="error">
-                {intl.formatMessage({ id: 'property.attendance.outside.short' })}
-              </Tag>
+              <OpenCoordinatesInNewTab lat={record.check_out_lat} lng={record.check_out_lng}>
+                <Tag icon={<EnvironmentOutlined />} color="error">
+                  {intl.formatMessage({ id: 'property.attendance.outside.short' })}
+                </Tag>
+              </OpenCoordinatesInNewTab>
             </Tooltip>
           );
         if (check_out_location)
           return (
-            <Tag icon={<EnvironmentOutlined />} color="green">
-              {check_out_location}
-            </Tag>
+            <OpenCoordinatesInNewTab lat={record.check_out_lat} lng={record.check_out_lng}>
+              <Tag icon={<EnvironmentOutlined />} color="green">
+                {check_out_location}
+              </Tag>
+            </OpenCoordinatesInNewTab>
           );
         return '-';
       },
@@ -430,6 +438,8 @@ const EmployeeAttendanceDetail: React.FC = () => {
               check_in_location:
                 first_check_in?.check_in_time &&
                 (first_check_in?.check_in_outside ? 'Outside' : first_check_in?.location),
+              check_in_lat: first_check_in.check_in_lat,
+              check_in_lng: first_check_in.check_in_lng,
               check_in_image: first_check_in?.check_in_image,
               check_in_face_authorized: first_check_in?.check_in_face_authorized,
               check_out: last_check_out?.check_out_time,
@@ -437,6 +447,8 @@ const EmployeeAttendanceDetail: React.FC = () => {
               check_out_location:
                 last_check_out?.check_out_time &&
                 (last_check_out?.check_out_outside ? 'Outside' : last_check_out?.location),
+              check_out_lat: last_check_out.check_out_lat,
+              check_out_lng: last_check_out.check_out_lng,
               check_out_image: last_check_out?.check_out_image,
               check_out_face_authorized: last_check_out?.check_out_face_authorized,
               hours_work_by_schedule: it.schedule_hours,

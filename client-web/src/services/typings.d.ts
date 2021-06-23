@@ -504,11 +504,15 @@ declare namespace API {
     check_in: moment.Moment | undefined;
     check_in_note: string | undefined;
     check_in_location: 'Outside' | Location['name'] | undefined;
+    check_in_lat: number;
+    check_in_lng: number;
     check_in_image: string;
     check_in_face_authorized: null | boolean;
     check_out: moment.Moment | undefined;
     check_out_note: string | undefined;
     check_out_location: 'Outside' | Location['name'] | undefined;
+    check_out_lat: number;
+    check_out_lng: number;
     check_out_image: string;
     check_out_face_authorized: string;
     hours_work_by_schedule: number;
