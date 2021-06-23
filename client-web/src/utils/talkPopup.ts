@@ -15,7 +15,7 @@ export const unmountPopup = () => {
 };
 
 export const useTalkPopup = () => {
-  useEffect(() => () => unmountPopup()); // unmount Popup everywhen navigating to another page
+  useEffect(() => () => unmountPopup(), []); // unmount Popup everywhen navigating to another page
 
   return { mountPopup };
 };
