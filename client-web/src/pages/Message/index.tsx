@@ -16,6 +16,8 @@ declare global {
   }
 }
 
+const LAST_SELECTED_CONVERSATIONID_STORAGE_KEY = '3432432499832940382904';
+
 export const employeeToUser = (employee: API.Employee): Talk.User => {
   return new Talk.User({
     id: employee.id,
@@ -45,7 +47,10 @@ const ChatBox = React.memo(
           console.log('window.talkSession is not defined', window.talkSession);
           return;
         }
-        inboxRef.current = window.talkSession?.createInbox({ showFeedHeader: false });
+        inboxRef.current = window.talkSession?.createInbox({
+          showFeedHeader: false,
+          selected: localStorage.getItem(LAST_SELECTED_CONVERSATIONID_STORAGE_KEY),
+        });
         inboxRef.current.mount(talkjsContainerRef.current);
         inboxRef.current.on('conversationSelected', onConversationSelected);
       });
@@ -159,6 +164,9 @@ export const Message: React.FC = () => {
               onConversationSelected={({ others, conversation }) => {
                 setInTheConversation(others?.map((it) => +it.id) || []);
                 setSelectedConversation(conversation);
+                if (conversation) {
+                  localStorage.setItem(LAST_SELECTED_CONVERSATIONID_STORAGE_KEY, conversation.id);
+                }
               }}
             />
           </Spin>
