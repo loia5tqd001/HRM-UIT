@@ -222,25 +222,30 @@ export const Timeoff: React.FC = () => {
         const conversationId = getConversationId('timeoff', record.id);
         const participants = getParticipants(conversationId);
         const conversationStarted = participants.length !== 0;
+        const conversationSupported = participants.length > 1;
 
         return (
           <Space size="small">
             {conversationStarted ? (
               <Button
-                title={`Open the conversation`}
+                title={intl.formatMessage({ id: 'property.actions.openTheConversation' })}
                 size="small"
                 onClick={() => {
                   const conversation = window.talkSession?.getOrCreateConversation(conversationId);
                   const popup = window.talkSession?.createPopup(conversation);
                   popup.mount({ show: true });
                 }}
-                className="success-outlined-button-without-border"
+                className={
+                  conversationSupported
+                    ? 'success-outlined-button'
+                    : 'success-outlined-button-without-border'
+                }
               >
                 <CommentOutlined />
               </Button>
             ) : (
               <Popconfirm
-                title="Do you need support for this request?"
+                title={intl.formatMessage({ id: 'property.actions.doYouNeedSupport' })}
                 onConfirm={async () => {
                   const me = employeeToUser(currentUser!);
                   const conversation = window.talkSession?.getOrCreateConversation(conversationId);
@@ -249,7 +254,9 @@ export const Timeoff: React.FC = () => {
                   conversation.setParticipant(me);
                   addParticipants(conversationId, [currentUser!.id]);
                   conversation.welcomeMessages = [
-                    `*${currentUser?.first_name} ${currentUser?.last_name}* _started_ this conversation`,
+                    `*${currentUser?.first_name} ${currentUser?.last_name}* _${intl.formatMessage({
+                      id: 'property.actions.started',
+                    })}_ ${intl.formatMessage({ id: 'property.actions.thisConversation' })}`,
                   ];
                   const popup = window.talkSession?.createPopup(conversation);
                   popup.mount({ show: true });

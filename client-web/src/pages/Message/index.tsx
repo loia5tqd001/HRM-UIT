@@ -7,7 +7,7 @@ import { Button, Card, message, Popconfirm, Spin } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import Talk from 'talkjs';
 import type { ConversationSelectedEvent } from 'talkjs/all';
-import { FormattedMessage, useModel } from 'umi';
+import { FormattedMessage, useIntl, useModel } from 'umi';
 import styles from './index.less';
 
 declare global {
@@ -89,6 +89,7 @@ export const Message: React.FC = () => {
     selectedConversation && getParticipants(selectedConversation.id)[0] === currentUser?.id;
   const youLeftTheConversation =
     selectedConversation && !getParticipants(selectedConversation.id).includes(currentUser!.id);
+  const intl = useIntl();
 
   const changeConversation = (otherId: number) => {
     setTimeout(() => setIsLoading(true), 0);
@@ -120,17 +121,23 @@ export const Message: React.FC = () => {
                 }}
               >
                 <Popconfirm
-                  title="You will be no longer in this conversation. Are you sure?"
+                  title={intl.formatMessage({
+                    id: 'property.actions.youWillBeNoLongerInThisConversation',
+                  })}
                   onConfirm={async () => {
                     try {
                       if (!selectedConversation) return;
                       setIsLeaving(true);
                       await leaveConversation(selectedConversation.id, currentUser!);
                       removeParticipants(selectedConversation.id, [currentUser!.id]);
-                      message.success('Leave the conversation successfully!');
+                      message.success(
+                        intl.formatMessage({ id: 'property.actions.leaveSuccessfully' }),
+                      );
                     } catch (err) {
                       console.log(err);
-                      message.error('Leave the conversation unsuccessfully!');
+                      message.error(
+                        intl.formatMessage({ id: 'property.actions.leaveUnsuccessfully' }),
+                      );
                     } finally {
                       setIsLeaving(false);
                     }
@@ -139,10 +146,10 @@ export const Message: React.FC = () => {
                   <Button
                     danger
                     icon={<ExportOutlined />}
-                    style={{ background: 'transparent' }}
+                    style={{ background: 'transparent', textTransform: 'capitalize' }}
                     loading={isLeaving}
                   >
-                    Leave
+                    {intl.formatMessage({ id: 'property.actions.leave' })}
                   </Button>
                 </Popconfirm>
               </div>

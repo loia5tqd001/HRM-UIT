@@ -235,21 +235,25 @@ export const Timeoff: React.FC = () => {
         const ownerFullname = `${record.owner.first_name} ${record.owner.last_name}`;
 
         const getTooltip = () => {
-          if (currentUser?.id === record.owner.id) return 'This is your request';
-          if (conversationState === 'Not started') return 'Start a conversation for this request';
-          if (conversationState === 'Need support') return 'This request needs support';
-          if (conversationState === 'You are in') return 'Open your conversation';
+          if (currentUser?.id === record.owner.id)
+            return intl.formatMessage({ id: 'property.actions.thisIsYourRequest' });
+          if (conversationState === 'Not started')
+            return intl.formatMessage({ id: 'property.actions.startAConversation' });
+          if (conversationState === 'Need support')
+            return intl.formatMessage({ id: 'property.actions.thisRequestNeedsSupport' });
+          if (conversationState === 'You are in')
+            return intl.formatMessage({ id: 'property.actions.openTheConversation' });
           if (conversationState === 'Other supported')
-            return 'Other manager is supporting this request';
+            return intl.formatMessage({ id: 'property.actions.otherManagerIsSupporting' });
           return false;
         };
 
         const disabledReason = () => {
           if (currentUser?.id === record.owner.id) {
-            return 'This is your request';
+            return intl.formatMessage({ id: 'property.actions.thisIsYourRequest' });
           }
           if (conversationState === 'Other supported') {
-            return 'Other manager is supporting this request';
+            return intl.formatMessage({ id: 'property.actions.otherManagerIsSupporting' });
           }
           return false;
         };
@@ -266,7 +270,7 @@ export const Timeoff: React.FC = () => {
                   popup.mount({ show: true });
                   // case2: "Other supported": the button will be disabled, onClick cannot be called
                 }}
-                className="success-outlined-button-without-border"
+                className="success-outlined-button"
                 disabled={!!disabledReason()}
               >
                 <CommentOutlined />
@@ -275,8 +279,12 @@ export const Timeoff: React.FC = () => {
               <Popconfirm
                 title={
                   conversationState === 'Not started'
-                    ? `Do you want to start a conversation with ${ownerFullname}?`
-                    : `Do you want to support the request of ${ownerFullname}?`
+                    ? `${intl.formatMessage({
+                        id: 'property.actions.doYouWantToStartConversation',
+                      })} ${ownerFullname}?`
+                    : `${intl.formatMessage({
+                        id: 'property.actions.doYouWantToSupportTheRequest',
+                      })} ${ownerFullname}?`
                 }
                 onConfirm={async () => {
                   const conversation = window.talkSession?.getOrCreateConversation(conversationId);
@@ -288,14 +296,22 @@ export const Timeoff: React.FC = () => {
                     conversation.subject = `[Support][Time off][id: ${record.id}][for: ${record.owner?.first_name} ${record.owner?.last_name}]`;
                     conversation.photoUrl = getTopicUrl('timeoff');
                     conversation.welcomeMessages = [
-                      `*${currentUser?.first_name} ${currentUser?.last_name}* _started_ this conversation`,
-                      `*${record.owner?.first_name} ${record.owner?.last_name}* _joined_ this conversation`,
+                      `*${currentUser?.first_name} ${currentUser?.last_name}* _${intl.formatMessage(
+                        { id: 'property.actions.started' },
+                      )}_ this conversation`,
+                      `*${record.owner?.first_name} ${
+                        record.owner?.last_name
+                      }* _${intl.formatMessage({
+                        id: 'property.actions.joined',
+                      })}_ ${intl.formatMessage({ id: 'property.actions.theConversation' })}`,
                     ];
                     conversation.setParticipant(another, { notify: true });
                     addParticipants(conversationId, [record.owner.id, currentUser!.id]);
                   } else {
                     await sendSystemMessage(conversationId, [
-                      `*${currentUser?.first_name} ${currentUser?.last_name}* _joined_ the conversation`,
+                      `*${currentUser?.first_name} ${currentUser?.last_name}* _${intl.formatMessage(
+                        { id: 'property.actions.joined' },
+                      )}_ ${intl.formatMessage({ id: 'property.actions.theConversation' })}`,
                     ]);
                     // 2. the conversation is already started by the owner, you join
                     addParticipants(conversationId, [currentUser!.id]);
@@ -321,7 +337,15 @@ export const Timeoff: React.FC = () => {
                     0
                   }
                 >
-                  <Button size="small" disabled={!!disabledReason()}>
+                  <Button
+                    className={
+                      conversationState === 'Need support'
+                        ? 'success-outlined-button-without-border'
+                        : undefined
+                    }
+                    size="small"
+                    disabled={!!disabledReason()}
+                  >
                     <CommentOutlined />
                   </Button>
                 </Badge>

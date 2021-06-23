@@ -1,4 +1,4 @@
-import type Talk from 'talkjs';
+import { getIntl } from 'umi';
 
 export const TALKJS_APP_ID = 't6rbhbrZ';
 export const TALKJS_SECRET_KEY = 'sk_test_qBe8ww5q6CN8mMWKZ8DPesRdp0siOjpq';
@@ -53,7 +53,7 @@ export async function sendSystemMessage(conversationId: string, messages: string
     },
   ).then((res) => {
     if (!res.ok) {
-      console.log(res)
+      console.log(res);
       throw new Error(res.statusText);
     }
   });
@@ -61,7 +61,11 @@ export async function sendSystemMessage(conversationId: string, messages: string
 
 export async function leaveConversation(conversationId: string, user: API.Employee) {
   await sendSystemMessage(conversationId, [
-    `*${user.first_name} ${user.last_name}* _left_ the conversation`,
+    `*${user.first_name} ${user.last_name}* _${getIntl().formatMessage({
+      id: 'property.actions.left',
+    })}_ ${getIntl().formatMessage({
+      id: 'property.actions.theConversation',
+    })}`,
   ]);
   await fetch(
     `https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}/participants/${user.id}`,
