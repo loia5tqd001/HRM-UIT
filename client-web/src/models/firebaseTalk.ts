@@ -26,6 +26,15 @@ export const getTopicUrl = (storageType: StorageType) => {
 export const getConversationId = (storageType: StorageType, ticketId: TicketId) =>
   `${storageType}__${ticketId}`;
 
+export type ConversationState = 'Not started' | 'Need support' | 'You are in' | 'Other supported';
+
+export const mapConversationStateToImportance: Record<ConversationState, number> = {
+  'Need support': 0,
+  'You are in': 1,
+  'Other supported': 2,
+  'Not started': 3,
+};
+
 export default function useFirebaseTalk() {
   const [storage, setStorage] = useState<Storage>();
 
@@ -70,9 +79,28 @@ export default function useFirebaseTalk() {
     );
   };
 
+  const getConversationState = (conversationId: string, userId: number): ConversationState => {
+    const participants = getParticipants(conversationId);
+    if (participants.length === 0) return 'Not started';
+    if (participants.length === 1) return 'Need support';
+    if (participants.includes(userId)) return 'You are in';
+    return 'Other supported';
+  };
+
+  const conversationSorter = <T extends { id: number }>(a: T, b: T, userId: number) => {
+    const getScore = (record: T) => {
+      const conversationId = getConversationId('timeoff', record.id);
+      const conversationState = getConversationState(conversationId, userId);
+      return mapConversationStateToImportance[conversationState];
+    };
+    return getScore(a) - getScore(b);
+  };
+
   return {
     getParticipants,
     addParticipants,
     removeParticipants,
+    getConversationState,
+    conversationSorter,
   };
 }

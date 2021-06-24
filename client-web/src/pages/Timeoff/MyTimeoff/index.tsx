@@ -50,7 +50,7 @@ export const Timeoff: React.FC = () => {
     id: 'property.timeoffRequest',
   });
 
-  const { getParticipants, addParticipants } = useModel('firebaseTalk');
+  const { addParticipants, getConversationState, conversationSorter } = useModel('firebaseTalk');
   const { mountPopup } = useTalkPopup();
 
   useEffect(() => {
@@ -220,15 +220,14 @@ export const Timeoff: React.FC = () => {
       align: 'center',
       width: 'min-content',
       search: false,
+      sorter: (a, b) => conversationSorter(a, b, currentUser!.id),
       render: (dom, record) => {
         const conversationId = getConversationId('timeoff', record.id);
-        const participants = getParticipants(conversationId);
-        const conversationStarted = participants.length !== 0;
-        const conversationSupported = participants.length > 1;
+        const conversationState = getConversationState(conversationId, currentUser!.id);
 
         return (
           <Space size="small">
-            {conversationStarted ? (
+            {conversationState !== 'Not started' ? (
               <Button
                 title={intl.formatMessage({ id: 'property.actions.openTheConversation' })}
                 size="small"
@@ -237,9 +236,9 @@ export const Timeoff: React.FC = () => {
                   mountPopup(conversation);
                 }}
                 className={
-                  conversationSupported
-                    ? 'success-outlined-button'
-                    : 'success-outlined-button-without-border'
+                  conversationState === 'Need support'
+                    ? 'success-outlined-button-without-border'
+                    : 'success-outlined-button'
                 }
               >
                 <CommentOutlined />

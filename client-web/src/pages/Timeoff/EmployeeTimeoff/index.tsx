@@ -31,7 +31,7 @@ export const Timeoff: React.FC = () => {
   const tableSettings = useTableSettings();
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState!;
-  const { getParticipants, addParticipants } = useModel('firebaseTalk');
+  const { conversationSorter, addParticipants, getConversationState } = useModel('firebaseTalk');
   const { mountPopup } = useTalkPopup();
 
   const onCrudOperation = useCallback(
@@ -222,18 +222,10 @@ export const Timeoff: React.FC = () => {
       width: 'min-content',
       align: 'center',
       search: false,
+      sorter: (a, b) => conversationSorter(a, b, currentUser!.id),
       render: (dom, record) => {
         const conversationId = getConversationId('timeoff', record.id);
-        const participants = getParticipants(conversationId);
-
-        type ConversationState = 'Not started' | 'Need support' | 'You are in' | 'Other supported';
-        const getConversationState = (): ConversationState => {
-          if (participants.length === 0) return 'Not started';
-          if (participants.length === 1) return 'Need support';
-          if (participants.includes(currentUser!.id)) return 'You are in';
-          return 'Other supported';
-        };
-        const conversationState = getConversationState();
+        const conversationState = getConversationState(conversationId, currentUser!.id);
         const ownerFullname = `${record.owner.first_name} ${record.owner.last_name}`;
 
         const getTooltip = () => {
