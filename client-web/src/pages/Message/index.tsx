@@ -18,7 +18,7 @@ declare global {
 
 const LAST_SELECTED_CONVERSATIONID_STORAGE_KEY = '3432432499832940382904';
 
-export const employeeToUser = (employee: API.Employee): Talk.User => {
+export const employeeToUser = (employee: API.EmployeeLite): Talk.User => {
   return new Talk.User({
     id: employee.id,
     name: `${employee.first_name} ${employee.last_name}`,

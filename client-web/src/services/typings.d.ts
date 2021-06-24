@@ -464,7 +464,7 @@ declare namespace API {
 
   interface TimeoffRequest {
     id: number;
-    owner: Employee;
+    owner: EmployeeLite;
     start_date: moment.Moment | string;
     end_date: moment.Moment | string;
     time_off_type: string;
@@ -496,10 +496,12 @@ declare namespace API {
   //   edited_to: number; // edit "actual hour" to xx hours
   //   status: 'pending' | 'approved' | 'confirmed';
   // }
+  type EmployeeLite = Pick<Employee, 'avatar' | 'first_name' | 'last_name' | 'email' | 'id'>;
+
   interface AttendanceRecord<Type extends 'AttendanceDay' | 'Tracking' = 'AttendanceDay'> {
     id: number;
     type: Type;
-    owner: number;
+    owner: EmployeeLite;
     date: Type extends 'AttendanceDay' ? moment.Moment : undefined; // undefined when Tracking
     check_in: moment.Moment | undefined;
     check_in_note: string | undefined;
@@ -539,7 +541,7 @@ declare namespace API {
     schedule_hours: number;
     attendance: {
       id: number;
-      owner: number;
+      owner: EmployeeLite;
       date: string | moment.Moment;
       actual_work_hours: number;
       actual_hours_modified: boolean;
@@ -547,8 +549,8 @@ declare namespace API {
       ot_work_hours: number;
       ot_hours_modified: boolean;
       ot_hours_modification_note: string | null;
-      reviewed_by: number | null;
-      confirmed_by: number | null;
+      reviewed_by: EmployeeLite | null;
+      confirmed_by: EmployeeLite | null;
       status: 'Pending' | 'Approved' | 'Rejected' | 'Confirmed' | undefined;
     }[];
   }
@@ -646,7 +648,7 @@ declare namespace API {
 
   interface Payslip {
     id: number;
-    owner: Employee['id'];
+    owner: EmployeeLite;
     payroll: Payroll['id'];
     values: {
       num_value: null | number;

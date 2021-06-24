@@ -1,6 +1,10 @@
+import { getConversationId, getTopicUrl } from '@/models/firebaseTalk';
+import { employeeToUser } from '@/pages/Message';
 import { allPeriods } from '@/services/attendance';
 import { editActual, editOvertime, readAttendances, readEmployee } from '@/services/employee';
+import { sendSystemMessage } from '@/services/talk';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
+import { mountPopup } from '@/utils/talkPopup';
 import { formatDurationHm } from '@/utils/utils';
 import {
   CommentOutlined,
@@ -20,6 +24,7 @@ import {
   Form,
   Menu,
   message,
+  Popconfirm,
   Select,
   Space,
   Tag,
@@ -29,7 +34,7 @@ import {
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import { Access, FormattedMessage, history, Link, useAccess, useIntl, useParams } from 'umi';
+import { Access, FormattedMessage, history, useAccess, useIntl, useModel, useParams } from 'umi';
 import { toolbarButtons } from '../EmployeeAttendance';
 import { OpenCoordinatesInNewTab, renderCheckInImage } from '../MyAttendance';
 
@@ -52,6 +57,10 @@ const EmployeeAttendanceDetail: React.FC = () => {
   const { period } = history.location.query as any;
   const [periods, setPeriods] = useState<API.Period[]>();
 
+  const { addParticipants, getConversationState, conversationSorter } = useModel('firebaseTalk');
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState!;
+
   useEffect(() => {
     allPeriods()
       .then((fetchData) => fetchData.reverse())
@@ -67,6 +76,13 @@ const EmployeeAttendanceDetail: React.FC = () => {
   }, [id]);
 
   const columns: ProColumns<RecordType>[] = [
+    {
+      title: 'Id',
+      dataIndex: 'id',
+      fixed: 'left',
+      width: 'max-content',
+      renderText: (recordId, record) => (record.type === 'AttendanceDay' ? recordId : ' '),
+    },
     {
       title: intl.formatMessage({ id: 'property.date' }),
       key: 'date',
@@ -328,15 +344,142 @@ const EmployeeAttendanceDetail: React.FC = () => {
                 <EditOutlined />
               </Button>
             </Dropdown>
-            <Link to={'/message'}>
-              <Badge count={Math.round(Math.random())}>
-                <Button title={`Khieu nai`} size="small">
-                  <CommentOutlined />
-                </Button>
-              </Badge>
-            </Link>
           </Space>
         ) : null,
+    },
+    {
+      title: '',
+      fixed: 'right',
+      width: 'min-content',
+      align: 'center',
+      search: false,
+      sorter: (a, b) => conversationSorter(a, b, currentUser!.id),
+      render: (dom, record) => {
+        if (record.type !== 'AttendanceDay') return null;
+
+        const conversationId = getConversationId('attendance', record.id);
+        const conversationState = getConversationState(conversationId, currentUser!.id);
+        const ownerFullname = `${record.owner.first_name} ${record.owner.last_name}`;
+
+        const getTooltip = () => {
+          if (currentUser?.id === record.owner.id)
+            return intl.formatMessage({ id: 'property.actions.thisIsYourRequest' });
+          if (conversationState === 'Not started')
+            return intl.formatMessage({ id: 'property.actions.startAConversation' });
+          if (conversationState === 'Need support')
+            return intl.formatMessage({ id: 'property.actions.thisRequestNeedsSupport' });
+          if (conversationState === 'You are in')
+            return intl.formatMessage({ id: 'property.actions.openTheConversation' });
+          if (conversationState === 'Other supported')
+            return intl.formatMessage({ id: 'property.actions.otherManagerIsSupporting' });
+          return false;
+        };
+
+        const disabledReason = () => {
+          if (currentUser?.id === record.owner.id) {
+            return intl.formatMessage({ id: 'property.actions.thisIsYourRequest' });
+          }
+          if (conversationState === 'Other supported') {
+            return intl.formatMessage({ id: 'property.actions.otherManagerIsSupporting' });
+          }
+          return false;
+        };
+
+        return (
+          <Tooltip title={getTooltip()}>
+            {conversationState === 'You are in' || conversationState === 'Other supported' ? (
+              <Button
+                size="small"
+                onClick={() => {
+                  // case1: "You are in": because you're already in the conversation, just open it
+                  const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+                  mountPopup(conversation);
+
+                  // case2: "Other supported": the button will be disabled, onClick cannot be called
+                }}
+                className="success-outlined-button"
+                disabled={!!disabledReason()}
+              >
+                <CommentOutlined />
+              </Button>
+            ) : (
+              <Popconfirm
+                title={
+                  conversationState === 'Not started'
+                    ? `${intl.formatMessage({
+                        id: 'property.actions.doYouWantToStartConversation',
+                      })} ${ownerFullname}?`
+                    : `${intl.formatMessage({
+                        id: 'property.actions.doYouWantToSupportTheRequest',
+                      })} ${ownerFullname}?`
+                }
+                onConfirm={async () => {
+                  const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+                  const me = employeeToUser(currentUser!);
+                  conversation.setParticipant(me);
+                  if (conversationState === 'Not started') {
+                    // 1. you start the conversation
+                    const another = employeeToUser(record.owner);
+                    conversation.subject = `[Support][Attendance][id: ${record.id}][for: ${record.owner?.first_name} ${record.owner?.last_name}]`;
+                    conversation.photoUrl = getTopicUrl('attendance');
+                    conversation.welcomeMessages = [
+                      `*${currentUser?.first_name} ${currentUser?.last_name}* _${intl.formatMessage(
+                        { id: 'property.actions.started' },
+                      )}_ this conversation`,
+                      `*${record.owner?.first_name} ${
+                        record.owner?.last_name
+                      }* _${intl.formatMessage({
+                        id: 'property.actions.joined',
+                      })}_ ${intl.formatMessage({ id: 'property.actions.theConversation' })}`,
+                    ];
+                    conversation.setParticipant(another, { notify: true });
+                    addParticipants(conversationId, [record.owner.id, currentUser!.id]);
+                  } else {
+                    await sendSystemMessage(conversationId, [
+                      `*${currentUser?.first_name} ${currentUser?.last_name}* _${intl.formatMessage(
+                        { id: 'property.actions.joined' },
+                      )}_ ${intl.formatMessage({ id: 'property.actions.theConversation' })}`,
+                    ]);
+                    // 2. the conversation is already started by the owner, you join
+                    addParticipants(conversationId, [currentUser!.id]);
+                  }
+                  mountPopup(conversation);
+                }}
+                disabled={!!disabledReason()}
+              >
+                <Badge
+                  count={
+                    (conversationState === 'Need support' && (
+                      <div
+                        style={{
+                          display: 'inline-block',
+                          width: 10,
+                          height: 10,
+                          borderRadius: '50%',
+                          background: 'red',
+                        }}
+                      />
+                    )) ||
+                    0
+                  }
+                >
+                  <Button
+                    className={
+                      conversationState === 'Need support'
+                        ? 'success-outlined-button-without-border'
+                        : undefined
+                    }
+                    size="small"
+                    disabled={!!disabledReason()}
+                  >
+                    <CommentOutlined />
+                  </Button>
+                </Badge>
+              </Popconfirm>
+            )}
+          </Tooltip>
+        );
+      },
     },
   ];
 
@@ -452,10 +595,10 @@ const EmployeeAttendanceDetail: React.FC = () => {
               check_out_image: last_check_out?.check_out_image,
               check_out_face_authorized: last_check_out?.check_out_face_authorized,
               hours_work_by_schedule: it.schedule_hours,
-              children: it.tracking_data?.map((x) => {
+              children: it.tracking_data?.map((x, index) => {
                 return {
                   ...x,
-                  id: x.check_in_time,
+                  id: `${it.id}_${index}`,
                   date: undefined,
                   check_in: x.check_in_time,
                   check_in_location:

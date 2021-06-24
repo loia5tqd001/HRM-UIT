@@ -1,9 +1,12 @@
+import { getConversationId, getTopicUrl } from '@/models/firebaseTalk';
+import { employeeToUser } from '@/pages/Message';
 import { getAppConfig } from '@/services/appConfig';
 import { allPeriods, attendanceHelper } from '@/services/attendance';
 import { detectFaces } from '@/services/auth';
 import { checkIn, checkOut, readAttendances } from '@/services/employee';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
+import { mountPopup } from '@/utils/talkPopup';
 import { formatDurationHm } from '@/utils/utils';
 import {
   CameraOutlined,
@@ -20,7 +23,18 @@ import { ModalForm, ProFormTextArea } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Alert, Badge, Button, message, notification, Select, Space, Tag, Tooltip } from 'antd';
+import {
+  Alert,
+  Badge,
+  Button,
+  message,
+  notification,
+  Popconfirm,
+  Select,
+  Space,
+  Tag,
+  Tooltip,
+} from 'antd';
 import Avatar from 'antd/lib/avatar/avatar';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
@@ -118,6 +132,7 @@ const MyAttendance: React.FC = () => {
   const capturedFaceBlobRef = useRef<Blob>();
   const [capturing, setCapturing] = useState(false);
   const [captureValid, setCaptureValid] = useState(false);
+  const { addParticipants, getConversationState, conversationSorter } = useModel('firebaseTalk');
 
   const nextStepTranslate = {
     'Clock in': intl.formatMessage({ id: 'property.check_in' }),
@@ -138,6 +153,7 @@ const MyAttendance: React.FC = () => {
   }, []);
 
   const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState!;
   const { id } = initialState!.currentUser!;
 
   const clearUpCamera = useCallback(() => {
@@ -200,6 +216,13 @@ const MyAttendance: React.FC = () => {
   }, [clockButtonDisabled, clockButtonLoading, appConfig.data]);
 
   const columns: ProColumns<RecordType>[] = [
+    {
+      title: 'Id',
+      dataIndex: 'id',
+      fixed: 'left',
+      width: 'max-content',
+      renderText: (recordId, record) => (record.type === 'AttendanceDay' ? recordId : ' '),
+    },
     {
       title: intl.formatMessage({ id: 'property.date' }),
       dataIndex: 'date',
@@ -390,19 +413,62 @@ const MyAttendance: React.FC = () => {
       },
     },
     {
-      title: intl.formatMessage({ id: 'property.actions' }),
+      title: '',
       fixed: 'right',
       align: 'center',
       width: 'min-content',
-      key: 'id',
       search: false,
-      render: (dom, record) => (
-        <Link to={'/message'}>
-          <Button title={`Khieu nai`} size="small">
-            <CommentOutlined />
-          </Button>
-        </Link>
-      ),
+      sorter: (a, b) => conversationSorter(a, b, currentUser!.id),
+      render: (dom, record) => {
+        if (record.type !== 'AttendanceDay') return null;
+
+        const conversationId = getConversationId('attendance', record.id);
+        const conversationState = getConversationState(conversationId, currentUser!.id);
+
+        return (
+          <Space size="small">
+            {conversationState !== 'Not started' ? (
+              <Button
+                title={intl.formatMessage({ id: 'property.actions.openTheConversation' })}
+                size="small"
+                onClick={() => {
+                  const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+                  mountPopup(conversation);
+                }}
+                className={
+                  conversationState === 'Need support'
+                    ? 'success-outlined-button-without-border'
+                    : 'success-outlined-button'
+                }
+              >
+                <CommentOutlined />
+              </Button>
+            ) : (
+              <Popconfirm
+                title={intl.formatMessage({ id: 'property.actions.doYouNeedSupport' })}
+                onConfirm={async () => {
+                  const me = employeeToUser(currentUser!);
+                  const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+                  conversation.subject = `[Support][Attendance][id: ${record.id}][for: ${currentUser?.first_name} ${currentUser?.last_name}]`;
+                  conversation.photoUrl = getTopicUrl('attendance');
+                  conversation.setParticipant(me);
+                  addParticipants(conversationId, [currentUser!.id]);
+                  conversation.welcomeMessages = [
+                    `*${currentUser?.first_name} ${currentUser?.last_name}* _${intl.formatMessage({
+                      id: 'property.actions.started',
+                    })}_ ${intl.formatMessage({ id: 'property.actions.thisConversation' })}`,
+                  ];
+                  mountPopup(conversation);
+                }}
+              >
+                <Button size="small">
+                  <CommentOutlined />
+                </Button>
+              </Popconfirm>
+            )}
+          </Space>
+        );
+      },
     },
     // {
     //   title: 'Note',
@@ -602,10 +668,10 @@ const MyAttendance: React.FC = () => {
               check_out_image: last_check_out?.check_out_image,
               check_out_face_authorized: last_check_out?.check_out_face_authorized,
               hours_work_by_schedule: it.schedule_hours,
-              children: it.tracking_data?.map((x) => {
+              children: it.tracking_data?.map((x, index) => {
                 return {
                   ...x,
-                  id: x.check_in_time,
+                  id: `${it.id}_${index}`,
                   date: undefined,
                   check_in: x.check_in_time,
                   check_in_location:

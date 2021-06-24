@@ -1,6 +1,6 @@
 import firebase from '@/utils/firebase';
 import { isArray } from 'lodash';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { produce } from 'immer';
 
 const database = firebase.database();
@@ -96,11 +96,20 @@ export default function useFirebaseTalk() {
     return getScore(a) - getScore(b);
   };
 
+  const storageKVMemo = useMemo(() => storage && Object.entries(storage), [storage]);
+  const numberOfAttendanceNeedSupport = (userId: number) => {
+    if (!storageKVMemo) return 0;
+    return storageKVMemo.filter(
+      ([k, v]) => k.startsWith('attendance') && v.includes(userId) && v.length === 1,
+    ).length;
+  };
+
   return {
     getParticipants,
     addParticipants,
     removeParticipants,
     getConversationState,
     conversationSorter,
+    numberOfAttendanceNeedSupport,
   };
 }

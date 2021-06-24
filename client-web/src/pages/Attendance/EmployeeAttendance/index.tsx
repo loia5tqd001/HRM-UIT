@@ -14,7 +14,7 @@ import { Badge, Button, message, Progress, Select, Space, Tooltip } from 'antd';
 import { countBy, groupBy, mapValues, sumBy } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import { Access, FormattedMessage, getIntl, Link, useAccess, useIntl } from 'umi';
+import { Access, FormattedMessage, getIntl, Link, useAccess, useIntl, useModel } from 'umi';
 
 type RecordType = API.AttendanceEmployee & {
   status?: {
@@ -76,6 +76,8 @@ const EmployeeAttendance: React.FC = () => {
   const [periods, setPeriods] = useState<API.Period[]>();
   const [selectedPeriod, setSelectedPeriod] = useState<API.Period['id']>();
   const access = useAccess();
+  const { numberOfAttendanceNeedSupport } = useModel('firebaseTalk');
+  const currentUserId = useModel('@@initialState').initialState!.currentUser!.id;
 
   useEffect(() => {
     allPeriods()
@@ -127,7 +129,7 @@ const EmployeeAttendance: React.FC = () => {
       valueType: 'avatar',
       render: (avatar, record) => (
         <Space>
-          <Badge count={Math.round(Math.random())}>
+          <Badge count={numberOfAttendanceNeedSupport(record.id)}>
             <span>{avatar}</span>
           </Badge>
           <Link to={`/attendance/list/${record.id}?period=${selectedPeriod}`}>
@@ -299,30 +301,32 @@ const EmployeeAttendance: React.FC = () => {
           //   ),
           // );
 
-          data = data.map((it) => {
-            return {
-              ...it,
-              status: {
-                Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
-                Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
-                Rejected: countBy(it.attendance, (x) => x.status === 'Rejected').true,
-                Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
-              },
-              actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
-              work_schedule: it.schedule_hours * 3600,
-              attendances: mapValues(
-                groupBy(
-                  it.attendance.map((x) => ({
-                    ...x,
-                    date: moment(x.date).format('DD/MM/YYYY'),
-                    work_load: x.actual_work_hours * 3600,
-                  })),
-                  'date',
+          data = data
+            .filter((it) => it.id !== currentUserId)
+            .map((it) => {
+              return {
+                ...it,
+                status: {
+                  Pending: countBy(it.attendance, (x) => x.status === 'Pending').true,
+                  Approved: countBy(it.attendance, (x) => x.status === 'Approved').true,
+                  Rejected: countBy(it.attendance, (x) => x.status === 'Rejected').true,
+                  Confirmed: countBy(it.attendance, (x) => x.status === 'Confirmed').true,
+                },
+                actual: sumBy(it.attendance, (x) => x.actual_work_hours) * 3600,
+                work_schedule: it.schedule_hours * 3600,
+                attendances: mapValues(
+                  groupBy(
+                    it.attendance.map((x) => ({
+                      ...x,
+                      date: moment(x.date).format('DD/MM/YYYY'),
+                      work_load: x.actual_work_hours * 3600,
+                    })),
+                    'date',
+                  ),
+                  (x) => x.reduce((acc, cur) => acc + cur.actual_work_hours * 3600, 0),
                 ),
-                (x) => x.reduce((acc, cur) => acc + cur.actual_work_hours * 3600, 0),
-              ),
-            };
-          });
+              };
+            });
 
           return {
             success: true,
