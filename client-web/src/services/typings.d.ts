@@ -647,7 +647,7 @@ declare namespace API {
   }
 
   interface Payslip {
-    id: number;
+    id: number | string;
     owner: EmployeeLite;
     payroll: Payroll['id'];
     values: {

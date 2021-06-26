@@ -1,6 +1,7 @@
+import { getConversationId } from '@/models/firebaseTalk';
 import { allEmployees } from '@/services/employee';
-import { leaveConversation } from '@/services/talk';
-import { ExportOutlined, MessageFilled } from '@ant-design/icons';
+import { leaveConversation, unhideConversation } from '@/services/talk';
+import { ExportOutlined, MessageOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProList from '@ant-design/pro-list';
 import { Button, Card, message, Popconfirm, Spin } from 'antd';
@@ -37,6 +38,9 @@ const ChatBox = React.memo(
     onConversationSelected: (event: ConversationSelectedEvent) => void;
   }) => {
     const talkjsContainerRef = useRef<HTMLDivElement>(null);
+    const { initialState } = useModel('@@initialState');
+    const { currentUser } = initialState!;
+    const { addParticipants } = useModel('firebaseTalk');
 
     useEffect(() => {
       if (!talkjsContainerRef.current) return undefined;
@@ -49,10 +53,26 @@ const ChatBox = React.memo(
         }
         inboxRef.current = window.talkSession?.createInbox({
           showFeedHeader: false,
-          selected: localStorage.getItem(LAST_SELECTED_CONVERSATIONID_STORAGE_KEY),
+          selected: localStorage.getItem(LAST_SELECTED_CONVERSATIONID_STORAGE_KEY) || undefined,
         });
+        inboxRef.current.setFeedFilter({ custom: { hideTo: ['!=', String(currentUser!.id)] } });
         inboxRef.current.mount(talkjsContainerRef.current);
         inboxRef.current.on('conversationSelected', onConversationSelected);
+        inboxRef.current.on('sendMessage', ({ conversation }) => {
+          addParticipants(getConversationId('payslip', conversation.custom.payroll), [
+            conversation.id,
+          ]);
+          if (
+            conversation.subject?.includes('[Payslip]') &&
+            conversation.custom.hideTo &&
+            conversation.custom.payroll
+          ) {
+            unhideConversation(conversation.id);
+            addParticipants(getConversationId('payslip', conversation.custom.payroll), [
+              conversation.id,
+            ]);
+          }
+        });
       });
 
       return () => {
@@ -177,7 +197,6 @@ export const Message: React.FC = () => {
               }}
               bordered
               split
-              rowKey="id"
               headerTitle={<FormattedMessage id="pages.allPeople" defaultMessage="All People" />}
               request={async (query) => {
                 const { title: fullname, user } = query;
@@ -237,10 +256,11 @@ export const Message: React.FC = () => {
                 actions: {
                   render: (_, entity) => [
                     <Button
+                      key={entity.id}
                       type="text"
                       className="colorPrimary"
                       onClick={() => changeConversation(entity.id)}
-                      icon={<MessageFilled />}
+                      icon={<MessageOutlined />}
                     />,
                   ],
                 },

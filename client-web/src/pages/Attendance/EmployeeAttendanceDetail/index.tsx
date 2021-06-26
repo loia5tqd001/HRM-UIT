@@ -4,7 +4,6 @@ import { allPeriods } from '@/services/attendance';
 import { editActual, editOvertime, readAttendances, readEmployee } from '@/services/employee';
 import { sendSystemMessage } from '@/services/talk';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
-import { mountPopup } from '@/utils/talkPopup';
 import { formatDurationHm } from '@/utils/utils';
 import {
   CommentOutlined,
@@ -37,6 +36,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Access, FormattedMessage, history, useAccess, useIntl, useModel, useParams } from 'umi';
 import { toolbarButtons } from '../EmployeeAttendance';
 import { OpenCoordinatesInNewTab, renderCheckInImage } from '../MyAttendance';
+import { useTalkPopup } from '@/utils/talkPopup';
 
 type RecordType = API.AttendanceRecord;
 
@@ -58,6 +58,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
   const [periods, setPeriods] = useState<API.Period[]>();
 
   const { addParticipants, getConversationState, conversationSorter } = useModel('firebaseTalk');
+  const { mountPopup } = useTalkPopup();
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState!;
 
@@ -77,7 +78,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Id',
+      title: 'ID',
       dataIndex: 'id',
       fixed: 'left',
       width: 'max-content',

@@ -42,6 +42,7 @@ export default {
   'property.actions.doYouWantToSupportTheRequest': 'Do you want to support the request of',
   'property.actions.leaveSuccessfully': 'Leave the conversation successfully!',
   'property.actions.leaveUnsuccessfully': 'Leave the conversation unsuccessfully!',
+  'property.actions.newPayslip': 'New payslip!',
 
   'property.username': 'Username',
   'property.password': 'Password',

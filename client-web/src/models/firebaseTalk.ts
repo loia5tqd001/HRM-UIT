@@ -1,7 +1,7 @@
 import firebase from '@/utils/firebase';
-import { isArray } from 'lodash';
-import { useState, useEffect, useMemo } from 'react';
 import { produce } from 'immer';
+import { isArray, uniq } from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
 
 const database = firebase.database();
 
@@ -10,9 +10,9 @@ const database = firebase.database();
 // Payslip: payslip__ticketid
 
 type StorageType = 'timeoff' | 'attendance' | 'payslip';
-type TicketId = number;
+type TicketId = number | string;
 type ConversationId = string;
-type ParticipantId = number;
+type ParticipantId = number | string;
 type Storage = Record<ConversationId, ParticipantId[]>;
 
 export const getTopicUrl = (storageType: StorageType) => {
@@ -55,7 +55,7 @@ export default function useFirebaseTalk() {
     if (isArray(storage[conversationId])) {
       database.ref('getParticipantsByConversationId').set(
         produce(storage, (draft) => {
-          draft[conversationId].push(...participantIds);
+          draft[conversationId] = uniq([...draft[conversationId], ...participantIds]);
         }),
       );
     } else {
@@ -111,5 +111,6 @@ export default function useFirebaseTalk() {
     getConversationState,
     conversationSorter,
     numberOfAttendanceNeedSupport,
+    storageLoading: !storage,
   };
 }

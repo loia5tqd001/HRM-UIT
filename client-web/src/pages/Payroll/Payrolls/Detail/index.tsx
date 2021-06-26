@@ -1,3 +1,4 @@
+import { getConversationId, getTopicUrl } from '@/models/firebaseTalk';
 import {
   confirmPayroll,
   exportExcel,
@@ -5,8 +6,9 @@ import {
   readPayslips,
   sendViaEmail,
 } from '@/services/payroll.payrolls';
+import { createConversation, sendMessage } from '@/services/talk';
+import { useTalkPopup } from '@/utils/talkPopup';
 import {
-  CheckCircleOutlined,
   CommentOutlined,
   FileExcelOutlined,
   LockOutlined,
@@ -14,11 +16,11 @@ import {
   SyncOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Affix, Badge, Button, Card, message, Popconfirm, Space, Table, Tag } from 'antd';
+import { Affix, Button, Card, message, Popconfirm, Space, Table, Tag } from 'antd';
 import type { ColumnType } from 'antd/lib/table';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Access, Link, useAccess, useIntl, useParams } from 'umi';
+import { Access, history, useAccess, useIntl, useModel, useParams } from 'umi';
 import styles from './index.less';
 
 export const PayrollDetail: React.FC = () => {
@@ -30,10 +32,40 @@ export const PayrollDetail: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const access = useAccess();
   const intl = useIntl();
+  const { currentUser } = useModel('@@initialState').initialState!;
+  const { getParticipants } = useModel('firebaseTalk');
+  const { mountPopup } = useTalkPopup();
 
   const requestTable = useCallback(() => {
     readPayslips(id).then((fetchData) => {
       if (!fetchData.length) return;
+
+      if (history.location.query?.action === 'create') {
+        const allPromises = fetchData.map(async (payslip) => {
+          const payslipId = `${payslip.payroll}_${payslip.id}`;
+          const conversationId = getConversationId('payslip', payslipId);
+          await createConversation(conversationId, {
+            participants: [currentUser!, payslip.owner].map((it) => String(it.id)),
+            subject: `[Support][Payslip][id: ${payslipId}][for: ${payslip.owner?.first_name} ${payslip.owner?.last_name}]`,
+            photoUrl: getTopicUrl('payslip'),
+            custom: {
+              hideTo: payslip.owner.id === currentUser?.id ? '' : String(currentUser!.id),
+              payroll: String(payslip.payroll),
+            },
+          });
+          await sendMessage(conversationId, String(currentUser?.id), [
+            `<${
+              window.location.origin
+            }/account/profile?tab=payroll&payslip_id=${payslipId}|${intl.formatMessage({
+              id: 'property.actions.newPayslip',
+            })}>`,
+          ]);
+        });
+        Promise.all(allPromises).then(() => {
+          history.replace(history.location.pathname);
+        });
+      }
+
       setDynamicColumns(
         fetchData[0].values
           .map((it) => it.field)
@@ -43,7 +75,11 @@ export const PayrollDetail: React.FC = () => {
             title: it.display_name,
             render: (text: string) => {
               if (it.datatype === 'Currency') {
-                return <span style={{ color: '#ad8b00', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{text}</span>;
+                return (
+                  <span style={{ color: '#ad8b00', whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                    {text}
+                  </span>
+                );
               }
               if (it.datatype === 'Number')
                 return (
@@ -55,10 +91,13 @@ export const PayrollDetail: React.FC = () => {
       );
       setTableData(
         fetchData.map((it) => {
-          return it.values.reduce((acc, cur) => {
-            acc[cur.field.code_name] = cur.formatted_value;
-            return acc;
-          }, {});
+          return it.values.reduce(
+            (acc, cur) => {
+              acc[cur.field.code_name] = cur.formatted_value;
+              return acc;
+            },
+            { payslip_id: `${it.payroll}_${it.id}`, payroll: it.payroll },
+          );
         }),
       );
     });
@@ -76,22 +115,40 @@ export const PayrollDetail: React.FC = () => {
       width: 65,
       render: (_, __, index) => index + 1,
     },
+    {
+      title: 'ID',
+      dataIndex: 'payslip_id',
+    },
     ...(dynamicColumns || []),
     {
-      title: intl.formatMessage({ id: 'property.actions' }),
+      title: '',
       fixed: 'right',
       align: 'center',
-      width: 'min-content',
+      width: 'max-content',
       search: false,
-      render: (dom, record) => (
-        <Link to={'/message'}>
-          <Badge count={1}>
-            <Button title={`Xem khieu nai`} size="small">
+      render: (dom, record) => {
+        const conversationId = getConversationId('payslip', record.payslip_id);
+        const keyOnFirebase = getConversationId('payslip', record.payroll);
+        const participants = getParticipants(keyOnFirebase);
+
+        return (
+          <Space size="small">
+            <Button
+              title={intl.formatMessage({ id: 'property.actions.openTheConversation' })}
+              size="small"
+              className={
+                participants.includes(conversationId) ? 'success-outlined-button' : undefined
+              }
+              onClick={() => {
+                const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+                mountPopup(conversation);
+              }}
+            >
               <CommentOutlined />
             </Button>
-          </Badge>
-        </Link>
-      ),
+          </Space>
+        );
+      },
     },
   ];
 
@@ -182,7 +239,11 @@ export const PayrollDetail: React.FC = () => {
                 >
                   <Popconfirm
                     placement="right"
-                    title={intl.formatMessage({ id: 'error.actionIrreversible' })}
+                    title={
+                      <div style={{ maxWidth: 380, marginBottom: -12 }}>
+                        {intl.formatMessage({ id: 'error.actionIrreversible' })}
+                      </div>
+                    }
                     onConfirm={async () => {
                       try {
                         // setIsCalculating(true);
@@ -215,25 +276,6 @@ export const PayrollDetail: React.FC = () => {
                     />
                   </Popconfirm>
                 </Access>
-                {/* <Access accessible={access['can_calculate_payroll']}>
-                  <Button
-                    children="Run Calculation"
-                    type="primary"
-                    loading={isCalculating}
-                    onClick={async () => {
-                      try {
-                        setIsCalculating(true);
-                        await calculatePayslips(id);
-                        await requestTable();
-                        message.success('Calculate successfully!');
-                      } catch {
-                        message.error('Calculate unsuccessfully!');
-                      } finally {
-                        setIsCalculating(false);
-                      }
-                    }}
-                  />
-                </Access> */}
               </Space>
             }
           >
@@ -244,7 +286,7 @@ export const PayrollDetail: React.FC = () => {
                 dataSource={tableData}
                 // scroll={{ x: 'max-content' }}
                 columns={columns}
-                rowKey="index"
+                rowKey="id"
                 bordered
               />
             </div>

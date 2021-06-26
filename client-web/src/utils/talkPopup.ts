@@ -3,14 +3,15 @@ import type Talk from 'talkjs';
 
 let popup: Talk.Popup;
 
-export const mountPopup = async (conversation: Talk.ConversationBuilder) => {
+const mountPopup = async (conversation: Talk.ConversationBuilder) => {
   const oldPopup = popup;
   popup = window.talkSession?.createPopup(conversation);
   await popup.mount({ show: true });
   oldPopup?.destroy();
+  return popup;
 };
 
-export const unmountPopup = () => {
+const unmountPopup = () => {
   popup?.destroy();
 };
 

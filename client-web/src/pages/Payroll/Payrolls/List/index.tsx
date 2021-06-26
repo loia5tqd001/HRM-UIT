@@ -1,10 +1,10 @@
-import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
+import { getConversationId } from '@/models/firebaseTalk';
 import { allPeriods } from '@/services/attendance';
 import { allPayrolls, createPayroll, deletePayroll } from '@/services/payroll.payrolls';
 import { allPayrollTemplates } from '@/services/payroll.template';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import {
-  CheckCircleOutlined,
   DeleteOutlined,
   EyeOutlined,
   LockOutlined,
@@ -20,7 +20,7 @@ import { useForm } from 'antd/lib/form/Form';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FormattedMessage, Link, useIntl, useAccess, Access } from 'umi';
+import { Access, FormattedMessage, history, Link, useAccess, useIntl, useModel } from 'umi';
 
 type RecordType = API.Payroll;
 
@@ -36,6 +36,7 @@ export const Payroll: React.FC = () => {
   const [periods, setPeriods] = useState<API.Period[]>();
   const access = useAccess();
   const localeFeature = intl.formatMessage({ id: 'property.payrolls' });
+  const { getParticipants } = useModel('firebaseTalk');
 
   useEffect(() => {
     allPayrollTemplates().then((fetchData) => setTemplates(fetchData));
@@ -58,10 +59,22 @@ export const Payroll: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
+      title: 'ID',
+      dataIndex: 'id',
+    },
+    {
       title: intl.formatMessage({ id: 'property.payrolls' }),
       dataIndex: 'name',
-      renderText: (it, record) =>
-        access['view_payslip'] ? <Link to={`/payroll/payrolls/${record.id}`}>{it}</Link> : it,
+      renderText: (it, record) => {
+        const keyOnFirebase = getConversationId('payslip', record.id);
+        const participants = getParticipants(keyOnFirebase);
+        if (!access['view_payslip']) return it;
+        return (
+          <Badge count={participants.length} size="small" offset={[10, 0]}>
+            <Link to={`/payroll/payrolls/${record.id}`}>{it}</Link>
+          </Badge>
+        );
+      },
     },
     {
       title: intl.formatMessage({ id: 'property.template' }),
@@ -208,6 +221,7 @@ export const Payroll: React.FC = () => {
         ]}
         request={async () => {
           const data = await allPayrolls();
+          data.reverse();
           return {
             data,
             success: true,
@@ -242,7 +256,10 @@ export const Payroll: React.FC = () => {
           };
           if (crudModalVisible === 'create') {
             await onCrudOperation(
-              () => createPayroll(record),
+              () =>
+                createPayroll(record).then((created) =>
+                  history.push(`${history.location.pathname}/${created.id}?action=create`),
+                ),
               intl.formatMessage({
                 id: 'error.createSuccessfully',
                 defaultMessage: 'Create successfully!',

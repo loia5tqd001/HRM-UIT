@@ -6,7 +6,7 @@ import { detectFaces } from '@/services/auth';
 import { checkIn, checkOut, readAttendances } from '@/services/employee';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useTableSettings } from '@/utils/hooks/useTableSettings';
-import { mountPopup } from '@/utils/talkPopup';
+import { useTalkPopup } from '@/utils/talkPopup';
 import { formatDurationHm } from '@/utils/utils';
 import {
   CameraOutlined,
@@ -39,7 +39,7 @@ import Avatar from 'antd/lib/avatar/avatar';
 import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FormattedMessage, history, Link, useIntl, useModel } from 'umi';
+import { FormattedMessage, history, useIntl, useModel } from 'umi';
 import styles from './index.less';
 
 type RecordType = API.AttendanceRecord;
@@ -133,6 +133,7 @@ const MyAttendance: React.FC = () => {
   const [capturing, setCapturing] = useState(false);
   const [captureValid, setCaptureValid] = useState(false);
   const { addParticipants, getConversationState, conversationSorter } = useModel('firebaseTalk');
+  const { mountPopup } = useTalkPopup();
 
   const nextStepTranslate = {
     'Clock in': intl.formatMessage({ id: 'property.check_in' }),
@@ -217,7 +218,7 @@ const MyAttendance: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Id',
+      title: 'ID',
       dataIndex: 'id',
       fixed: 'left',
       width: 'max-content',

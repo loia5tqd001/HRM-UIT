@@ -42,6 +42,7 @@ export default {
   'property.actions.doYouWantToSupportTheRequest': 'Bạn có muốn hỗ trợ cho yêu cầu của',
   'property.actions.leaveSuccessfully': 'Rời khỏi cuộc trò chuyện thành công!',
   'property.actions.leaveUnsuccessfully': 'Rời khỏi cuộc trò chuyện không thành công!',
+  'property.actions.newPayslip': 'Có phiếu lương mới!',
 
   'property.username': 'Tên đăng nhập',
   'property.password': 'Mật khẩu',

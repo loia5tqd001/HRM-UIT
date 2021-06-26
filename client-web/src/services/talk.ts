@@ -59,6 +59,27 @@ export async function sendSystemMessage(conversationId: string, messages: string
   });
 }
 
+export async function sendMessage(conversationId: string, sender: string, messages: string[]) {
+  return fetch(
+    `https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${TALKJS_SECRET_KEY}`,
+      },
+      body: JSON.stringify(
+        messages.map((message) => ({ text: message, sender, type: 'UserMessage' })),
+      ),
+    },
+  ).then((res) => {
+    if (!res.ok) {
+      console.log(res);
+      throw new Error(res.statusText);
+    }
+  });
+}
+
 export async function leaveConversation(conversationId: string, user: API.Employee) {
   await sendSystemMessage(conversationId, [
     `*${user.first_name} ${user.last_name}* _${getIntl().formatMessage({
@@ -77,6 +98,40 @@ export async function leaveConversation(conversationId: string, user: API.Employ
       },
     },
   ).then((res) => {
+    if (!res.ok) {
+      throw new Error(res.statusText);
+    }
+  });
+}
+
+export async function createConversation(conversationId: string, body: any) {
+  await fetch(`https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${TALKJS_SECRET_KEY}`,
+    },
+    body: JSON.stringify(body),
+  }).then((res) => {
+    if (!res.ok) {
+      throw new Error(res.statusText);
+    }
+  });
+}
+
+export async function unhideConversation(conversationId: string) {
+  await fetch(`https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${TALKJS_SECRET_KEY}`,
+    },
+    body: JSON.stringify({
+      custom: {
+        hideTo: '',
+      },
+    }),
+  }).then((res) => {
     if (!res.ok) {
       throw new Error(res.statusText);
     }

@@ -65,6 +65,7 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
   const canViewSalaryInfo = isCurrentUser(employeeId) || access['view_employeesalary'];
   const canChangeSalaryInfo = isActive && access['change_employeesalary'];
   const canViewPayslips = isCurrentUser(employeeId) || access['view_payslip'];
+  const canOpenChatPayslip = isCurrentUser(employeeId);
   const canViewPayrollTab = canViewSalaryInfo || canViewPayslips;
 
   // DEPENDENT
@@ -99,6 +100,7 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
     canViewPayrollTab,
     canViewSalaryInfo,
     canChangeSalaryInfo,
+    canOpenChatPayslip,
     canViewPayslips,
 
     canViewDependentTab,

@@ -132,7 +132,7 @@ export const Timeoff: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
-      title: 'Id',
+      title: 'ID',
       dataIndex: 'id',
     },
     {

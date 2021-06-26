@@ -1,5 +1,6 @@
-import { useTableSettings } from '@/utils/hooks/useTableSettings';
 import { __DEV__ } from '@/global';
+import { getConversationId } from '@/models/firebaseTalk';
+import { employeeToUser } from '@/pages/Message';
 import { allInsurancePlans } from '@/services/admin.payroll.insurancePlan';
 import { allTaxPlans } from '@/services/admin.payroll.taxPlan';
 import {
@@ -8,31 +9,38 @@ import {
   updateEmployeePayroll,
 } from '@/services/employee';
 import { allPayrolls } from '@/services/payroll.payrolls';
+import { unhideConversation } from '@/services/talk';
 import { useAsyncData } from '@/utils/hooks/useAsyncData';
 import { useEmployeeDetailAccess } from '@/utils/hooks/useEmployeeDetailType';
-import { CommentOutlined, FilePdfOutlined, MessageOutlined } from '@ant-design/icons';
+import { useTableSettings } from '@/utils/hooks/useTableSettings';
+import { useTalkPopup } from '@/utils/talkPopup';
+import { CommentOutlined, FilePdfOutlined } from '@ant-design/icons';
 import ProForm, { ModalForm, ProFormSelect } from '@ant-design/pro-form';
-import type { ProColumns } from '@ant-design/pro-table';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { Button, Card, Form, InputNumber, List, message } from 'antd';
+import { Button, Card, Form, InputNumber, List, message, Tooltip } from 'antd';
 import faker from 'faker';
 import moment from 'moment';
 import React, { useRef, useState } from 'react';
 import ReactToPrint from 'react-to-print';
-import { Access, Link, useIntl } from 'umi';
+import { Access, useIntl, useModel, history } from 'umi';
 import type { EmployeeTabProps } from '..';
 
 export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
   const { employeeId, isActive, onChange } = props;
   const intl = useIntl();
   const toPrintRef = useRef<HTMLDivElement>(null);
+  const { currentUser } = useModel('@@initialState').initialState!;
+  const { mountPopup } = useTalkPopup();
+  const { addParticipants } = useModel('firebaseTalk');
 
   // == RBAC.BEGIN
 
-  const { canViewSalaryInfo, canChangeSalaryInfo, canViewPayslips } = useEmployeeDetailAccess({
-    employeeId,
-    isActive,
-  });
+  const { canViewSalaryInfo, canChangeSalaryInfo, canViewPayslips, canOpenChatPayslip } =
+    useEmployeeDetailAccess({
+      employeeId,
+      isActive,
+    });
   // == RBAC.END
 
   const payroll = useAsyncData<API.EmployeePayroll>(() => getEmployeePayroll(employeeId), {
@@ -48,15 +56,52 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
   });
   const [selectedPayslip, setSelectedPayslip] = useState<API.Payslip | undefined>();
 
+  const onOpenChat = (record: API.Payslip) => {
+    // const payslipId = `${record.payroll}_${record.id}`; We don't need this as record.id is already a string concaternated by record.payroll and record.id
+    const conversationId = getConversationId('payslip', record.id);
+    const conversation = window.talkSession?.getOrCreateConversation(conversationId);
+    const me = employeeToUser(currentUser!);
+    const another = employeeToUser(record.owner);
+    conversation.setParticipant(me);
+    conversation.setParticipant(another);
+    mountPopup(conversation).then((popup) => {
+      popup.on('sendMessage', ({ conversation: conver }) => {
+        if (
+          conver.subject?.includes('[Payslip]') &&
+          conver.custom.hideTo &&
+          conver.custom.payroll
+        ) {
+          unhideConversation(conver.id);
+          addParticipants(conver.custom.payroll, [conver.id]);
+        }
+      });
+    });
+  };
+
   const columns: ProColumns<API.Payslip>[] = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+    },
     {
       title: intl.formatMessage({ id: 'property.payslip' }),
       dataIndex: ['payrollDetail', 'name'],
-      renderText: (it, record) => (
-        <Button type="link" onClick={() => setSelectedPayslip(record)}>
-          {it}
-        </Button>
-      ),
+      renderText: (it, record) => {
+        if (history.location.query?.payslip_id === record.id) {
+          const { query } = history.location;
+          delete query.payslip_id;
+          const newQuery = Object.entries(query).map(([k, v]) => `${k}=${v}`);
+          const newHref =
+            window.location.hostname + newQuery.length ? `?${newQuery.join('&')}` : '';
+          history.replace(newHref);
+          setTimeout(() => setSelectedPayslip(record), 100);
+        }
+        return (
+          <Button type="link" onClick={() => setSelectedPayslip(record)}>
+            {it}
+          </Button>
+        );
+      },
     },
     {
       title: intl.formatMessage({ id: 'property.template' }),
@@ -75,19 +120,21 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
       dataIndex: ['payrollDetail', 'created_at'],
       renderText: (it) => moment(it).format('DD MMM YYYY HH:mm:ss'),
     },
-    {
+    (canOpenChatPayslip as any) && {
       title: intl.formatMessage({ id: 'property.actions' }),
       fixed: 'right',
       align: 'center',
       width: 'min-content',
       search: false,
-      render: (dom, record) => (
-        <Link to={'/message'}>
-          <Button title={`Khieu nai`} size="small">
-            <CommentOutlined />
-          </Button>
-        </Link>
-      ),
+      render: (dom, record) => {
+        return (
+          <Tooltip title={intl.formatMessage({ id: 'property.actions.openTheConversation' })}>
+            <Button size="small" onClick={() => onOpenChat(record)}>
+              <CommentOutlined />
+            </Button>
+          </Tooltip>
+        );
+      },
     },
   ];
   const tableSettings = useTableSettings();
@@ -231,10 +278,14 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
           rowKey="id"
           columns={columns}
           loading={employeePayslips.isLoading || payrolls.isLoading}
-          dataSource={employeePayslips.data?.map((it) => ({
-            ...it,
-            payrollDetail: payrolls.data?.find((x) => it.payroll === x.id),
-          }))}
+          dataSource={
+            employeePayslips.data &&
+            [...employeePayslips.data].reverse().map((it) => ({
+              ...it,
+              id: `${it.payroll}_${it.id}`,
+              payrollDetail: payrolls.data?.find((x) => it.payroll === x.id),
+            }))
+          }
           search={false}
           style={{ width: '100%' }}
           className="card-shadow"
@@ -249,12 +300,17 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
           submitter={{
             render: () => {
               return [
-                <Link to={'/message'}>
-                  <Button title={`Khieu nai`} icon={<CommentOutlined />}>
-                    Khieu nai
+                canOpenChatPayslip && (
+                  <Button
+                    key="openTheConversation"
+                    onClick={() => onOpenChat(selectedPayslip!)}
+                    icon={<CommentOutlined />}
+                  >
+                    {intl.formatMessage({ id: 'property.actions.openTheConversation' })}
                   </Button>
-                </Link>,
+                ),
                 <ReactToPrint
+                  key="print"
                   // documentTitle={selectedPayslip?.payrollDetail?.name}
                   trigger={() => (
                     <Button icon={<FilePdfOutlined />}>
@@ -273,36 +329,38 @@ export const EmployeePayroll: React.FC<EmployeeTabProps> = (props) => {
             <List
               itemLayout="horizontal"
               dataSource={selectedPayslip?.values}
-              renderItem={(item) => {
+              renderItem={(item, index) => {
                 let itemValue: React.ReactNode = (
-                  <p style={{ display: 'contents' }}>{item.formatted_value}</p>
+                  <div style={{ display: 'contents' }}>{item.formatted_value}</div>
                 );
                 if (item.field.datatype === 'Currency') {
                   itemValue = (
-                    <p style={{ color: '#ad8b00', display: 'contents' }}>{item.formatted_value}</p>
+                    <div style={{ color: '#ad8b00', display: 'contents' }}>
+                      {item.formatted_value}
+                    </div>
                   );
                 }
                 if (item.field.datatype === 'Number')
                   itemValue = (
-                    <p style={{ textDecoration: 'underline', display: 'contents' }}>
+                    <div style={{ textDecoration: 'underline', display: 'contents' }}>
                       {item.formatted_value}
-                    </p>
+                    </div>
                   );
                 return (
-                  <List.Item>
+                  <List.Item key={index}>
                     <List.Item.Meta
                       title={
-                        <p
+                        <div
                           className="ant-list-item-meta-description"
                           style={{ margin: 0, fontSize: '0.85em' }}
                         >
                           {item.field.display_name}:
-                        </p>
+                        </div>
                       }
                       description={
-                        <p className="ant-list-item-meta-title" style={{ fontSize: '1.1em' }}>
+                        <div className="ant-list-item-meta-title" style={{ fontSize: '1.1em' }}>
                           {itemValue}
-                        </p>
+                        </div>
                       }
                     />
                   </List.Item>

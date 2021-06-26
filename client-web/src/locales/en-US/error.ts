@@ -14,7 +14,8 @@ export default {
     'New password must be different than current password',
   'error.confirmPasswordDoesNotMatch': 'Confirm password does not match!',
   'error.noActivities': 'No activities today yet',
-  'error.actionIrreversible': 'This action is irreversible. Are you sure?',
+  'error.actionIrreversible':
+    'This action is irreversible. Closing the payroll too early may result in inaccurate info. Are you sure?',
   'error.cannotDeleteDefaultTemplate': 'Cannot delete default template',
   'error.alreadyExists': 'already exists',
   'error.incorrectUsernamePassword': 'Incorrect username/password',
