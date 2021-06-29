@@ -219,9 +219,9 @@ export const PayrollDetail: React.FC = () => {
                   </Tag>
                 </div>
                 <Access accessible={payroll?.status === 'Temporary'}>
-                  <Dropdown.Button
+                  <Dropdown
                     overlay={
-                      <Menu>
+                      <Menu style={{ marginTop: 10 }}>
                         <Menu.Item
                           key="can_export_excel_payroll"
                           icon={<FileExcelOutlined />}
@@ -250,11 +250,6 @@ export const PayrollDetail: React.FC = () => {
                         </Menu.Item>
                       </Menu>
                     }
-                    className="success-outlined-button"
-                    buttonsRender={([leftButton, rightButton]) => [
-                      leftButton,
-                      React.cloneElement(rightButton as any, { loading: isDownloadingSample }),
-                    ]}
                   >
                     <Upload
                       customRequest={async (options) => {
@@ -286,12 +281,15 @@ export const PayrollDetail: React.FC = () => {
                       maxCount={1}
                       accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     >
-                      <Space className="success-outlined-button">
-                        <UploadOutlined />
+                      <Button
+                        className="success-outlined-button"
+                        loading={isDownloadingSample}
+                        icon={<UploadOutlined />}
+                      >
                         {intl.formatMessage({ id: 'property.columnType.input' })}
-                      </Space>
+                      </Button>
                     </Upload>
-                  </Dropdown.Button>
+                  </Dropdown>
                 </Access>
 
                 <Access
