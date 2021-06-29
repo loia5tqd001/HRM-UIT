@@ -6,6 +6,7 @@ const Settings: LayoutSettings & {
 } = {
   navTheme: 'dark',
   primaryColor: '#1E60E1',
+  // primaryColor: '#005792',
   layout: 'top',
   contentWidth: 'Fluid',
   fixedHeader: true,

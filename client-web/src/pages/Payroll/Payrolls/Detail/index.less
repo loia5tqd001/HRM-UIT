@@ -1,5 +1,15 @@
+@import '~antd/es/style/themes/default.less';
+
 .fixOverflowTable {
   :global(.ant-card-body) {
     width: calc(100vw - 48px);
   }
+}
+
+.inputExcelButton button:hover,
+.inputExcelButton:hover,
+.inputExcelButton button:focus,
+.inputExcelButton:focus {
+  color: rgba(@success-color, 1);
+  border-color: rgba(@success-color, 1);
 }

@@ -37,15 +37,22 @@ export default defineConfig({
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn
   theme: {
     'primary-color': defaultSettings.primaryColor,
+    'secondary-color': '#0387B1',
     'border-radius-base': '5px',
     // 'box-shadow-base':
     //   '0 3px 12px -8px rgba(0, 0, 0, 0.12), 0 6px 32px 0 rgba(0, 0, 0, 0.8), 0 9px 56px 16px rgba(0, 0, 0, 0.06)',
     // 'card-shadow':
     //   '0 2px 8px -2px rgba(0, 0, 0, 0.24), 0 6px 24px 0 rgba(0, 0, 0, 0.18), 0 10px 48px 4px rgba(0, 0, 0, 0.15)',
     'screen-xl': '1440px',
-    'layout-header-background': '#243049',
-    'menu-dark-inline-submenu-bg': '#1E2B45',
+    'layout-header-background': '#13334c',
+    'menu-dark-inline-submenu-bg': '#13334c',
+    'layout-body-background': '#fff',
     'text-color-secondary-dark': 'rgba(255, 255, 255, 0.75)',
+    'processing-color': '#0387B1',
+    'tag-line-height': '25px',
+    'tag-font-size': '14px',
+    'text-color': '#2a333c',
+    'font-size-base': '15px',
   },
   // esbuild is father build tools
   // https://umijs.org/plugins/plugin-esbuild

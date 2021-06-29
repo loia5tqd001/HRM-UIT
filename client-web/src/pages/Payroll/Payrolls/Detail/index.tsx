@@ -282,7 +282,7 @@ export const PayrollDetail: React.FC = () => {
                       accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     >
                       <Button
-                        className="success-outlined-button"
+                        className={`success-outlined-button ${styles.inputExcelButton}`}
                         loading={isDownloadingSample}
                         icon={<UploadOutlined />}
                       >
