@@ -9,6 +9,6 @@ export default {
   'component.button.terminateEmployment': 'Thôi việc',
   'component.button.print': 'In',
   'component.button.save': 'Lưu',
-  'component.button.exportExcel': 'Export excel',
+  'component.button.exportExcel': 'Xuất excel',
   'component.button.sendPayslipsViaEmail': 'Gửi phiếu lương qua email',
 };

@@ -81,7 +81,9 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
                 // },
                 // If you set the 'content-type' header manually yourself, you fucked up: https://stackoverflow.com/a/38271059/9787887
               };
-              const hide = message.loading('Uploading...');
+              const hide = message.loading(
+                `${intl.formatMessage({ id: 'property.actions.uploading' })}...`,
+              );
               try {
                 const data = new FormData();
                 data.append('avatar', file);

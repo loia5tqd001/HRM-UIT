@@ -57,6 +57,30 @@ export async function exportExcel(id: number) {
   });
 }
 
+export async function downloadSampleExcel(id: number) {
+  return fetch(`${endpoint}${id}/inputs_template/`, {
+    method: 'GET',
+    headers: {
+      responseType: 'arrayBuffer',
+      Authorization: `Bearer ${jwt.getAccess()}`,
+    },
+  }).then(async (response) => {
+    const contentDisposition = response.headers.get('content-disposition');
+    const contentType = response.headers.get('content-type') || undefined;
+    const data = await response.arrayBuffer();
+    const blob = new Blob([data], { type: contentType });
+    saveAs(blob, contentDisposition?.match(/filename="(.*?)"/)?.[1] || 'template.xlsx');
+  });
+}
+
+export async function uploadInput(id: number, data: any, options?: { [key: string]: any }) {
+  return request(`${endpoint}${id}/upload_inputs/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
 export async function sendViaEmail(id: number, options?: { [key: string]: any }) {
   return request(`${endpoint}${id}/send_payslip/`, {
     method: 'POST',

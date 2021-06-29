@@ -1,15 +1,19 @@
 import { allPayrollSystemFields, duplicatePayrollTemplate } from '@/services/payroll.template';
 import {
   CloseOutlined,
+  CopyOutlined,
   DiffOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
   LockOutlined,
   MenuOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import {
+  Badge,
   Button,
   Card,
   Form,
@@ -27,9 +31,9 @@ import arrayMove from 'array-move';
 import { sortBy } from 'lodash';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
-import { Access, history, useAccess, getIntl, FormattedMessage } from 'umi';
+import { Access, getIntl, history, useAccess, useIntl } from 'umi';
 import styles from './index.less';
-import { useIntl } from 'umi';
+import copy from 'copy-to-clipboard';
 
 const EditableContext = React.createContext<any>(null);
 
@@ -84,7 +88,10 @@ const EditableCell = ({
                 label: getIntl().formatMessage({ id: 'property.columnType.systemField' }),
                 disabled: true,
               }, // this's disabled because System Field will be selected programmatically, not support manually
-              // { value: 'Input', label: 'Input' },
+              {
+                value: 'Input',
+                label: getIntl().formatMessage({ id: 'property.columnType.input' }),
+              },
               {
                 value: 'Formula',
                 label: getIntl().formatMessage({ id: 'property.columnType.formula' }),
@@ -127,14 +134,39 @@ const EditableCell = ({
           />
         </Form.Item>
       );
+    } else if (dataIndex === 'code_name') {
+      childNode = (
+        <Tooltip
+          title={
+            record.type === 'System Field' &&
+            getIntl().formatMessage({
+              id: 'property.readonlySystemField',
+            })
+          }
+        >
+          <Form.Item style={{ margin: 0 }} name={dataIndex}>
+            <Input
+              ref={inputRef}
+              disabled={record.type === 'System Field'}
+              addonAfter={
+                <Tooltip title="Copy">
+                  <CopyOutlined
+                    onClick={() => {
+                      copy(inputRef.current.state.value);
+                      message.success('Copied to clipboard!');
+                    }}
+                  />
+                </Tooltip>
+              }
+              onBlur={save}
+            />
+          </Form.Item>
+        </Tooltip>
+      );
     } else {
       childNode = (
         <Form.Item style={{ margin: 0 }} name={dataIndex}>
-          <Input
-            ref={inputRef}
-            disabled={dataIndex === 'code_name' && record.type === 'System Field'}
-            onBlur={save}
-          />
+          <Input ref={inputRef} onBlur={save} />
         </Form.Item>
       );
     }
@@ -143,19 +175,29 @@ const EditableCell = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
-const DragHandle = SortableHandle(({ index }) => (
-  <Space key={index}>
-    <Typography.Title level={5} style={{ marginTop: 5 }}>
-      {index + 1}
-    </Typography.Title>
-    <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
-  </Space>
+const DragHandle = SortableHandle(({ index, record }) => (
+  <Badge
+    count={
+      !record.is_visible ? (
+        <Tooltip title={getIntl().formatMessage({ id: 'property.onlyForCalculating' })}>
+          <EyeInvisibleOutlined style={{ color: 'red' }} />
+        </Tooltip>
+      ) : undefined
+    }
+  >
+    <Space key={index}>
+      <Typography.Title level={5} style={{ marginTop: 5 }}>
+        {index + 1}
+      </Typography.Title>
+      <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />
+    </Space>
+  </Badge>
 ));
 
 const SortableItem = SortableElement((props) => <tr {...props} />);
 const SortableList = SortableContainer((props) => <tbody {...props} />);
 
-const DraggableBodyRow = ({ className, style, ...restProps }) => {
+const DraggableBodyRow = ({ ...restProps }) => {
   const [form] = Form.useForm();
   const record = restProps.children[0]?.props.record;
 
@@ -165,7 +207,12 @@ const DraggableBodyRow = ({ className, style, ...restProps }) => {
   // function findIndex base on Table rowKey props and should always be a right array index
   const index = tableData?.findIndex((x) => x.index === restProps['data-row-key']);
   return (
-    <Form form={form} component={false} name={`${record?.name}_${record?.index}`} key={record?.index}>
+    <Form
+      form={form}
+      component={false}
+      name={`${record?.name}_${record?.index}`}
+      key={record?.index}
+    >
       <EditableContext.Provider value={form}>
         <SortableItem index={index} {...restProps} />
       </EditableContext.Provider>
@@ -249,19 +296,32 @@ function SortableTable() {
       dataIndex: 'index',
       width: 65,
       className: 'drag-visible',
-      render: (_, __, index) => <DragHandle index={index} />,
+      render: (_, record, index) => <DragHandle index={index} record={record} />,
     } as any);
     columns.push({
       title: '',
       dataIndex: 'actions',
       width: '30px',
       render: (_, record) => (
-        <Popconfirm
-          title={`${getIntl().formatMessage({ id: 'property.actions.sureToDelete' })}?`}
-          onConfirm={() => handleDelete(record.index)}
-        >
-          <Button icon={<CloseOutlined />} danger size="small" />
-        </Popconfirm>
+        <Space>
+          <Button
+            icon={record.is_visible ? <EyeOutlined /> : <EyeInvisibleOutlined />}
+            size="small"
+            onClick={() =>
+              setTableData(
+                tableData.map((it: API.PayrollField) =>
+                  it.index === record.index ? { ...it, is_visible: !it.is_visible } : it,
+                ),
+              )
+            }
+          />
+          <Popconfirm
+            title={`${getIntl().formatMessage({ id: 'property.actions.sureToDelete' })}?`}
+            onConfirm={() => handleDelete(record.index)}
+          >
+            <Button icon={<CloseOutlined />} danger size="small" />
+          </Popconfirm>
+        </Space>
       ),
     } as any);
   }
@@ -295,7 +355,6 @@ function SortableTable() {
           cell: EditableCell,
         },
       }}
-      rowClassName={() => 'editable-row'}
       bordered
     />
   );
@@ -481,6 +540,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                           type: 'Formula',
                           datatype: 'Text',
                           code_name: `formula_${nextNumber}`,
+                          is_visible: true,
                           define: '',
                           display_name: `Column ${nextNumber}`,
                           index: tableData.length,
@@ -531,6 +591,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                               type: 'System Field',
                               datatype: 'Text',
                               code_name: systemFields[index].code_name,
+                              is_visible: true,
                               define: '',
                               display_name: systemFields[index].name,
                               index: tableData.length,

@@ -215,6 +215,8 @@ declare namespace API {
     user: User;
     first_name: string;
     last_name: string;
+    full_name?: string;
+    username?: string;
     avatar?: string; // Base 64
     email: string;
     gender: 'Male' | 'Female' | 'Other';
@@ -496,7 +498,10 @@ declare namespace API {
   //   edited_to: number; // edit "actual hour" to xx hours
   //   status: 'pending' | 'approved' | 'confirmed';
   // }
-  type EmployeeLite = Pick<Employee, 'avatar' | 'first_name' | 'last_name' | 'email' | 'id'>;
+  type EmployeeLite = Pick<
+    Employee,
+    'avatar' | 'first_name' | 'last_name' | 'email' | 'id' | 'full_name' | 'username'
+  >;
 
   interface AttendanceRecord<Type extends 'AttendanceDay' | 'Tracking' = 'AttendanceDay'> {
     id: number;
@@ -626,6 +631,7 @@ declare namespace API {
     display_name: string;
     code_name: string;
     define: string;
+    is_visible: boolean;
   }
 
   interface PayrollTemplate {

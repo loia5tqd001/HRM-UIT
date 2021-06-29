@@ -43,6 +43,11 @@ export default {
   'property.actions.leaveSuccessfully': 'Rời khỏi cuộc trò chuyện thành công!',
   'property.actions.leaveUnsuccessfully': 'Rời khỏi cuộc trò chuyện không thành công!',
   'property.actions.newPayslip': 'Có phiếu lương mới!',
+  'property.actions.uploading': 'Đang tải lên',
+
+  'property.readonlySystemField': 'Không thể thay đổi biến của cột hệ thống!',
+  'property.onlyForCalculating':
+    'Chỉ cho mục đích trung gian tính toán, không hiển thị trong bảng lương.',
 
   'property.username': 'Tên đăng nhập',
   'property.password': 'Mật khẩu',
@@ -237,9 +242,12 @@ export default {
     'Không thể sửa đổi vì sẽ ảnh hưởng đến các bảng lương hiện có. Vui lòng nhân bản để dùng mới.',
 
   'property.payrollColumns': 'Cột Phiếu Lương',
+  'property.payslip_id': 'ID phiếu lương',
   'property.columnType': 'Loại cột',
   'property.columnType.systemField': 'Hệ thống',
   'property.columnType.formula': 'Công thức',
+  'property.columnType.input': 'Nhập dữ liệu từ excel',
+  'property.columnType.downloadSampleExcelFile': 'Tải file excel mẫu',
   'property.datatype': 'Kiểu dữ liệu',
   'property.datatype.Text': 'Text',
   'property.datatype.Number': 'Number',

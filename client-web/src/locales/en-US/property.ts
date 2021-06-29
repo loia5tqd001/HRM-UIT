@@ -43,6 +43,10 @@ export default {
   'property.actions.leaveSuccessfully': 'Leave the conversation successfully!',
   'property.actions.leaveUnsuccessfully': 'Leave the conversation unsuccessfully!',
   'property.actions.newPayslip': 'New payslip!',
+  'property.actions.uploading': 'Uploading',
+
+  'property.readonlySystemField': 'System field columns are readonly!',
+  'property.onlyForCalculating': 'Only for calculating purpose, will not display on payroll.',
 
   'property.username': 'Username',
   'property.password': 'Password',
@@ -236,9 +240,12 @@ export default {
     'Cannot modify this template because it will affect existent payrolls. Duplicate to create new one.',
 
   'property.payrollColumns': 'Payroll Columns',
+  'property.payslip_id': 'Payslip ID',
   'property.columnType': 'Column type',
   'property.columnType.systemField': 'System Field',
   'property.columnType.formula': 'Formula',
+  'property.columnType.input': 'Input From Excel',
+  'property.columnType.downloadSampleExcelFile': 'Download sample excel file',
   'property.datatype': 'Data type',
   'property.datatype.Text': 'Text',
   'property.datatype.Number': 'Number',
