@@ -1,0 +1,34 @@
+@startuml "Tính lương"
+left to right direction
+skinparam packageStyle rectangle
+actor Manager
+' actor User
+
+package "Tính lương" {
+    
+    Manager --- (Tạo bảng lương)
+    Manager --- (Xóa bảng lương)
+    Manager --- (Tính lương)
+    Manager --- (Xác nhận bảng lương)
+    Manager --- (Xuất excel bảng lương)
+    Manager --- (Gửi email bảng lương)
+    
+
+    Manager --- (Quản lý mẫu phiếu lương)
+    note right of (Quản lý mẫu phiếu lương)
+        Thêm, xóa, sửa, nhân bản
+    end note
+
+    Manager --- (Quản lý chế độ thuế)
+    note right of (Quản lý chế độ thuế)
+        Thêm, xóa, sửa
+    end note
+
+    Manager --- (Quản lý chế độ bảo hiểm)
+    note right of (Quản lý chế độ bảo hiểm)
+        Thêm, xóa, sửa
+    end note
+
+    Manager --- (Thay đổi mức lương nhân viên)
+}
+@enduml

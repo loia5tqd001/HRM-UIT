@@ -1,0 +1,32 @@
+@startuml "Quản lý thông tin cá nhân"
+left to right direction
+skinparam packageStyle rectangle
+actor User
+
+' Info
+package "Quản lý thông tin cá nhân" {
+    User --- (Sửa thông tin cơ bản)
+    User --- (Thay đổi mật khẩu)
+
+    User --- (Sửa thông tin liên hệ)
+    User --- (Sửa thông tin liên hệ khẩn cấp)
+    User --- (Sửa thông tin tài khoản ngân hàng)
+    User --- (Quản lý người phụ thuộc)
+    note right of (Quản lý người phụ thuộc): Thêm, xóa sửa
+
+    ' User --- (Quản lý kinh nghiệm làm việc)
+    ' note right of (Quản lý kinh nghiệm làm việc): Thêm, xóa sửa
+
+    ' User --- (Quản lý thông tin giấy phép, chứng chỉ)
+    ' note right of (Quản lý thông tin giấy phép, chứng chỉ): Thêm, xóa sửa
+
+    ' User --- (Quản lý thông tin trình độ ngôn ngữ)
+    ' note right of (Quản lý thông tin trình độ ngôn ngữ): Thêm, xóa sửa
+
+    ' User --- (Quản lý thông tin trình độ học vấn)
+    ' note right of (Quản lý thông tin trình độ học vấn): Thêm, xóa sửa
+
+    ' User --- (Quản lý thông tin kỹ năng làm việc)
+    ' note right of (Quản lý thông tin kỹ năng làm việc): Thêm, xóa sửa
+
+    @enduml

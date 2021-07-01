@@ -1,0 +1,38 @@
+@startuml "Tổng quan"
+left to right direction
+skinparam packageStyle rectangle
+actor Manager
+actor User
+
+User <|-- Manager
+
+User --- (Đăng nhập)
+
+User --- (Quản lý thông tin cá nhân)
+(Quản lý thông tin cá nhân) .> (Đăng nhập) : include
+
+User --- (Xem lịch sử công việc)
+(Xem lịch sử công việc) .> (Đăng nhập) : include
+
+User --- (Chấm công)
+(Chấm công) .> (Đăng nhập) : include
+
+User --- (Xem phiếu lương)
+(Xem phiếu lương) .> (Đăng nhập) : include
+
+Manager --- (Quản lý cơ cấu tổ chức)
+(Quản lý cơ cấu tổ chức) .> (Đăng nhập) : include
+
+Manager --- (Quản lý nhân viên)
+(Quản lý nhân viên) .> (Đăng nhập) : include
+
+Manager --- (Quản lý vị trí công việc)
+(Quản lý vị trí công việc) .> (Đăng nhập) : include
+
+Manager --- (Chấm công)
+(Chấm công) .> (Đăng nhập) : include
+
+Manager --- (Tính lương)
+(Tính lương) .> (Đăng nhập) : include
+
+@enduml

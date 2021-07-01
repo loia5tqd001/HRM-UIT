@@ -1,0 +1,38 @@
+@startuml "Chấm công"
+left to right direction
+skinparam packageStyle rectangle
+actor Manager
+actor User
+
+User <|-- Manager
+
+package "Chấm công" {
+    User --- (Chấm công vào)
+    User --- (Chấm công ra)
+    User --- (Xin nghỉ phép)
+    User --- (Hủy xin nghỉ phép)
+    User --- (Xem chấm công)
+
+
+    Manager --- (Xem chấm công)
+    Manager --- (Sửa thời gian làm việc)
+    Manager --- (Sửa thời gian tăng ca)
+    Manager --- (Chấp nhận chấm công)
+    Manager --- (Từ chối chấm công)
+    Manager --- (Khôi phục chấm công)
+    Manager --- (Xác nhận chấm công)
+
+    Manager --- (Chấp nhận nghỉ phép)
+    Manager --- (Từ chối nghỉ phép)
+
+    Manager --- (Quản lý loại nghỉ phép)
+    note right of (Quản lý loại nghỉ phép)
+        Thêm, xóa, sửa
+    end note
+
+    Manager --- (Quản lý ngày nghỉ lễ)
+    note right of (Quản lý ngày nghỉ lễ)
+        Thêm, xóa, sửa
+    end note
+}
+@enduml

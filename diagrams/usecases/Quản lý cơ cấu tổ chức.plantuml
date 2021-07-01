@@ -1,0 +1,12 @@
+@startuml "Quản lý cơ cấu tổ chức"
+left to right direction
+skinparam packageStyle rectangle
+actor Manager
+
+package "Cơ cấu tổ chức" {
+    Manager --- (Quản lý phòng ban)
+    note right of (Quản lý phòng ban): Thêm, xóa, sửa
+    Manager --- (Quản lý địa điểm làm việc)
+    note right of (Quản lý địa điểm làm việc): Thêm, xóa, sửa
+}
+@enduml

@@ -1,0 +1,28 @@
+@startuml "Đăng nhập"
+skinparam Style strictuml
+participant User
+
+User -> Controller: send request
+activate Controller
+
+Controller -> Database: << createRequest >>
+activate Database
+alt valid image
+    
+else cond2...
+    
+end
+
+
+' B -> C: DoWork
+' activate C
+' C --> B: WorkDone
+' destroy C
+
+' B --> A: RequestCreated
+' deactivate B
+
+' A -> User: Done
+' deactivate A
+
+@enduml

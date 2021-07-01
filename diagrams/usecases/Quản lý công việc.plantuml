@@ -1,0 +1,30 @@
+@startuml "Quản lý công việc"
+left to right direction
+skinparam packageStyle rectangle
+actor Manager
+
+package "Quản lý công việc" {
+    Manager --- (Thay đổi vị trí công việc)
+    Manager --- (Thôi việc)
+
+    Manager --- (Quản lý lý do nghỉ việc)
+    note right of (Quản lý lý do nghỉ việc)
+        Thêm, xóa, sửa
+    end note
+
+    Manager --- (Quản lý chức vụ công việc)
+    note right of (Quản lý chức vụ công việc)
+        Thêm, xóa, sửa
+    end note
+    
+
+    Manager --- (Quản lý trạng thái tuyển dụng)
+    note right of (Quản lý trạng thái tuyển dụng) : Thêm, xóa, sửa
+
+    Manager --- (Quản lý lịch làm việc)
+    note right of (Quản lý lịch làm việc): Thêm xóa, sửa
+
+    Manager --- (Quản lý địa điểm làm việc)
+    note right of (Quản lý địa điểm làm việc): Thêm xóa, sửa
+}
+@enduml

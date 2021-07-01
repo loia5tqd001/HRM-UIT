@@ -1,0 +1,47 @@
+@startuml "Quản lý nhân viên"
+left to right direction
+skinparam packageStyle rectangle
+actor Manager
+
+' Info
+package "Quản lý nhân viên" {
+    Manager --- (Thêm nhân viên)
+    Manager --- (Sửa thông tin cơ bản)
+    Manager --- (Thay đổi vai trò)
+    Manager --- (Thay đổi mật khẩu)
+    Manager --- (Thay đổi ảnh hồ sơ)
+
+    Manager --- (Sửa thông tin liên hệ)
+    Manager --- (Sửa thông tin liên hệ khẩn cấp)
+    Manager --- (Sửa thông tin tài khoản ngân hàng)
+    Manager --- (Quản lý người phụ thuộc)
+    note right of (Quản lý người phụ thuộc): Thêm, xóa sửa
+
+    ' Manager --- (Quản lý kinh nghiệm làm việc)
+    ' note right of (Quản lý kinh nghiệm làm việc): Thêm, xóa sửa
+
+    ' Manager --- (Quản lý thông tin giấy phép, chứng chỉ)
+    ' note right of (Quản lý thông tin giấy phép, chứng chỉ): Thêm, xóa sửa
+
+    ' Manager --- (Quản lý thông tin trình độ ngôn ngữ)
+    ' note right of (Quản lý thông tin trình độ ngôn ngữ): Thêm, xóa sửa
+
+    ' Manager --- (Quản lý thông tin trình độ học vấn)
+    ' note right of (Quản lý thông tin trình độ học vấn): Thêm, xóa sửa
+
+    ' Manager --- (Quản lý thông tin kỹ năng làm việc)
+    ' note right of (Quản lý thông tin kỹ năng làm việc): Thêm, xóa sửa
+
+    ' Manager --- (Quản lý giấy phép, chứng chỉ)
+    ' note right of (Quản lý giấy phép, chứng chỉ): Thêm, xóa, sửa
+
+    ' Manager --- (Quản lý ngôn ngữ)
+    ' note right of (Quản lý ngôn ngữ): Thêm, xóa, sửa
+
+    ' Manager --- (Quản lý trình độ học vấn)
+    ' note right of (Quản lý trình độ học vấn): Thêm, xóa, sửa
+
+    ' Manager --- (Quản lý kỹ năng làm việc)
+    ' note right of (Quản lý kỹ năng làm việc): Thêm, xóa, sửa
+
+    @enduml
