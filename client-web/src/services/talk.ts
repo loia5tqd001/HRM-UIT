@@ -1,7 +1,7 @@
 import { getIntl } from 'umi';
 
-export const TALKJS_APP_ID = 't6rbhbrZ';
-export const TALKJS_SECRET_KEY = 'sk_test_qBe8ww5q6CN8mMWKZ8DPesRdp0siOjpq';
+export const TALKJS_APP_ID = process.env.REACT_APP_TALKJS_APP_ID;
+export const TALKJS_SECRET_KEY = process.env.REACT_APP_TALKJS_SECRET_KEY;
 
 // export async function getConversationData(conversationId: string) {
 //   return fetch(`https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}`, {

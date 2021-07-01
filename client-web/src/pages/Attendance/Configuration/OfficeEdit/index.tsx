@@ -13,7 +13,7 @@ import GooglePlacesAutocomplete, {
 } from 'react-google-places-autocomplete';
 import { Access, useParams, useAccess, useIntl } from 'umi';
 
-const googleApiKey = 'AIzaSyA7EpBEIp80TiSD15D85_Kra8TLtbdsr1c';
+const googleApiKey = process.env.REACT_APP_GOOGLE_MAP_KEY;
 
 export const OfficeEdit: React.FC = () => {
   const { id } = useParams<any>();
