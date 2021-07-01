@@ -35,7 +35,7 @@ export default {
   'menu.employee.customFields': 'Custom Fields',
   'menu.employee.report': 'Report',
   'menu.timeOff': 'Time Off',
-  'menu.timeOff.me': 'My requests',
+  'menu.timeOff.me': 'My timeoff requests',
   'menu.timeOff.new': 'Request Time Off',
   'menu.timeOff.list': 'Employee requests',
   'menu.timeOff.configuration': 'Configuration',
