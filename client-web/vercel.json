@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://qlns-admin.sonix.vn/:path*"
+    },
+    {
+      "source": "/api/:path*/",
+      "destination": "https://qlns-admin.sonix.vn/:path*/"
+    }
+  ]
+}
