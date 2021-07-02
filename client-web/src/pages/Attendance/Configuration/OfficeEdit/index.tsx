@@ -210,7 +210,6 @@ export const OfficeEdit: React.FC = () => {
                         height: '32px',
                         padding: '0 6px',
                       }),
-
                       input: (provided: any) => ({
                         ...provided,
                         margin: '0px',
