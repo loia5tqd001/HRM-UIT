@@ -14,44 +14,12 @@ import { storeAccessToken, storeRefreshToken } from '../commons';
 import axios from '../commons/axios';
 import AsyncButton from '../components/AsyncButton';
 import { Text } from '../components/Themed';
-<<<<<<< HEAD
-import { FontAwesome } from '@expo/vector-icons';
-import { BACKGROUND_IMG, SPACING } from '../constants/Layout';
->>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
-
-import { AntDesign } from '@expo/vector-icons';
-
-<<<<<<< HEAD
-import '../constants/Layout'
-import { colorText, colorTextHolder, primaryColor } from '../constants/Colors'
-import axios from 'axios'
-import { BASE_URL } from '../constants/confgi'
-import { AuthContext } from '../Context/AuthContext'
-import { storeAccessToken, storeRefreshToken, storeInfoUser } from '../commons'
-import { STATE } from '../constants/type'
-import AlertShow from '../components/AlertShow'
-import ModalShow from '../components/ModalShow'
-const { width } = Dimensions.get('window')
-=======
-import '../constants/Layout';
-import { colorText, colorTextHolder } from '../constants/Colors';
-import axios from 'axios';
-=======
 import { colorText, colorTextHolder, primaryColor } from '../constants/Colors';
-<<<<<<< HEAD
->>>>>>> 57473b0... Update LoginScreen
-import { BASE_URL } from '../constants/confgi';
-=======
->>>>>>> dd609ad... Fix ModalTimeOff warning & setup axios interceptor
 import '../constants/Layout';
 import { BACKGROUND_IMG, BORDER_RADIUS, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 
 const { width } = Dimensions.get('window');
-<<<<<<< HEAD
->>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
-=======
->>>>>>> 57473b0... Update LoginScreen
 
 const LoginScreen = ({ navigation }: { navigation: any }) => {
   const [user, onChangeUser] = React.useState<string | undefined>('');
@@ -59,17 +27,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
 
   // cuongnx 123456
 
-<<<<<<< HEAD
-  const { setUser } = useContext(AuthContext);
-<<<<<<< HEAD
-  const checkLogin = () => {
-    setState(STATE.LOADING);
->>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
-=======
->>>>>>> 57473b0... Update LoginScreen
-=======
   const { setUser } = useContext(AuthContext)!;
->>>>>>> 4fca9bc... Adjust Header, Detail Information
 
   const checkLogin = async () => {
     await axios
@@ -82,66 +40,16 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
         storeAccessToken(access);
         storeRefreshToken(refresh);
         return access;
-<<<<<<< HEAD
->>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
-=======
->>>>>>> 57473b0... Update LoginScreen
       })
       .then((token) => {
-<<<<<<< HEAD
-        axios
-          .get(`${BASE_URL}/auth/current_user/`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then((res) => {
-            setUser(res.data);
-<<<<<<< HEAD
->>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
-
-            setState(STATE.LOADED);
-          })
-<<<<<<< HEAD
-          .then(() => setVisible({ show: true, text: 'Success Login' }))
-          .then(() =>
-            setTimeout(() => {
-              navigation.navigate('Root')
-=======
-          // .then(() => setVisible({ show: true, text: 'Success Login' }))
-          .then(() =>
-            setTimeout(() => {
-              navigation.navigate('Root');
->>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
-            }, 1000),
-          )
-          .catch((er) => {
-            setState(STATE.ERROR);
-            console.log('err', er);
-=======
-            onChangeUser('');
-            onChangePassword('');
-<<<<<<< HEAD
-            navigation.navigate('Root');
->>>>>>> 57473b0... Update LoginScreen
-=======
-            navigation.navigate('Home');
->>>>>>> 5b68ff1... fix ui
-          });
-=======
         axios.get(`/auth/current_user/`).then((res) => {
           setUser(res.data);
           onChangeUser('');
           onChangePassword('');
           navigation.navigate('Home');
         });
->>>>>>> dd609ad... Fix ModalTimeOff warning & setup axios interceptor
       });
   };
-<<<<<<< HEAD
->>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
-=======
->>>>>>> 57473b0... Update LoginScreen
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -207,34 +115,6 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
       >
         Copyright © 2021 Dung Loi Team
       </Text>
-<<<<<<< HEAD
-      {/* Modal */}
-<<<<<<< HEAD
-<<<<<<< HEAD
-      <ModalShow visible={state === STATE.LOADING ? true : false} />
-=======
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={false}
-        // visible={state === STATE.LOADING ? true : false}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Loading ... </Text>
-          </View>
-        </View>
-      </Modal>
->>>>>>> aebc021... Turnoff username input's autoCapitalize and add KeyboardAvoidingView for Login Screen
-=======
-      {/* <ModalShow visible={state === STATE.LOADING ? true : false} /> */}
->>>>>>> 57473b0... Update LoginScreen
-
-      {/* Alert */}
-
-      {/* Alert */}
-=======
->>>>>>> 4fca9bc... Adjust Header, Detail Information
     </SafeAreaView>
   );
 };
