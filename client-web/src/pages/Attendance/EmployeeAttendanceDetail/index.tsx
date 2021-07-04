@@ -523,6 +523,7 @@ const EmployeeAttendanceDetail: React.FC = () => {
               history.replace(`?period=${value}`);
               actionRef.current?.reload();
             }}
+            key="selection"
           >
             {periods?.map((it) => (
               <Select.Option value={it.id}>
@@ -532,11 +533,11 @@ const EmployeeAttendanceDetail: React.FC = () => {
             ))}
           </Select>,
           ...toolbarButtons.map((toolbar) => (
-            <Access accessible={access[toolbar.access]}>
+            <Access accessible={access[toolbar.access]} key={toolbar.access}>
               <Button
                 onClick={async () => {
                   const bulkAction = Promise.all(
-                    selectedRows.map((it) => toolbar.api(it.owner, it.id)),
+                    selectedRows.map((it) => toolbar.api(it.owner.id, it.id)),
                   );
                   try {
                     await bulkAction;

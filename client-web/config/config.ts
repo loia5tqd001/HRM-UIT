@@ -4,13 +4,10 @@ import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routes from './routes';
-import mapKeys from 'lodash/mapKeys'
+import mapKeys from 'lodash/mapKeys';
 
-const {
-  PORT,
-  REACT_APP_ENV,
-  ...envVariables
-} = process.env;
+const { PORT, REACT_APP_ENV, ...envVariables } = process.env;
+console.log('>  ~ file: config.ts ~ line 14 ~ envVariables', envVariables);
 
 export default defineConfig({
   hash: true,

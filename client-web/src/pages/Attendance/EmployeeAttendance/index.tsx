@@ -256,7 +256,7 @@ const EmployeeAttendance: React.FC = () => {
                     selectedRows
                       .flatMap((it) => it.attendance)
                       .filter(toolbar.filter)
-                      .map((it) => toolbar.api(it.owner, it.id)),
+                      .map((it) => toolbar.api(it.owner.id, it.id)),
                   );
                   try {
                     await bulkAction;
