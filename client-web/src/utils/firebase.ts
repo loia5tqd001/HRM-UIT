@@ -3,13 +3,13 @@ import 'firebase/database';
 
 export { firebase };
 export const firebaseApp = firebase.initializeApp({
-  apiKey: 'AIzaSyASn87_RfpvD9FV5mvWn18yuQ8ANlQhXak',
-  authDomain: 'thesis-2f57b.firebaseapp.com',
-  databaseURL: 'https://thesis-2f57b-default-rtdb.asia-southeast1.firebasedatabase.app',
-  projectId: 'thesis-2f57b',
-  storageBucket: 'thesis-2f57b.appspot.com',
-  messagingSenderId: '446264849148',
-  appId: '1:446264849148:web:e8b9c002cae50f18d21d79',
-  measurementId: 'G-WWW4REJ16T',
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.FIREBASE_DATABASE_URL,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
 });
 export default firebaseApp;

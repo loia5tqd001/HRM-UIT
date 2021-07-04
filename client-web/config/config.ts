@@ -4,14 +4,12 @@ import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routes from './routes';
+import mapKeys from 'lodash/mapKeys'
 
 const {
-  REACT_APP_ENV,
-  REACT_APP_RECAPTCHA_KEY,
-  REACT_APP_GOOGLE_MAP_KEY,
-  REACT_APP_TALKJS_APP_ID,
-  REACT_APP_TALKJS_SECRET_KEY,
   PORT,
+  REACT_APP_ENV,
+  ...envVariables
 } = process.env;
 
 export default defineConfig({
@@ -78,10 +76,7 @@ export default defineConfig({
     mock: false,
   },
   define: {
-    'process.env.REACT_APP_RECAPTCHA_KEY': REACT_APP_RECAPTCHA_KEY,
-    'process.env.REACT_APP_GOOGLE_MAP_KEY': REACT_APP_GOOGLE_MAP_KEY,
-    'process.env.REACT_APP_TALKJS_APP_ID': REACT_APP_TALKJS_APP_ID,
-    'process.env.REACT_APP_TALKJS_SECRET_KEY': REACT_APP_TALKJS_SECRET_KEY,
+    ...mapKeys(envVariables, (_, key) => `process.env.${key}`),
     PORT: PORT || 3000, // This should work (https://v2.umijs.org/guide/env-variables.html#port), but it doesn't, so I create a .env file
     // https://github.com/ant-design/ant-design-pro/issues/5862
   },
