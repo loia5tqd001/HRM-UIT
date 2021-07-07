@@ -145,19 +145,23 @@ const EmployeeAttendance: React.FC = () => {
       dataIndex: 'actual',
       renderText: (_, record) => {
         if (!record.actual || !record.work_schedule) return null;
+        const isFull = record.actual >= record.work_schedule;
         return (
           <div style={{ position: 'relative' }}>
             <Progress
               percent={(record.actual / record.work_schedule) * 100}
               showInfo={false}
               strokeWidth={20}
+              strokeColor={isFull ? undefined : '#faad14cc'}
+              status={isFull ? 'normal' : 'active'}
             />
             <div
               style={{
                 position: 'absolute',
                 left: 10,
                 top: 2,
-                color: '#151515',
+                color: isFull ? 'white' : '#151515 ',
+                textShadow: `0 0 10px ${isFull ? '#0008' : 'white'}`,
                 fontWeight: 600,
               }}
             >
