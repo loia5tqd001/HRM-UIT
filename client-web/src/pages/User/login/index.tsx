@@ -56,7 +56,7 @@ const Login: React.FC = () => {
 
     const handleRecaptcha = async () => {
       try {
-        const token = await executeRecaptcha('user/login');
+        const token = await executeRecaptcha?.('user/login');
         console.log('recaptcha token', token);
 
         // NOTE: We need a backend in order to complete the recaptcha verification

@@ -1,6 +1,7 @@
 import { getConversationId, getTopicUrl } from '@/models/firebaseTalk';
 import { employeeToUser } from '@/pages/Message';
 import {
+  calculatePayslips,
   confirmPayroll,
   downloadSampleExcel,
   exportExcel,
@@ -48,6 +49,7 @@ export const PayrollDetail: React.FC = () => {
   const [payroll, setPayroll] = useState<API.Payroll>();
   const [dynamicColumns, setDynamicColumns] = useState<any>();
   const [isExporting, setIsExporting] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isDownloadingSample, setIsDownloadingSample] = useState(false);
   const access = useAccess();
@@ -291,7 +293,38 @@ export const PayrollDetail: React.FC = () => {
                     </Upload>
                   </Dropdown>
                 </Access>
-
+                <Access accessible={access['can_calculate_payroll']}>
+                  <Button
+                    children={intl.formatMessage({ id: 'property.actions.runCalculation' })}
+                    type="primary"
+                    icon={<CalculatorOutlined />}
+                    loading={isCalculating}
+                    onClick={async () => {
+                      try {
+                        setIsCalculating(true);
+                        await calculatePayslips(id);
+                        await requestTable();
+                        message.success(
+                          `${intl.formatMessage({
+                            id: 'property.actions.runCalculation',
+                          })} ${intl.formatMessage({
+                            id: 'property.actions.successfully',
+                          })}`,
+                        );
+                      } catch {
+                        message.error(
+                          `${intl.formatMessage({
+                            id: 'property.actions.runCalculation',
+                          })} ${intl.formatMessage({
+                            id: 'property.actions.successfully',
+                          })}`,
+                        );
+                      } finally {
+                        setIsCalculating(false);
+                      }
+                    }}
+                  />
+                </Access>
                 <Access
                   accessible={access['can_confirm_payroll'] && payroll?.status === 'Temporary'}
                 >
@@ -315,7 +348,7 @@ export const PayrollDetail: React.FC = () => {
                           })}`,
                         );
                       } catch {
-                        message.success(
+                        message.error(
                           `${intl.formatMessage({
                             id: 'property.actions.confirm',
                           })} ${intl.formatMessage({
@@ -360,7 +393,7 @@ export const PayrollDetail: React.FC = () => {
                                   })}`,
                                 );
                               } catch {
-                                message.success(
+                                message.error(
                                   `${intl.formatMessage({
                                     id: 'component.button.sendPayslipsViaEmail',
                                   })} ${intl.formatMessage({

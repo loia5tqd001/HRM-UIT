@@ -12,6 +12,7 @@ export default {
   'property.actions.approve': 'Chấp thuận',
   'property.actions.reject': 'Từ chối',
   'property.actions.confirm': 'Phê duyệt',
+  'property.actions.runCalculation': 'Tính lương',
   'property.actions.revert': 'Hoàn lại',
   'property.actions.editActual': 'Sửa số giờ làm thực tế',
   'property.actions.editOvertime': 'Sửa số giờ làm OT',

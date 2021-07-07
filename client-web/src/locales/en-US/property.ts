@@ -12,6 +12,7 @@ export default {
   'property.actions.approve': 'Approve',
   'property.actions.reject': 'Reject',
   'property.actions.confirm': 'Confirm',
+  'property.actions.runCalculation': 'Run Calculation',
   'property.actions.revert': 'Revert',
   'property.actions.editActual': 'Edit actual',
   'property.actions.editOvertime': 'Edit overtime',

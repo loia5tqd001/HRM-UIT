@@ -8,8 +8,8 @@
 export default {
   dev: {
     '/api/': {
-      target: 'http://localhost:8000',
-      // target: 'https://qlns-admin.sonix.vn',
+      // target: 'http://localhost:8000',
+      target: 'https://qlns-admin.sonix.vn',
       // target: 'http://172.20.10.8:8000',
       changeOrigin: true,
       pathRewrite: { '^/api': '' },
