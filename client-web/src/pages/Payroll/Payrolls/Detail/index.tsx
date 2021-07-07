@@ -296,7 +296,7 @@ export const PayrollDetail: React.FC = () => {
                 <Access accessible={access['can_calculate_payroll']}>
                   <Button
                     children={intl.formatMessage({ id: 'property.actions.runCalculation' })}
-                    type="primary"
+                    className="primary-outlined-button"
                     icon={<CalculatorOutlined />}
                     loading={isCalculating}
                     onClick={async () => {
