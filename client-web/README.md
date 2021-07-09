@@ -1,5 +1,22 @@
 1. Rename `.env.example` to `.env`
 
+# Known issue
+1. Whenever encounter this error, it's usually because I've just reset the Talkjs data on the server.
+![](./.github/talkjs_unknown_error_1.jpg)
+- Hot fix: Uncomment this line in the component `Message.tsx` will fix (or hide) the problem
+```diff
+-selected: localStorage.getItem(LAST_SELECTED_CONVERSATIONID_STORAGE_KEY) || undefined,
++//selected: localStorage.getItem(LAST_SELECTED_CONVERSATIONID_STORAGE_KEY) || undefined,
+```
+- To fix formally: Whenever reseting the Talkjs data on the server, change the variable `LAST_SELECTED_CONVERSATIONID_STORAGE_KEY` to something else:
+```diff
+-const LAST_SELECTED_CONVERSATIONID_STORAGE_KEY = 'old_key'; 
++const LAST_SELECTED_CONVERSATIONID_STORAGE_KEY = 'new_key'; 
+```
+- Better I could make it an environment variable, but I don't care for now
+
+
+
 # Ant Design Pro
 
 This project is initialized with [Ant Design Pro](https://pro.ant.design). Follow is the quick guide for how to use.

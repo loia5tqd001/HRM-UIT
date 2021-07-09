@@ -1,7 +1,7 @@
 import { getIntl } from 'umi';
 
-export const TALKJS_APP_ID = process.env.REACT_APP_TALKJS_APP_ID;
-export const TALKJS_SECRET_KEY = process.env.REACT_APP_TALKJS_SECRET_KEY;
+export const TALKJS_APP_ID = process.env.REACT_APP_TALKJS_APP_ID!;
+export const TALKJS_SECRET_KEY = process.env.REACT_APP_TALKJS_SECRET_KEY!;
 
 // export async function getConversationData(conversationId: string) {
 //   return fetch(`https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}`, {
@@ -104,7 +104,7 @@ export async function leaveConversation(conversationId: string, user: API.Employ
   });
 }
 
-export async function createConversation(conversationId: string, body: any) {
+export async function createConversation(conversationId: string, body?: any) {
   await fetch(`https://api.talkjs.com/v1/${TALKJS_APP_ID}/conversations/${conversationId}`, {
     method: 'PUT',
     headers: {

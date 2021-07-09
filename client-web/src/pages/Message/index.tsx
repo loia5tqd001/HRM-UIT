@@ -1,6 +1,7 @@
 import { getConversationId } from '@/models/firebaseTalk';
 import { allEmployees } from '@/services/employee';
 import { leaveConversation, unhideConversation } from '@/services/talk';
+import { sleepFor } from '@/utils/utils';
 import { ExportOutlined, MessageOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProList from '@ant-design/pro-list';
@@ -17,7 +18,8 @@ declare global {
   }
 }
 
-const LAST_SELECTED_CONVERSATIONID_STORAGE_KEY = '3432432499832940382904';
+// NOTE: Every time reset the talkjs data, we need to change this key.
+const LAST_SELECTED_CONVERSATIONID_STORAGE_KEY = 'LAST_SELECTED_CONVERSATIONID_STORAGE_KEY_1'; 
 
 export const employeeToUser = (employee: API.EmployeeLite): Talk.User => {
   return new Talk.User({
@@ -38,6 +40,7 @@ const ChatBox = React.memo(
     onConversationSelected: (event: ConversationSelectedEvent) => void;
   }) => {
     const talkjsContainerRef = useRef<HTMLDivElement>(null);
+    console.log('>  ~ file: index.tsx ~ line 41 ~ talkjsContainerRef', talkjsContainerRef);
     const { initialState } = useModel('@@initialState');
     const { currentUser } = initialState!;
     const { addParticipants } = useModel('firebaseTalk');
@@ -45,12 +48,14 @@ const ChatBox = React.memo(
     useEffect(() => {
       if (!talkjsContainerRef.current) return undefined;
 
-      Talk.ready.then(() => {
-        if (!window.talkSession) {
+      Talk.ready.then(async () => {
+        /* eslint-disable no-await-in-loop */
+        while (!window.talkSession) {
           // eslint-disable-next-line no-console
           console.log('window.talkSession is not defined', window.talkSession);
-          return;
+          await sleepFor(1000);
         }
+        console.log('Talkjs ready in ChatBox');
         inboxRef.current = window.talkSession?.createInbox({
           showFeedHeader: false,
           selected: localStorage.getItem(LAST_SELECTED_CONVERSATIONID_STORAGE_KEY) || undefined,

@@ -1,13 +1,13 @@
 import { employeeToUser } from '@/pages/Message';
+import { TALKJS_APP_ID } from '@/services/talk';
 import { NotificationOutlined } from '@ant-design/icons';
 import { Badge, Space, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
+import Favicon from 'react-favicon';
 import Talk from 'talkjs';
 import { Link, SelectLang, useModel } from 'umi';
 import Avatar from './AvatarDropdown';
 import styles from './index.less';
-import Favicon from 'react-favicon';
-import { TALKJS_APP_ID } from '@/services/talk';
 
 export type SiderTheme = 'light' | 'dark';
 
@@ -28,7 +28,7 @@ const GlobalHeaderRight: React.FC = () => {
     }
     Talk.ready.then(() => {
       const me = employeeToUser(initialState.currentUser!);
-      window.talkSession = new Talk.Session({ appId: TALKJS_APP_ID, me });
+      if (!window.talkSession) window.talkSession = new Talk.Session({ appId: TALKJS_APP_ID, me });
       window.talkSession?.setDesktopNotificationEnabled(
         Boolean(localStorage.getItem('talkjs:desktop_notify')) || true,
       );
