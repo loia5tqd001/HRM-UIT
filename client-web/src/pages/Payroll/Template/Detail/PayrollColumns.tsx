@@ -79,7 +79,7 @@ const EditableCell = ({
   if (editable) {
     if (dataIndex === 'type') {
       childNode = (
-        <Form.Item name={dataIndex} style={{ margin: 0, width: 125 }}>
+        <Form.Item name={dataIndex} style={{ margin: 0, minWidth: 125 }}>
           <Select
             allowClear={false}
             options={[
@@ -104,7 +104,7 @@ const EditableCell = ({
       );
     } else if (dataIndex === 'datatype') {
       childNode = (
-        <Form.Item name={dataIndex} style={{ margin: 0, width: 105 }}>
+        <Form.Item name={dataIndex} style={{ margin: 0, minWidth: 110 }}>
           <Select
             allowClear={false}
             options={[
@@ -527,7 +527,7 @@ export const PayrollColumns: React.FC<Props> = (props) => {
                     className="primary-outlined-button"
                     icon={<PlusOutlined />}
                     style={{ width: '100%' }}
-                    children={getIntl().formatMessage({ id: 'property.actions.addFormulaColumn' })}
+                    children={getIntl().formatMessage({ id: 'property.actions.addRegularColumn' })}
                     onClick={() => {
                       let nextNumber = String(tableData.length + 1);
                       // eslint-disable-next-line @typescript-eslint/no-loop-func
