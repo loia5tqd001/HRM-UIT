@@ -10,6 +10,13 @@ export async function allEmployees(options?: { [key: string]: any }) {
   });
 }
 
+export async function allCoWorkers(options?: { [key: string]: any }) {
+  return request<API.EmployeeLite[]>(`/api/co-workers/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
 export async function createEmployee(data: Item, options?: { [key: string]: any }) {
   return request<Item>(`${endpoint}/`, {
     method: 'POST',

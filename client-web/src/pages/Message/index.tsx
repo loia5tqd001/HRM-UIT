@@ -1,5 +1,5 @@
 import { getConversationId } from '@/models/firebaseTalk';
-import { allEmployees } from '@/services/employee';
+import { allCoWorkers } from '@/services/employee';
 import { leaveConversation, unhideConversation } from '@/services/talk';
 import { sleepFor } from '@/utils/utils';
 import { ExportOutlined, MessageOutlined } from '@ant-design/icons';
@@ -19,7 +19,7 @@ declare global {
 }
 
 // NOTE: Every time reset the talkjs data, we need to change this key.
-const LAST_SELECTED_CONVERSATIONID_STORAGE_KEY = 'LAST_SELECTED_CONVERSATIONID_STORAGE_KEY_1'; 
+const LAST_SELECTED_CONVERSATIONID_STORAGE_KEY = 'LAST_SELECTED_CONVERSATIONID_STORAGE_KEY_1';
 
 export const employeeToUser = (employee: API.EmployeeLite): Talk.User => {
   return new Talk.User({
@@ -106,7 +106,7 @@ export const Message: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState!;
   const inboxRef = useRef<Talk.Inbox>();
-  const peopleRef = useRef<API.Employee[]>();
+  const peopleRef = useRef<API.EmployeeLite[]>();
   const [isLoading, setIsLoading] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [inTheConversation, setInTheConversation] = useState<number[]>([]);
@@ -196,7 +196,7 @@ export const Message: React.FC = () => {
             />
           </Spin>
           <div className={styles.scrollableList}>
-            <ProList<API.Employee>
+            <ProList<API.EmployeeLite>
               search={{
                 filterType: 'light',
               }}
@@ -204,9 +204,9 @@ export const Message: React.FC = () => {
               split
               headerTitle={<FormattedMessage id="pages.allPeople" defaultMessage="All People" />}
               request={async (query) => {
-                const { title: fullname, user } = query;
+                const { title: fullname, username } = query;
                 if (peopleRef.current === undefined) {
-                  peopleRef.current = await allEmployees();
+                  peopleRef.current = await allCoWorkers();
                 }
                 let data = peopleRef.current;
                 if (fullname && typeof fullname === 'string') {
@@ -216,9 +216,9 @@ export const Message: React.FC = () => {
                       .includes(fullname.toLowerCase()),
                   );
                 }
-                if (user?.username && typeof user.username === 'string') {
+                if (username && typeof username === 'string') {
                   data = data.filter((it) =>
-                    it.user.username.toLowerCase().includes(user.username.toLowerCase()),
+                    it.username?.toLowerCase().includes(username.toLowerCase()),
                   );
                 }
                 return {
@@ -254,7 +254,7 @@ export const Message: React.FC = () => {
                   search: false,
                 },
                 subTitle: {
-                  dataIndex: ['user', 'username'],
+                  dataIndex: 'username',
                   render: (dom) => `@${dom}`,
                   title: <FormattedMessage id="property.username" defaultMessage="Username" />,
                 },
