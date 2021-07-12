@@ -218,6 +218,10 @@ const MyAttendance: React.FC = () => {
 
   const columns: ProColumns<RecordType>[] = [
     {
+      width: 24,
+      fixed: 'left',
+    },
+    {
       title: 'ID',
       dataIndex: 'id',
       fixed: 'left',
