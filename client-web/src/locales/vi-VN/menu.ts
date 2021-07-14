@@ -53,7 +53,7 @@ export default {
   'menu.attendance.configuration.office': 'Văn phòng làm việc',
   'menu.attendance.configuration.overtimeType': 'Loại OT',
   'menu.attendance.report': 'Báo cáo',
-  'menu.payroll': 'Tính lương',
+  'menu.payroll': 'Lương',
   'menu.payroll.template': 'Mẫu lương',
   'menu.payroll.payrolls': 'Bảng lương',
   'menu.payroll.report': 'Báo cáo',

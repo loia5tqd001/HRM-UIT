@@ -343,7 +343,7 @@
     name: 'payroll',
     icon: 'calculator',
     path: '/payroll',
-    access: '/payroll',
+    // access: '/payroll',
     routes: [
       {
         path: '/payroll/payrolls',
@@ -371,7 +371,7 @@
         hideInMenu: true,
         access: 'view_salarytemplate',
       },
-
+      { path: '/payroll', redirect: '/account/profile?tab=payroll' },
       // {
       //   path: '/payroll/configuration',
       //   name: 'configuration',
