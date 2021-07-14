@@ -1,3 +1,4 @@
+import Talk from 'talkjs';
 import { getIntl } from 'umi';
 
 export const TALKJS_APP_ID = process.env.REACT_APP_TALKJS_APP_ID!;
@@ -39,6 +40,22 @@ export const TALKJS_SECRET_KEY = process.env.REACT_APP_TALKJS_SECRET_KEY!;
 //     }
 //   });
 // }
+
+export async function createTalkjsUser(userId: string, user: Talk.User) {
+  return fetch(`https://api.talkjs.com/v1/${TALKJS_APP_ID}/users/${userId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${TALKJS_SECRET_KEY}`,
+    },
+    body: JSON.stringify(user),
+  }).then((res) => {
+    if (!res.ok) {
+      console.log(res);
+      throw new Error(res.statusText);
+    }
+  });
+}
 
 export async function sendSystemMessage(conversationId: string, messages: string[]) {
   return fetch(
@@ -112,11 +129,15 @@ export async function createConversation(conversationId: string, body?: any) {
       Authorization: `Bearer ${TALKJS_SECRET_KEY}`,
     },
     body: JSON.stringify(body),
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error(res.statusText);
-    }
-  });
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(res.statusText);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }
 
 export async function unhideConversation(conversationId: string) {
