@@ -85,6 +85,28 @@ export async function changeEmployeeAvatar(
   });
 }
 
+export async function uploadFace(id: number, data: any, options?: { [key: string]: any }) {
+  return request<API.EmployeeFaces>(`${endpoint}${id}/faces/`, {
+    method: 'POST',
+    data,
+    ...(options || {}),
+  });
+}
+
+export async function allFaces(id: number, options?: { [key: string]: any }) {
+  return request<API.EmployeeFaces>(`${endpoint}${id}/faces/`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function deleteFace(id: number, faceId: number, options?: { [key: string]: any }) {
+  return request<API.EmployeeFaces>(`${endpoint}${id}/faces/${faceId}/`, {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
+
 export async function changeEmployeeRole(
   employeeId: number,
   roleName: string,

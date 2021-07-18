@@ -1,5 +1,6 @@
 import { EmployeeDependent } from './EmployeeDependents';
 import { EmployeeGeneral } from './EmployeeGeneral';
+import { EmployeeFaces } from './EmployeeFaces';
 import { EmployeeJob } from './EmployeeJob';
 import { EmployeePayroll } from './EmployeePayroll';
 import { Card, Radio } from 'antd';
@@ -24,14 +25,19 @@ export type EmployeeTabProps = {
 
 export const EmployeeTabs: React.FC<EmployeeTabProps> = (props) => {
   const { tab } = history.location.query as {
-    tab: 'general' | 'job' | 'payroll' | 'dependent' | undefined;
+    tab: 'general' | 'job' | 'payroll' | 'dependent' | 'faces' | undefined;
   };
   const { isActive, employeeId } = props;
-  const { canViewGeneralTab, canViewJobTab, canViewPayrollTab, canViewDependentTab } =
-    useEmployeeDetailAccess({
-      isActive,
-      employeeId,
-    });
+  const {
+    canViewGeneralTab,
+    canViewJobTab,
+    canViewPayrollTab,
+    canViewDependentTab,
+    canViewFacesTab,
+  } = useEmployeeDetailAccess({
+    isActive,
+    employeeId,
+  });
   const intl = useIntl();
 
   useEffect(() => {
@@ -76,6 +82,13 @@ export const EmployeeTabs: React.FC<EmployeeTabProps> = (props) => {
               </Radio.Button>
             </Link>
           </Access>
+          <Access accessible={canViewFacesTab}>
+            <Link to="?tab=faces">
+              <Radio.Button className="uppercase" value="faces">
+                {intl.formatMessage({ id: 'property.faces' })}
+              </Radio.Button>
+            </Link>
+          </Access>
         </Radio.Group>
       </Card>
       <div className={styles.tabContent}>
@@ -83,6 +96,7 @@ export const EmployeeTabs: React.FC<EmployeeTabProps> = (props) => {
         {tab === 'job' && <EmployeeJob {...props} />}
         {tab === 'payroll' && <EmployeePayroll {...props} />}
         {tab === 'dependent' && <EmployeeDependent {...props} />}
+        {tab === 'faces' && <EmployeeFaces {...props} />}
       </div>
     </div>
   );

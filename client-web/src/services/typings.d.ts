@@ -307,6 +307,14 @@ declare namespace API {
     effective_end_date: string | moment.Moment;
   }
 
+  interface EmployeeFaces {
+    id: number;
+    owner: Employee['id'];
+    azure_face_id: string;
+    image: string;
+    timestamp: string | moment.Moment;
+  }
+
   // interface EmployeeBankInfo {
   //   bank_name: string;
   //   account_name: string;

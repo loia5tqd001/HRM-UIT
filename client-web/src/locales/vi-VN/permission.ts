@@ -59,6 +59,10 @@ export default {
     'Có thể xóa trình độ học vấn của nhân viên',
   'permission.employee education.view_employeeeducation':
     'Có thể xem trình độ học vấn của nhân viên',
+  'permission.employee face': 'Khuôn mặt nhân viên',
+  'permission.employee face.view_employeeface': 'Có thể xem khuôn mặt nhân viên',
+  'permission.employee face.add_employeeface': 'Có thể thêm khuôn mặt nhân viên',
+  'permission.employee face.delete_employeeface': 'Có thể xoá mặt nhân viên',
   'permission.employee language': 'Ngôn ngữ Nhân viên',
   'permission.employee language.add_employeelanguage': 'Có thể thêm ngôn ngữ của nhân viên',
   'permission.employee language.change_employeelanguage': 'Có thể thay đổi ngôn ngữ của nhân viên',

@@ -49,6 +49,23 @@ type CurrentLocation = {
   lng: number;
 };
 
+export const renderZoomInImage = (imageUrl: string) => {
+  return (
+    <ModalForm
+      className={styles.hideFooter}
+      trigger={
+        <div style={{ position: 'relative', display: 'inline-block', cursor: 'zoom-in' }}>
+          <Avatar shape="square" src={imageUrl}></Avatar>
+        </div>
+      }
+      width={548}
+      submitter={false}
+    >
+      <img style={{ width: 500 }} src={imageUrl} />
+    </ModalForm>
+  );
+};
+
 export const renderCheckInImage = (text: any, record: RecordType, checkKey: keyof RecordType) => {
   return (
     text && (

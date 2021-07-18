@@ -44,6 +44,7 @@ export default {
   'property.actions.leaveSuccessfully': 'Leave the conversation successfully!',
   'property.actions.leaveUnsuccessfully': 'Leave the conversation unsuccessfully!',
   'property.actions.newPayslip': 'New payslip!',
+  'property.actions.upload': 'Upload',
   'property.actions.uploading': 'Uploading',
 
   'property.readonlySystemField': 'System field columns are readonly!',
@@ -208,6 +209,7 @@ export default {
   'property.allow_outside': 'Allow outside',
   'property.allow_outside.allowed': 'Allowed',
   'property.allow_outside.not_allowed': 'Not allowed',
+  'property.image': 'Image',
 
   'property.jobTitle': 'Job Title',
   'property.employmentStatus': 'Employment Status',
@@ -222,6 +224,7 @@ export default {
   'property.general': 'General',
   'property.job': 'Job',
   'property.payroll': 'Payroll',
+  'property.faces': 'Face',
   'property.dependent': 'Dependent',
   'property.basicInfo': 'Basic Info',
   'property.homeAddress': 'Home Address',

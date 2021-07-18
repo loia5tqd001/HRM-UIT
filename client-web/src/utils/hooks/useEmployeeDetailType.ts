@@ -33,7 +33,7 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
   const access = useAccess();
 
   // LEFT PANEL
-  const canChangeAvatar = isActive && access['can_change_avatar_employee'];
+  const canChangeAvatar = isActive && isCurrentUser(employeeId);
   const canSetRole = isActive && !isCurrentUser(employeeId) && access['can_set_role_employee'];
   const canSetPassword =
     isActive && (isCurrentUser(employeeId) || access['can_set_password_employee']);
@@ -75,6 +75,12 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
   const canDeleteDependent = isActive && (isCurrentUser(employeeId) || access['delete_dependent']);
   const canViewDependentTab = canViewDependent;
 
+  // FACES
+  const canViewFaces = isCurrentUser(employeeId) || access['view_employeeface'];
+  const canAddFaces = isActive && access['add_employeeface'];
+  const canDeleteFaces = isActive && access['delete_employeeface'];
+  const canViewFacesTab = canViewFaces;
+
   return {
     canChangeAvatar,
     canSetRole,
@@ -108,5 +114,10 @@ export function useEmployeeDetailAccess({ isActive, employeeId }: EmployeeDetail
     canAddDependent,
     canChangeDependent,
     canDeleteDependent,
+
+    canViewFacesTab,
+    canViewFaces,
+    canAddFaces,
+    canDeleteFaces,
   };
 }

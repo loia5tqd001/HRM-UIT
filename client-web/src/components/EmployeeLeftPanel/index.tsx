@@ -70,7 +70,7 @@ export const EmployeeLeftPanel: React.FC<Props> = (props) => {
           <Upload
             disabled={!canChangeAvatar}
             showUploadList={false}
-            style={{ display: 'block', cursor: `${canChangeAvatar ? 'pointer' : undefined}` }}
+            style={{ display: 'block', cursor: `${canChangeAvatar ? 'pointer' : 'auto'}` }}
             maxCount={1}
             accept="image/*"
             customRequest={async (options) => {
