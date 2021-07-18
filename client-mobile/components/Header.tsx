@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
     width: getWindowSize.window.width * 0.9,
     alignSelf: 'center',
     marginVertical: SPACING,
+    // backgroundColor: 'red',
   },
   container: { flexDirection: 'row', alignItems: 'center' },
   button: {

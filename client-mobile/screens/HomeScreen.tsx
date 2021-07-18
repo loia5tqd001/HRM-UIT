@@ -1,48 +1,84 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import {
+  SafeAreaView,
+  ImageBackground,
+  StyleSheet,
+  Image,
+  Text,
+  View,
+  TouchableOpacity,
+} from 'react-native';
 import DetailInformation from '../components/DetailInformation';
 import Header from '../components/Header';
 import { GET_WIDTH } from '../constants/config';
-import { BORDER_RADIUS, ICON_IMG, SPACING } from '../constants/Layout';
+import {
+  ATTENDANCE_ICON,
+  BACKGROUND,
+  BORDER_RADIUS,
+  ICON_IMG,
+  SPACING,
+  TIMEOFF_ICON,
+} from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
+// import AttendanceIcon from '../assets/images/schedule.svg';
+// import TimeoffIcon from '../assets/images/travelling.svg';
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
   const { user } = React.useContext(AuthContext)!;
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ height: 150 }}>
-        <Header navigation={navigation} />
+    <SafeAreaView
+      style={{
+        flex: 1,
+      }}
+    >
+      <ImageBackground
+        source={BACKGROUND}
+        style={{ width: '100%', height: '100%' }}
+        resizeMode="cover"
+      >
+        <View style={{ height: 50 }}>
+          <Header navigation={navigation} />
+        </View>
         <View style={styles.container}>
           <DetailInformation
             imgUri={user ? user.avatar : ICON_IMG}
-            name={user ? user.last_name : ''}
+            name={user ? user.first_name : ''}
           />
         </View>
-      </View>
-
-      {/* Body */}
-      <View
-        style={{
-          flexGrow: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          alignContent: 'center',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => navigation.navigate('BottomNav', { screen: 'Attendance' })}
-          style={styles.bigButton}
+        {/* Body */}
+        <View
+          style={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignContent: 'center',
+          }}
         >
-          <Text style={{ textAlign: 'center', fontSize: 22 }}>Clock In/Out</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('BottomNav', { screen: 'TimeOff' })}
-          style={styles.bigButton}
-        >
-          <Text style={{ textAlign: 'center', fontSize: 22 }}>Time Off</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('BottomNav', { screen: 'Attendance' })}
+            style={styles.bigButton}
+          >
+            <View style={{ display: 'flex', alignItems: 'center' }}>
+              <Image source={ATTENDANCE_ICON} style={{ width: 60, height: 60 }} />
+            </View>
+            <Text style={{ textAlign: 'center', fontSize: 15, marginTop: 5, color: '#444' }}>
+              Attendance
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('BottomNav', { screen: 'TimeOff' })}
+            style={styles.bigButton}
+          >
+            <View style={{ display: 'flex', alignItems: 'center' }}>
+              <Image source={TIMEOFF_ICON} style={{ width: 60, height: 60 }} />
+            </View>
+            <Text style={{ textAlign: 'center', fontSize: 15, marginTop: 5, color: '#444' }}>
+              Time Off
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
     </SafeAreaView>
   );
 };
@@ -58,7 +94,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING * 2,
   },
   bigButton: {
-    padding: SPACING * 3.5,
+    padding: SPACING * 2,
     margin: 5,
     // width: '90%',
     backgroundColor: 'white',
