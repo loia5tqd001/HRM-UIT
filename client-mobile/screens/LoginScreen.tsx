@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import {
   Dimensions,
   Image,
+  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -14,9 +15,10 @@ import { storeAccessToken, storeRefreshToken } from '../commons';
 import axios from '../commons/axios';
 import AsyncButton from '../components/AsyncButton';
 import { Text } from '../components/Themed';
+import WithBackground from '../components/WithBackground';
 import { colorText, colorTextHolder, primaryColor } from '../constants/Colors';
 import '../constants/Layout';
-import { BACKGROUND_IMG, BORDER_RADIUS, SPACING } from '../constants/Layout';
+import { BACKGROUND, BACKGROUND_IMG, BORDER_RADIUS, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 
 const { width } = Dimensions.get('window');
@@ -54,67 +56,67 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {/* Icon Language */}
-      <View style={{ flexDirection: 'row-reverse', marginLeft: SPACING * 2 }}>
-        <FontAwesome name="language" size={24} color={colorText} style={{ marginTop: SPACING }} />
-      </View>
-
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Image source={BACKGROUND_IMG} style={styles.img} />
-          <Text style={{ fontSize: 33, fontWeight: '700', color: '#000' }}>UIT</Text>
+      <WithBackground>
+        <View style={{ flexDirection: 'row-reverse', marginLeft: SPACING * 2 }}>
+          <FontAwesome name="language" size={24} color={colorText} style={{ marginTop: SPACING }} />
         </View>
-        <View style={{ margin: SPACING, opacity: 0.45 }}>
-          <Text style={{ color: colorText }}>Human Resource Management Application</Text>
-        </View>
-        {/* Input */}
-        <View style={{ paddingTop: SPACING * 3, borderRadius: BORDER_RADIUS }}>
-          <View style={styles.inputContainer}>
-            <AntDesign name="user" size={19} color={primaryColor} style={styles.icon} />
-            <TextInput
-              style={styles.textInput}
-              maxLength={30}
-              placeholder="Username"
-              placeholderTextColor={colorTextHolder}
-              onChangeText={(text) => onChangeUser(text)}
-              autoCapitalize="none"
-              value={user}
-            />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.container}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <Image source={BACKGROUND_IMG} style={styles.img} />
+            <Text style={{ fontSize: 33, fontWeight: '700', color: '#000' }}>UIT</Text>
           </View>
-        </View>
-        <View style={{ paddingVertical: SPACING * 2 }}>
-          <View style={styles.inputContainer}>
-            <AntDesign name="lock" size={19} color={primaryColor} style={styles.icon} />
-            <TextInput
-              style={styles.textInput}
-              secureTextEntry={true}
-              maxLength={30}
-              placeholder="Password"
-              placeholderTextColor={colorTextHolder}
-              onChangeText={(text) => onChangePassword(text)}
-              value={password}
-            />
+          <View style={{ margin: SPACING, opacity: 0.45 }}>
+            <Text style={{ color: colorText }}>Human Resource Management Application</Text>
           </View>
-        </View>
-        {/* <View style={styles.button}> */}
-        <AsyncButton
-          style={styles.button}
-          title="Login"
-          onSubmit={checkLogin}
-          color="white"
-          errorMsg="Error Login"
-        />
-      </KeyboardAvoidingView>
-
-      {/* Bottom */}
-      <Text
-        style={{ textAlign: 'center', color: colorText, opacity: 0.6, marginBottom: SPACING * 2 }}
-      >
-        Copyright © 2021 Dung Loi Team
-      </Text>
+          {/* Input */}
+          <View style={{ paddingTop: SPACING * 3, borderRadius: BORDER_RADIUS }}>
+            <View style={styles.inputContainer}>
+              <AntDesign name="user" size={19} color={primaryColor} style={styles.icon} />
+              <TextInput
+                style={styles.textInput}
+                maxLength={30}
+                placeholder="Username"
+                placeholderTextColor={colorTextHolder}
+                onChangeText={(text) => onChangeUser(text)}
+                autoCapitalize="none"
+                value={user}
+              />
+            </View>
+          </View>
+          <View style={{ paddingVertical: SPACING * 2 }}>
+            <View style={styles.inputContainer}>
+              <AntDesign name="lock" size={19} color={primaryColor} style={styles.icon} />
+              <TextInput
+                style={styles.textInput}
+                secureTextEntry={true}
+                maxLength={30}
+                placeholder="Password"
+                placeholderTextColor={colorTextHolder}
+                onChangeText={(text) => onChangePassword(text)}
+                value={password}
+              />
+            </View>
+          </View>
+          {/* <View style={styles.button}> */}
+          <AsyncButton
+            style={styles.button}
+            title="Login"
+            onSubmit={checkLogin}
+            color="white"
+            errorMsg="Error Login"
+          />
+        </KeyboardAvoidingView>
+        {/* Bottom */}
+        <Text
+          style={{ textAlign: 'center', color: colorText, opacity: 0.6, marginBottom: SPACING * 2 }}
+        >
+          Copyright © 2021 Dung Loi Team
+        </Text>
+      </WithBackground>
     </SafeAreaView>
   );
 };

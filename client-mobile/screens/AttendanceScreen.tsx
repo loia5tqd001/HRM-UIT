@@ -1,7 +1,7 @@
 import { usePermissions } from 'expo-permissions';
 import * as Permissions from 'expo-permissions';
 import * as React from 'react';
-import { ActivityIndicator, Alert, Button, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Button, ImageBackground, StyleSheet, View } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CameraComponents from '../components/CameraComponents';
@@ -10,7 +10,7 @@ import DetailInformation from '../components/DetailInformation';
 import Header from '../components/Header';
 import { Text } from '../components/Themed';
 import { primaryColor } from '../constants/Colors';
-import { ICON_IMG, SPACING } from '../constants/Layout';
+import { BACKGROUND, ICON_IMG, SPACING } from '../constants/Layout';
 import { AuthContext } from '../Context/AuthContext';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import ModalClockIn from '../components/ModalClockIn';
@@ -21,6 +21,7 @@ import { getPreciseDistance } from 'geolib';
 import axios from '../commons/axios';
 import moment from 'moment';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
+import { WithBackground } from './../components/WithBackground';
 
 interface EmployeeAttendance {
   id: number;
@@ -162,89 +163,89 @@ export default function AttendanceScreen({ navigation }: { navigation: any }) {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Header navigation={navigation} />
-      {!isReady ? (
-        <View
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <ActivityIndicator style={{ width: 100, height: 100 }} />
-        </View>
-      ) : (
-        <View style={styles.container}>
-          <Text style={{ color: '#ff4d4f' }}>
-            <FontAwesome name="map-marker" />{' '}
-            {outside ? 'Outside working area' : attendanceState.location!.name}
-          </Text>
-          <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-            <Text style={{ fontSize: 13, fontWeight: '400', marginTop: SPACING * 2 }}>
-              {attendanceState.last_action
-                ? `Last activity: ${attendanceState.last_action} at ${moment(
-                    attendanceState.last_action_at,
-                  ).format('HH:mm')}`
-                : 'No activities to day yet...'}
+      <WithBackground>
+        <Header navigation={navigation} />
+        {!isReady ? (
+          <View
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <ActivityIndicator style={{ width: 100, height: 100 }} />
+          </View>
+        ) : (
+          <View style={styles.container}>
+            <Text style={{ color: '#ff4d4f' }}>
+              <FontAwesome name="map-marker" />{' '}
+              {outside ? 'Outside working area' : attendanceState.location!.name}
             </Text>
-            <Text style={{ fontSize: 18, fontWeight: '500' }}>
-              Tap on camera{' '}
-              <Text style={{ fontSize: 13, fontWeight: '400' }}>
-                to {attendanceState.next_step}
+            <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+              <Text style={{ fontSize: 13, fontWeight: '400', marginTop: SPACING * 2 }}>
+                {attendanceState.last_action
+                  ? `Last activity: ${attendanceState.last_action} at ${moment(
+                      attendanceState.last_action_at,
+                    ).format('HH:mm')}`
+                  : 'No activities to day yet...'}
               </Text>
-            </Text>
-            <Text></Text>
-            {/* Body */}
-
-            <CameraComponents
+              <Text style={{ fontSize: 18, fontWeight: '500' }}>
+                Tap on camera{' '}
+                <Text style={{ fontSize: 13, fontWeight: '400' }}>
+                  to {attendanceState.next_step}
+                </Text>
+              </Text>
+              <Text></Text>
+              {/* Body */}
+              <CameraComponents
+                nextStep={attendanceState.next_step}
+                setNextStep={setNextStep}
+                onSuccess={refreshAttendanceState}
+                location={{
+                  lat: currentLocation?.latitude,
+                  lng: currentLocation?.longitude,
+                }}
+              />
+              {/* Modal Clock */}
+              {!appConfig?.require_face_id && (
+                <TouchableOpacity
+                  onPress={() => {
+                    if (outside && !attendanceState.location?.allow_outside) {
+                      Alert.alert('Your office does not allow to work outside designated area!');
+                      return;
+                    }
+                    modalClockInRef.current?.openModal();
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontWeight: '500',
+                      color: primaryColor,
+                      marginTop: SPACING,
+                      padding: SPACING,
+                    }}
+                  >
+                    Or, {attendanceState.next_step} manually?
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </ScrollView>
+            <ModalClockIn
+              ref={modalClockInRef}
+              outside={outside}
               nextStep={attendanceState.next_step}
-              setNextStep={setNextStep}
-              onSuccess={refreshAttendanceState}
               location={{
                 lat: currentLocation?.latitude,
                 lng: currentLocation?.longitude,
               }}
+              onSuccess={refreshAttendanceState}
             />
-            {/* Modal Clock */}
-
-            {!appConfig?.require_face_id && (
-              <TouchableOpacity
-                onPress={() => {
-                  if (outside && !attendanceState.location?.allow_outside) {
-                    Alert.alert('Your office does not allow to work outside designated area!');
-                    return;
-                  }
-                  modalClockInRef.current?.openModal();
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: '500',
-                    color: primaryColor,
-                    marginTop: SPACING,
-                    padding: SPACING,
-                  }}
-                >
-                  Or, {attendanceState.next_step} manually?
-                </Text>
-              </TouchableOpacity>
-            )}
-          </ScrollView>
-          <ModalClockIn
-            ref={modalClockInRef}
-            outside={outside}
-            nextStep={attendanceState.next_step}
-            location={{
-              lat: currentLocation?.latitude,
-              lng: currentLocation?.longitude,
-            }}
-            onSuccess={refreshAttendanceState}
-          />
-        </View>
-      )}
+          </View>
+        )}
+      </WithBackground>
     </SafeAreaView>
   );
 }

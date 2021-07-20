@@ -4,6 +4,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import Header from '../components/Header';
 import ModalTimeOff from '../components/ModalTimeOff';
 import { ListHistory } from '../components/TimeoffHistory';
+import WithBackground from '../components/WithBackground';
 import { primaryColor } from '../constants/Colors';
 import { BORDER_RADIUS } from '../constants/Layout';
 
@@ -12,25 +13,26 @@ export default function TimeOffScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={StyleSheet.absoluteFillObject}>
-      <View style={styles.container}>
-        <Header navigation={navigation} />
-
-        <View style={styles.separator} />
-        <View
-          style={{
-            backgroundColor: primaryColor,
-            alignSelf: 'flex-end',
-            marginHorizontal: 25,
-            marginBottom: 10,
-            borderRadius: BORDER_RADIUS,
-          }}
-        >
-          <TouchableOpacity style={{ width: '100%' }} onPress={() => setShow(true)}>
-            <Text style={{ color: 'white', margin: 10 }}>+ New</Text>
-          </TouchableOpacity>
+      <WithBackground>
+        <View style={styles.container}>
+          <Header navigation={navigation} />
+          <View style={styles.separator} />
+          <View
+            style={{
+              backgroundColor: primaryColor,
+              alignSelf: 'flex-end',
+              marginHorizontal: 25,
+              marginBottom: 10,
+              borderRadius: BORDER_RADIUS,
+            }}
+          >
+            <TouchableOpacity style={{ width: '100%' }} onPress={() => setShow(true)}>
+              <Text style={{ color: 'white', margin: 10 }}>+ New</Text>
+            </TouchableOpacity>
+          </View>
+          <ListHistory show={show} setShow={setShow} />
         </View>
-        <ListHistory show={show} setShow={setShow} />
-      </View>
+      </WithBackground>
     </SafeAreaView>
   );
 }

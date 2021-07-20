@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import DetailInformation from '../components/DetailInformation';
 import Header from '../components/Header';
+import WithBackground from '../components/WithBackground';
 import { GET_WIDTH } from '../constants/config';
 import {
   ATTENDANCE_ICON,
@@ -32,11 +33,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         flex: 1,
       }}
     >
-      <ImageBackground
-        source={BACKGROUND}
-        style={{ width: '100%', height: '100%' }}
-        resizeMode="cover"
-      >
+      <WithBackground>
         <View style={{ height: 50 }}>
           <Header navigation={navigation} />
         </View>
@@ -78,7 +75,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
             </Text>
           </TouchableOpacity>
         </View>
-      </ImageBackground>
+      </WithBackground>
     </SafeAreaView>
   );
 };
